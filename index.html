@@ -321,9 +321,9 @@ body {
 .bill-list { padding: 4px 0; min-height: 30px; }
 .bill-row {
   display: grid;
-  grid-template-columns: 18px 1fr 90px 120px 22px 22px;
+  grid-template-columns: 20px 18px 1fr 90px 120px 22px 22px;
   align-items: center;
-  padding: 6px 12px 6px 10px; gap: 6px;
+  padding: 6px 12px 6px 6px; gap: 6px;
   border-bottom: 1px solid #f0f4f8; transition: background 0.12s;
   cursor: default; user-select: none;
 }
@@ -333,12 +333,21 @@ body {
 .bill-row.selected { background: #dbeafe !important; }
 .bill-list-header {
   display: grid;
-  grid-template-columns: 18px 1fr 90px 120px 22px 22px;
-  padding: 4px 12px 4px 10px; gap: 6px;
+  grid-template-columns: 20px 18px 1fr 90px 120px 22px 22px;
+  padding: 4px 12px 4px 6px; gap: 6px;
   font-size: 0.68rem; font-weight: 700; color: #9ca3af;
   text-transform: uppercase; letter-spacing: 0.4px;
   border-bottom: 2px solid #f0f4f8;
 }
+/* Select handle — the tappable zone */
+.row-handle {
+  width: 20px; height: 100%; display: flex; align-items: center; justify-content: center;
+  color: #cbd5e1; font-size: 0.7rem; cursor: pointer; letter-spacing: -1px;
+  border-radius: 4px; flex-shrink: 0; padding: 6px 2px; margin: -6px 0;
+  transition: color 0.15s, background 0.15s;
+}
+.row-handle:hover { color: #7C3AED; background: #ede9fe; }
+.bill-row.selected .row-handle { color: #7C3AED; }
 .bill-check { width: 18px; height: 18px; cursor: pointer; accent-color: #1e3a5f; flex-shrink: 0; }
 .bill-name-input {
   border: none; background: transparent;
@@ -1003,17 +1012,29 @@ body {
 
 <!-- RIGHT-CLICK CONTEXT MENU -->
 <div id="ctx-menu">
-  <div class="ctx-item" onclick="ctxRun('sum')">∑ &nbsp;Sum selected</div>
+  <!-- Section 1: Properties -->
+  <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px">Properties</div>
+  <div class="ctx-item" onclick="ctxBulkPayTo()">🏦 &nbsp;Change Pay To…</div>
+  <div class="ctx-item" onclick="ctxBulkRecurring(true)">♻ &nbsp;Set all as Recurring</div>
+  <div class="ctx-item" onclick="ctxBulkRecurring(false)">✕ &nbsp;Set all as One-off</div>
+  <div class="ctx-item ctx-danger" onclick="ctxBulkDelete()">🗑 &nbsp;Delete selected</div>
+  <div class="ctx-divider"></div>
+  <!-- Section 2: Move -->
+  <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px">Move to…</div>
+  <div id="ctx-move-list" style="max-height:140px;overflow-y:auto"></div>
+  <div class="ctx-divider"></div>
+  <!-- Section 3: Calculate -->
+  <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px">Calculate</div>
+  <div class="ctx-item" onclick="ctxRun('sum')">∑ &nbsp;Sum</div>
   <div class="ctx-item" onclick="ctxRun('avg')">∅ &nbsp;Average</div>
   <div class="ctx-item" onclick="ctxRun('min')">↓ &nbsp;Min</div>
   <div class="ctx-item" onclick="ctxRun('max')">↑ &nbsp;Max</div>
   <div class="ctx-item" onclick="ctxRun('count')">＃ &nbsp;Count</div>
-  <div class="ctx-divider"></div>
   <div class="ctx-formula-row">
-    <input class="ctx-formula-input" id="ctx-formula-input" placeholder="e.g. SUM - SUM2" title="Select a second group then type formula">
+    <input class="ctx-formula-input" id="ctx-formula-input" placeholder="e.g. SUM * 0.5">
     <button class="ctx-formula-btn" onclick="ctxRunFormula()">= Go</button>
   </div>
-  <div style="padding:2px 12px 8px;font-size:0.7rem;color:#9ca3af">Tip: select rows, right-click → formula. Use SUM for first group, SUM2 for a second Ctrl+click group.</div>
+  <div style="padding:0 12px 8px;font-size:0.68rem;color:#9ca3af">Use SUM, AVG, MIN, MAX, COUNT as variables</div>
 </div>
 
 <!-- COMPUTATION PANEL -->
@@ -1633,14 +1654,14 @@ function buildPeriodCard(key, period, pi, canEdit) {
   const salaryAmt = state.settings.salary || 0;
   if (canEdit) {
     salaryRow.innerHTML = `
-      <span></span>
+      <span></span><span></span>
       <span class="bill-name-input" style="color:#059669;font-weight:600;pointer-events:none">Salary (fortnightly)</span>
       <input class="salary-inline-input" type="number" step="0.01" value="${salaryAmt.toFixed(2)}"
         onchange="state.settings.salary=parseFloat(this.value)||0;save();render()"
         title="Edit default salary">
       <span></span><span></span><span></span>`;
   } else {
-    salaryRow.innerHTML = `<span></span><span class="bill-name-input" style="color:#059669;font-weight:600;pointer-events:none">Salary (fortnightly)</span><span class="readonly-amount" style="color:#059669">$${salaryAmt.toFixed(2)}</span><span></span><span></span><span></span>`;
+    salaryRow.innerHTML = `<span></span><span></span><span class="bill-name-input" style="color:#059669;font-weight:600;pointer-events:none">Salary (fortnightly)</span><span class="readonly-amount" style="color:#059669">$${salaryAmt.toFixed(2)}</span><span></span><span></span><span></span>`;
   }
   incomeBody.appendChild(salaryRow);
 
@@ -1650,17 +1671,18 @@ function buildPeriodCard(key, period, pi, canEdit) {
   extraIncome.forEach(item => {
     const row = document.createElement('div'); row.className = 'bill-row';
     if (canEdit) {
+      const incAmt = item.amount ? parseFloat(item.amount).toFixed(2) : '';
       row.innerHTML = `
-        <span></span>
+        <span></span><span></span>
         <input class="bill-name-input" type="text" value="${esc(item.name)}" placeholder="e.g. Freelance"
           onchange="updateIncome('${key}',${pi},'${item.id}','name',this.value)">
-        <input class="bill-amount-input" type="number" step="0.01" value="${parseFloat(item.amount||0).toFixed(2)}"
+        <input class="bill-amount-input" type="number" step="0.01" value="${incAmt}" placeholder="0.00"
           onchange="updateIncome('${key}',${pi},'${item.id}','amount',this.value)">
         <span></span>
         <button class="recur-btn ${item.recurring?'on':''}" onclick="toggleIncomeRecurring('${key}',${pi},'${item.id}')">♻</button>
         <button class="del-btn" onclick="deleteIncome('${key}',${pi},'${item.id}')">×</button>`;
     } else {
-      row.innerHTML = `<span></span><span class="bill-name-input">${esc(item.name)}</span><span class="readonly-amount" style="color:#059669">$${parseFloat(item.amount||0).toFixed(2)}</span><span></span><span></span><span></span>`;
+      row.innerHTML = `<span></span><span></span><span class="bill-name-input">${esc(item.name)}</span><span class="readonly-amount" style="color:#059669">$${parseFloat(item.amount||0).toFixed(2)}</span><span></span><span></span><span></span>`;
     }
     extraDiv.appendChild(row);
   });
@@ -1692,7 +1714,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
 
   // Column header
   const colHeader = document.createElement('div'); colHeader.className = 'bill-list-header';
-  colHeader.innerHTML = `<span></span><span>Expense</span><span style="text-align:right">Amount</span><span>Pay to</span><span></span><span></span>`;
+  colHeader.innerHTML = `<span></span><span></span><span>Expense</span><span style="text-align:right">Amount</span><span>Pay to</span><span></span><span></span>`;
   outBody.appendChild(colHeader);
 
   const listDiv = document.createElement('div');
@@ -1705,29 +1727,44 @@ function buildPeriodCard(key, period, pi, canEdit) {
     row.dataset.key = key; row.dataset.pi = pi; row.dataset.billId = bill.id;
     row.dataset.amount = bill.amount || 0; row.dataset.name = bill.name || '';
 
+    // Build handle element (the dedicated tap/select zone)
+    const handle = document.createElement('div');
+    handle.className = 'row-handle';
+    handle.title = 'Click to select · Shift+click for range · Ctrl+click to add';
+    handle.innerHTML = '⋮⋮';
+    handle.addEventListener('click', (e) => { e.stopPropagation(); handleRowClick(e, row, key, pi, bill, billIdx, true); });
+
     if (canEdit) {
+      const amtVal = bill.amount ? parseFloat(bill.amount).toFixed(2) : '';
       const payToSel = `<select class="payto-select" onchange="handlePayToChange('${key}',${pi},'${bill.id}',this)" onclick="event.stopPropagation()">${getAccountOptions(bill.payTo)}</select>`;
       row.innerHTML = `
+        <span></span>
         <input type="checkbox" class="bill-check" ${bill.done?'checked':''} onchange="toggleDone('${key}',${pi},'${bill.id}',this.checked)" onclick="event.stopPropagation()">
         <input class="bill-name-input" type="text" value="${esc(bill.name)}" placeholder="Expense name"
           onchange="updateBill('${key}',${pi},'${bill.id}','name',this.value)" onclick="event.stopPropagation()">
-        <input class="bill-amount-input" type="number" step="0.01" value="${parseFloat(bill.amount||0).toFixed(2)}"
+        <input class="bill-amount-input" type="number" step="0.01" value="${amtVal}" placeholder="0.00"
           onchange="updateBill('${key}',${pi},'${bill.id}','amount',this.value)" onclick="event.stopPropagation()">
         ${payToSel}
         <button class="recur-btn ${bill.recurring?'on':''}" onclick="event.stopPropagation();toggleRecurring('${key}',${pi},'${bill.id}')">♻</button>
         <button class="del-btn" onclick="event.stopPropagation();deleteBill('${key}',${pi},'${bill.id}')">×</button>`;
+      row.children[0].replaceWith(handle);
     } else {
       row.innerHTML = `
+        <span></span>
         <input type="checkbox" class="bill-check" ${bill.done?'checked':''} disabled>
         <span class="bill-name-input" style="pointer-events:none">${esc(bill.name)}</span>
         <span class="readonly-amount">$${parseFloat(bill.amount||0).toFixed(2)}</span>
         <span class="readonly-payto">${esc(bill.payTo||'')}</span>
         <span class="recur-btn ${bill.recurring?'on':''}" style="pointer-events:none">♻</span>
         <span></span>`;
+      row.children[0].replaceWith(handle);
     }
 
-    // Row selection click handler
-    row.addEventListener('click', (e) => handleRowClick(e, row, key, pi, bill, billIdx));
+    // Row selection via handle or row body (not inputs)
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('.row-handle')) return; // handled above
+      handleRowClick(e, row, key, pi, bill, billIdx, false);
+    });
     row.addEventListener('contextmenu', (e) => handleRowRightClick(e, row));
     listDiv.appendChild(row);
   });
@@ -2115,9 +2152,9 @@ function renderPayables() {
 
 let calcHistory = [];
 
-function handleRowClick(e, row, key, pi, bill, billIdx) {
-  // Don't intercept clicks on inputs/checkboxes/buttons
-  if (['INPUT','SELECT','BUTTON'].includes(e.target.tagName)) return;
+function handleRowClick(e, row, key, pi, bill, billIdx, fromHandle=false) {
+  // Don't intercept clicks on inputs/checkboxes/buttons (unless from handle)
+  if (!fromHandle && ['INPUT','SELECT','BUTTON'].includes(e.target.tagName)) return;
 
   const rowData = { key, pi, billId: bill.id, amount: parseFloat(bill.amount)||0, name: bill.name||'', el: row };
 
@@ -2180,18 +2217,132 @@ function updateSelBadge() {
 function handleRowRightClick(e, row) {
   e.preventDefault();
   if (!selectedRows.length) {
-    // Auto-select this row if nothing selected
     const r = { key: row.dataset.key, pi: parseInt(row.dataset.pi), billId: row.dataset.billId,
       amount: parseFloat(row.dataset.amount)||0, name: row.dataset.name, el: row };
     selectedRows = [r]; row.classList.add('selected'); updateSelBadge();
   }
+  // Populate Move To list
+  buildMoveToList();
   const menu = document.getElementById('ctx-menu');
   menu.style.display = 'block';
   let x = e.clientX, y = e.clientY;
-  if (x + 210 > window.innerWidth) x = window.innerWidth - 215;
-  if (y + 220 > window.innerHeight) y = window.innerHeight - 225;
+  const mh = menu.offsetHeight || 400;
+  if (x + 220 > window.innerWidth) x = window.innerWidth - 225;
+  if (y + mh > window.innerHeight) y = Math.max(4, window.innerHeight - mh - 4);
   menu.style.left = x + 'px'; menu.style.top = y + 'px';
   document.getElementById('ctx-formula-input').value = '';
+}
+
+function buildMoveToList() {
+  const container = document.getElementById('ctx-move-list');
+  if (!container) return;
+  const months = Object.keys(state.months).sort();
+  if (!months.length) {
+    container.innerHTML = `<div style="padding:6px 16px;font-size:0.8rem;color:#9ca3af">No months created yet.<br>Go to Monthly View and create cards first.</div>`;
+    return;
+  }
+  const srcKey = selectedRows[0]?.key;
+  const srcPi  = selectedRows[0]?.pi;
+  let html = '';
+  months.forEach(key => {
+    const [y,m] = key.split('-').map(Number);
+    const label = MONTHS[m-1] + ' ' + y;
+    state.months[key].periods.forEach((p, pi) => {
+      if (key === srcKey && pi === srcPi) return; // skip source
+      html += `<div class="ctx-item" onclick="ctxMoveTo('${key}',${pi})">→ ${label} · P${pi+1} <span style="font-size:0.75rem;color:#9ca3af;margin-left:4px">${esc(p.date)}</span></div>`;
+    });
+  });
+  container.innerHTML = html || `<div style="padding:6px 16px;font-size:0.8rem;color:#9ca3af">No other periods available.</div>`;
+}
+
+// ── Bulk property actions ──
+function ctxBulkPayTo() {
+  document.getElementById('ctx-menu').style.display = 'none';
+  if (!selectedRows.length) return;
+  const accounts = state.accounts || DEFAULT_ACCOUNTS;
+  const opts = ['— Select account —', ...accounts, '＋ Add new…'].map((a,i)=>`${i===0?'':i===accounts.length+1?'__new__':a}`).join('\n');
+  // Build a quick select prompt via native prompt with list
+  const acct = prompt(`Change Pay To for ${selectedRows.length} row(s).\n\nAccounts:\n${accounts.map((a,i)=>`${i+1}. ${a}`).join('\n')}\n\nType account name or number:`);
+  if (!acct) return;
+  let resolved = acct.trim();
+  const idx = parseInt(resolved);
+  if (!isNaN(idx) && idx >= 1 && idx <= accounts.length) resolved = accounts[idx-1];
+  if (!accounts.includes(resolved)) {
+    if (!confirm(`"${resolved}" is not in your list. Add it?`)) return;
+    state.accounts.push(resolved);
+  }
+  selectedRows.forEach(r => {
+    const bill = getBill(r.key, r.pi, r.billId);
+    if (bill) bill.payTo = resolved;
+  });
+  save(); render();
+  showToast(`✓ Pay To updated for ${selectedRows.length} item(s)`);
+}
+
+function ctxBulkRecurring(val) {
+  document.getElementById('ctx-menu').style.display = 'none';
+  selectedRows.forEach(r => {
+    const bill = getBill(r.key, r.pi, r.billId);
+    if (bill) bill.recurring = val;
+  });
+  save(); render();
+  showToast(`✓ ${selectedRows.length} item(s) set to ${val?'Recurring':'One-off'}`);
+}
+
+function ctxBulkDelete() {
+  document.getElementById('ctx-menu').style.display = 'none';
+  if (!selectedRows.length) return;
+  if (!confirm(`Delete ${selectedRows.length} selected item(s)?`)) return;
+  // Group by key+pi for efficient deletion
+  const groups = {};
+  selectedRows.forEach(r => {
+    const k = `${r.key}|${r.pi}`;
+    if (!groups[k]) groups[k] = { key: r.key, pi: r.pi, ids: [] };
+    groups[k].ids.push(r.billId);
+  });
+  Object.values(groups).forEach(g => {
+    const p = getPeriod(g.key, g.pi);
+    if (p) p.bills = p.bills.filter(b => !g.ids.includes(b.id));
+  });
+  clearSelection();
+  save(); render();
+  showToast(`✓ ${Object.values(groups).reduce((t,g)=>t+g.ids.length,0)} item(s) deleted`);
+}
+
+function ctxMoveTo(destKey, destPi) {
+  document.getElementById('ctx-menu').style.display = 'none';
+  if (!selectedRows.length) return;
+  const destPeriod = getPeriod(destKey, destPi);
+  if (!destPeriod) { showToast('⚠ Destination period not found'); return; }
+
+  // Group source rows by key+pi
+  const groups = {};
+  selectedRows.forEach(r => {
+    const k = `${r.key}|${r.pi}`;
+    if (!groups[k]) groups[k] = { key: r.key, pi: r.pi, ids: [] };
+    groups[k].ids.push(r.billId);
+  });
+
+  // Move bills
+  const moved = [];
+  Object.values(groups).forEach(g => {
+    const srcPeriod = getPeriod(g.key, g.pi);
+    if (!srcPeriod) return;
+    g.ids.forEach(id => {
+      const bill = srcPeriod.bills.find(b => b.id === id);
+      if (bill) { moved.push({...bill, id: newId()}); }
+    });
+    srcPeriod.bills = srcPeriod.bills.filter(b => !g.ids.includes(b.id));
+  });
+  destPeriod.bills.push(...moved);
+
+  clearSelection();
+  save();
+  // Navigate to destination month if different
+  const [dy, dm] = destKey.split('-').map(Number);
+  curYear = dy; curMonth = dm - 1;
+  render();
+  showToast(`✓ Moved ${moved.length} item(s) to ${MONTHS[dm-1]} ${dy} · P${destPi+1}`);
 }
 
 document.addEventListener('click', (e) => {
