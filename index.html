@@ -2697,7 +2697,19 @@ function openAllocateModal(payableId) {
   const entry=(pState.entries||[]).find(x=>x.id===payableId);
   const amtEl=document.getElementById('alloc-modal-amount');
   if(amtEl) amtEl.textContent=entry?pFmt(pMyShare(entry)):'';
-  const months=Object.keys(state.months).sort();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const months = Object.keys(state.months).sort().filter(key => {
+    const month = state.months[key];
+    // Exclude month only if EVERY period is both past-dated AND fully ticked off
+    return !(month.periods || []).every(p => {
+      const d = parsePeriodDate(p.date);
+      const isPast = d && d < today;
+      const bills = p.bills || [];
+      const goals = getSavingsGoals(p);
+      const allDone = [...bills, ...goals].length > 0 && [...bills, ...goals].every(b => b.done);
+      return isPast && allDone;
+    });
+  });
   document.getElementById('alloc-month-list').innerHTML=months.length
     ?months.map(key=>{const[y,m]=key.split('-').map(Number);return`<button class="move-month-btn" onclick="allocSelectMonth('${key}')">${MONTHS[m-1]} ${y}</button>`;}).join('')
     :'<p style="color:#9ca3af;font-size:0.82rem">No budget months found. Go to <strong>Monthly budget</strong> tab and create a month first, then come back to allocate.</p>';
