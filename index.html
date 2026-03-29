@@ -1629,14 +1629,25 @@ function defaultDates(y, m) {
   return [`${Math.min(11,dm)} ${mo} ${y}`, `${Math.min(25,dm)} ${mo} ${y}`];
 }
 
+// Parse a date string in "D Mon YYYY" format (e.g. "25 Mar 2026") reliably.
+function parsePeriodDate(str) {
+  if (!str) return null;
+  const months = { Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11 };
+  const m = str.trim().match(/^(\d{1,2})\s+(\w{3})\s+(\d{4})$/);
+  if (!m) return null;
+  const d = parseInt(m[1]), mon = months[m[2]], yr = parseInt(m[3]);
+  if (mon === undefined || isNaN(d) || isNaN(yr)) return null;
+  return new Date(yr, mon, d);
+}
+
 // Returns dates for a new month by adding 14 days to each period date of the previous month.
 // Falls back to defaultDates if prev period dates can't be parsed.
 function nextDatesFromPrev(prevPeriods, y, m) {
   const fallback = defaultDates(y, m);
   if (!prevPeriods || !prevPeriods.length) return fallback;
   return prevPeriods.map((p, pi) => {
-    const parsed = new Date(p.date);
-    if (isNaN(parsed.getTime())) return fallback[pi] ?? fallback[fallback.length - 1];
+    const parsed = parsePeriodDate(p.date);
+    if (!parsed) return fallback[pi] ?? fallback[fallback.length - 1];
     const next = new Date(parsed.getTime() + 14 * 24 * 60 * 60 * 1000);
     return next.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
   });
