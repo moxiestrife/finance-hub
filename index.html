@@ -1608,6 +1608,7 @@ function getSortedBills(bills, sortKey) {
     if (col === 'payTo' || s === 'default') {
       const diff = payToRank(a.payTo) - payToRank(b.payTo);
       if (diff !== 0) return s === 'default' ? diff : diff * dir;
+      if (s === 'default') return (parseFloat(b.amount)||0) - (parseFloat(a.amount)||0); // secondary: amount high→low
       return (a.name||'').localeCompare(b.name||'');
     }
     if (col === 'name')      return (a.name||'').localeCompare(b.name||'') * dir;
