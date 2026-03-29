@@ -713,143 +713,125 @@ body {
 /* ═══════════════════════════════════════
    PAYABLES STYLES
 ═══════════════════════════════════════ */
-.payables-subtab-bar {
-  display: flex; gap: 6px; margin-bottom: 20px;
-  background: white; border-radius: 12px;
-  padding: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-.subtab-btn {
-  flex: 1; padding: 10px 20px; border: none;
-  background: transparent; color: var(--muted-col);
-  border-radius: 8px; cursor: pointer;
-  font-size: 0.9rem; font-weight: 600;
-  transition: all 0.15s; position: relative; font-family: inherit;
-}
-.subtab-btn:hover { background: #f8fafc; }
-.subtab-btn.active-elly { background: var(--elly-light); color: var(--elly); }
-.subtab-btn.active-eric { background: var(--eric-light); color: var(--eric); }
-.subtab-btn .s-badge {
-  position: absolute; top: 4px; right: 8px;
-  background: #EF4444; color: white;
-  font-size: 0.65rem; font-weight: 700;
-  border-radius: 999px; padding: 1px 5px;
-  min-width: 16px; text-align: center;
-}
+.payables-content { max-width: 900px; margin: 0 auto; }
 
-.payables-content { max-width: 820px; margin: 0 auto; }
-
-.p-card {
-  background: var(--surface); border-radius: var(--radius);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border: 1px solid var(--border-col);
-  padding: 20px; margin-bottom: 20px;
+/* Owing card */
+.p-owing-card {
+  background: #1e3a5f; color: white; border-radius: 14px;
+  padding: 20px 24px; margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(30,58,95,0.25);
 }
-.p-card-title {
-  font-size: 1rem; font-weight: 700;
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 16px;
+.p-owing-left .p-owing-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; }
+.p-owing-left .p-owing-amount { font-size: 2.2rem; font-weight: 800; margin-top: 2px; }
+.p-owing-left .p-owing-sub { font-size: 0.8rem; opacity: 0.7; margin-top: 2px; }
+.p-owing-right { text-align: right; }
+.p-eric-peek { font-size: 0.78rem; opacity: 0.75; cursor: pointer; text-decoration: underline; margin-top: 6px; display: block; }
+.p-eric-peek:hover { opacity: 1; }
+
+/* Add form */
+.p-add-card {
+  background: white; border-radius: 12px; border: 1px solid #e2e8f0;
+  padding: 18px 20px; margin-bottom: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-
-.p-totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.p-total-box { border-radius: 10px; padding: 14px 16px; }
-.p-total-box.elly-box { background: var(--elly-light); border: 1px solid #C4B5FD; }
-.p-total-box.eric-box { background: var(--eric-light); border: 1px solid #BAE6FD; }
-.p-total-box .p-tlabel { font-size: 0.78rem; font-weight: 600; color: var(--muted-col); text-transform: uppercase; letter-spacing: 0.04em; display: block; }
-.p-total-box .p-amount { font-size: 1.6rem; font-weight: 800; margin-top: 2px; }
-.p-total-box.elly-box .p-amount { color: var(--elly); }
-.p-total-box.eric-box .p-amount { color: var(--eric); }
-.p-total-box small { font-size: 0.78rem; color: var(--muted-col); }
-
-.p-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.p-form-row { display: flex; flex-direction: column; gap: 4px; }
-.p-form-row.full { grid-column: 1 / -1; }
-.p-flabel { font-size: 0.82rem; font-weight: 600; color: var(--muted-col); display: block; margin-bottom: 4px; }
+.p-add-title { font-size: 0.9rem; font-weight: 700; color: #1e3a5f; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+.p-form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; align-items: end; }
+.p-form-col { display: flex; flex-direction: column; gap: 4px; }
+.p-form-col.full { grid-column: 1 / -1; }
+.p-flabel { font-size: 0.72rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.4px; }
 .p-input {
-  width: 100%; padding: 9px 12px;
-  border: 1.5px solid var(--border-col); border-radius: 8px;
-  font-size: 0.95rem; color: #1a202c;
-  background: #f8fafc; outline: none;
-  transition: border-color 0.15s; font-family: inherit;
+  padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+  font-size: 0.875rem; color: #1a202c; background: #f8fafc;
+  outline: none; transition: border-color 0.15s; font-family: inherit; width: 100%; box-sizing: border-box;
 }
-.p-input:focus { border-color: var(--elly); }
-
+.p-input:focus { border-color: #1e3a5f; background: white; }
+.p-add-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
 .p-btn {
-  padding: 10px 20px; border: none; border-radius: 8px;
-  font-size: 0.92rem; font-weight: 700;
-  cursor: pointer; transition: all 0.15s; font-family: inherit;
+  padding: 9px 18px; border: none; border-radius: 8px;
+  font-size: 0.875rem; font-weight: 600; cursor: pointer;
+  transition: all 0.15s; font-family: inherit;
 }
-.p-btn-primary { background: var(--elly); color: white; }
-.p-btn-primary:hover { filter: brightness(1.1); }
-.p-btn-notify  { background: var(--eric); color: white; margin-left: 8px; }
-.p-btn-notify:hover { filter: brightness(1.1); }
-.p-btn-sm      { padding: 5px 12px; font-size: 0.82rem; }
-.p-btn-danger  { background: var(--danger-light); color: var(--danger); }
-.p-btn-danger:hover { background: var(--danger); color: white; }
-.p-btn-export  { background: #F1F5F9; color: var(--muted-col); border: 1px solid var(--border-col); }
-.p-btn-export:hover { background: var(--border-col); }
-.p-form-actions { display: flex; align-items: center; margin-top: 14px; flex-wrap: wrap; gap: 8px; }
+.p-btn-primary { background: #1e3a5f; color: white; }
+.p-btn-primary:hover { background: #2d5a9e; }
+.p-btn-ghost { background: #f1f5f9; color: #374151; border: 1px solid #e2e8f0; }
+.p-btn-ghost:hover { background: #e2e8f0; }
+.p-btn-danger { background: #fee2e2; color: #dc2626; }
+.p-btn-danger:hover { background: #fecaca; }
+.p-split-hint { font-size: 0.78rem; color: #6b7280; margin-left: 4px; }
 
-.payable-item {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 14px; border-radius: 10px;
-  border: 1.5px solid var(--border-col);
-  margin-bottom: 10px; background: var(--surface);
-  transition: all 0.15s;
+/* Payables list */
+.p-list-card {
+  background: white; border-radius: 12px; border: 1px solid #e2e8f0;
+  margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden;
 }
-.payable-item.done { opacity: 0.5; background: #f8fafc; }
-.payable-item.elly-item   { border-left: 4px solid var(--elly); }
-.payable-item.eric-item   { border-left: 4px solid var(--eric); }
-.payable-item.shared-item { border-left: 4px solid var(--shared); }
-.payable-check {
-  width: 22px; height: 22px; border-radius: 6px;
-  border: 2px solid var(--border-col);
-  cursor: pointer; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  margin-top: 2px; transition: all 0.15s; background: white;
+.p-list-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-bottom: 2px solid #f0f4f8;
 }
-.payable-check:hover { border-color: var(--elly); }
-.payable-check.checked { background: var(--shared); border-color: var(--shared); }
-.payable-check.checked::after { content: '✓'; color: white; font-size: 13px; font-weight: 700; }
-.payable-body { flex: 1; min-width: 0; }
-.payable-name { font-weight: 700; font-size: 0.98rem; }
-.payable-meta { font-size: 0.8rem; color: var(--muted-col); margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.payable-amount { font-size: 1.1rem; font-weight: 800; flex-shrink: 0; }
-.payable-amount.elly-amt { color: var(--elly); }
-.payable-amount.eric-amt { color: var(--eric); }
+.p-list-header h3 { font-size: 0.95rem; font-weight: 700; color: #1e3a5f; }
+.p-list-col-header {
+  display: grid; grid-template-columns: 24px 1fr 90px 120px 100px 28px;
+  padding: 6px 14px; gap: 8px;
+  font-size: 0.68rem; font-weight: 700; color: #9ca3af;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  border-bottom: 1px solid #f0f4f8; background: #fafafa;
+}
+.p-row {
+  display: grid; grid-template-columns: 24px 1fr 90px 120px 100px 28px;
+  align-items: center; padding: 9px 14px; gap: 8px;
+  border-bottom: 1px solid #f8fafc; transition: background 0.1s;
+}
+.p-row:last-child { border-bottom: none; }
+.p-row:hover { background: #f8fafc; }
+.p-row.is-done { opacity: 0.45; }
+.p-row.is-done .p-row-name { text-decoration: line-through; color: #9ca3af; }
+.p-check { width: 18px; height: 18px; cursor: pointer; accent-color: #1e3a5f; flex-shrink: 0; }
+.p-row-name { font-size: 0.875rem; color: #1a202c; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-row-amount { font-size: 0.875rem; font-weight: 700; color: #1e3a5f; text-align: right; }
+.p-row-payto { font-size: 0.78rem; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-row-meta { display: flex; flex-direction: column; gap: 2px; }
+.p-split-badge {
+  display: inline-block; font-size: 0.65rem; font-weight: 700;
+  padding: 1px 6px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.p-split-mine   { background: #ede9fe; color: #5b21b6; }
+.p-split-shared { background: #dcfce7; color: #166534; }
+.p-alloc-badge {
+  font-size: 0.65rem; color: #6b7280; background: #f1f5f9;
+  padding: 1px 6px; border-radius: 999px; white-space: nowrap;
+}
+.p-alloc-badge.linked { background: #dbeafe; color: #1d4ed8; cursor: pointer; }
+.p-row-actions { display: flex; gap: 4px; }
+.p-action-btn {
+  background: none; border: none; cursor: pointer; font-size: 0.85rem;
+  color: #cbd5e1; padding: 2px 4px; border-radius: 4px; line-height: 1;
+}
+.p-action-btn:hover { color: #374151; background: #f1f5f9; }
+.p-action-btn.danger:hover { color: #dc2626; background: #fee2e2; }
 
-.pill { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
-.pill-elly   { background: var(--elly-light);   color: var(--elly); }
-.pill-eric   { background: var(--eric-light);   color: var(--eric); }
-.pill-shared { background: var(--shared-light); color: var(--shared); }
-.pill-acct   { background: #f1f5f9; color: var(--muted-col); }
-.pill-new    { background: var(--warn-light); color: #92400E; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
-.done-label { font-size: 0.78rem; color: var(--shared); font-weight: 600; }
-.done-date  { font-size: 0.72rem; color: var(--muted-col); }
+/* Completed collapsed section */
+.p-completed-toggle {
+  display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+  cursor: pointer; font-size: 0.82rem; font-weight: 600; color: #6b7280;
+  background: #fafafa; border-top: 1px solid #f0f4f8;
+  user-select: none;
+}
+.p-completed-toggle:hover { background: #f1f5f9; }
+.p-completed-toggle .p-comp-arrow { transition: transform 0.2s; }
+.p-completed-toggle.open .p-comp-arrow { transform: rotate(90deg); }
 
-.p-del-btn { background: none; border: none; cursor: pointer; font-size: 1rem; color: #CBD5E1; padding: 2px 4px; border-radius: 4px; flex-shrink: 0; }
-.p-del-btn:hover { color: var(--danger); background: var(--danger-light); }
+/* Eric peek modal content */
+.p-eric-peek-total { font-size: 1.6rem; font-weight: 800; color: #0ea5e9; text-align: center; padding: 8px 0 4px; }
+.p-eric-peek-sub   { font-size: 0.82rem; color: #6b7280; text-align: center; margin-bottom: 14px; }
 
-.p-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
-.p-section-head h2 { font-size: 1.05rem; font-weight: 700; }
+.p-empty { text-align: center; padding: 28px 20px; color: #9ca3af; font-size: 0.875rem; }
 
-.p-empty { text-align: center; padding: 32px 20px; color: var(--muted-col); font-size: 0.9rem; }
-.p-empty .icon { font-size: 2.5rem; margin-bottom: 8px; }
-
-.p-filter-bar { display: flex; gap: 8px; flex-wrap: wrap; }
-.p-filter-btn { padding: 5px 14px; border-radius: 999px; border: 1.5px solid var(--border-col); background: var(--surface); color: var(--muted-col); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
-.p-filter-btn.fa-elly { border-color: var(--elly); background: var(--elly-light); color: var(--elly); }
-.p-filter-btn.fa-eric { border-color: var(--eric); background: var(--eric-light); color: var(--eric); }
-
-.p-data-tools { display: flex; gap: 8px; flex-wrap: wrap; }
-.p-hidden-file { display: none; }
-
-.p-notify-banner { background: var(--eric-light); border: 1.5px solid #BAE6FD; border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; font-size: 0.88rem; }
-.p-notify-banner strong { color: var(--eric); }
-
-@media (max-width: 520px) {
-  .p-form-grid   { grid-template-columns: 1fr; }
-  .p-totals-grid { grid-template-columns: 1fr; }
+@media (max-width: 600px) {
+  .p-form-grid { grid-template-columns: 1fr 1fr; }
+  .p-list-col-header, .p-row { grid-template-columns: 24px 1fr 80px 90px 22px; }
+  .p-list-col-header span:nth-child(4), .p-row .p-row-meta { display: none; }
 }
 </style>
 </head>
@@ -1011,145 +993,80 @@ body {
 
   <!-- ── PAYABLES TAB ── -->
   <div class="tab-content" id="tab-payables">
+    <div class="payables-content" id="payables-main-view">
 
-    <!-- Sub-tab bar (Elly only — Eric goes straight to his view) -->
-    <div class="payables-subtab-bar" id="payables-subtab-bar">
-      <button class="subtab-btn active-elly" onclick="switchPayablesView('elly')" id="subtab-btn-elly">🟣 Elly's View</button>
-      <button class="subtab-btn" onclick="switchPayablesView('eric')" id="subtab-btn-eric">
-        🔵 Eric's View
-        <span class="s-badge" id="eric-badge" style="display:none"></span>
-      </button>
-    </div>
-
-    <!-- Elly's View -->
-    <div id="payables-elly-view" class="payables-content">
-
-      <div class="p-card">
-        <div class="p-card-title">📊 Outstanding Balances</div>
-        <div class="p-totals-grid">
-          <div class="p-total-box elly-box">
-            <span class="p-tlabel">🟣 Elly Owes</span>
-            <div class="p-amount" id="elly-total">$0.00</div>
-            <small id="elly-count">0 items pending</small>
-          </div>
-          <div class="p-total-box eric-box">
-            <span class="p-tlabel">🔵 Eric Owes</span>
-            <div class="p-amount" id="eric-total">$0.00</div>
-            <small id="eric-count">0 items pending</small>
-          </div>
+      <!-- Owing card -->
+      <div class="p-owing-card" id="p-owing-card">
+        <div class="p-owing-left">
+          <div class="p-owing-label" id="p-owing-label">I owe</div>
+          <div class="p-owing-amount" id="p-owing-amount">$0.00</div>
+          <div class="p-owing-sub" id="p-owing-sub">0 items pending</div>
+        </div>
+        <div class="p-owing-right" id="p-owing-right" style="display:none">
+          <div style="font-size:0.72rem;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.4px">Eric owes</div>
+          <div style="font-size:1.3rem;font-weight:800;margin-top:2px" id="p-eric-owing-amt">$0.00</div>
+          <div style="font-size:0.72rem;opacity:0.65" id="p-eric-owing-sub">0 items</div>
+          <a class="p-eric-peek" onclick="openEricPeek()">View Eric's list →</a>
         </div>
       </div>
 
-      <div class="p-card">
-        <div class="p-card-title">➕ Add New Payable</div>
+      <!-- Add form -->
+      <div class="p-add-card" id="p-add-card" style="display:none">
+        <div class="p-add-title">＋ Add payable</div>
         <div class="p-form-grid">
-          <div class="p-form-row full">
-            <span class="p-flabel">Description</span>
-            <input type="text" class="p-input" id="f-desc" placeholder="e.g. Topped up Savings for Elly's new phone">
+          <div class="p-form-col" style="grid-column:1/3">
+            <label class="p-flabel">Expense name</label>
+            <input class="p-input" id="pf-name" placeholder="e.g. Energy bill">
           </div>
-          <div class="p-form-row">
-            <span class="p-flabel">Amount Borrowed ($)</span>
-            <input type="number" class="p-input" id="f-amount" min="0.01" step="0.01" placeholder="0.00">
+          <div class="p-form-col">
+            <label class="p-flabel">Full amount ($)</label>
+            <input class="p-input" type="number" id="pf-amount" step="0.01" placeholder="0.00" oninput="pUpdateSplitHint()">
           </div>
-          <div class="p-form-row">
-            <span class="p-flabel">Account Borrowed From</span>
-            <select class="p-input" id="f-account">
-              <option value="">— Select account —</option>
-              <option value="Joint Bills">Joint Bills Account</option>
-              <option value="Joint Grocery">Joint Grocery Account</option>
-              <option value="Savings">Savings Account</option>
-              <option value="Offset">Offset Account</option>
+          <div class="p-form-col">
+            <label class="p-flabel">Split</label>
+            <select class="p-input" id="pf-split" onchange="pUpdateSplitHint()">
+              <option value="shared">Shared (50/50)</option>
+              <option value="mine">Mine only</option>
+              <option value="eric">Eric only</option>
             </select>
           </div>
-          <div class="p-form-row">
-            <span class="p-flabel">Who Owes?</span>
-            <select class="p-input" id="f-owner" onchange="updateOwnerHint()">
-              <option value="">— Select —</option>
-              <option value="elly">🟣 Elly only</option>
-              <option value="eric">🔵 Eric only</option>
-              <option value="shared">🟢 Shared (50/50 split)</option>
-            </select>
+          <div class="p-form-col" style="grid-column:1/3">
+            <label class="p-flabel">Pay To account</label>
+            <select class="p-input" id="pf-payto"></select>
           </div>
-          <div class="p-form-row">
-            <span class="p-flabel">Date</span>
-            <input type="text" class="p-input" id="f-date" placeholder="e.g. 25 Mar 2026">
+          <div class="p-form-col">
+            <label class="p-flabel">Date incurred</label>
+            <input class="p-input" id="pf-date" placeholder="e.g. 25 Mar 2026">
+          </div>
+          <div class="p-form-col" style="grid-column:1/-1">
+            <span class="p-split-hint" id="pf-split-hint"></span>
           </div>
         </div>
-        <div id="owner-hint" style="font-size:0.82rem;color:var(--muted-col);margin-top:8px;"></div>
-        <div class="p-form-actions">
-          <button class="p-btn p-btn-primary" onclick="addPayable()">➕ Add Payable</button>
-          <button class="p-btn p-btn-notify" id="notify-btn" style="display:none" onclick="notifyEric()">📧 Notify Eric</button>
+        <div class="p-add-actions">
+          <button class="p-btn p-btn-primary" onclick="addPayable()">Save payable</button>
+          <button class="p-btn p-btn-ghost" onclick="document.getElementById('p-add-card').style.display='none'">Cancel</button>
         </div>
       </div>
 
-      <div class="p-card">
-        <div class="p-section-head">
-          <h2>🟣 My Payables</h2>
-          <div class="p-filter-bar">
-            <button class="p-filter-btn fa-elly" onclick="pSetFilter('elly','all',this)">All</button>
-            <button class="p-filter-btn" onclick="pSetFilter('elly','pending',this)">Pending</button>
-            <button class="p-filter-btn" onclick="pSetFilter('elly','done',this)">Paid</button>
-          </div>
+      <!-- Active payables list -->
+      <div class="p-list-card" id="p-active-card">
+        <div class="p-list-header">
+          <h3 id="p-list-title">My Payables</h3>
+          <button class="p-btn p-btn-primary" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">＋ Add</button>
         </div>
-        <div id="elly-list"></div>
+        <div class="p-list-col-header">
+          <span></span><span>Expense</span><span style="text-align:right">My share</span>
+          <span>Pay To</span><span>Allocation</span><span></span>
+        </div>
+        <div id="p-active-list"></div>
+        <!-- Completed collapsed section -->
+        <div class="p-completed-toggle" id="p-completed-toggle" onclick="pToggleCompleted()">
+          <span class="p-comp-arrow">›</span>
+          <span id="p-completed-label">Completed (0)</span>
+        </div>
+        <div id="p-completed-list" style="display:none"></div>
       </div>
 
-      <div class="p-card">
-        <div class="p-section-head">
-          <h2>🔵 Eric's Payables <span style="font-size:0.78rem;font-weight:400;color:var(--muted-col)">(preview)</span></h2>
-        </div>
-        <div id="elly-eric-preview"></div>
-      </div>
-
-      <div class="p-card">
-        <div class="p-card-title">🔧 Data Tools</div>
-        <div class="p-data-tools">
-          <button class="p-btn p-btn-export" onclick="exportPayables()">⬇ Export Payables</button>
-          <button class="p-btn p-btn-danger p-btn-sm" onclick="clearPayables()">🗑 Clear All</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Eric's View -->
-    <div id="payables-eric-view" class="payables-content" style="display:none">
-
-      <div class="p-card">
-        <div class="p-card-title">📊 Eric's Balance</div>
-        <div class="p-totals-grid">
-          <div class="p-total-box eric-box">
-            <span class="p-tlabel">🔵 I Owe</span>
-            <div class="p-amount" id="eric-total-2">$0.00</div>
-            <small id="eric-count-2">0 items pending</small>
-          </div>
-          <div class="p-total-box elly-box" style="opacity:0.65">
-            <span class="p-tlabel">🟣 Elly Owes</span>
-            <div class="p-amount" id="elly-total-2">$0.00</div>
-            <small>for reference</small>
-          </div>
-        </div>
-      </div>
-
-      <div class="p-card" id="eric-new-banner-card" style="display:none">
-        <div class="p-notify-banner">
-          <span style="font-size:1.4rem">🔔</span>
-          <div>
-            <strong>You have new items!</strong><br>
-            Elly has assigned you <span id="eric-new-count">0</span> new payable(s) since your last visit.
-          </div>
-        </div>
-      </div>
-
-      <div class="p-card">
-        <div class="p-section-head">
-          <h2>🔵 What I Owe</h2>
-          <div class="p-filter-bar">
-            <button class="p-filter-btn fa-eric" onclick="pSetFilter('eric','all',this)">All</button>
-            <button class="p-filter-btn" onclick="pSetFilter('eric','pending',this)">Pending</button>
-            <button class="p-filter-btn" onclick="pSetFilter('eric','done',this)">Paid</button>
-          </div>
-        </div>
-        <div id="eric-list"></div>
-      </div>
     </div>
   </div><!-- end tab-payables -->
 
@@ -1299,6 +1216,40 @@ body {
   </div>
 </div>
 
+<!-- ═══ MODAL: Allocate Payable to Budget Period ═══ -->
+<div class="modal-overlay" id="modal-allocate">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>📌 Allocate to Budget Period</h3>
+      <button class="modal-close" onclick="closeModal('modal-allocate')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Pick a month, then a pay period. This will add the expense to that period's bill list so you can tick it off there.</p>
+      <div id="alloc-month-list" class="move-month-list"></div>
+      <div id="alloc-period-list" class="move-period-list" style="display:none"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn ghost" onclick="closeModal('modal-allocate')">Cancel</button>
+      <button class="modal-btn primary" id="alloc-confirm-btn" onclick="confirmAllocate()" disabled style="opacity:0.4">Allocate</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Eric's Payables Peek ═══ -->
+<div class="modal-overlay" id="modal-eric-peek">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Eric's Payables</h3>
+      <button class="modal-close" onclick="closeModal('modal-eric-peek')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="p-eric-peek-total" id="eric-peek-total">$0.00</div>
+      <div class="p-eric-peek-sub" id="eric-peek-sub">0 items pending</div>
+      <div id="eric-peek-list"></div>
+    </div>
+  </div>
+</div>
+
 <!-- COMPUTATION PANEL -->
 <div id="calc-panel">
   <div class="calc-panel-header">
@@ -1378,11 +1329,12 @@ function applyRoleUI() {
   // Admin tab visible only to Elly
   document.getElementById('tab-btn-admin').style.display = isAdmin() ? '' : 'none';
 
-  // Eric only sees his own payables — sub-tabs and Elly's view hidden
+  // Eric: hide admin add button in payables
   if (isEric()) {
-    document.getElementById('payables-subtab-bar').style.display = 'none';
-    document.getElementById('payables-elly-view').style.display = 'none';
-    switchPayablesViewSilent('eric');
+    const addCard = document.getElementById('p-add-card');
+    if (addCard) addCard.style.display = 'none';
+    const ericRight = document.getElementById('p-owing-right');
+    if (ericRight) ericRight.style.display = 'none';
   }
 }
 
@@ -1462,10 +1414,8 @@ function listenPayables() {
   payablesUnsub = window._dbOnValue(dbPath(DB_PAYABLES_PATH), snap => {
     const val = snap.val();
     if (val) {
-      const prevLastSeen = pState.ericLastSeen;
-      pState = { ...val };
-      // Preserve local ericLastSeen so badge still works
-      if (isEric()) pState.ericLastSeen = prevLastSeen;
+      pState = { entries: [], ...val };
+      if (!Array.isArray(pState.entries)) pState.entries = Object.values(pState.entries||{});
       if (curTab === 'payables') renderPayables();
       updatePayablesBadge();
     }
@@ -2501,233 +2451,347 @@ function showToast(msg) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  PAYABLES TRACKER
+//  PAYABLES TRACKER  (v2)
 // ═══════════════════════════════════════════════════════════════
+// Data model per entry:
+// { id, name, fullAmount, myShare, split:'shared'|'mine'|'eric',
+//   payTo, date, createdAt, createdBy:'elly'|'eric',
+//   ellyDone, ellyDoneAt, ericDone, ericDoneAt,
+//   allocatedTo: null | { key, pi, billId } }
 
 const ERIC_EMAIL = 'ericdefelix@gmail.com';
+const ELLY_EMAIL = 'ellyhizon1@gmail.com';
 
-let pState = { entries: [], ericLastSeen: 0 };
+// ── State ──
+let pState = { entries: [] };
 let pIdSeq = Date.now() + 1000000;
 const pUid = () => 'p' + (++pIdSeq);
-let pFilters = { elly: 'all', eric: 'all' };
-let curPayablesView = 'elly';
+let pCompletedOpen = false;
+let _allocPayableId = null, _allocDestKey = null, _allocDestPi = null;
 
 function pSave() {
-  localStorage.setItem('payablesTrackerV1', JSON.stringify(pState));
+  try { localStorage.setItem('payablesV2', JSON.stringify(pState)); } catch(e) {}
   pushPayablesToFirebase();
 }
 function pLoad() {
-  const raw = localStorage.getItem('payablesTrackerV1');
-  if (raw) { try { pState = { ...pState, ...JSON.parse(raw) }; } catch(e) {} }
-}
-function exportPayables() {
-  const blob = new Blob([JSON.stringify(pState, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'payables-backup-' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-  showToast('✓ Payables exported!');
-}
-function clearPayables() {
-  if (!isAdmin()) return;
-  if (!confirm('Clear ALL payable data? This cannot be undone.')) return;
-  pState.entries = []; pSave(); renderPayables();
-}
-
-// Sub-tab switching
-function switchPayablesView(view) {
-  curPayablesView = view;
-  document.getElementById('payables-elly-view').style.display = view==='elly' ? '' : 'none';
-  document.getElementById('payables-eric-view').style.display = view==='eric' ? '' : 'none';
-  document.querySelectorAll('.subtab-btn').forEach(b => { b.classList.remove('active-elly','active-eric'); });
-  const btn = document.getElementById('subtab-btn-' + view);
-  if (btn) btn.classList.add('active-'+view);
-  if (view === 'eric') { pState.ericLastSeen = Date.now(); pSave(); }
-  renderPayables();
-}
-function switchPayablesViewSilent(view) {
-  curPayablesView = view;
-  document.getElementById('payables-elly-view').style.display = view==='elly' ? '' : 'none';
-  document.getElementById('payables-eric-view').style.display = view==='eric' ? '' : 'none';
-}
-
-// Entry helpers
-function getPEricEntries() {
-  const list = [];
-  (pState.entries || []).forEach(e => {
-    if (e.owner==='eric') list.push({ ...e, displayAmt: e.amount, _for: 'eric' });
-    else if (e.owner==='shared') list.push({ ...e, id:e.id+'_eric', displayAmt:e.amount/2, done:e.doneEric||false, doneAt:e.doneEricAt||null, _for:'eric', _raw:e.id });
-  });
-  return list;
-}
-function getPEllyEntries() {
-  const list = [];
-  pState.entries.forEach(e => {
-    if (e.owner==='elly') list.push({ ...e, displayAmt: e.amount, _for: 'elly' });
-    else if (e.owner==='shared') list.push({ ...e, id:e.id+'_elly', displayAmt:e.amount/2, done:e.doneElly||false, doneAt:e.doneEllyAt||null, _for:'elly', _raw:e.id });
-  });
-  return list;
-}
-function pPendingTotal(entries) { return entries.filter(e=>!e.done).reduce((s,e)=>s+e.displayAmt,0); }
-
-// Add payable (Elly only)
-function addPayable() {
-  if (!isAdmin()) return;
-  const desc   = document.getElementById('f-desc').value.trim();
-  const amount = parseFloat(document.getElementById('f-amount').value);
-  const acct   = document.getElementById('f-account').value;
-  const owner  = document.getElementById('f-owner').value;
-  const date   = document.getElementById('f-date').value.trim() || pTodayLabel();
-  if (!desc)               { showToast('⚠ Please enter a description.'); return; }
-  if (!amount || amount<=0){ showToast('⚠ Please enter a valid amount.'); return; }
-  if (!acct)               { showToast('⚠ Please select an account.'); return; }
-  if (!owner)              { showToast('⚠ Please select who owes.'); return; }
-  pState.entries.unshift({ id:pUid(), desc, amount, acct, owner, date, createdAt:Date.now(), done:false, doneAt:null, doneElly:false, doneEllyAt:null, doneEric:false, doneEricAt:null });
-  pSave(); clearPayableForm(); updatePayablesBadge(); renderPayables();
-  showToast('✓ Payable added!');
-}
-function clearPayableForm() {
-  ['f-desc','f-amount','f-account','f-owner'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-date').value = pTodayLabel();
-  document.getElementById('owner-hint').textContent = '';
-  document.getElementById('notify-btn').style.display = 'none';
+  const raw = localStorage.getItem('payablesV2');
+  if (raw) { try { pState = JSON.parse(raw); } catch(e) {} }
+  // Migrate old format if needed
+  if (!pState.entries) pState = { entries: [] };
 }
 function pTodayLabel() {
   return new Date().toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
 }
-function updateOwnerHint() {
-  const owner=document.getElementById('f-owner').value;
-  const amt=parseFloat(document.getElementById('f-amount').value)||0;
-  const hint=document.getElementById('owner-hint');
-  const nbtn=document.getElementById('notify-btn');
-  if(owner==='shared'&&amt>0){hint.textContent=`🟢 Shared: Elly owes $${(amt/2).toFixed(2)} · Eric owes $${(amt/2).toFixed(2)}`;nbtn.style.display='';}
-  else if(owner==='eric'){hint.textContent=`🔵 Eric owes the full $${amt>0?amt.toFixed(2):'?'}`;nbtn.style.display='';}
-  else if(owner==='elly'){hint.textContent=`🟣 Elly owes the full $${amt>0?amt.toFixed(2):'?'}`;nbtn.style.display='none';}
-  else{hint.textContent='';nbtn.style.display='none';}
-}
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('f-amount').addEventListener('input', updateOwnerHint);
-});
+function pFmt(n) { return '$'+(parseFloat(n)||0).toFixed(2); }
 
-// Tick off
-function togglePayableDone(rawId, forWhom) {
-  const entry = pState.entries.find(e=>e.id===rawId); if(!entry) return;
-  // Eric can only tick his own items; Elly can tick anything
-  if (isEric() && forWhom !== 'eric') return;
-  const now = new Date().toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  if(forWhom==='elly'){
-    if(entry.owner==='elly'){entry.done=!entry.done;entry.doneAt=entry.done?now:null;}
-    else if(entry.owner==='shared'){entry.doneElly=!entry.doneElly;entry.doneEllyAt=entry.doneElly?now:null;}
-  } else if(forWhom==='eric'){
-    if(entry.owner==='eric'){entry.done=!entry.done;entry.doneAt=entry.done?now:null;}
-    else if(entry.owner==='shared'){entry.doneEric=!entry.doneEric;entry.doneEricAt=entry.doneEric?now:null;}
+// ── Entry helpers ──
+function pMyShare(e) {
+  return e.split === 'shared' ? (parseFloat(e.fullAmount)||0)/2 : (parseFloat(e.fullAmount)||0);
+}
+function pEricShare(e) {
+  if (e.split==='shared') return (parseFloat(e.fullAmount)||0)/2;
+  if (e.split==='eric')   return parseFloat(e.fullAmount)||0;
+  return 0;
+}
+function pIsEllyDone(e) { return e.split==='eric' ? true : !!e.ellyDone; }
+function pIsEricDone(e) { return e.split==='mine' ? true : !!e.ericDone; }
+function pEllyEntries() { return (pState.entries||[]).filter(e=>e.split!=='eric'); }
+function pEricEntries() { return (pState.entries||[]).filter(e=>e.split==='shared'||e.split==='eric'); }
+
+// ── Add form ──
+function pShowAddForm() {
+  const card=document.getElementById('p-add-card');
+  card.style.display='';
+  const sel=document.getElementById('pf-payto');
+  const accounts=state.accounts||DEFAULT_ACCOUNTS;
+  sel.innerHTML=accounts.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
+  document.getElementById('pf-date').value=pTodayLabel();
+  document.getElementById('pf-name').value='';
+  document.getElementById('pf-amount').value='';
+  document.getElementById('pf-name').focus();
+  pUpdateSplitHint();
+}
+function pUpdateSplitHint() {
+  const amt=parseFloat(document.getElementById('pf-amount')?.value)||0;
+  const split=document.getElementById('pf-split')?.value;
+  const hint=document.getElementById('pf-split-hint');
+  if(!hint)return;
+  if(split==='shared'&&amt>0) hint.textContent=`You owe $${(amt/2).toFixed(2)} · Eric owes $${(amt/2).toFixed(2)}`;
+  else if(split==='mine'&&amt>0) hint.textContent=`Full $${amt.toFixed(2)} is yours`;
+  else if(split==='eric'&&amt>0) hint.textContent=`Full $${amt.toFixed(2)} goes to Eric`;
+  else hint.textContent='';
+}
+function addPayable() {
+  const name=document.getElementById('pf-name').value.trim();
+  const full=parseFloat(document.getElementById('pf-amount').value);
+  const split=document.getElementById('pf-split').value;
+  const payTo=document.getElementById('pf-payto').value;
+  const date=document.getElementById('pf-date').value.trim()||pTodayLabel();
+  if(!name){showToast('⚠ Enter an expense name');return;}
+  if(!full||full<=0){showToast('⚠ Enter a valid amount');return;}
+  pState.entries.unshift({
+    id:pUid(),name,fullAmount:full,split,payTo,date,
+    createdAt:Date.now(),createdBy:currentUser,
+    ellyDone:false,ellyDoneAt:null,ericDone:false,ericDoneAt:null,allocatedTo:null
+  });
+  pSave();updatePayablesBadge();renderPayables();
+  document.getElementById('p-add-card').style.display='none';
+  showToast('✓ Payable added');
+}
+
+// ── Toggle done ──
+function togglePayableDone(id, forWhom) {
+  const e=(pState.entries||[]).find(x=>x.id===id);if(!e)return;
+  const now=pTodayLabel();
+  if(forWhom==='elly'){e.ellyDone=!e.ellyDone;e.ellyDoneAt=e.ellyDone?now:null;}
+  if(forWhom==='eric'){e.ericDone=!e.ericDone;e.ericDoneAt=e.ericDone?now:null;}
+  if(e.allocatedTo?.billId){
+    const period=getPeriod(e.allocatedTo.key,e.allocatedTo.pi);
+    const bill=period?.bills.find(b=>b.id===e.allocatedTo.billId);
+    if(bill){bill.done=forWhom==='elly'?e.ellyDone:e.ericDone;save();}
   }
-  pSave(); renderPayables();
+  pSave();renderPayables();
 }
-function deletePayableEntry(rawId) {
-  if (!isAdmin()) return;
-  if(!confirm('Delete this payable?')) return;
-  pState.entries=pState.entries.filter(e=>e.id!==rawId);
-  pSave(); updatePayablesBadge(); renderPayables();
-}
-
-// Filters
-function pSetFilter(who, val, btn) {
-  pFilters[who]=val;
-  const bar=btn.closest('.p-filter-bar');
-  bar.querySelectorAll('.p-filter-btn').forEach(b=>b.classList.remove('fa-elly','fa-eric'));
-  btn.classList.add(who==='elly'?'fa-elly':'fa-eric');
-  renderPayables();
-}
-function pApplyFilter(entries, who) {
-  const f=pFilters[who];
-  if(f==='pending') return entries.filter(e=>!e.done);
-  if(f==='done')    return entries.filter(e=> e.done);
-  return entries;
+function deletePayableEntry(id) {
+  if(!confirm('Delete this payable?'))return;
+  const e=(pState.entries||[]).find(x=>x.id===id);
+  if(e?.allocatedTo?.billId){
+    const period=getPeriod(e.allocatedTo.key,e.allocatedTo.pi);
+    if(period){period.bills=period.bills.filter(b=>b.id!==e.allocatedTo.billId);save();}
+  }
+  pState.entries=pState.entries.filter(x=>x.id!==id);
+  pSave();updatePayablesBadge();renderPayables();
 }
 
-// Notify Eric
-function notifyEric() {
-  const pending=getPEricEntries().filter(e=>!e.done);
-  if(!pending.length){showToast('Eric has no pending payables right now.');return;}
-  const lines=pending.map(e=>`• ${e.desc} — $${e.displayAmt.toFixed(2)} → pay back to: ${e.acct} (borrowed ${e.date})`).join('\n');
-  const total=pending.reduce((s,e)=>s+e.displayAmt,0);
-  const body=encodeURIComponent(`Hi Eric,\n\nHere's a summary of what you currently owe:\n\n${lines}\n\nTotal: $${total.toFixed(2)}\n\nPlease open the Finance Hub and tick off when paid.\n\nThanks!\nElly`);
-  const subject=encodeURIComponent(`Payables Update — $${total.toFixed(2)} outstanding`);
-  window.location.href=`mailto:${ERIC_EMAIL}?subject=${subject}&body=${body}`;
+// ── Allocation ──
+function openAllocateModal(payableId) {
+  _allocPayableId=payableId;_allocDestKey=null;_allocDestPi=null;
+  const btn=document.getElementById('alloc-confirm-btn');
+  btn.disabled=true;btn.style.opacity='0.4';
+  document.getElementById('alloc-period-list').style.display='none';
+  document.getElementById('alloc-period-list').innerHTML='';
+  const months=Object.keys(state.months).sort();
+  document.getElementById('alloc-month-list').innerHTML=months.length
+    ?months.map(key=>{const[y,m]=key.split('-').map(Number);return`<button class="move-month-btn" onclick="allocSelectMonth('${key}')">${MONTHS[m-1]} ${y}</button>`;}).join('')
+    :'<p style="color:#9ca3af;font-size:0.82rem">No budget months exist yet.</p>';
+  openModal('modal-allocate');
+}
+function allocSelectMonth(key) {
+  _allocDestKey=key;_allocDestPi=null;
+  document.getElementById('alloc-confirm-btn').disabled=true;
+  document.getElementById('alloc-confirm-btn').style.opacity='0.4';
+  document.querySelectorAll('#alloc-month-list .move-month-btn').forEach(b=>b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  const month=state.months[key];
+  const pl=document.getElementById('alloc-period-list');
+  pl.style.display='flex';
+  pl.innerHTML=`<div style="font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;margin-bottom:4px">Select pay period</div>`+
+    (month?.periods||[]).map((p,pi)=>`<button class="move-period-btn" onclick="allocSelectPeriod(${pi},this)">Pay Period ${pi+1} <span style="font-size:0.75rem;color:#9ca3af;margin-left:4px">${esc(p.date)}</span></button>`).join('');
+}
+function allocSelectPeriod(pi,el) {
+  _allocDestPi=pi;
+  document.querySelectorAll('#alloc-period-list .move-period-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  const btn=document.getElementById('alloc-confirm-btn');
+  btn.disabled=false;btn.style.opacity='1';
+}
+function confirmAllocate() {
+  const e=(pState.entries||[]).find(x=>x.id===_allocPayableId);if(!e)return;
+  const period=getPeriod(_allocDestKey,_allocDestPi);if(!period)return;
+  if(e.allocatedTo?.billId){
+    const old=getPeriod(e.allocatedTo.key,e.allocatedTo.pi);
+    if(old)old.bills=old.bills.filter(b=>b.id!==e.allocatedTo.billId);
+  }
+  const billId=newId();
+  period.bills.push({id:billId,name:e.name,amount:pMyShare(e),payTo:e.payTo,recurring:false,done:e.ellyDone||false});
+  e.allocatedTo={key:_allocDestKey,pi:_allocDestPi,billId};
+  const[dy,dm]=_allocDestKey.split('-').map(Number);
+  save();pSave();closeModal('modal-allocate');renderPayables();
+  showToast(`✓ Allocated to ${MONTHS[dm-1]} ${dy} · P${_allocDestPi+1}`);
 }
 
-// Render helpers
-function pFmt(n) { return '$'+n.toFixed(2); }
-function ownerPill(owner) {
-  if(owner==='elly')   return '<span class="pill pill-elly">🟣 Elly</span>';
-  if(owner==='eric')   return '<span class="pill pill-eric">🔵 Eric</span>';
-  if(owner==='shared') return '<span class="pill pill-shared">🟢 Shared</span>';
-  return '';
-}
-function renderPayablesList(container, entries, forWhom, readonly) {
-  if(!entries.length){container.innerHTML=`<div class="p-empty"><div class="icon">🎉</div>Nothing here yet!</div>`;return;}
-  container.innerHTML=entries.map(e=>{
-    const isDone=e.done;
-    const rawId=e._raw||e.id.replace(/_elly|_eric/,'');
-    const isNew=e.createdAt>(pState.ericLastSeen||0)&&!e.done;
-    const newBadge=(forWhom==='eric'&&isNew)?'<span class="pill pill-new">NEW</span>':'';
-    const doneInfo=isDone?`<span class="done-label">✅ Paid</span> <span class="done-date">${e.doneAt||''}</span>`:'';
-    const checkAction=readonly?'':`onclick="togglePayableDone('${rawId}','${forWhom}')"`;
-    const deleteBtn=(isAdmin()&&!readonly)?`<button class="p-del-btn" onclick="deletePayableEntry('${rawId}')" title="Delete">✕</button>`:'';
-    return `<div class="payable-item ${e.owner}-item${isDone?' done':''}">
-      <div class="payable-check${isDone?' checked':''}" ${checkAction} title="${isDone?'Mark as unpaid':'Mark as paid'}"></div>
-      <div class="payable-body">
-        <div class="payable-name">${e.desc} ${newBadge}</div>
-        <div class="payable-meta">${ownerPill(e.owner)}<span class="pill pill-acct">🏦 ${e.acct}</span><span>${e.date}</span>${doneInfo}</div>
-      </div>
-      <div class="payable-amount ${forWhom}-amt">${pFmt(e.displayAmt)}</div>
-      ${deleteBtn}
-    </div>`;
-  }).join('');
+// ── Eric peek ──
+function openEricPeek() {
+  const pending=pEricEntries().filter(e=>!pIsEricDone(e));
+  const total=pending.reduce((s,e)=>s+pEricShare(e),0);
+  document.getElementById('eric-peek-total').textContent=pFmt(total);
+  document.getElementById('eric-peek-sub').textContent=`${pending.length} item${pending.length!==1?'s':''} pending`;
+  document.getElementById('eric-peek-list').innerHTML=pending.length
+    ?pending.map(e=>`<div class="p-row" style="grid-template-columns:1fr 90px 120px;padding:8px 14px">
+        <span class="p-row-name">${esc(e.name)}</span>
+        <span class="p-row-amount" style="color:#0ea5e9">${pFmt(pEricShare(e))}</span>
+        <span class="p-row-payto">${esc(e.payTo)}</span></div>`).join('')
+    :'<div class="p-empty">All clear!</div>';
+  openModal('modal-eric-peek');
 }
 
+// ── Completed toggle ──
+function pToggleCompleted() {
+  pCompletedOpen=!pCompletedOpen;
+  document.getElementById('p-completed-list').style.display=pCompletedOpen?'':'none';
+  document.getElementById('p-completed-toggle').classList.toggle('open',pCompletedOpen);
+}
+
+// ── Badge ──
 function updatePayablesBadge() {
-  const newForEric=getPEricEntries().filter(e=>e.createdAt>(pState.ericLastSeen||0)&&!e.done).length;
+  const pending=(isEric()?pEricEntries().filter(e=>!pIsEricDone(e)):pEllyEntries().filter(e=>!pIsEllyDone(e))).length;
   const badge=document.getElementById('payables-badge');
-  if (badge) { badge.textContent=newForEric; badge.style.display=newForEric>0?'':'none'; }
+  if(badge){badge.textContent=pending;badge.style.display=pending>0?'':'none';}
 }
 
+// ── Main render ──
 function renderPayables() {
-  const ellyEntries=getPEllyEntries(), ericEntries=getPEricEntries();
-  const ellyPending=ellyEntries.filter(e=>!e.done), ericPending=ericEntries.filter(e=>!e.done);
-  const ellyTotal=pPendingTotal(ellyEntries), ericTotal=pPendingTotal(ericEntries);
+  const isElly=!isEric();
+  const entries=isElly?pEllyEntries():pEricEntries();
+  const isDoneFn=e=>isElly?pIsEllyDone(e):pIsEricDone(e);
+  const shareFn=e=>isElly?pMyShare(e):pEricShare(e);
+  const active=entries.filter(e=>!isDoneFn(e));
+  const done=entries.filter(e=>isDoneFn(e));
+  const total=active.reduce((s,e)=>s+shareFn(e),0);
 
-  const safeSet = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-  safeSet('elly-total', pFmt(ellyTotal));
-  safeSet('elly-count', `${ellyPending.length} item${ellyPending.length!==1?'s':''} pending`);
-  safeSet('eric-total', pFmt(ericTotal));
-  safeSet('eric-count', `${ericPending.length} item${ericPending.length!==1?'s':''} pending`);
-  safeSet('eric-total-2', pFmt(ericTotal));
-  safeSet('eric-count-2', `${ericPending.length} item${ericPending.length!==1?'s':''} pending`);
-  safeSet('elly-total-2', pFmt(ellyTotal));
+  const safeEl=(id)=>document.getElementById(id);
+  if(safeEl('p-owing-amount'))safeEl('p-owing-amount').textContent=pFmt(total);
+  if(safeEl('p-owing-sub'))safeEl('p-owing-sub').textContent=`${active.length} item${active.length!==1?'s':''} pending`;
 
-  const newForEric=ericEntries.filter(e=>e.createdAt>(pState.ericLastSeen||0)&&!e.done).length;
-  const ericBadge=document.getElementById('eric-badge');
-  if (ericBadge) { ericBadge.textContent=newForEric; ericBadge.style.display=newForEric>0?'':'none'; }
-  updatePayablesBadge();
-
-  const bannerCard=document.getElementById('eric-new-banner-card');
-  if(bannerCard) {
-    if(curPayablesView==='eric'){
-      const newCount=ericEntries.filter(e=>e.createdAt>(pState.ericLastSeen||0)).length;
-      bannerCard.style.display=newCount>0?'':'none';
-      safeSet('eric-new-count', newCount);
-    } else { bannerCard.style.display='none'; }
+  const ericRight=safeEl('p-owing-right');
+  if(ericRight){
+    if(isElly){
+      const ep=pEricEntries().filter(e=>!pIsEricDone(e));
+      const et=ep.reduce((s,e)=>s+pEricShare(e),0);
+      safeEl('p-eric-owing-amt').textContent=pFmt(et);
+      safeEl('p-eric-owing-sub').textContent=`${ep.length} item${ep.length!==1?'s':''} pending`;
+      ericRight.style.display='';
+    } else { ericRight.style.display='none'; }
   }
 
-  const ellyListEl = document.getElementById('elly-list');
-  const ellyPreviewEl = document.getElementById('elly-eric-preview');
-  const ericListEl = document.getElementById('eric-list');
+  if(safeEl('p-list-title'))safeEl('p-list-title').textContent=isElly?'My Payables':'What I Owe';
+  if(safeEl('p-completed-label'))safeEl('p-completed-label').textContent=`Completed (${done.length})`;
 
-  if (ellyListEl)    renderPayablesList(ellyListEl,    pApplyFilter(ellyEntries,'elly'), 'elly', false);
-  if (ellyPreviewEl) renderPayablesList(ellyPreviewEl, ericEntries.filter(e=>!e.done),  'eric', true);
-  if (ericListEl)    renderPayablesList(ericListEl,    pApplyFilter(ericEntries,'eric'), 'eric', false);
+  const activeList=safeEl('p-active-list');
+  if(activeList)activeList.innerHTML=active.length
+    ?active.map(e=>pRenderRow(e,isElly,shareFn(e),false)).join('')
+    :'<div class="p-empty">All clear — nothing pending! 🎉</div>';
+
+  const compList=safeEl('p-completed-list');
+  if(compList)compList.innerHTML=done.length
+    ?done.map(e=>pRenderRow(e,isElly,shareFn(e),true)).join('')
+    :'<div class="p-empty">Nothing completed yet.</div>';
+
+  updatePayablesBadge();
+}
+
+function pRenderRow(e,isElly,myShare,isDone) {
+  const forWhom=isElly?'elly':'eric';
+  const doneVal=isElly?e.ellyDone:e.ericDone;
+  const splitBadge=e.split==='mine'
+    ?'<span class="p-split-badge p-split-mine">Mine</span>'
+    :'<span class="p-split-badge p-split-shared">Shared</span>';
+  let allocBadge='';
+  if(e.allocatedTo){
+    const[y,m]=e.allocatedTo.key.split('-').map(Number);
+    allocBadge=`<span class="p-alloc-badge linked">${MONTHS[m-1].slice(0,3)} P${e.allocatedTo.pi+1}</span>`;
+  } else if(isElly){
+    allocBadge=`<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">＋ Allocate</span>`;
+  }
+  const actionBtns=isElly
+    ?`<div class="p-row-actions">
+        <button class="p-action-btn" onclick="openAllocateModal('${e.id}')" title="Allocate to budget">📌</button>
+        <button class="p-action-btn danger" onclick="deletePayableEntry('${e.id}')" title="Delete">✕</button>
+      </div>`
+    :'<span></span>';
+  return`<div class="p-row${isDone?' is-done':''}">
+    <input type="checkbox" class="p-check" ${doneVal?'checked':''} onchange="togglePayableDone('${e.id}','${forWhom}')">
+    <span class="p-row-name">${esc(e.name)} ${splitBadge}</span>
+    <span class="p-row-amount">${pFmt(myShare)}</span>
+    <span class="p-row-payto">${esc(e.payTo||'')}</span>
+    <div class="p-row-meta">${allocBadge}<span style="font-size:0.68rem;color:#9ca3af">${esc(e.date||'')}</span></div>
+    ${actionBtns}
+  </div>`;
+}
+
+// ── Seed Elly's data (runs once if entries are empty) ──
+function pMaybeSeedElly() {
+  if ((pState.entries||[]).length > 0) return; // Already seeded
+  const CB = 'CB Bills', NAB = 'NAB Offset';
+  const t = Date.now();
+  const mk = (name,full,split,payTo,date,ellyDone,ellyDoneAt,ericDone)=>({
+    id:pUid(),name,fullAmount:full,split,payTo,date,createdAt:t,createdBy:'elly',
+    ellyDone:!!ellyDone,ellyDoneAt:ellyDoneAt||null,ericDone:!!ericDone,ericDoneAt:null,allocatedTo:null
+  });
+  pState.entries=[
+    // PAID items (ellyDone=true)
+    mk('Elly borrow offset',107,  'mine',NAB, '1 Jan 2025', true,'Jan 2025'),
+    mk('Elly borrow offset',50,   'mine',NAB, '1 Jan 2025', true,'Jan 2025'),
+    mk('Elly borrow offset',15.40,'mine',NAB, '1 Jan 2025', true,'Jan 2025'),
+    mk('Council rates 31 Aug',533,'shared',CB,'31 Jul 2025',true,'31 Jul 2025'),
+    mk('CTP Green Slip (Allianz)',478,'shared',CB,'10 Sep 2025',true,'10 Sep 2025'),
+    // UNPAID — shared
+    mk('Limey careers market',20,    'shared',CB,'1 Jan 2025'),
+    mk('Limey medicine',43.33,       'shared',CB,'1 Jan 2025'),
+    mk('Limey white card',100,       'shared',CB,'1 Jan 2025'),
+    mk('Energy Bill',449,            'shared',CB,'1 Jan 2025'),
+    mk('Amazon items',13.06,         'shared',CB,'1 Jan 2025'),
+    mk('Amazon items',17.34,         'shared',CB,'1 Feb 2025'),
+    mk('Amazon items',21.99,         'shared',CB,'1 Feb 2025'),
+    mk('Amazon items',19.99,         'shared',CB,'1 Feb 2025'),
+    mk('Amazon items',49.90,         'shared',CB,'1 Feb 2025'),
+    mk('Amazon items',33.99,         'shared',CB,'1 Feb 2025'),
+    mk('Amazon items',20,            'shared',CB,'1 Mar 2025'),
+    mk('Council Rates',179,          'shared',CB,'1 Mar 2025'),
+    mk('Amazon items',59.99,         'shared',CB,'1 Mar 2025'),
+    mk('Reading cinema tickets',85,  'shared',CB,'1 Mar 2025'),
+    mk('Amazon',45.97,               'shared',CB,'1 Apr 2025'),
+    mk('Amazon',24.85,               'shared',CB,'1 Apr 2025'),
+    mk('Amazon',27.99,               'shared',CB,'1 Apr 2025'),
+    mk('Amazon',16.99,               'shared',CB,'1 Apr 2025'),
+    mk('Amazon',109.97,              'shared',CB,'1 Apr 2025'),
+    mk('Amazon',75.98,               'shared',CB,'1 May 2025'),
+    mk('Sydney Water bill Jul 2025',312.41,'shared',CB,'1 Jul 2025'),
+    mk('Energy Australia Jul 2025',393.29, 'shared',CB,'1 Jul 2025'),
+    mk('Amazon',29.99,               'shared',CB,'1 Jul 2025'),
+    mk('Amazon',13.99,               'shared',CB,'1 Jul 2025'),
+    mk('Reading cinema tickets',37,  'shared',CB,'1 Jul 2025'),
+    mk('Amazon',81.26,               'shared',CB,'1 Aug 2025'),
+    mk('Reading cinema tickets',83.40,'shared',CB,'1 Aug 2025'),
+    mk('Amazon',58.43,               'shared',CB,'1 Aug 2025'),
+    mk('Linkin Park Ticketek',416,   'shared',CB,'1 Aug 2025'),
+    mk('Infinity castle',110.10,     'shared',CB,'1 Aug 2025'),
+    mk('Volvo Rego',661,             'shared',CB,'1 Sep 2025'),
+    mk('Camping for December',150,   'shared',CB,'1 Oct 2025'),
+    mk('Sydney Water Oct 2025',266.98,'shared',CB,'1 Oct 2025'),
+    mk('Energy Australia Oct 2025',410.58,'shared',CB,'1 Oct 2025'),
+    mk('Limey GP consult Bella Vista',90.56,'shared',CB,'1 Oct 2025'),
+    mk('Council rates 30 Nov',533,   'shared',CB,'30 Nov 2025'),
+    mk('Amazon',33.61,               'shared',CB,'1 Nov 2025'),
+    mk('Amazon',123.12,              'shared',CB,'1 Nov 2025'),
+    mk('Big W Shopping',382.29,      'shared',CB,'1 Nov 2025'),
+    mk('Travel Money Oz',300.15,     'shared',CB,'1 Dec 2025'),
+    mk('Bupa sunnies Eric',175,      'shared',CB,'1 Dec 2025'),
+    mk('Sydney Water Dec 2025',421.20,'shared',CB,'1 Dec 2025'),
+    mk('Limey Paediatrician',600,    'shared',CB,'1 Dec 2025'),
+    mk('New home filters',471,       'shared',CB,'1 Dec 2025'),
+    mk('Officeworks',83,             'shared',CB,'1 Dec 2025'),
+    mk('Council rates Feb 2026',533, 'shared',CB,'1 Feb 2026'),
+    mk('Limey school fees',120,      'shared',CB,'1 Feb 2026'),
+    mk('Limey school fees',28,       'shared',CB,'1 Feb 2026'),
+    mk('Sydney water Mar 2026',561.06,'shared',CB,'1 Mar 2026'),
+    mk('Energy Australia Mar 2026',206.64,'shared',CB,'1 Mar 2026'),
+    // UNPAID — mine only
+    mk('Google One',44.99,'mine',CB,'1 Apr 2025'),
+  ];
+  pSave();
+}
+
+// Legacy stubs (keep for any old references)
+function switchPayablesView(){}
+function switchPayablesViewSilent(){}
+function pSetFilter(){}
+function notifyEric(){}
+function clearPayables(){ if(!confirm('Clear ALL payable data?'))return; pState.entries=[];pSave();renderPayables(); }
+function exportPayables(){
+  const blob=new Blob([JSON.stringify(pState,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='payables-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -3193,8 +3257,7 @@ function init() {
   const si = document.getElementById('salaryInput');
   if (si) si.value = state.settings?.salary || 4524.58;
   pLoad();
-  const dateEl = document.getElementById('f-date');
-  if (dateEl) dateEl.value = pTodayLabel();
+  pMaybeSeedElly();
   updatePayablesBadge();
 
   // Eric defaults to payables tab; budget tabs may be hidden
