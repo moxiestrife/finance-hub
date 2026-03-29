@@ -1356,6 +1356,7 @@ const DB_PAYABLES_PATH = 'finance-hub/payables';
 const DB_SETTINGS_PATH = 'finance-hub/admin-settings';
 
 let fbReady = false;
+let firebaseDataLoaded = false; // guard: never push to Firebase until we've received data FROM it first
 let budgetUnsub   = null;
 let payablesUnsub = null;
 let adminUnsub    = null;
@@ -1395,10 +1396,15 @@ function listenBudget() {
       if (!state.accounts) state.accounts = [...DEFAULT_ACCOUNTS];
       const si = document.getElementById('salaryInput');
       if (si) si.value = state.settings?.salary || 4524.58;
+      firebaseDataLoaded = true; // Firebase has real data — safe to push changes now
       if (curTab === 'monthly')  render();
       if (curTab === 'summary')  renderSummary();
       if (curTab === 'insights') renderInsights();
       if (curTab === 'admin')    renderAdmin();
+    } else {
+      // No data in Firebase yet — safe to push our local state up
+      firebaseDataLoaded = true;
+      pushBudgetToFirebase();
     }
     setSyncStatus('live');
   });
@@ -1537,7 +1543,7 @@ function newId() { return 'b' + (++idSeq); }
 
 function save() {
   try { localStorage.setItem('budgetPlannerV2', JSON.stringify(state)); } catch(e) {}
-  pushBudgetToFirebase();
+  if (firebaseDataLoaded) pushBudgetToFirebase();
 }
 function load() {
   try {
