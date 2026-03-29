@@ -167,7 +167,7 @@ body {
 /* ── TOP-LEVEL TAB BAR ── */
 .tab-bar {
   background: #162d4a;
-  display: flex; gap: 0; padding: 0 24px;
+  display: flex; gap: 0; padding: 0 24px; flex-wrap: wrap;
 }
 .tab-btn {
   background: none; border: none; color: rgba(255,255,255,0.55);
@@ -191,20 +191,22 @@ body {
 .tab-content.active { display: block; }
 
 /* ═══════════════════════════════════════
-   ADMIN PANEL
+   ADMIN TAB
 ═══════════════════════════════════════ */
-.admin-panel {
+.admin-section { max-width: 640px; margin: 0 auto; }
+.admin-card {
   background: white; border-radius: 12px;
-  padding: 16px 20px; margin-bottom: 18px;
+  padding: 20px 24px; margin-bottom: 18px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   border-left: 4px solid #7C3AED;
-  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
 }
-.admin-panel-title { font-size: 0.82rem; font-weight: 700; color: #7C3AED; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
-.admin-toggles { display: flex; gap: 16px; flex-wrap: wrap; }
-.admin-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: #374151; }
+.admin-card h2 { font-size: 0.95rem; font-weight: 700; color: #7C3AED; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+.admin-toggle { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f4f8; }
+.admin-toggle:last-child { border-bottom: none; }
+.admin-toggle-label { font-size: 0.9rem; color: #374151; font-weight: 500; }
+.admin-toggle-desc { font-size: 0.78rem; color: #9ca3af; margin-top: 2px; }
 .toggle-switch {
-  position: relative; width: 40px; height: 22px; flex-shrink: 0;
+  position: relative; width: 40px; height: 22px; flex-shrink: 0; margin-left: 16px;
 }
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
 .toggle-slider {
@@ -218,6 +220,19 @@ body {
 }
 .toggle-switch input:checked + .toggle-slider { background: #7C3AED; }
 .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+.admin-data-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+.admin-salary-input {
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  padding: 8px 12px; font-size: 0.95rem; width: 140px; font-weight: 600;
+  font-family: inherit; outline: none;
+}
+.admin-salary-input:focus { border-color: #7C3AED; }
+.admin-save-btn {
+  background: #7C3AED; color: white; border: none;
+  padding: 8px 18px; border-radius: 8px; cursor: pointer;
+  font-size: 0.88rem; font-weight: 700; font-family: inherit;
+}
+.admin-save-btn:hover { filter: brightness(1.1); }
 
 /* Eric's locked view */
 .locked-banner {
@@ -231,20 +246,12 @@ body {
 /* ═══════════════════════════════════════
    BUDGET PLANNER STYLES
 ═══════════════════════════════════════ */
-.top-row {
+.month-toolbar {
   background: white; border-radius: 12px;
-  padding: 13px 20px; margin-bottom: 18px;
-  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  padding: 11px 18px; margin-bottom: 18px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
-.field-group { display: flex; align-items: center; gap: 8px; }
-.field-label { font-size: 0.78rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-.field-input {
-  border: 1.5px solid #e2e8f0; border-radius: 8px;
-  padding: 6px 10px; font-size: 0.9rem; width: 105px; font-weight: 500;
-  font-family: inherit;
-}
-.field-input:focus { outline: none; border-color: #3b82f6; }
 .legend { font-size: 0.75rem; color: #9ca3af; }
 .progress-wrap {
   margin-left: auto; display: flex; align-items: center; gap: 8px;
@@ -272,6 +279,33 @@ body {
   font-family: inherit;
 }
 .edit-date-btn:hover { background: rgba(255,255,255,0.28); }
+
+/* Section toggles inside period card */
+.section-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px; cursor: pointer; user-select: none;
+  border-bottom: 1px solid #f0f4f8; transition: background 0.12s;
+}
+.section-toggle:hover { background: #f8fafc; }
+.section-toggle-left { display: flex; align-items: center; gap: 8px; }
+.section-toggle-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.section-toggle.money-in .section-toggle-label { color: #059669; }
+.section-toggle.money-out .section-toggle-label { color: #1e40af; }
+.section-toggle-amount { font-size: 0.88rem; font-weight: 700; }
+.section-toggle.money-in .section-toggle-amount { color: #059669; }
+.section-toggle.money-out .section-toggle-amount { color: #1e40af; }
+.section-chevron { font-size: 0.75rem; color: #9ca3af; transition: transform 0.2s; }
+.section-chevron.open { transform: rotate(180deg); }
+.section-body { overflow: hidden; }
+.section-body.collapsed { display: none; }
+
+/* Period card delete button */
+.period-delete-btn {
+  background: rgba(239,68,68,0.1); border: none; color: #ef4444;
+  padding: 3px 8px; border-radius: 5px; font-size: 0.72rem; cursor: pointer;
+  font-family: inherit; font-weight: 600;
+}
+.period-delete-btn:hover { background: #ef4444; color: white; }
 
 /* Bill list */
 .bill-list { padding: 4px 0; min-height: 30px; }
@@ -330,7 +364,6 @@ body {
 .period-summary { border-top: 2px solid #e2e8f0; }
 .sum-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 16px; font-size: 0.875rem; }
 .sum-row.subtotal { background: #dbeafe; font-weight: 700; color: #1e40af; }
-.sum-row.salary   { background: #dcfce7; font-weight: 700; color: #166534; }
 .sum-row.savings  { color: #6b7280; font-size: 0.82rem; }
 .sum-row.savings .savings-input {
   border: none; background: transparent; text-align: right;
@@ -608,6 +641,7 @@ body {
     💸 Payables
     <span class="tab-badge" id="payables-badge" style="display:none"></span>
   </button>
+  <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">⚙ Admin</button>
 </div>
 
 <!-- MAIN -->
@@ -615,39 +649,61 @@ body {
 
   <!-- ── MONTHLY TAB ── -->
   <div class="tab-content active" id="tab-monthly">
-
-    <!-- Admin controls (Elly only) -->
-    <div class="admin-panel" id="admin-panel" style="display:none">
-      <span class="admin-panel-title">⚙ Admin Controls</span>
-      <div class="admin-toggles">
-        <label class="admin-toggle">
-          <label class="toggle-switch">
-            <input type="checkbox" id="toggle-eric-budget" onchange="saveAdminSettings()">
-            <span class="toggle-slider"></span>
-          </label>
-          Eric can view budget &amp; ledger
-        </label>
-      </div>
-    </div>
-
-    <div class="top-row" id="top-row-budget">
-      <div class="field-group" id="salary-field">
-        <span class="field-label">Salary / pay</span>
-        <input class="field-input" type="number" id="salaryInput" step="0.01" onchange="saveSettings()" placeholder="4524.58">
-      </div>
-      <div class="legend">♻ = recurring · click to toggle · only recurring bills copy to next month</div>
+    <div class="month-toolbar">
+      <div class="legend">♻ = recurring · copies to next month &nbsp;|&nbsp; ✓ = paid off this period</div>
       <div class="progress-wrap" id="progressWrap" style="display:none">
         <span id="progressText">0 / 0</span>
         <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       </div>
-      <div class="data-btns" id="budget-data-btns">
-        <button class="data-btn" onclick="exportBudget()">⬇ Budget</button>
-        <label class="data-btn" style="cursor:pointer">
-          ⬆ Budget<input type="file" accept=".json" onchange="importBudget(event)" style="display:none">
-        </label>
-      </div>
     </div>
     <div class="periods-grid" id="periodsGrid"></div>
+  </div>
+
+  <!-- ── ADMIN TAB ── -->
+  <div class="tab-content" id="tab-admin">
+    <div class="admin-section">
+
+      <div class="admin-card">
+        <h2>🔵 Eric's Access</h2>
+        <div class="admin-toggle">
+          <div>
+            <div class="admin-toggle-label">Eric can view budget &amp; ledger</div>
+            <div class="admin-toggle-desc">Monthly View, Summary and Insights tabs will be visible to Eric</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-eric-budget" onchange="saveAdminSettings()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h2>💰 Salary Settings</h2>
+        <div class="admin-toggle">
+          <div>
+            <div class="admin-toggle-label">Default fortnightly salary</div>
+            <div class="admin-toggle-desc">Used as the base income for each pay period. You can override per-period in Money In.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-left:16px">
+            <span style="font-size:0.9rem;color:#6b7280">$</span>
+            <input class="admin-salary-input" type="number" id="salaryInput" step="0.01" placeholder="4524.58">
+            <button class="admin-save-btn" onclick="saveSettings()">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h2>🔧 Data Tools</h2>
+        <div class="admin-data-row">
+          <button class="p-btn p-btn-export" onclick="exportBudget()">⬇ Export Budget</button>
+          <label class="p-btn p-btn-export" style="cursor:pointer">
+            ⬆ Import Budget
+            <input type="file" accept=".json" onchange="importBudget(event)" style="display:none">
+          </label>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- ── SUMMARY TAB ── -->
@@ -868,15 +924,8 @@ function isAdmin()  { return currentUser === 'elly'; }
 function isEric()   { return currentUser === 'eric'; }
 
 function applyRoleUI() {
-  // Admin panel (Elly only)
-  document.getElementById('admin-panel').style.display = isAdmin() ? '' : 'none';
-
-  // Budget-tab data buttons (Elly only)
-  document.getElementById('budget-data-btns').style.display = isAdmin() ? '' : 'none';
-
-  // Salary field editable only for Elly
-  const salaryInput = document.getElementById('salaryInput');
-  salaryInput.readOnly = !isAdmin();
+  // Admin tab visible only to Elly
+  document.getElementById('tab-btn-admin').style.display = isAdmin() ? '' : 'none';
 
   // Eric only sees his own payables — sub-tabs and Elly's view hidden
   if (isEric()) {
@@ -931,10 +980,12 @@ function listenBudget() {
     const val = snap.val();
     if (val) {
       state = val;
-      document.getElementById('salaryInput').value = state.settings?.salary || 4524.58;
+      const si = document.getElementById('salaryInput');
+      if (si) si.value = state.settings?.salary || 4524.58;
       if (curTab === 'monthly')  render();
       if (curTab === 'summary')  renderSummary();
       if (curTab === 'insights') renderInsights();
+      if (curTab === 'admin')    renderAdmin();
     }
     setSyncStatus('live');
   });
@@ -994,7 +1045,8 @@ function saveAdminSettings() {
 }
 
 function applyAdminSettings() {
-  document.getElementById('toggle-eric-budget').checked = !!adminSettings.ericCanViewBudget;
+  const toggle = document.getElementById('toggle-eric-budget');
+  if (toggle) toggle.checked = !!adminSettings.ericCanViewBudget;
 
   if (isEric()) {
     const budgetTabs = ['monthly','summary','insights'];
@@ -1003,11 +1055,15 @@ function applyAdminSettings() {
       if (!btn) return;
       btn.style.display = adminSettings.ericCanViewBudget ? '' : 'none';
     });
-    // If Eric is on a hidden tab, redirect to payables
     if (!adminSettings.ericCanViewBudget && ['monthly','summary','insights'].includes(curTab)) {
       switchTab('payables');
     }
   }
+}
+
+function renderAdmin() {
+  const salaryInput = document.getElementById('salaryInput');
+  if (salaryInput) salaryInput.value = state.settings?.salary || 4524.58;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1114,20 +1170,21 @@ function esc(s) {
 function getMonthStats(key) {
   const m = state.months[key];
   if (!m) return null;
-  const salary = state.settings.salary;
-  let totalSpend=0, totalSavings=0, totalAllowance=0;
+  let totalSpend=0, totalSavings=0, totalAllowance=0, totalIncome=0;
   m.periods.forEach(p => {
+    const inc = getPeriodIncome(p);
     const sub = p.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
     const sav = parseFloat(p.savings)||0;
-    totalSpend += sub; totalSavings += sav; totalAllowance += (salary-sub-sav);
+    totalSpend += sub; totalSavings += sav;
+    totalAllowance += (inc-sub-sav); totalIncome += inc;
   });
-  return { totalSpend, totalSavings, totalAllowance, salary: salary*2 };
+  return { totalSpend, totalSavings, totalAllowance, salary: totalIncome };
 }
 
 function switchTab(tab) {
   curTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  ['monthly','summary','insights','payables'].forEach(t => {
+  ['monthly','summary','insights','payables','admin'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.classList.remove('active');
   });
@@ -1139,13 +1196,14 @@ function switchTab(tab) {
   const mnav = document.getElementById('monthNavWrap');
   const nbtn = document.getElementById('nextMonthBtn');
   if (tab === 'monthly') {
-    mnav.style.display = 'flex'; nbtn.style.display = '';
+    mnav.style.display = 'flex'; nbtn.style.display = isAdmin() ? '' : 'none';
     render();
   } else {
     mnav.style.display = 'none'; nbtn.style.display = 'none';
     if (tab === 'summary')  renderSummary();
     if (tab === 'insights') renderInsights();
     if (tab === 'payables') renderPayables();
+    if (tab === 'admin')    renderAdmin();
   }
 }
 
@@ -1166,12 +1224,16 @@ function handleNextMonth() {
   const cur = state.months[mKey(curYear,curMonth)];
   if (!cur) { showToast('No data in current month'); return; }
   const [d1,d2] = defaultDates(ny,nm);
-  const copyR = bills => bills.filter(b=>b.recurring).map(b=>({...b,id:newId(),done:false}));
+  // Copy all recurring bills AND recurring income lines
+  const copyBills  = bills  => (bills  ||[]).filter(b=>b.recurring).map(b=>({...b, id:newId(), done:false}));
+  const copyIncome = income => (income ||[]).filter(i=>i.recurring).map(i=>({...i, id:newId()}));
   state.months[nextKey] = {
-    periods: [
-      { date:d1, savings:cur.periods[0].savings, bills:copyR(cur.periods[0].bills) },
-      { date:d2, savings:cur.periods[1].savings, bills:copyR(cur.periods[1].bills) }
-    ]
+    periods: cur.periods.map((p, pi) => ({
+      date:    pi===0 ? d1 : d2,
+      savings: p.savings,
+      bills:   copyBills(p.bills),
+      income:  copyIncome(p.income)
+    }))
   };
   save(); curYear=ny; curMonth=nm;
   showToast(`✓ ${MONTHS[nm]} ${ny} created!`);
@@ -1181,7 +1243,8 @@ function handleNextMonth() {
 function saveSettings() {
   if (!isAdmin()) return;
   state.settings.salary = parseFloat(document.getElementById('salaryInput').value)||0;
-  save(); render();
+  save();
+  showToast('✓ Salary saved!');
 }
 
 function getPeriod(key,pi) { return state.months[key]?.periods[pi]; }
@@ -1262,35 +1325,182 @@ function render() {
 }
 function renderMonthView(key) { if(mKey(curYear,curMonth)===key)render(); }
 
-function buildPeriodCard(key,period,pi,canEdit) {
-  const salary=state.settings.salary, savings=period.savings||0;
-  const subtotal=period.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-  const allowance=salary-subtotal-savings;
-  const card=document.createElement('div'); card.className='period-card';
-  card.innerHTML=`<div class="period-header"><div class="period-header-left"><span class="period-title">Pay Period ${pi+1}</span><span class="period-date-display">${esc(period.date)}</span></div>${canEdit?`<button class="edit-date-btn" onclick="editDate('${key}',${pi})">✏ Edit date</button>`:''}</div>`;
-  const listDiv=document.createElement('div'); listDiv.className='bill-list'; listDiv.setAttribute('data-period',`${key}-${pi}`);
-  period.bills.forEach(bill=>{
-    const row=document.createElement('div'); row.className='bill-row'+(bill.done?' is-done':'');
+function getPeriodIncome(period) {
+  const salary = state.settings.salary || 0;
+  const extra = (period.income || []).reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+  return salary + extra;
+}
+
+function deletePeriod(key, pi) {
+  if (!isAdmin()) return;
+  if (!confirm(`Delete Pay Period ${pi+1}? This cannot be undone.`)) return;
+  const m = state.months[key];
+  if (!m) return;
+  m.periods.splice(pi, 1);
+  if (m.periods.length === 0) delete state.months[key];
+  save(); render();
+  showToast('✓ Pay period deleted');
+}
+
+function addIncomeLine(key, pi) {
+  if (!isAdmin()) return;
+  const p = getPeriod(key, pi); if (!p) return;
+  if (!p.income) p.income = [];
+  p.income.push({ id: newId(), name: '', amount: 0, recurring: false });
+  save(); render();
+  setTimeout(() => {
+    const inputs = document.querySelectorAll(`[data-income="${key}-${pi}"] .bill-name-input`);
+    if (inputs.length) inputs[inputs.length-1].focus();
+  }, 30);
+}
+
+function updateIncome(key, pi, id, field, val) {
+  if (!isAdmin()) return;
+  const p = getPeriod(key, pi); if (!p || !p.income) return;
+  const item = p.income.find(i => i.id === id); if (!item) return;
+  item[field] = field === 'amount' ? (parseFloat(val)||0) : val;
+  save(); render();
+}
+
+function deleteIncome(key, pi, id) {
+  if (!isAdmin()) return;
+  const p = getPeriod(key, pi); if (!p) return;
+  p.income = (p.income||[]).filter(i => i.id !== id);
+  save(); render();
+}
+
+function toggleIncomeRecurring(key, pi, id) {
+  if (!isAdmin()) return;
+  const p = getPeriod(key, pi); if (!p || !p.income) return;
+  const item = p.income.find(i => i.id === id); if (!item) return;
+  item.recurring = !item.recurring;
+  save(); render();
+}
+
+function buildPeriodCard(key, period, pi, canEdit) {
+  const totalIncome = getPeriodIncome(period);
+  const savings = period.savings || 0;
+  const subtotal = period.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+  const allowance = totalIncome - subtotal - savings;
+  const extraIncome = period.income || [];
+
+  const card = document.createElement('div'); card.className = 'period-card';
+
+  // Header
+  const headerHTML = `
+    <div class="period-header">
+      <div class="period-header-left">
+        <span class="period-title">Pay Period ${pi+1}</span>
+        <span class="period-date-display">${esc(period.date)}</span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${canEdit ? `<button class="edit-date-btn" onclick="editDate('${key}',${pi})">✏ Date</button>` : ''}
+        ${canEdit ? `<button class="period-delete-btn" onclick="deletePeriod('${key}',${pi})">🗑 Delete</button>` : ''}
+      </div>
+    </div>`;
+  card.innerHTML = headerHTML;
+
+  // ── MONEY IN section ──
+  const incomeSectionId = `income-body-${key}-${pi}`;
+  const incomeToggle = document.createElement('div');
+  incomeToggle.className = 'section-toggle money-in';
+  incomeToggle.innerHTML = `
+    <div class="section-toggle-left">
+      <span class="section-chevron" id="chev-in-${key}-${pi}">▼</span>
+      <span class="section-toggle-label">💚 Money In</span>
+    </div>
+    <span class="section-toggle-amount">$${totalIncome.toFixed(2)}</span>`;
+  incomeToggle.onclick = () => toggleSection(incomeSectionId, `chev-in-${key}-${pi}`);
+  card.appendChild(incomeToggle);
+
+  const incomeBody = document.createElement('div');
+  incomeBody.className = 'section-body collapsed';
+  incomeBody.id = incomeSectionId;
+
+  // Salary row (always shown, read from settings)
+  const salaryRow = document.createElement('div');
+  salaryRow.className = 'bill-row';
+  salaryRow.innerHTML = `<span class="bill-name-input" style="color:#059669;font-weight:600">Salary (fortnightly)</span><span class="readonly-amount" style="color:#059669">$${(state.settings.salary||0).toFixed(2)}</span><span style="width:22px"></span>`;
+  incomeBody.appendChild(salaryRow);
+
+  // Extra income lines
+  const extraDiv = document.createElement('div');
+  extraDiv.setAttribute('data-income', `${key}-${pi}`);
+  extraIncome.forEach(item => {
+    const row = document.createElement('div'); row.className = 'bill-row';
     if (canEdit) {
-      row.innerHTML=`<input type="checkbox" class="bill-check" ${bill.done?'checked':''} onchange="toggleDone('${key}',${pi},'${bill.id}',this.checked)"><input class="bill-name-input" type="text" value="${esc(bill.name)}" placeholder="Expense name" title="${esc(bill.payTo)}" onchange="updateBill('${key}',${pi},'${bill.id}','name',this.value)"><input class="bill-amount-input" type="number" step="0.01" value="${parseFloat(bill.amount||0).toFixed(2)}" onchange="updateBill('${key}',${pi},'${bill.id}','amount',this.value)"><button class="recur-btn ${bill.recurring?'on':''}" title="${bill.recurring?'Recurring':'One-off'}" onclick="toggleRecurring('${key}',${pi},'${bill.id}')">♻</button><button class="del-btn" title="Delete" onclick="deleteBill('${key}',${pi},'${bill.id}')">×</button>`;
+      row.innerHTML = `<input class="bill-name-input" type="text" value="${esc(item.name)}" placeholder="e.g. Freelance" onchange="updateIncome('${key}',${pi},'${item.id}','name',this.value)"><input class="bill-amount-input" type="number" step="0.01" value="${parseFloat(item.amount||0).toFixed(2)}" onchange="updateIncome('${key}',${pi},'${item.id}','amount',this.value)"><button class="recur-btn ${item.recurring?'on':''}" title="${item.recurring?'Recurring':'One-off'}" onclick="toggleIncomeRecurring('${key}',${pi},'${item.id}')">♻</button><button class="del-btn" onclick="deleteIncome('${key}',${pi},'${item.id}')">×</button>`;
     } else {
-      row.innerHTML=`<input type="checkbox" class="bill-check" ${bill.done?'checked':''} disabled><span class="bill-name-input" style="pointer-events:none">${esc(bill.name)}</span><span class="readonly-amount">$${parseFloat(bill.amount||0).toFixed(2)}</span><span class="recur-btn ${bill.recurring?'on':''}" style="pointer-events:none">♻</span>`;
+      row.innerHTML = `<span class="bill-name-input">${esc(item.name)}</span><span class="readonly-amount" style="color:#059669">$${parseFloat(item.amount||0).toFixed(2)}</span>`;
+    }
+    extraDiv.appendChild(row);
+  });
+  incomeBody.appendChild(extraDiv);
+
+  if (canEdit) {
+    const addIncomeDiv = document.createElement('div'); addIncomeDiv.className = 'add-row';
+    addIncomeDiv.innerHTML = `<button class="add-btn" style="color:#059669;border-color:#a7f3d0" onclick="addIncomeLine('${key}',${pi})">＋ Add income</button>`;
+    incomeBody.appendChild(addIncomeDiv);
+  }
+  card.appendChild(incomeBody);
+
+  // ── MONEY OUT section ──
+  const outSectionId = `out-body-${key}-${pi}`;
+  const outToggle = document.createElement('div');
+  outToggle.className = 'section-toggle money-out';
+  outToggle.innerHTML = `
+    <div class="section-toggle-left">
+      <span class="section-chevron open" id="chev-out-${key}-${pi}">▼</span>
+      <span class="section-toggle-label">🔴 Money Out</span>
+    </div>
+    <span class="section-toggle-amount">$${subtotal.toFixed(2)}</span>`;
+  outToggle.onclick = () => toggleSection(outSectionId, `chev-out-${key}-${pi}`);
+  card.appendChild(outToggle);
+
+  const outBody = document.createElement('div');
+  outBody.className = 'section-body';
+  outBody.id = outSectionId;
+
+  const listDiv = document.createElement('div');
+  listDiv.className = 'bill-list';
+  listDiv.setAttribute('data-period', `${key}-${pi}`);
+  period.bills.forEach(bill => {
+    const row = document.createElement('div'); row.className = 'bill-row' + (bill.done ? ' is-done' : '');
+    if (canEdit) {
+      row.innerHTML = `<input type="checkbox" class="bill-check" ${bill.done?'checked':''} onchange="toggleDone('${key}',${pi},'${bill.id}',this.checked)"><input class="bill-name-input" type="text" value="${esc(bill.name)}" placeholder="Expense name" title="${esc(bill.payTo)}" onchange="updateBill('${key}',${pi},'${bill.id}','name',this.value)"><input class="bill-amount-input" type="number" step="0.01" value="${parseFloat(bill.amount||0).toFixed(2)}" onchange="updateBill('${key}',${pi},'${bill.id}','amount',this.value)"><button class="recur-btn ${bill.recurring?'on':''}" title="${bill.recurring?'Recurring':'One-off'}" onclick="toggleRecurring('${key}',${pi},'${bill.id}')">♻</button><button class="del-btn" title="Delete" onclick="deleteBill('${key}',${pi},'${bill.id}')">×</button>`;
+    } else {
+      row.innerHTML = `<input type="checkbox" class="bill-check" ${bill.done?'checked':''} disabled><span class="bill-name-input" style="pointer-events:none">${esc(bill.name)}</span><span class="readonly-amount">$${parseFloat(bill.amount||0).toFixed(2)}</span><span class="recur-btn ${bill.recurring?'on':''}" style="pointer-events:none">♻</span>`;
     }
     listDiv.appendChild(row);
   });
-  card.appendChild(listDiv);
+  outBody.appendChild(listDiv);
+
   if (canEdit) {
-    const addDiv=document.createElement('div'); addDiv.className='add-row';
-    addDiv.innerHTML=`<button class="add-btn" onclick="addBill('${key}',${pi})">＋ Add expense</button>`;
-    card.appendChild(addDiv);
+    const addDiv = document.createElement('div'); addDiv.className = 'add-row';
+    addDiv.innerHTML = `<button class="add-btn" onclick="addBill('${key}',${pi})">＋ Add expense</button>`;
+    outBody.appendChild(addDiv);
   }
-  const sumDiv=document.createElement('div'); sumDiv.className='period-summary';
+  card.appendChild(outBody);
+
+  // Summary footer
+  const sumDiv = document.createElement('div'); sumDiv.className = 'period-summary';
   const savingsCell = canEdit
     ? `<input class="savings-input" type="number" step="0.01" value="${savings.toFixed(2)}" onchange="updateSavings('${key}',${pi},this.value)">`
     : `<span>$${savings.toFixed(2)}</span>`;
-  sumDiv.innerHTML=`<div class="sum-row subtotal"><span>SUB TOTAL</span><span>$${subtotal.toFixed(2)}</span></div><div class="sum-row salary"><span>Salary</span><span>$${salary.toFixed(2)}</span></div><div class="sum-row savings"><span>Savings (offset acct)</span>${savingsCell}</div><div class="sum-row allowance ${allowance<0?'negative':''}"><span>✦ Allowance</span><span>$${allowance.toFixed(2)}</span></div>`;
+  sumDiv.innerHTML = `
+    <div class="sum-row subtotal"><span>Total Out</span><span>$${subtotal.toFixed(2)}</span></div>
+    <div class="sum-row savings"><span>Savings (offset acct)</span>${savingsCell}</div>
+    <div class="sum-row allowance ${allowance<0?'negative':''}"><span>✦ Allowance</span><span>$${allowance.toFixed(2)}</span></div>`;
   card.appendChild(sumDiv);
   return card;
+}
+
+function toggleSection(bodyId, chevId) {
+  const body = document.getElementById(bodyId);
+  const chev = document.getElementById(chevId);
+  if (!body) return;
+  body.classList.toggle('collapsed');
+  if (chev) chev.classList.toggle('open');
 }
 
 // ─────────────────────────────────────────────
@@ -1650,7 +1860,8 @@ function init() {
   const now = new Date();
   curYear = now.getFullYear(); curMonth = now.getMonth();
   if (!hadData) createMonth(curYear, curMonth, true);
-  document.getElementById('salaryInput').value = state.settings?.salary || 4524.58;
+  const si = document.getElementById('salaryInput');
+  if (si) si.value = state.settings?.salary || 4524.58;
   pLoad();
   const dateEl = document.getElementById('f-date');
   if (dateEl) dateEl.value = pTodayLabel();
