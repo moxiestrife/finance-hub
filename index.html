@@ -807,8 +807,10 @@ body {
 .p-action-btn {
   background: none; border: none; cursor: pointer; font-size: 0.85rem;
   color: #cbd5e1; padding: 2px 4px; border-radius: 4px; line-height: 1;
+  opacity: 0;
 }
-.p-action-btn:hover { color: #374151; background: #f1f5f9; }
+.p-row:hover .p-action-btn { opacity: 0.6; }
+.p-action-btn:hover { opacity: 1 !important; color: #374151; background: #f1f5f9; }
 .p-action-btn.danger:hover { color: #dc2626; background: #fee2e2; }
 
 /* Completed collapsed section */
