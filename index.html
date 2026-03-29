@@ -339,15 +339,18 @@ body {
   text-transform: uppercase; letter-spacing: 0.4px;
   border-bottom: 2px solid #f0f4f8;
 }
-/* Select handle — the tappable zone */
+/* Select / drag handle — the tappable zone */
 .row-handle {
   width: 20px; height: 100%; display: flex; align-items: center; justify-content: center;
-  color: #cbd5e1; font-size: 0.7rem; cursor: pointer; letter-spacing: -1px;
+  color: #cbd5e1; font-size: 0.7rem; cursor: grab; letter-spacing: -1px;
   border-radius: 4px; flex-shrink: 0; padding: 6px 2px; margin: -6px 0;
   transition: color 0.15s, background 0.15s;
 }
+.row-handle:active { cursor: grabbing; }
 .row-handle:hover { color: #7C3AED; background: #ede9fe; }
 .bill-row.selected .row-handle { color: #7C3AED; }
+.bill-row.drag-over { border-top: 2px solid #7C3AED; background: #f5f3ff; }
+.bill-row.dragging  { opacity: 0.35; }
 .bill-check { width: 18px; height: 18px; cursor: pointer; accent-color: #1e3a5f; flex-shrink: 0; }
 .bill-name-input {
   border: none; background: transparent;
@@ -413,18 +416,24 @@ body {
 }
 .add-btn:hover { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
 
-/* Period summary */
+/* Period summary / savings section */
 .period-summary { border-top: 2px solid #e2e8f0; }
 .sum-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 16px; font-size: 0.875rem; }
-.sum-row.savings  { color: #6b7280; font-size: 0.82rem; }
-.sum-row.savings .savings-input {
-  border: none; background: transparent; text-align: right;
-  width: 80px; font-size: 0.82rem; color: #6b7280; font-weight: 500;
-  outline: none; padding: 1px 4px; border-radius: 4px; font-family: inherit;
+/* Savings goals section inside footer */
+.savings-section { border-top: 2px solid #e2e8f0; }
+.savings-section-header {
+  padding: 6px 12px 2px; font-size: 0.68rem; font-weight: 700;
+  color: #059669; text-transform: uppercase; letter-spacing: 0.5px;
 }
-.sum-row.savings .savings-input:focus { background: #eff6ff; color: #1a202c; }
-.sum-row.allowance { background: #fef9c3; font-weight: 800; color: #92400e; font-size: 0.95rem; }
-.sum-row.allowance.negative { background: #fee2e2; color: #991b1b; }
+.saving-row {
+  display: grid;
+  grid-template-columns: 18px 1fr 90px 120px 22px;
+  align-items: center;
+  padding: 5px 12px; gap: 6px;
+  border-bottom: 1px solid #f0f4f8;
+}
+.saving-row.is-done { opacity: 0.4; }
+.saving-row.is-done .bill-name-input { text-decoration: line-through; }
 
 /* ═══════════════════════════════════════
    RIGHT-CLICK CONTEXT MENU
@@ -1353,14 +1362,26 @@ function defaultDates(y, m) {
 function seedBills(arr) {
   return arr.map(b => ({ id: newId(), name: b.name, amount: b.amount, payTo: b.payTo||'', recurring: b.recurring!==false, done: false }));
 }
+function defaultSavingsGoals() {
+  return [{ id: newId(), name: 'General Savings', amount: 0, payTo: '', recurring: true, done: false }];
+}
+function getSavingsGoals(period) {
+  // backwards-compat: migrate old scalar 'savings' to savingsGoals array
+  if (!period.savingsGoals || !period.savingsGoals.length) {
+    const amt = parseFloat(period.savings) || 0;
+    period.savingsGoals = [{ id: newId(), name: 'General Savings', amount: amt, payTo: '', recurring: true, done: false }];
+    delete period.savings;
+  }
+  return period.savingsGoals;
+}
 function createMonth(y, m, withSeed=false) {
   const key = mKey(y, m);
   if (state.months[key]) return;
   const [d1, d2] = defaultDates(y, m);
   state.months[key] = {
     periods: [
-      { date: d1, savings: 0,    bills: withSeed ? seedBills(SEED_P1) : [] },
-      { date: d2, savings: 1000, bills: withSeed ? seedBills(SEED_P2) : [] }
+      { date: d1, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P1) : [] },
+      { date: d2, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P2) : [] }
     ]
   };
   save();
@@ -1375,7 +1396,7 @@ function getMonthStats(key) {
   m.periods.forEach(p => {
     const inc = getPeriodIncome(p);
     const sub = p.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-    const sav = parseFloat(p.savings)||0;
+    const sav = getSavingsGoals(p).reduce((s,g)=>s+(parseFloat(g.amount)||0),0);
     totalSpend += sub; totalSavings += sav;
     totalAllowance += (inc-sub-sav); totalIncome += inc;
   });
@@ -1425,15 +1446,20 @@ function handleNextMonth() {
   const cur = state.months[mKey(curYear,curMonth)];
   if (!cur) { showToast('No data in current month'); return; }
   const [d1,d2] = defaultDates(ny,nm);
-  // Copy all recurring bills AND recurring income lines
-  const copyBills  = bills  => (bills  ||[]).filter(b=>b.recurring).map(b=>({...b, id:newId(), done:false}));
-  const copyIncome = income => (income ||[]).filter(i=>i.recurring).map(i=>({...i, id:newId()}));
+  // Copy all recurring bills, recurring income lines, recurring savings goals
+  const copyBills   = bills  => (bills  ||[]).filter(b=>b.recurring).map(b=>({...b, id:newId(), done:false}));
+  const copyIncome  = income => (income ||[]).filter(i=>i.recurring).map(i=>({...i, id:newId()}));
+  const copySavings = p => {
+    const goals = getSavingsGoals(p);
+    // Always keep all savings goals (they're commitments), reset done flag
+    return goals.map((g, gi) => ({...g, id:newId(), done:false}));
+  };
   state.months[nextKey] = {
     periods: cur.periods.map((p, pi) => ({
-      date:    pi===0 ? d1 : d2,
-      savings: p.savings,
-      bills:   copyBills(p.bills),
-      income:  copyIncome(p.income)
+      date:         pi===0 ? d1 : d2,
+      savingsGoals: copySavings(p),
+      bills:        copyBills(p.bills),
+      income:       copyIncome(p.income)
     }))
   };
   save(); curYear=ny; curMonth=nm;
@@ -1478,9 +1504,71 @@ function addBill(key,pi) {
     if(inputs.length)inputs[inputs.length-1].focus();
   },30);
 }
-function updateSavings(key,pi,val) {
+
+// ── Drag-to-reorder bills ──
+let _dragKey=null, _dragPi=null, _dragId=null;
+function billDragStart(e, key, pi, billId) {
+  _dragKey=key; _dragPi=pi; _dragId=billId;
+  e.dataTransfer.effectAllowed='move';
+  const row = e.currentTarget.closest('.bill-row');
+  if (row) setTimeout(()=>row.classList.add('dragging'),0);
+}
+function billDragOver(e, key, pi, billId) {
+  e.preventDefault(); e.dataTransfer.dropEffect='move';
+  if (billId === _dragId) return;
+  document.querySelectorAll('.bill-row.drag-over').forEach(r=>r.classList.remove('drag-over'));
+  const row = e.currentTarget.closest('.bill-row');
+  if (row) row.classList.add('drag-over');
+}
+function billDrop(e, key, pi, billId) {
+  e.preventDefault();
+  document.querySelectorAll('.bill-row.drag-over,.bill-row.dragging').forEach(r=>r.classList.remove('drag-over','dragging'));
+  if (!_dragKey || _dragId===billId || _dragKey!==key || _dragPi!==pi) { _dragKey=null; return; }
+  const p=getPeriod(key,pi); if(!p){_dragKey=null;return;}
+  const fromIdx=p.bills.findIndex(b=>b.id===_dragId);
+  const toIdx  =p.bills.findIndex(b=>b.id===billId);
+  if (fromIdx<0||toIdx<0){_dragKey=null;return;}
+  const [moved]=p.bills.splice(fromIdx,1);
+  p.bills.splice(toIdx,0,moved);
+  _dragKey=null; save(); renderMonthView(key);
+}
+function billDragEnd(e) {
+  document.querySelectorAll('.bill-row.drag-over,.bill-row.dragging').forEach(r=>r.classList.remove('drag-over','dragging'));
+  _dragKey=null;
+}
+function updateSavingsGoal(key,pi,id,field,val) {
   if (!isAdmin()) return;
-  const p=getPeriod(key,pi); if(p){p.savings=parseFloat(val)||0;save();renderMonthView(key);}
+  const p=getPeriod(key,pi); if(!p)return;
+  const g=getSavingsGoals(p).find(g=>g.id===id); if(!g)return;
+  g[field] = field==='amount' ? (parseFloat(val)||0) : val;
+  save(); renderMonthView(key);
+}
+function toggleSavingsDone(key,pi,id,val) {
+  if (!isAdmin()) return;
+  const p=getPeriod(key,pi); if(!p)return;
+  const g=getSavingsGoals(p).find(g=>g.id===id); if(!g)return;
+  g.done=val; save(); renderMonthView(key);
+}
+function toggleSavingsRecurring(key,pi,id) {
+  if (!isAdmin()) return;
+  const p=getPeriod(key,pi); if(!p)return;
+  const g=getSavingsGoals(p).find(g=>g.id===id); if(!g)return;
+  g.recurring=!g.recurring; save(); renderMonthView(key);
+}
+function addSavingsGoal(key,pi) {
+  if (!isAdmin()) return;
+  const p=getPeriod(key,pi); if(!p)return;
+  getSavingsGoals(p).push({id:newId(),name:'',amount:0,payTo:'',recurring:false,done:false});
+  save(); renderMonthView(key);
+}
+function deleteSavingsGoal(key,pi,id) {
+  if (!isAdmin()) return;
+  const p=getPeriod(key,pi); if(!p)return;
+  const goals=getSavingsGoals(p);
+  // Never delete the first (General Savings) — 0-index guard
+  const idx=goals.findIndex(g=>g.id===id);
+  if(idx<=0)return;
+  goals.splice(idx,1); save(); renderMonthView(key);
 }
 function editDate(key,pi) {
   if (!isAdmin()) return;
@@ -1606,9 +1694,10 @@ function handlePayToChange(key, pi, billId, sel) {
 
 function buildPeriodCard(key, period, pi, canEdit) {
   const totalIncome = getPeriodIncome(period);
-  const savings = period.savings || 0;
+  const savingsGoals = getSavingsGoals(period);
+  const totalSavings = savingsGoals.reduce((s,g)=>s+(parseFloat(g.amount)||0),0);
   const subtotal = period.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-  const allowance = totalIncome - subtotal - savings;
+  const allowance = totalIncome - subtotal - totalSavings;
   const extraIncome = period.income || [];
 
   const card = document.createElement('div'); card.className = 'period-card';
@@ -1727,12 +1816,19 @@ function buildPeriodCard(key, period, pi, canEdit) {
     row.dataset.key = key; row.dataset.pi = pi; row.dataset.billId = bill.id;
     row.dataset.amount = bill.amount || 0; row.dataset.name = bill.name || '';
 
-    // Build handle element (the dedicated tap/select zone)
+    // Build handle element (select + drag zone)
     const handle = document.createElement('div');
     handle.className = 'row-handle';
-    handle.title = 'Click to select · Shift+click for range · Ctrl+click to add';
+    handle.title = 'Drag to reorder · Click to select · Shift/Ctrl+click for multi-select';
     handle.innerHTML = '⋮⋮';
     handle.addEventListener('click', (e) => { e.stopPropagation(); handleRowClick(e, row, key, pi, bill, billIdx, true); });
+    if (canEdit) {
+      row.setAttribute('draggable', 'true');
+      row.addEventListener('dragstart', (e) => billDragStart(e, key, pi, bill.id));
+      row.addEventListener('dragover',  (e) => billDragOver(e, key, pi, bill.id));
+      row.addEventListener('drop',      (e) => billDrop(e, key, pi, bill.id));
+      row.addEventListener('dragend',   billDragEnd);
+    }
 
     if (canEdit) {
       const amtVal = bill.amount ? parseFloat(bill.amount).toFixed(2) : '';
@@ -1777,15 +1873,48 @@ function buildPeriodCard(key, period, pi, canEdit) {
   }
   card.appendChild(outBody);
 
-  // Summary footer — no Total Out, just savings + safe to spend
-  const sumDiv = document.createElement('div'); sumDiv.className = 'period-summary';
-  const savingsCell = canEdit
-    ? `<input class="savings-input" type="number" step="0.01" value="${savings.toFixed(2)}" onchange="updateSavings('${key}',${pi},this.value)">`
-    : `<span>$${savings.toFixed(2)}</span>`;
-  sumDiv.innerHTML = `
-    <div class="sum-row savings"><span>Savings to offset acct</span>${savingsCell}</div>
-    <div class="sum-row allowance ${allowance<0?'negative':''}"><span>✦ Safe to Spend</span><span>$${allowance.toFixed(2)}</span></div>`;
-  card.appendChild(sumDiv);
+  // ── Savings Goals section ──
+  const savSection = document.createElement('div');
+  savSection.className = 'savings-section';
+  const savHeader = document.createElement('div');
+  savHeader.className = 'savings-section-header';
+  savHeader.textContent = 'Savings';
+  savSection.appendChild(savHeader);
+
+  savingsGoals.forEach((goal, gi) => {
+    const isFirst = gi === 0; // General Savings — no delete
+    const sRow = document.createElement('div');
+    sRow.className = 'saving-row' + (goal.done ? ' is-done' : '');
+    if (canEdit) {
+      const nameVal = isFirst && !goal.name ? 'General Savings' : esc(goal.name);
+      const amtVal  = goal.amount ? parseFloat(goal.amount).toFixed(2) : '';
+      sRow.innerHTML = `
+        <input type="checkbox" class="bill-check" ${goal.done?'checked':''} onchange="toggleSavingsDone('${key}',${pi},'${goal.id}',this.checked)" onclick="event.stopPropagation()">
+        <input class="bill-name-input" type="text" value="${nameVal}" placeholder="Savings goal name" ${isFirst?'style="color:#059669;font-weight:600"':''}
+          onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','name',this.value)" onclick="event.stopPropagation()">
+        <input class="bill-amount-input" type="number" step="0.01" value="${amtVal}" placeholder="0.00"
+          onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','amount',this.value)" onclick="event.stopPropagation()">
+        <select class="payto-select" onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','payTo',this.value)" onclick="event.stopPropagation()">${getAccountOptions(goal.payTo)}</select>
+        <button class="recur-btn ${goal.recurring?'on':''}" onclick="event.stopPropagation();toggleSavingsRecurring('${key}',${pi},'${goal.id}')">♻</button>
+        ${isFirst ? '<span></span>' : `<button class="del-btn" onclick="event.stopPropagation();deleteSavingsGoal('${key}',${pi},'${goal.id}')">×</button>`}`;
+    } else {
+      sRow.innerHTML = `
+        <input type="checkbox" class="bill-check" ${goal.done?'checked':''} disabled>
+        <span class="bill-name-input" ${gi===0?'style="color:#059669;font-weight:600"':''}>${goal.name||'General Savings'}</span>
+        <span class="readonly-amount" style="color:#059669">$${parseFloat(goal.amount||0).toFixed(2)}</span>
+        <span class="readonly-payto">${esc(goal.payTo||'')}</span>
+        <span class="recur-btn ${goal.recurring?'on':''}" style="pointer-events:none">♻</span>`;
+    }
+    savSection.appendChild(sRow);
+  });
+
+  if (canEdit) {
+    const addSavDiv = document.createElement('div'); addSavDiv.className = 'add-row';
+    addSavDiv.innerHTML = `<button class="add-btn" style="color:#059669;border-color:#a7f3d0" onclick="addSavingsGoal('${key}',${pi})">＋ Add savings goal</button>`;
+    savSection.appendChild(addSavDiv);
+  }
+
+  card.appendChild(savSection);
   return card;
 }
 
