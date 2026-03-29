@@ -147,15 +147,6 @@ body {
   display: flex; align-items: center; justify-content: center;
 }
 .nav-btn:hover { background: rgba(255,255,255,0.28); }
-.next-month-btn {
-  background: #10b981; color: white; border: none;
-  padding: 7px 14px; border-radius: 8px; cursor: pointer;
-  font-weight: 600; font-size: 0.82rem; white-space: nowrap;
-  font-family: inherit;
-}
-.next-month-btn:hover { background: #059669; }
-.next-month-btn.exists { background: #3b82f6; }
-.next-month-btn.exists:hover { background: #2563eb; }
 .data-btns { display: flex; gap: 8px; }
 .data-btn {
   background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
@@ -854,7 +845,6 @@ body {
     <span class="month-label" id="monthLabel">—</span>
     <button class="nav-btn" onclick="changeMonth(1)">›</button>
   </div>
-  <button class="next-month-btn" id="nextMonthBtn" onclick="handleNextMonth()">…</button>
   <div class="topbar-right">
     <div class="sync-indicator">
       <div class="sync-dot" id="sync-dot"></div>
@@ -1630,12 +1620,11 @@ function switchTab(tab) {
   if (activeTab) activeTab.classList.add('active');
 
   const mnav = document.getElementById('monthNavWrap');
-  const nbtn = document.getElementById('nextMonthBtn');
   if (tab === 'monthly') {
-    mnav.style.display = 'flex'; nbtn.style.display = isAdmin() ? '' : 'none';
+    mnav.style.display = 'flex';
     render();
   } else {
-    mnav.style.display = 'none'; nbtn.style.display = 'none';
+    mnav.style.display = 'none';
     if (tab === 'summary')  renderSummary();
     if (tab === 'insights') renderInsights();
     if (tab === 'payables') renderPayables();
@@ -1794,12 +1783,6 @@ function render() {
   const canEdit = isAdmin();
   const key = mKey(curYear, curMonth);
   document.getElementById('monthLabel').textContent = `${MONTHS[curMonth]} ${curYear}`;
-  let ny=curYear, nm=curMonth+1; if(nm>11){nm=0;ny++;}
-  const nextExists = !!state.months[mKey(ny,nm)];
-  const btn = document.getElementById('nextMonthBtn');
-  btn.style.display = canEdit ? '' : 'none';
-  if (nextExists) { btn.textContent=`→ ${MONTHS[nm].slice(0,3)} ${ny}`; btn.classList.add('exists'); }
-  else            { btn.textContent=`+ ${MONTHS[nm].slice(0,3)} ${ny}`; btn.classList.remove('exists'); }
   const monthData = state.months[key];
   const grid = document.getElementById('periodsGrid');
 
