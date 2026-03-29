@@ -878,9 +878,10 @@ function applyRoleUI() {
   const salaryInput = document.getElementById('salaryInput');
   salaryInput.readOnly = !isAdmin();
 
-  // Payables sub-tab bar: Eric only sees his own view
+  // Eric only sees his own payables — sub-tabs and Elly's view hidden
   if (isEric()) {
     document.getElementById('payables-subtab-bar').style.display = 'none';
+    document.getElementById('payables-elly-view').style.display = 'none';
     switchPayablesViewSilent('eric');
   }
 }
