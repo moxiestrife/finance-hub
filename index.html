@@ -1546,6 +1546,7 @@ const PAYTO_ORDER = [
 ];
 function payToRank(payTo) {
   const key = (payTo || '').toLowerCase().trim();
+  if (!key) return PAYTO_ORDER.length + 1; // empty payTo always sorts last
   const idx = PAYTO_ORDER.findIndex(p => key.includes(p) || p.includes(key));
   return idx >= 0 ? idx : PAYTO_ORDER.length;
 }
