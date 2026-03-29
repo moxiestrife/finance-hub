@@ -645,7 +645,7 @@ body {
   background: #1e3a5f; color: white; border-radius: 999px;
   padding: 8px 20px; font-size: 0.85rem; font-weight: 600;
   box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  z-index: 7000; display: none; pointer-events: none;
+  z-index: 7000; display: none;
   transition: opacity 0.2s;
 }
 .sel-badge.visible { display: block; }
@@ -782,9 +782,11 @@ body {
   display: grid; grid-template-columns: 24px 1fr 90px 120px 100px 28px;
   align-items: center; padding: 9px 14px; gap: 8px;
   border-bottom: 1px solid #f8fafc; transition: background 0.1s;
+  cursor: pointer; user-select: none;
 }
 .p-row:last-child { border-bottom: none; }
 .p-row:hover { background: #f8fafc; }
+.p-row.p-selected { background: #eff6ff !important; outline: 1.5px solid #93c5fd; outline-offset: -1px; }
 .p-row.is-done { opacity: 0.45; }
 .p-row.is-done .p-row-name { text-decoration: line-through; color: #9ca3af; }
 .p-check { width: 18px; height: 18px; cursor: pointer; accent-color: #1e3a5f; flex-shrink: 0; }
@@ -1266,6 +1268,15 @@ body {
       <div id="eric-peek-list"></div>
     </div>
   </div>
+</div>
+
+<!-- ═══ PAYABLES CONTEXT MENU ═══ -->
+<div class="ctx-menu-shell" id="p-ctx-menu" style="min-width:180px">
+  <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px" id="p-ctx-label">1 row selected</div>
+  <div class="ctx-item" onclick="pCtxAllocate()">📌 &nbsp;Allocate to period…</div>
+  <div class="ctx-item" onclick="pCtxUnallocate()">✕ &nbsp;Remove allocation</div>
+  <div class="ctx-divider"></div>
+  <div class="ctx-item ctx-danger" onclick="pCtxDelete()">🗑 &nbsp;Delete selected</div>
 </div>
 
 <!-- COMPUTATION PANEL -->
@@ -2736,6 +2747,123 @@ function openEricPeek() {
   openModal('modal-eric-peek');
 }
 
+// ── Row selection ──
+let pSelectedRows = []; // { id, amount, name, el }
+let pLastClickedRow = null;
+
+function pHandleRowClick(e, row, entry, myShare) {
+  // Don't intercept clicks on inputs/checkboxes/buttons
+  if (['INPUT','SELECT','BUTTON','SPAN'].includes(e.target.tagName) && e.target !== row) return;
+  const rowData = { id: entry.id, amount: myShare, name: entry.name, el: row };
+
+  if (e.shiftKey && pLastClickedRow) {
+    const allRows = Array.from(document.querySelectorAll('#p-active-list .p-row'));
+    const lastIdx = allRows.indexOf(pLastClickedRow.el);
+    const curIdx  = allRows.indexOf(row);
+    const [from, to] = lastIdx < curIdx ? [lastIdx, curIdx] : [curIdx, lastIdx];
+    for (let i = from; i <= to; i++) {
+      const r = allRows[i];
+      if (!pSelectedRows.find(s => s.el === r)) {
+        pSelectedRows.push({ id: r.dataset.pid, amount: parseFloat(r.dataset.pamount)||0, name: r.dataset.pname||'', el: r });
+        r.classList.add('p-selected');
+      }
+    }
+  } else if (e.ctrlKey || e.metaKey) {
+    const idx = pSelectedRows.findIndex(s => s.id === entry.id);
+    if (idx > -1) { pSelectedRows.splice(idx, 1); row.classList.remove('p-selected'); }
+    else { pSelectedRows.push(rowData); row.classList.add('p-selected'); }
+  } else {
+    pClearSelection();
+    pSelectedRows.push(rowData);
+    row.classList.add('p-selected');
+  }
+  pLastClickedRow = rowData;
+  pUpdateSelBadge();
+}
+
+function pClearSelection() {
+  pSelectedRows.forEach(s => s.el && s.el.classList.remove('p-selected'));
+  pSelectedRows = [];
+  pLastClickedRow = null;
+  pUpdateSelBadge();
+}
+
+function pUpdateSelBadge() {
+  const badge = document.getElementById('sel-badge');
+  if (!badge) return;
+  if (pSelectedRows.length === 0) { badge.classList.remove('visible'); return; }
+  const sum = pSelectedRows.reduce((t,r) => t + r.amount, 0);
+  badge.style.pointerEvents = 'auto';
+  badge.textContent = `${pSelectedRows.length} payable${pSelectedRows.length>1?'s':''} selected · $${sum.toFixed(2)} · Right-click for options`;
+  badge.classList.add('visible');
+}
+
+function pHandleRowRightClick(e, row, entry, myShare) {
+  e.preventDefault();
+  if (!pSelectedRows.find(s => s.id === entry.id)) {
+    pClearSelection();
+    pSelectedRows.push({ id: entry.id, amount: myShare, name: entry.name, el: row });
+    row.classList.add('p-selected');
+    pLastClickedRow = { id: entry.id, amount: myShare, name: entry.name, el: row };
+    pUpdateSelBadge();
+  }
+  const lbl = document.getElementById('p-ctx-label');
+  if (lbl) lbl.textContent = `${pSelectedRows.length} row${pSelectedRows.length!==1?'s':''} selected`;
+  const menu = document.getElementById('p-ctx-menu');
+  menu.classList.add('open');
+  let x = e.clientX, y = e.clientY;
+  if (x + 200 > window.innerWidth) x = window.innerWidth - 205;
+  if (y + 140 > window.innerHeight) y = Math.max(4, window.innerHeight - 144);
+  menu.style.left = x + 'px'; menu.style.top = y + 'px';
+}
+
+function pCloseCtx() {
+  document.getElementById('p-ctx-menu')?.classList.remove('open');
+}
+
+function pCtxAllocate() {
+  pCloseCtx();
+  if (!pSelectedRows.length) return;
+  if (pSelectedRows.length === 1) { openAllocateModal(pSelectedRows[0].id); return; }
+  // Multi-select: open modal for first, chain through rest after confirm
+  _pMultiAllocQueue = pSelectedRows.map(r => r.id);
+  openAllocateModal(_pMultiAllocQueue.shift());
+}
+
+let _pMultiAllocQueue = [];
+
+function pCtxUnallocate() {
+  pCloseCtx();
+  if (!pSelectedRows.length) return;
+  pSelectedRows.forEach(r => {
+    const e = (pState.entries||[]).find(x => x.id === r.id);
+    if (!e || !e.allocatedTo) return;
+    // Remove the linked bill from budget
+    const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
+    if (period) { period.bills = period.bills.filter(b => b.id !== e.allocatedTo.billId); save(); }
+    e.allocatedTo = null;
+  });
+  pSave(); pClearSelection(); renderPayables();
+  showToast(`✓ Allocation removed`);
+}
+
+function pCtxDelete() {
+  pCloseCtx();
+  if (!pSelectedRows.length) return;
+  if (!confirm(`Delete ${pSelectedRows.length} payable${pSelectedRows.length>1?'s':''}?`)) return;
+  pSelectedRows.forEach(r => {
+    const e = (pState.entries||[]).find(x => x.id === r.id);
+    if (e?.allocatedTo?.billId) {
+      const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
+      if (period) { period.bills = period.bills.filter(b => b.id !== e.allocatedTo.billId); save(); }
+    }
+  });
+  const ids = new Set(pSelectedRows.map(r => r.id));
+  pState.entries = pState.entries.filter(x => !ids.has(x.id));
+  pSave(); pClearSelection(); updatePayablesBadge(); renderPayables();
+  showToast(`✓ Deleted`);
+}
+
 // ── Split filter ──
 function pSetSplitFilter(val, btn) {
   pSplitFilter = val;
@@ -2798,6 +2926,18 @@ function renderPayables() {
     ?done.map(e=>pRenderRow(e,isElly,shareFn(e),true)).join('')
     :'<div class="p-empty">Nothing completed yet.</div>';
 
+  // Re-apply selection highlights after re-render
+  const selIds = new Set(pSelectedRows.map(r => r.id));
+  if (selIds.size) {
+    document.querySelectorAll('#p-active-list .p-row, #p-completed-list .p-row').forEach(row => {
+      if (selIds.has(row.dataset.pid)) {
+        row.classList.add('p-selected');
+        const found = pSelectedRows.find(r => r.id === row.dataset.pid);
+        if (found) found.el = row;
+      }
+    });
+    if (pLastClickedRow) pLastClickedRow.el = document.querySelector(`[data-pid="${pLastClickedRow.id}"]`) || pLastClickedRow.el;
+  }
   updatePayablesBadge();
 }
 
@@ -2819,8 +2959,12 @@ function pRenderRow(e,isElly,myShare,isDone) {
         <button class="p-action-btn danger" onclick="deletePayableEntry('${e.id}')" title="Delete">✕</button>
       </div>`
     :'<span></span>';
-  return`<div class="p-row${isDone?' is-done':''}">
-    <input type="checkbox" class="p-check" ${doneVal?'checked':''} onchange="togglePayableDone('${e.id}','${forWhom}')">
+  const shareVal = myShare.toFixed(2);
+  return`<div class="p-row${isDone?' is-done':''}"
+    data-pid="${e.id}" data-pamount="${shareVal}" data-pname="${esc(e.name)}"
+    onclick="pHandleRowClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"
+    oncontextmenu="pHandleRowRightClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})">
+    <input type="checkbox" class="p-check" ${doneVal?'checked':''} onchange="event.stopPropagation();togglePayableDone('${e.id}','${forWhom}')">
     <span class="p-row-name">${esc(e.name)} ${splitBadge}</span>
     <span class="p-row-amount">${pFmt(myShare)}</span>
     <span class="p-row-payto">${esc(e.payTo||'')}</span>
@@ -3028,16 +3172,24 @@ function closeModal(id) {
 
 // Close modal on overlay click
 document.addEventListener('click', (e) => {
-  // Close ctx menu
+  // Close budget ctx menu
   const menu = document.getElementById('ctx-menu');
   if (menu && !menu.contains(e.target)) closeCtx();
+  // Close payables ctx menu
+  const pmenu = document.getElementById('p-ctx-menu');
+  if (pmenu && !pmenu.contains(e.target)) pCloseCtx();
   // Close modals on backdrop click
   if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
-  // Clear row selection on outside click
+  // Clear budget row selection on outside click
   if (!e.target.closest('.bill-row') && !e.target.closest('#ctx-menu') &&
       !e.target.closest('.modal-overlay') && !e.target.closest('#calc-panel') &&
       !e.target.closest('#sel-badge')) {
     clearSelection();
+  }
+  // Clear payables selection on outside click
+  if (!e.target.closest('.p-row') && !e.target.closest('#p-ctx-menu') &&
+      !e.target.closest('.modal-overlay') && !e.target.closest('#sel-badge')) {
+    pClearSelection();
   }
 });
 
