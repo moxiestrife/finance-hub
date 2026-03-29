@@ -1161,6 +1161,7 @@ body {
     <span>✏️ &nbsp;Change properties</span><span class="ctx-arrow">›</span>
     <div class="ctx-sub" id="ctx-sub-props">
       <div class="ctx-item" onclick="closeCtx();openModalPayTo()">🏦 &nbsp;Change Pay To…</div>
+      <div class="ctx-item" onclick="closeCtx();openModalMarkAs()">✔ &nbsp;Mark as…</div>
       <div class="ctx-item" onclick="closeCtx();openModalRecurrence()">♻ &nbsp;Change recurrence…</div>
       <div class="ctx-divider"></div>
       <div class="ctx-item ctx-danger" onclick="ctxBulkDelete()">🗑 &nbsp;Delete selected</div>
@@ -1238,6 +1239,35 @@ body {
     <div class="modal-footer">
       <button class="modal-btn ghost" onclick="closeModal('modal-recurrence')">Cancel</button>
       <button class="modal-btn primary" onclick="confirmRecurrence()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Mark As ═══ -->
+<div class="modal-overlay" id="modal-markas">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>✔ Mark as…</h3>
+      <button class="modal-close" onclick="closeModal('modal-markas')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px">Apply to all <strong id="markas-sel-count">selected</strong> rows.</p>
+      <div class="recur-options">
+        <div class="recur-option" id="markas-opt-done" onclick="selectMarkAsOpt(true)">
+          <span class="recur-icon">✅</span>
+          <div class="recur-label">Done</div>
+          <div class="recur-sub">Bill has been paid</div>
+        </div>
+        <div class="recur-option" id="markas-opt-undone" onclick="selectMarkAsOpt(false)">
+          <span class="recur-icon">⬜</span>
+          <div class="recur-label">Not done</div>
+          <div class="recur-sub">Mark as unpaid</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn ghost" onclick="closeModal('modal-markas')">Cancel</button>
+      <button class="modal-btn primary" onclick="confirmMarkAs()">Apply</button>
     </div>
   </div>
 </div>
@@ -2822,6 +2852,35 @@ function confirmRecurrence() {
   save(); render();
   closeModal('modal-recurrence');
   showToast(`✓ ${selectedRows.length} row${selectedRows.length!==1?'s':''} set to ${_selectedRecur?'Recurring':'One-off'}`);
+}
+
+// ─── Mark As modal ───
+let _selectedMarkAs = null;
+
+function openModalMarkAs() {
+  if (!selectedRows.length) return;
+  _selectedMarkAs = null;
+  document.getElementById('markas-sel-count').textContent = `${selectedRows.length} row${selectedRows.length!==1?'s':''}`;
+  document.getElementById('markas-opt-done').classList.remove('selected');
+  document.getElementById('markas-opt-undone').classList.remove('selected');
+  openModal('modal-markas');
+}
+
+function selectMarkAsOpt(val) {
+  _selectedMarkAs = val;
+  document.getElementById('markas-opt-done').classList.toggle('selected', val === true);
+  document.getElementById('markas-opt-undone').classList.toggle('selected', val === false);
+}
+
+function confirmMarkAs() {
+  if (_selectedMarkAs === null) { showToast('⚠ Please select an option'); return; }
+  selectedRows.forEach(r => {
+    const bill = getBill(r.key, r.pi, r.billId);
+    if (bill) bill.done = _selectedMarkAs;
+  });
+  save(); render();
+  closeModal('modal-markas');
+  showToast(`✓ ${selectedRows.length} row${selectedRows.length!==1?'s':''} marked as ${_selectedMarkAs?'Done':'Not done'}`);
 }
 
 // ─── Move To modal ───
