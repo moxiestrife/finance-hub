@@ -382,6 +382,7 @@ body {
 .bill-row.selected .row-handle { color: #7C3AED; }
 .bill-row.drag-over { border-top: 2px solid #7C3AED; background: #f5f3ff; }
 .bill-row.dragging  { opacity: 0.35; }
+.bill-list.drag-target { outline: 2px dashed #7C3AED; outline-offset: -4px; background: #faf5ff; border-radius: 6px; }
 .bill-check { width: 18px; height: 18px; cursor: pointer; accent-color: #1e3a5f; flex-shrink: 0; }
 .bill-name-input {
   border: none; background: transparent;
@@ -1811,12 +1812,14 @@ function addBill(key,pi) {
 
 // ── Drag-to-reorder bills ──
 let _dragKey=null, _dragPi=null, _dragId=null;
+
 function billDragStart(e, key, pi, billId) {
   _dragKey=key; _dragPi=pi; _dragId=billId;
   e.dataTransfer.effectAllowed='move';
   const row = e.currentTarget.closest('.bill-row');
   if (row) setTimeout(()=>row.classList.add('dragging'),0);
 }
+
 function billDragOver(e, key, pi, billId) {
   e.preventDefault(); e.dataTransfer.dropEffect='move';
   if (billId === _dragId) return;
@@ -1824,20 +1827,59 @@ function billDragOver(e, key, pi, billId) {
   const row = e.currentTarget.closest('.bill-row');
   if (row) row.classList.add('drag-over');
 }
+
 function billDrop(e, key, pi, billId) {
   e.preventDefault();
   document.querySelectorAll('.bill-row.drag-over,.bill-row.dragging').forEach(r=>r.classList.remove('drag-over','dragging'));
-  if (!_dragKey || _dragId===billId || _dragKey!==key || _dragPi!==pi) { _dragKey=null; return; }
-  const p=getPeriod(key,pi); if(!p){_dragKey=null;return;}
-  const fromIdx=p.bills.findIndex(b=>b.id===_dragId);
-  const toIdx  =p.bills.findIndex(b=>b.id===billId);
-  if (fromIdx<0||toIdx<0){_dragKey=null;return;}
-  const [moved]=p.bills.splice(fromIdx,1);
-  p.bills.splice(toIdx,0,moved);
-  _dragKey=null; save(); renderMonthView(key);
+  if (!_dragKey || _dragId===billId) { _dragKey=null; return; }
+
+  const srcPeriod  = getPeriod(_dragKey, _dragPi);
+  const destPeriod = getPeriod(key, pi);
+  if (!srcPeriod || !destPeriod) { _dragKey=null; return; }
+
+  const fromIdx = srcPeriod.bills.findIndex(b=>b.id===_dragId);
+  if (fromIdx < 0) { _dragKey=null; return; }
+  const [moved] = srcPeriod.bills.splice(fromIdx, 1);
+
+  if (_dragKey === key && _dragPi === pi) {
+    // Same period — reorder
+    const toIdx = destPeriod.bills.findIndex(b=>b.id===billId);
+    destPeriod.bills.splice(toIdx >= 0 ? toIdx : destPeriod.bills.length, 0, moved);
+  } else {
+    // Different period — insert before target row (or append if no target)
+    const toIdx = destPeriod.bills.findIndex(b=>b.id===billId);
+    destPeriod.bills.splice(toIdx >= 0 ? toIdx : destPeriod.bills.length, 0, moved);
+    showToast(`✓ Moved to Pay Period ${pi+1}`);
+  }
+  _dragKey=null; save(); render();
 }
+
+// Drop onto the bill list itself (for dropping into an empty card or below all rows)
+function billListDragOver(e) {
+  if (!_dragKey) return;
+  e.preventDefault(); e.dataTransfer.dropEffect='move';
+  e.currentTarget.classList.add('drag-target');
+}
+function billListDrop(e, key, pi) {
+  e.preventDefault();
+  document.querySelectorAll('.bill-row.drag-over,.bill-row.dragging,.bill-list.drag-target')
+    .forEach(r=>r.classList.remove('drag-over','dragging','drag-target'));
+  if (!_dragKey) return;
+  const srcPeriod  = getPeriod(_dragKey, _dragPi);
+  const destPeriod = getPeriod(key, pi);
+  if (!srcPeriod || !destPeriod) { _dragKey=null; return; }
+  if (_dragKey === key && _dragPi === pi) { _dragKey=null; return; } // same period, ignore
+  const fromIdx = srcPeriod.bills.findIndex(b=>b.id===_dragId);
+  if (fromIdx < 0) { _dragKey=null; return; }
+  const [moved] = srcPeriod.bills.splice(fromIdx, 1);
+  destPeriod.bills.push(moved);
+  showToast(`✓ Moved to Pay Period ${pi+1}`);
+  _dragKey=null; save(); render();
+}
+
 function billDragEnd(e) {
-  document.querySelectorAll('.bill-row.drag-over,.bill-row.dragging').forEach(r=>r.classList.remove('drag-over','dragging'));
+  document.querySelectorAll('.bill-row.drag-over,.bill-row.dragging,.bill-list.drag-target')
+    .forEach(r=>r.classList.remove('drag-over','dragging','drag-target'));
   _dragKey=null;
 }
 function updateSavingsGoal(key,pi,id,field,val) {
@@ -2107,6 +2149,10 @@ function buildPeriodCard(key, period, pi, canEdit) {
   const listDiv = document.createElement('div');
   listDiv.className = 'bill-list';
   listDiv.setAttribute('data-period', `${key}-${pi}`);
+  if (canEdit) {
+    listDiv.addEventListener('dragover', billListDragOver);
+    listDiv.addEventListener('drop', (e) => billListDrop(e, key, pi));
+  }
 
   period.bills.forEach((bill, billIdx) => {
     const row = document.createElement('div');
