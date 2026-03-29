@@ -108,10 +108,15 @@ body {
   display: flex; align-items: center; justify-content: space-between;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   position: sticky; top: 0; z-index: 100;
-  flex-wrap: wrap; gap: 10px;
+  gap: 10px;
 }
-.topbar h1 { font-size: 1.15rem; font-weight: 700; white-space: nowrap; }
-.topbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.topbar h1 { font-size: 1.15rem; font-weight: 700; white-space: nowrap; flex: 1; }
+.topbar-right { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: flex-end; }
+/* Month nav absolutely centred within topbar */
+#monthNavWrap {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  display: none; /* shown via JS when on monthly tab */
+}
 .user-chip {
   display: flex; align-items: center; gap: 7px;
   background: rgba(255,255,255,0.12); border-radius: 999px;
@@ -140,7 +145,42 @@ body {
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
 .month-nav { display: flex; align-items: center; gap: 10px; }
-.month-label { font-size: 1.05rem; font-weight: 600; min-width: 165px; text-align: center; }
+.month-label {
+  font-size: 1.05rem; font-weight: 600; min-width: 165px; text-align: center;
+  cursor: pointer; border-radius: 8px; padding: 3px 10px;
+  transition: background 0.15s; user-select: none;
+}
+.month-label:hover { background: rgba(255,255,255,0.15); }
+.month-label::after { content: ' ▾'; font-size: 0.7rem; opacity: 0.7; }
+/* Month picker popover */
+#month-picker {
+  position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: white; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.22);
+  border: 1px solid #e2e8f0; z-index: 9500; padding: 14px;
+  width: 280px; display: none; color: #1a202c;
+}
+#month-picker.open { display: block; }
+.mp-year-row {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+}
+.mp-year-label { font-size: 1rem; font-weight: 700; color: #1e3a5f; }
+.mp-year-btn {
+  background: none; border: none; font-size: 1.1rem; cursor: pointer;
+  color: #1e3a5f; padding: 2px 8px; border-radius: 6px; line-height: 1;
+}
+.mp-year-btn:hover { background: #eff6ff; }
+.mp-months {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 6px;
+}
+.mp-month {
+  padding: 7px 4px; text-align: center; border-radius: 8px; cursor: pointer;
+  font-size: 0.82rem; font-weight: 500; color: #374151;
+  border: 2px solid transparent; transition: all 0.12s;
+}
+.mp-month:hover { background: #eff6ff; color: #1e3a5f; }
+.mp-month.has-data { font-weight: 700; color: #1e3a5f; }
+.mp-month.current { border-color: #1e3a5f; background: #1e3a5f; color: white; }
+.mp-month.has-data.current { background: #1e3a5f; color: white; }
 .nav-btn {
   background: rgba(255,255,255,0.15); border: none; color: white;
   width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 1.2rem;
@@ -840,10 +880,19 @@ body {
 <!-- TOP BAR -->
 <div class="topbar">
   <h1>💰 Finance Hub</h1>
-  <div class="month-nav" id="monthNavWrap">
+  <div class="month-nav" id="monthNavWrap" style="position:relative">
     <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
-    <span class="month-label" id="monthLabel">—</span>
+    <span class="month-label" id="monthLabel" onclick="toggleMonthPicker(event)">—</span>
     <button class="nav-btn" onclick="changeMonth(1)">›</button>
+    <!-- Month picker popover -->
+    <div id="month-picker">
+      <div class="mp-year-row">
+        <button class="mp-year-btn" onclick="mpChangeYear(-1)">‹</button>
+        <span class="mp-year-label" id="mp-year-label">2026</span>
+        <button class="mp-year-btn" onclick="mpChangeYear(1)">›</button>
+      </div>
+      <div class="mp-months" id="mp-months"></div>
+    </div>
   </div>
   <div class="topbar-right">
     <div class="sync-indicator">
@@ -1639,6 +1688,49 @@ function changeMonth(dir) {
   if (curMonth > 11) { curMonth = 0;  curYear++; }
   render();
 }
+
+// ── Month Picker ──
+let mpYear = new Date().getFullYear();
+
+function toggleMonthPicker(e) {
+  e.stopPropagation();
+  const picker = document.getElementById('month-picker');
+  if (picker.classList.contains('open')) { picker.classList.remove('open'); return; }
+  mpYear = curYear;
+  renderMonthPicker();
+  picker.classList.add('open');
+}
+
+function mpChangeYear(dir) {
+  mpYear += dir;
+  renderMonthPicker();
+}
+
+function renderMonthPicker() {
+  document.getElementById('mp-year-label').textContent = mpYear;
+  const grid = document.getElementById('mp-months');
+  grid.innerHTML = MONTHS.map((name, mi) => {
+    const key = mKey(mpYear, mi);
+    const hasData = !!state.months[key];
+    const isCurrent = mpYear === curYear && mi === curMonth;
+    const classes = ['mp-month', hasData ? 'has-data' : '', isCurrent ? 'current' : ''].filter(Boolean).join(' ');
+    return `<div class="${classes}" onclick="pickMonth(${mpYear},${mi})">${name.slice(0,3)}</div>`;
+  }).join('');
+}
+
+function pickMonth(y, m) {
+  curYear = y; curMonth = m;
+  document.getElementById('month-picker').classList.remove('open');
+  render();
+}
+
+// Close picker when clicking outside
+document.addEventListener('click', (e) => {
+  const picker = document.getElementById('month-picker');
+  if (picker && !picker.contains(e.target) && e.target.id !== 'monthLabel') {
+    picker.classList.remove('open');
+  }
+});
 
 function handleNextMonth() {
   if (!isAdmin()) return;
