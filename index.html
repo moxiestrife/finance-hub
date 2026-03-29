@@ -1416,10 +1416,23 @@ function listenPayables() {
     if (val) {
       pState = { entries: [], ...val };
       if (!Array.isArray(pState.entries)) pState.entries = Object.values(pState.entries||{});
+      pRepairAllocations();
       if (curTab === 'payables') renderPayables();
       updatePayablesBadge();
     }
   });
+}
+
+// Clear any allocatedTo references where the linked bill no longer exists in the budget.
+function pRepairAllocations() {
+  let changed = false;
+  (pState.entries || []).forEach(e => {
+    if (!e.allocatedTo) return;
+    const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
+    const billExists = period?.bills?.some(b => b.id === e.allocatedTo.billId);
+    if (!billExists) { e.allocatedTo = null; changed = true; }
+  });
+  if (changed) pSave();
 }
 function listenAdminSettings() {
   if (!fbReady) return;
