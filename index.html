@@ -261,8 +261,8 @@ body {
 .progress-fill { height: 100%; border-radius: 4px; background: #10b981; transition: width 0.4s; }
 
 /* Periods grid */
-.periods-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-@media (max-width: 680px) { .periods-grid { grid-template-columns: 1fr; } }
+.periods-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; align-items: start; }
+@media (max-width: 400px) { .periods-grid { grid-template-columns: 1fr; } }
 
 /* Period card */
 .period-card { background: white; border-radius: 12px; overflow: visible; box-shadow: 0 1px 4px rgba(0,0,0,0.08); position: relative; }
@@ -1561,6 +1561,45 @@ function createMonth(y, m, withSeed=false) {
   };
   save();
 }
+
+function createMonthFromLastRecurring(y, m) {
+  const key = mKey(y, m);
+  if (state.months[key]) { render(); return; }
+
+  // Find the most recent month before this one that has data
+  let prevKey = null;
+  const allKeys = Object.keys(state.months).sort();
+  for (const k of allKeys) {
+    if (k < key) prevKey = k;
+  }
+
+  if (!prevKey) {
+    // No previous month at all — fall back to blank periods
+    createMonth(y, m, false);
+    showToast('No previous month found — created blank periods');
+    return;
+  }
+
+  const prev = state.months[prevKey];
+  const newDates = defaultDates(y, m);
+
+  const copyBills   = bills  => (bills  ||[]).filter(b=>b.recurring).map(b=>({...b, id:newId(), done:false}));
+  const copyIncome  = income => (income ||[]).filter(i=>i.recurring).map(i=>({...i, id:newId()}));
+  const copySavings = p => getSavingsGoals(p).map(g=>({...g, id:newId(), done:false}));
+
+  state.months[key] = {
+    periods: prev.periods.map((p, pi) => ({
+      date:         newDates[pi] ?? newDates[newDates.length - 1],
+      savingsGoals: copySavings(p),
+      bills:        copyBills(p.bills),
+      income:       copyIncome(p.income)
+    }))
+  };
+
+  save();
+  const [py, pm] = prevKey.split('-').map(Number);
+  showToast(`✓ Created from ${MONTHS[pm-1]} ${py}'s recurring bills`);
+}
 function esc(s) {
   return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -1620,18 +1659,13 @@ function handleNextMonth() {
   if (state.months[nextKey]) { curYear=ny; curMonth=nm; render(); return; }
   const cur = state.months[mKey(curYear,curMonth)];
   if (!cur) { showToast('No data in current month'); return; }
-  const [d1,d2] = defaultDates(ny,nm);
-  // Copy all recurring bills, recurring income lines, recurring savings goals
+  const newDates = defaultDates(ny,nm);
   const copyBills   = bills  => (bills  ||[]).filter(b=>b.recurring).map(b=>({...b, id:newId(), done:false}));
   const copyIncome  = income => (income ||[]).filter(i=>i.recurring).map(i=>({...i, id:newId()}));
-  const copySavings = p => {
-    const goals = getSavingsGoals(p);
-    // Always keep all savings goals (they're commitments), reset done flag
-    return goals.map((g, gi) => ({...g, id:newId(), done:false}));
-  };
+  const copySavings = p => getSavingsGoals(p).map(g=>({...g, id:newId(), done:false}));
   state.months[nextKey] = {
     periods: cur.periods.map((p, pi) => ({
-      date:         pi===0 ? d1 : d2,
+      date:         newDates[pi] ?? newDates[newDates.length-1],
       savingsGoals: copySavings(p),
       bills:        copyBills(p.bills),
       income:       copyIncome(p.income)
@@ -1775,7 +1809,7 @@ function render() {
   }
 
   if (!monthData) {
-    grid.innerHTML = `<div class="empty-msg"><h3>No data for ${MONTHS[curMonth]} ${curYear}</h3><p>Go back to a previous month and use "+ Next Month",<br>or create this month with the default bill list.</p>${canEdit?`<button class="create-btn" onclick="createMonth(${curYear},${curMonth},true);render()">Create with default bills</button>`:''}</div>`;
+    grid.innerHTML = `<div class="empty-msg"><h3>No data for ${MONTHS[curMonth]} ${curYear}</h3><p>You can start by copying last month's pay period data.</p>${canEdit?`<button class="create-btn" onclick="createMonthFromLastRecurring(${curYear},${curMonth});render()">Create using last month's recurring bills</button>`:''}</div>`;
     document.getElementById('progressWrap').style.display='none'; return;
   }
   const allBills = monthData.periods.flatMap(p=>p.bills);
