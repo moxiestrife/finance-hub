@@ -265,14 +265,24 @@ body {
 @media (max-width: 680px) { .periods-grid { grid-template-columns: 1fr; } }
 
 /* Period card */
-.period-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.period-card { background: white; border-radius: 12px; overflow: visible; box-shadow: 0 1px 4px rgba(0,0,0,0.08); position: relative; }
 .period-header {
   background: #1e3a5f; color: white; padding: 11px 16px;
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  border-radius: 12px 12px 0 0;
 }
 .period-header-left { display: flex; flex-direction: column; gap: 2px; }
 .period-title { font-weight: 700; font-size: 0.9rem; }
 .period-date-display { font-size: 0.8rem; opacity: 0.8; }
+.period-header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.safe-to-spend-chip {
+  background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.4);
+  border-radius: 999px; padding: 3px 11px;
+  font-size: 0.75rem; font-weight: 700; color: #6ee7b7;
+  white-space: nowrap;
+}
+.safe-to-spend-chip.negative { background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+.safe-to-spend-label { font-size: 0.62rem; opacity: 0.7; display: block; text-align: center; letter-spacing: 0.3px; text-transform: uppercase; }
 .edit-date-btn {
   background: rgba(255,255,255,0.15); border: none; color: white;
   padding: 4px 8px; border-radius: 5px; font-size: 0.75rem; cursor: pointer; flex-shrink: 0;
@@ -296,7 +306,7 @@ body {
 .section-toggle.money-out .section-toggle-amount { color: #1e40af; }
 .section-chevron { font-size: 0.75rem; color: #9ca3af; transition: transform 0.2s; }
 .section-chevron.open { transform: rotate(180deg); }
-.section-body { overflow: hidden; }
+.section-body { overflow: visible; }
 .section-body.collapsed { display: none; }
 
 /* Period card delete button */
@@ -310,45 +320,79 @@ body {
 /* Bill list */
 .bill-list { padding: 4px 0; min-height: 30px; }
 .bill-row {
-  display: flex; align-items: center;
-  padding: 7px 12px 7px 10px; gap: 7px;
+  display: grid;
+  grid-template-columns: 18px 1fr 90px 120px 22px 22px;
+  align-items: center;
+  padding: 6px 12px 6px 10px; gap: 6px;
   border-bottom: 1px solid #f0f4f8; transition: background 0.12s;
+  cursor: default; user-select: none;
 }
 .bill-row:hover { background: #f8fafc; }
 .bill-row.is-done { opacity: 0.4; }
 .bill-row.is-done .bill-name-input { text-decoration: line-through; color: #6b7280; }
+.bill-row.selected { background: #dbeafe !important; }
+.bill-list-header {
+  display: grid;
+  grid-template-columns: 18px 1fr 90px 120px 22px 22px;
+  padding: 4px 12px 4px 10px; gap: 6px;
+  font-size: 0.68rem; font-weight: 700; color: #9ca3af;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  border-bottom: 2px solid #f0f4f8;
+}
 .bill-check { width: 18px; height: 18px; cursor: pointer; accent-color: #1e3a5f; flex-shrink: 0; }
 .bill-name-input {
-  flex: 1; border: none; background: transparent;
+  border: none; background: transparent;
   font-size: 0.875rem; color: #1a202c; outline: none;
-  padding: 2px 4px; border-radius: 4px; min-width: 0;
+  padding: 2px 4px; border-radius: 4px; min-width: 0; width: 100%;
   font-family: inherit;
 }
 .bill-name-input:focus { background: #eff6ff; }
 .bill-amount-input {
   border: none; background: transparent;
   font-size: 0.875rem; color: #1a202c; font-weight: 600;
-  text-align: right; width: 90px; outline: none; padding: 2px 4px; border-radius: 4px;
+  text-align: right; width: 100%; outline: none; padding: 2px 4px; border-radius: 4px;
   font-family: inherit;
 }
 .bill-amount-input:focus { background: #eff6ff; }
+
+/* Pay-to dropdown */
+.payto-select {
+  border: none; background: transparent;
+  font-size: 0.78rem; color: #64748b;
+  outline: none; width: 100%; padding: 2px 2px; border-radius: 4px;
+  cursor: pointer; font-family: inherit;
+  appearance: none; -webkit-appearance: none;
+}
+.payto-select:focus { background: #f0f9ff; color: #1a202c; }
+.payto-select:hover { background: #f1f5f9; }
+
 .recur-btn {
   font-size: 0.85rem; cursor: pointer; opacity: 0.22;
   transition: opacity 0.2s; background: none; border: none;
-  color: #059669; flex-shrink: 0; padding: 2px;
+  color: #059669; flex-shrink: 0; padding: 2px; width: 22px; text-align: center;
 }
 .recur-btn.on { opacity: 1; }
 .recur-btn:hover { opacity: 0.75 !important; }
 .del-btn {
   opacity: 0; background: none; border: none; color: #ef4444; cursor: pointer;
-  padding: 2px 5px; border-radius: 4px; font-size: 1.1rem; line-height: 1; flex-shrink: 0;
+  padding: 2px 3px; border-radius: 4px; font-size: 1.1rem; line-height: 1; flex-shrink: 0; width: 22px; text-align: center;
 }
 .bill-row:hover .del-btn { opacity: 0.6; }
 .del-btn:hover { opacity: 1 !important; background: #fee2e2; }
 .readonly-amount {
   font-size: 0.875rem; font-weight: 600; color: #1a202c;
-  text-align: right; width: 90px; padding: 2px 4px;
+  text-align: right; padding: 2px 4px; width: 100%;
 }
+.readonly-payto { font-size: 0.78rem; color: #64748b; padding: 2px 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Salary inline edit in Money In */
+.salary-inline-input {
+  border: none; background: transparent;
+  font-size: 0.875rem; color: #059669; font-weight: 600;
+  text-align: right; width: 100%; outline: none; padding: 2px 4px; border-radius: 4px;
+  font-family: inherit;
+}
+.salary-inline-input:focus { background: #ecfdf5; }
 
 /* Add row */
 .add-row { padding: 8px 12px; }
@@ -363,7 +407,6 @@ body {
 /* Period summary */
 .period-summary { border-top: 2px solid #e2e8f0; }
 .sum-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 16px; font-size: 0.875rem; }
-.sum-row.subtotal { background: #dbeafe; font-weight: 700; color: #1e40af; }
 .sum-row.savings  { color: #6b7280; font-size: 0.82rem; }
 .sum-row.savings .savings-input {
   border: none; background: transparent; text-align: right;
@@ -371,8 +414,92 @@ body {
   outline: none; padding: 1px 4px; border-radius: 4px; font-family: inherit;
 }
 .sum-row.savings .savings-input:focus { background: #eff6ff; color: #1a202c; }
-.sum-row.allowance { background: #fef9c3; font-weight: 800; color: #92400e; font-size: 0.95rem; border-top: 2px solid #e2e8f0; }
+.sum-row.allowance { background: #fef9c3; font-weight: 800; color: #92400e; font-size: 0.95rem; }
 .sum-row.allowance.negative { background: #fee2e2; color: #991b1b; }
+
+/* ═══════════════════════════════════════
+   RIGHT-CLICK CONTEXT MENU
+═══════════════════════════════════════ */
+#ctx-menu {
+  position: fixed; z-index: 9000;
+  background: white; border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+  border: 1px solid #e2e8f0;
+  padding: 6px 0; min-width: 190px;
+  display: none;
+}
+.ctx-item {
+  padding: 8px 16px; font-size: 0.875rem; cursor: pointer;
+  display: flex; align-items: center; gap: 10px; color: #374151;
+  transition: background 0.1s;
+}
+.ctx-item:hover { background: #f1f5f9; }
+.ctx-item.ctx-danger { color: #ef4444; }
+.ctx-divider { height: 1px; background: #f0f4f8; margin: 4px 0; }
+.ctx-formula-row { padding: 8px 12px; display: flex; gap: 6px; }
+.ctx-formula-input {
+  flex: 1; border: 1.5px solid #e2e8f0; border-radius: 6px;
+  padding: 5px 8px; font-size: 0.82rem; outline: none; font-family: monospace;
+}
+.ctx-formula-input:focus { border-color: #7C3AED; }
+.ctx-formula-btn {
+  background: #7C3AED; color: white; border: none;
+  border-radius: 6px; padding: 5px 10px; font-size: 0.82rem;
+  cursor: pointer; font-family: inherit; font-weight: 600;
+}
+
+/* ═══════════════════════════════════════
+   COMPUTATION SLIDE-IN PANEL
+═══════════════════════════════════════ */
+#calc-panel {
+  position: fixed; top: 0; right: -340px; width: 320px; height: 100vh;
+  background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+  z-index: 8000; transition: right 0.3s ease;
+  display: flex; flex-direction: column;
+  border-left: 1px solid #e2e8f0;
+}
+#calc-panel.open { right: 0; }
+.calc-panel-header {
+  background: #1e3a5f; color: white; padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.calc-panel-header h3 { font-size: 0.95rem; font-weight: 700; }
+.calc-close-btn {
+  background: rgba(255,255,255,0.15); border: none; color: white;
+  width: 28px; height: 28px; border-radius: 6px; cursor: pointer;
+  font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+  font-family: inherit;
+}
+.calc-close-btn:hover { background: rgba(255,255,255,0.28); }
+.calc-panel-body { flex: 1; overflow-y: auto; padding: 14px; }
+.calc-entry {
+  background: #f8fafc; border-radius: 10px; padding: 12px 14px;
+  margin-bottom: 10px; border: 1px solid #e2e8f0;
+}
+.calc-entry-formula { font-size: 0.75rem; color: #7C3AED; font-family: monospace; margin-bottom: 4px; }
+.calc-entry-items { font-size: 0.75rem; color: #9ca3af; margin-bottom: 6px; line-height: 1.5; }
+.calc-entry-result { font-size: 1.3rem; font-weight: 800; color: #1e3a5f; }
+.calc-entry-time { font-size: 0.7rem; color: #cbd5e1; margin-top: 4px; }
+.calc-empty { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 0.875rem; }
+.calc-panel-footer { padding: 12px 14px; border-top: 1px solid #f0f4f8; flex-shrink: 0; }
+.calc-clear-btn {
+  width: 100%; background: #fee2e2; color: #ef4444; border: none;
+  border-radius: 8px; padding: 8px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+.calc-clear-btn:hover { background: #ef4444; color: white; }
+
+/* Selection count badge */
+.sel-badge {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #1e3a5f; color: white; border-radius: 999px;
+  padding: 8px 20px; font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  z-index: 7000; display: none; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.sel-badge.visible { display: block; }
 
 /* Empty */
 .empty-msg { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #9ca3af; }
@@ -693,6 +820,15 @@ body {
       </div>
 
       <div class="admin-card">
+        <h2>🏦 Pay To Accounts</h2>
+        <div id="admin-accounts-list" style="margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <input id="new-account-input" class="admin-salary-input" style="flex:1;width:auto" type="text" placeholder="New account name…" onkeydown="if(event.key==='Enter')addAccount()">
+          <button class="admin-save-btn" onclick="addAccount()">Add</button>
+        </div>
+      </div>
+
+      <div class="admin-card">
         <h2>🔧 Data Tools</h2>
         <div class="admin-data-row">
           <button class="p-btn p-btn-export" onclick="exportBudget()">⬇ Export Budget</button>
@@ -865,6 +1001,38 @@ body {
 
 <div id="toast"></div>
 
+<!-- RIGHT-CLICK CONTEXT MENU -->
+<div id="ctx-menu">
+  <div class="ctx-item" onclick="ctxRun('sum')">∑ &nbsp;Sum selected</div>
+  <div class="ctx-item" onclick="ctxRun('avg')">∅ &nbsp;Average</div>
+  <div class="ctx-item" onclick="ctxRun('min')">↓ &nbsp;Min</div>
+  <div class="ctx-item" onclick="ctxRun('max')">↑ &nbsp;Max</div>
+  <div class="ctx-item" onclick="ctxRun('count')">＃ &nbsp;Count</div>
+  <div class="ctx-divider"></div>
+  <div class="ctx-formula-row">
+    <input class="ctx-formula-input" id="ctx-formula-input" placeholder="e.g. SUM - SUM2" title="Select a second group then type formula">
+    <button class="ctx-formula-btn" onclick="ctxRunFormula()">= Go</button>
+  </div>
+  <div style="padding:2px 12px 8px;font-size:0.7rem;color:#9ca3af">Tip: select rows, right-click → formula. Use SUM for first group, SUM2 for a second Ctrl+click group.</div>
+</div>
+
+<!-- COMPUTATION PANEL -->
+<div id="calc-panel">
+  <div class="calc-panel-header">
+    <h3>🧮 Computations</h3>
+    <button class="calc-close-btn" onclick="closeCalcPanel()">✕</button>
+  </div>
+  <div class="calc-panel-body" id="calc-panel-body">
+    <div class="calc-empty">Right-click selected rows to run calculations. Results appear here.</div>
+  </div>
+  <div class="calc-panel-footer">
+    <button class="calc-clear-btn" onclick="clearCalcHistory()">Clear history</button>
+  </div>
+</div>
+
+<!-- SELECTION BADGE -->
+<div class="sel-badge" id="sel-badge"></div>
+
 <script>
 // ═══════════════════════════════════════════════════════════════
 //  CREDENTIALS (simple PIN-based auth — no server needed)
@@ -980,6 +1148,7 @@ function listenBudget() {
     const val = snap.val();
     if (val) {
       state = val;
+      if (!state.accounts) state.accounts = [...DEFAULT_ACCOUNTS];
       const si = document.getElementById('salaryInput');
       if (si) si.value = state.settings?.salary || 4524.58;
       if (curTab === 'monthly')  render();
@@ -1103,11 +1272,22 @@ const SEED_P2 = [
   { name: 'Latitude card',            amount:  575.00, payTo: 'Pay to Latitude',           recurring: false },
 ];
 
-let state = { settings: { salary: 4524.58 }, months: {} };
+const DEFAULT_ACCOUNTS = [
+  'NAB Offset', 'CB Bills', 'CB Groceries', 'CB Grocery',
+  'Qantas credit card', 'Latitude credit card', 'Savings'
+];
+
+let state = { settings: { salary: 4524.58 }, months: {}, accounts: [...DEFAULT_ACCOUNTS] };
 let curYear, curMonth;
 let curTab = 'monthly';
 let idSeq = Date.now();
 let chartInstances = {};
+
+// ── Row selection state ──
+let selectedRows  = []; // array of { key, pi, billId, amount, name }
+let selectedRows2 = []; // second group for formula
+let lastClickedRow = null;
+let selectingGroup2 = false;
 
 function newId() { return 'b' + (++idSeq); }
 
@@ -1377,6 +1557,32 @@ function toggleIncomeRecurring(key, pi, id) {
   save(); render();
 }
 
+function getAccountOptions(selected) {
+  const accounts = state.accounts || DEFAULT_ACCOUNTS;
+  const opts = accounts.map(a =>
+    `<option value="${esc(a)}" ${a===selected?'selected':''}>${esc(a)}</option>`
+  ).join('');
+  return `<option value="">— Pay to —</option>${opts}<option value="__new__">＋ Add account…</option>`;
+}
+
+function handlePayToChange(key, pi, billId, sel) {
+  if (sel.value === '__new__') {
+    const name = prompt('New account name:');
+    if (name && name.trim()) {
+      if (!state.accounts) state.accounts = [...DEFAULT_ACCOUNTS];
+      if (!state.accounts.includes(name.trim())) {
+        state.accounts.push(name.trim());
+      }
+      updateBill(key, pi, billId, 'payTo', name.trim());
+      render();
+    } else {
+      sel.value = '';
+    }
+  } else {
+    updateBill(key, pi, billId, 'payTo', sel.value);
+  }
+}
+
 function buildPeriodCard(key, period, pi, canEdit) {
   const totalIncome = getPeriodIncome(period);
   const savings = period.savings || 0;
@@ -1386,19 +1592,23 @@ function buildPeriodCard(key, period, pi, canEdit) {
 
   const card = document.createElement('div'); card.className = 'period-card';
 
-  // Header
-  const headerHTML = `
-    <div class="period-header">
-      <div class="period-header-left">
-        <span class="period-title">Pay Period ${pi+1}</span>
-        <span class="period-date-display">${esc(period.date)}</span>
+  // Header with Safe to Spend chip
+  const chipClass = allowance < 0 ? 'safe-to-spend-chip negative' : 'safe-to-spend-chip';
+  const headerDiv = document.createElement('div'); headerDiv.className = 'period-header';
+  headerDiv.innerHTML = `
+    <div class="period-header-left">
+      <span class="period-title">Pay Period ${pi+1}</span>
+      <span class="period-date-display">${esc(period.date)}</span>
+    </div>
+    <div class="period-header-right">
+      <div class="${chipClass}">
+        <span class="safe-to-spend-label">Safe to spend</span>
+        $${allowance.toFixed(2)}
       </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        ${canEdit ? `<button class="edit-date-btn" onclick="editDate('${key}',${pi})">✏ Date</button>` : ''}
-        ${canEdit ? `<button class="period-delete-btn" onclick="deletePeriod('${key}',${pi})">🗑 Delete</button>` : ''}
-      </div>
+      ${canEdit ? `<button class="edit-date-btn" onclick="editDate('${key}',${pi})">✏ Date</button>` : ''}
+      ${canEdit ? `<button class="period-delete-btn" onclick="deletePeriod('${key}',${pi})">🗑</button>` : ''}
     </div>`;
-  card.innerHTML = headerHTML;
+  card.appendChild(headerDiv);
 
   // ── MONEY IN section ──
   const incomeSectionId = `income-body-${key}-${pi}`;
@@ -1407,7 +1617,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
   incomeToggle.innerHTML = `
     <div class="section-toggle-left">
       <span class="section-chevron" id="chev-in-${key}-${pi}">▼</span>
-      <span class="section-toggle-label">💚 Money In</span>
+      <span class="section-toggle-label">Money In</span>
     </div>
     <span class="section-toggle-amount">$${totalIncome.toFixed(2)}</span>`;
   incomeToggle.onclick = () => toggleSection(incomeSectionId, `chev-in-${key}-${pi}`);
@@ -1417,10 +1627,21 @@ function buildPeriodCard(key, period, pi, canEdit) {
   incomeBody.className = 'section-body collapsed';
   incomeBody.id = incomeSectionId;
 
-  // Salary row (always shown, read from settings)
+  // Salary row — editable inline
   const salaryRow = document.createElement('div');
   salaryRow.className = 'bill-row';
-  salaryRow.innerHTML = `<span class="bill-name-input" style="color:#059669;font-weight:600">Salary (fortnightly)</span><span class="readonly-amount" style="color:#059669">$${(state.settings.salary||0).toFixed(2)}</span><span style="width:22px"></span>`;
+  const salaryAmt = state.settings.salary || 0;
+  if (canEdit) {
+    salaryRow.innerHTML = `
+      <span></span>
+      <span class="bill-name-input" style="color:#059669;font-weight:600;pointer-events:none">Salary (fortnightly)</span>
+      <input class="salary-inline-input" type="number" step="0.01" value="${salaryAmt.toFixed(2)}"
+        onchange="state.settings.salary=parseFloat(this.value)||0;save();render()"
+        title="Edit default salary">
+      <span></span><span></span><span></span>`;
+  } else {
+    salaryRow.innerHTML = `<span></span><span class="bill-name-input" style="color:#059669;font-weight:600;pointer-events:none">Salary (fortnightly)</span><span class="readonly-amount" style="color:#059669">$${salaryAmt.toFixed(2)}</span><span></span><span></span><span></span>`;
+  }
   incomeBody.appendChild(salaryRow);
 
   // Extra income lines
@@ -1429,9 +1650,17 @@ function buildPeriodCard(key, period, pi, canEdit) {
   extraIncome.forEach(item => {
     const row = document.createElement('div'); row.className = 'bill-row';
     if (canEdit) {
-      row.innerHTML = `<input class="bill-name-input" type="text" value="${esc(item.name)}" placeholder="e.g. Freelance" onchange="updateIncome('${key}',${pi},'${item.id}','name',this.value)"><input class="bill-amount-input" type="number" step="0.01" value="${parseFloat(item.amount||0).toFixed(2)}" onchange="updateIncome('${key}',${pi},'${item.id}','amount',this.value)"><button class="recur-btn ${item.recurring?'on':''}" title="${item.recurring?'Recurring':'One-off'}" onclick="toggleIncomeRecurring('${key}',${pi},'${item.id}')">♻</button><button class="del-btn" onclick="deleteIncome('${key}',${pi},'${item.id}')">×</button>`;
+      row.innerHTML = `
+        <span></span>
+        <input class="bill-name-input" type="text" value="${esc(item.name)}" placeholder="e.g. Freelance"
+          onchange="updateIncome('${key}',${pi},'${item.id}','name',this.value)">
+        <input class="bill-amount-input" type="number" step="0.01" value="${parseFloat(item.amount||0).toFixed(2)}"
+          onchange="updateIncome('${key}',${pi},'${item.id}','amount',this.value)">
+        <span></span>
+        <button class="recur-btn ${item.recurring?'on':''}" onclick="toggleIncomeRecurring('${key}',${pi},'${item.id}')">♻</button>
+        <button class="del-btn" onclick="deleteIncome('${key}',${pi},'${item.id}')">×</button>`;
     } else {
-      row.innerHTML = `<span class="bill-name-input">${esc(item.name)}</span><span class="readonly-amount" style="color:#059669">$${parseFloat(item.amount||0).toFixed(2)}</span>`;
+      row.innerHTML = `<span></span><span class="bill-name-input">${esc(item.name)}</span><span class="readonly-amount" style="color:#059669">$${parseFloat(item.amount||0).toFixed(2)}</span><span></span><span></span><span></span>`;
     }
     extraDiv.appendChild(row);
   });
@@ -1451,7 +1680,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
   outToggle.innerHTML = `
     <div class="section-toggle-left">
       <span class="section-chevron open" id="chev-out-${key}-${pi}">▼</span>
-      <span class="section-toggle-label">🔴 Money Out</span>
+      <span class="section-toggle-label">Money Out</span>
     </div>
     <span class="section-toggle-amount">$${subtotal.toFixed(2)}</span>`;
   outToggle.onclick = () => toggleSection(outSectionId, `chev-out-${key}-${pi}`);
@@ -1461,16 +1690,45 @@ function buildPeriodCard(key, period, pi, canEdit) {
   outBody.className = 'section-body';
   outBody.id = outSectionId;
 
+  // Column header
+  const colHeader = document.createElement('div'); colHeader.className = 'bill-list-header';
+  colHeader.innerHTML = `<span></span><span>Expense</span><span style="text-align:right">Amount</span><span>Pay to</span><span></span><span></span>`;
+  outBody.appendChild(colHeader);
+
   const listDiv = document.createElement('div');
   listDiv.className = 'bill-list';
   listDiv.setAttribute('data-period', `${key}-${pi}`);
-  period.bills.forEach(bill => {
-    const row = document.createElement('div'); row.className = 'bill-row' + (bill.done ? ' is-done' : '');
+
+  period.bills.forEach((bill, billIdx) => {
+    const row = document.createElement('div');
+    row.className = 'bill-row' + (bill.done ? ' is-done' : '');
+    row.dataset.key = key; row.dataset.pi = pi; row.dataset.billId = bill.id;
+    row.dataset.amount = bill.amount || 0; row.dataset.name = bill.name || '';
+
     if (canEdit) {
-      row.innerHTML = `<input type="checkbox" class="bill-check" ${bill.done?'checked':''} onchange="toggleDone('${key}',${pi},'${bill.id}',this.checked)"><input class="bill-name-input" type="text" value="${esc(bill.name)}" placeholder="Expense name" title="${esc(bill.payTo)}" onchange="updateBill('${key}',${pi},'${bill.id}','name',this.value)"><input class="bill-amount-input" type="number" step="0.01" value="${parseFloat(bill.amount||0).toFixed(2)}" onchange="updateBill('${key}',${pi},'${bill.id}','amount',this.value)"><button class="recur-btn ${bill.recurring?'on':''}" title="${bill.recurring?'Recurring':'One-off'}" onclick="toggleRecurring('${key}',${pi},'${bill.id}')">♻</button><button class="del-btn" title="Delete" onclick="deleteBill('${key}',${pi},'${bill.id}')">×</button>`;
+      const payToSel = `<select class="payto-select" onchange="handlePayToChange('${key}',${pi},'${bill.id}',this)" onclick="event.stopPropagation()">${getAccountOptions(bill.payTo)}</select>`;
+      row.innerHTML = `
+        <input type="checkbox" class="bill-check" ${bill.done?'checked':''} onchange="toggleDone('${key}',${pi},'${bill.id}',this.checked)" onclick="event.stopPropagation()">
+        <input class="bill-name-input" type="text" value="${esc(bill.name)}" placeholder="Expense name"
+          onchange="updateBill('${key}',${pi},'${bill.id}','name',this.value)" onclick="event.stopPropagation()">
+        <input class="bill-amount-input" type="number" step="0.01" value="${parseFloat(bill.amount||0).toFixed(2)}"
+          onchange="updateBill('${key}',${pi},'${bill.id}','amount',this.value)" onclick="event.stopPropagation()">
+        ${payToSel}
+        <button class="recur-btn ${bill.recurring?'on':''}" onclick="event.stopPropagation();toggleRecurring('${key}',${pi},'${bill.id}')">♻</button>
+        <button class="del-btn" onclick="event.stopPropagation();deleteBill('${key}',${pi},'${bill.id}')">×</button>`;
     } else {
-      row.innerHTML = `<input type="checkbox" class="bill-check" ${bill.done?'checked':''} disabled><span class="bill-name-input" style="pointer-events:none">${esc(bill.name)}</span><span class="readonly-amount">$${parseFloat(bill.amount||0).toFixed(2)}</span><span class="recur-btn ${bill.recurring?'on':''}" style="pointer-events:none">♻</span>`;
+      row.innerHTML = `
+        <input type="checkbox" class="bill-check" ${bill.done?'checked':''} disabled>
+        <span class="bill-name-input" style="pointer-events:none">${esc(bill.name)}</span>
+        <span class="readonly-amount">$${parseFloat(bill.amount||0).toFixed(2)}</span>
+        <span class="readonly-payto">${esc(bill.payTo||'')}</span>
+        <span class="recur-btn ${bill.recurring?'on':''}" style="pointer-events:none">♻</span>
+        <span></span>`;
     }
+
+    // Row selection click handler
+    row.addEventListener('click', (e) => handleRowClick(e, row, key, pi, bill, billIdx));
+    row.addEventListener('contextmenu', (e) => handleRowRightClick(e, row));
     listDiv.appendChild(row);
   });
   outBody.appendChild(listDiv);
@@ -1482,15 +1740,14 @@ function buildPeriodCard(key, period, pi, canEdit) {
   }
   card.appendChild(outBody);
 
-  // Summary footer
+  // Summary footer — no Total Out, just savings + safe to spend
   const sumDiv = document.createElement('div'); sumDiv.className = 'period-summary';
   const savingsCell = canEdit
     ? `<input class="savings-input" type="number" step="0.01" value="${savings.toFixed(2)}" onchange="updateSavings('${key}',${pi},this.value)">`
     : `<span>$${savings.toFixed(2)}</span>`;
   sumDiv.innerHTML = `
-    <div class="sum-row subtotal"><span>Total Out</span><span>$${subtotal.toFixed(2)}</span></div>
-    <div class="sum-row savings"><span>Savings (offset acct)</span>${savingsCell}</div>
-    <div class="sum-row allowance ${allowance<0?'negative':''}"><span>✦ Allowance</span><span>$${allowance.toFixed(2)}</span></div>`;
+    <div class="sum-row savings"><span>Savings to offset acct</span>${savingsCell}</div>
+    <div class="sum-row allowance ${allowance<0?'negative':''}"><span>✦ Safe to Spend</span><span>$${allowance.toFixed(2)}</span></div>`;
   card.appendChild(sumDiv);
   return card;
 }
@@ -1850,6 +2107,208 @@ function renderPayables() {
   if (ellyListEl)    renderPayablesList(ellyListEl,    pApplyFilter(ellyEntries,'elly'), 'elly', false);
   if (ellyPreviewEl) renderPayablesList(ellyPreviewEl, ericEntries.filter(e=>!e.done),  'eric', true);
   if (ericListEl)    renderPayablesList(ericListEl,    pApplyFilter(ericEntries,'eric'), 'eric', false);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ROW SELECTION + COMPUTATION ENGINE
+// ═══════════════════════════════════════════════════════════════
+
+let calcHistory = [];
+
+function handleRowClick(e, row, key, pi, bill, billIdx) {
+  // Don't intercept clicks on inputs/checkboxes/buttons
+  if (['INPUT','SELECT','BUTTON'].includes(e.target.tagName)) return;
+
+  const rowData = { key, pi, billId: bill.id, amount: parseFloat(bill.amount)||0, name: bill.name||'', el: row };
+
+  if (e.shiftKey && lastClickedRow) {
+    // Range select: select all rows between last and current
+    const allRows = Array.from(document.querySelectorAll('.bill-list .bill-row'));
+    const lastIdx = allRows.indexOf(lastClickedRow.el);
+    const curIdx  = allRows.indexOf(row);
+    const [from, to] = lastIdx < curIdx ? [lastIdx, curIdx] : [curIdx, lastIdx];
+    for (let i = from; i <= to; i++) {
+      const r = allRows[i];
+      if (!selectedRows.find(s => s.el === r)) {
+        const rd = {
+          key: r.dataset.key, pi: parseInt(r.dataset.pi),
+          billId: r.dataset.billId, amount: parseFloat(r.dataset.amount)||0,
+          name: r.dataset.name, el: r
+        };
+        selectedRows.push(rd);
+        r.classList.add('selected');
+      }
+    }
+  } else if (e.ctrlKey || e.metaKey) {
+    // Toggle individual row
+    const idx = selectedRows.findIndex(s => s.billId === bill.id);
+    if (idx > -1) {
+      selectedRows.splice(idx, 1);
+      row.classList.remove('selected');
+    } else {
+      selectedRows.push(rowData);
+      row.classList.add('selected');
+    }
+  } else {
+    // Plain click — clear and select just this one
+    clearSelection();
+    selectedRows.push(rowData);
+    row.classList.add('selected');
+  }
+
+  lastClickedRow = rowData;
+  updateSelBadge();
+}
+
+function clearSelection() {
+  selectedRows.forEach(s => s.el && s.el.classList.remove('selected'));
+  selectedRows = [];
+  selectedRows2 = [];
+  lastClickedRow = null;
+  updateSelBadge();
+}
+
+function updateSelBadge() {
+  const badge = document.getElementById('sel-badge');
+  if (!badge) return;
+  if (selectedRows.length === 0) { badge.classList.remove('visible'); return; }
+  const sum = selectedRows.reduce((t,r)=>t+r.amount,0);
+  badge.textContent = `${selectedRows.length} row${selectedRows.length>1?'s':''} selected · Sum: $${sum.toFixed(2)} · Right-click for options`;
+  badge.classList.add('visible');
+}
+
+function handleRowRightClick(e, row) {
+  e.preventDefault();
+  if (!selectedRows.length) {
+    // Auto-select this row if nothing selected
+    const r = { key: row.dataset.key, pi: parseInt(row.dataset.pi), billId: row.dataset.billId,
+      amount: parseFloat(row.dataset.amount)||0, name: row.dataset.name, el: row };
+    selectedRows = [r]; row.classList.add('selected'); updateSelBadge();
+  }
+  const menu = document.getElementById('ctx-menu');
+  menu.style.display = 'block';
+  let x = e.clientX, y = e.clientY;
+  if (x + 210 > window.innerWidth) x = window.innerWidth - 215;
+  if (y + 220 > window.innerHeight) y = window.innerHeight - 225;
+  menu.style.left = x + 'px'; menu.style.top = y + 'px';
+  document.getElementById('ctx-formula-input').value = '';
+}
+
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('ctx-menu');
+  if (menu && !menu.contains(e.target)) menu.style.display = 'none';
+  // Clear selection if clicking outside bill rows
+  if (!e.target.closest('.bill-row') && !e.target.closest('#ctx-menu') && !e.target.closest('#calc-panel') && !e.target.closest('#sel-badge')) {
+    clearSelection();
+  }
+});
+
+function ctxRun(op) {
+  document.getElementById('ctx-menu').style.display = 'none';
+  if (!selectedRows.length) return;
+  const amounts = selectedRows.map(r => r.amount);
+  const names   = selectedRows.map(r => r.name || '$' + r.amount.toFixed(2));
+  let result, label;
+  if (op === 'sum')   { result = amounts.reduce((a,b)=>a+b,0); label = 'Sum'; }
+  if (op === 'avg')   { result = amounts.reduce((a,b)=>a+b,0)/amounts.length; label = 'Average'; }
+  if (op === 'min')   { result = Math.min(...amounts); label = 'Min'; }
+  if (op === 'max')   { result = Math.max(...amounts); label = 'Max'; }
+  if (op === 'count') { result = amounts.length; label = 'Count'; }
+  addCalcEntry(`${label}(${amounts.length} rows)`, names, result, op==='count'?null:'$');
+  openCalcPanel();
+}
+
+function ctxRunFormula() {
+  document.getElementById('ctx-menu').style.display = 'none';
+  let formula = document.getElementById('ctx-formula-input').value.trim();
+  if (!formula) return;
+  const SUM  = selectedRows.reduce((a,r)=>a+r.amount,0);
+  const AVG  = selectedRows.length ? SUM/selectedRows.length : 0;
+  const MIN  = selectedRows.length ? Math.min(...selectedRows.map(r=>r.amount)) : 0;
+  const MAX  = selectedRows.length ? Math.max(...selectedRows.map(r=>r.amount)) : 0;
+  const COUNT= selectedRows.length;
+  // Evaluate with known variables
+  try {
+    const fn = new Function('SUM','AVG','MIN','MAX','COUNT', `"use strict"; return (${formula});`);
+    const result = fn(SUM, AVG, MIN, MAX, COUNT);
+    const names = selectedRows.map(r => r.name || '$'+r.amount.toFixed(2));
+    addCalcEntry(formula, names, result, isFinite(result) && typeof result==='number' ? '$' : null);
+    openCalcPanel();
+  } catch(err) {
+    showToast('⚠ Formula error: ' + err.message);
+  }
+}
+
+function addCalcEntry(formula, names, result, prefix) {
+  const entry = {
+    formula, names, result, prefix,
+    time: new Date().toLocaleTimeString('en-AU', {hour:'2-digit', minute:'2-digit'})
+  };
+  calcHistory.unshift(entry);
+  renderCalcPanel();
+}
+
+function renderCalcPanel() {
+  const body = document.getElementById('calc-panel-body');
+  if (!body) return;
+  if (!calcHistory.length) {
+    body.innerHTML = '<div class="calc-empty">Right-click selected rows to run calculations.</div>'; return;
+  }
+  body.innerHTML = calcHistory.map(e => {
+    const val = e.prefix === '$'
+      ? '$' + parseFloat(e.result).toFixed(2)
+      : String(e.result);
+    const negClass = e.prefix === '$' && e.result < 0 ? 'color:#ef4444' : '';
+    return `<div class="calc-entry">
+      <div class="calc-entry-formula">${esc(e.formula)}</div>
+      <div class="calc-entry-items">${e.names.map(n=>esc(n)).join(' · ')}</div>
+      <div class="calc-entry-result" style="${negClass}">${val}</div>
+      <div class="calc-entry-time">${e.time}</div>
+    </div>`;
+  }).join('');
+}
+
+function openCalcPanel()  { document.getElementById('calc-panel').classList.add('open'); }
+function closeCalcPanel() { document.getElementById('calc-panel').classList.remove('open'); }
+function clearCalcHistory() { calcHistory = []; renderCalcPanel(); }
+
+// Also add accounts management to admin render
+function renderAdmin() {
+  const si = document.getElementById('salaryInput');
+  if (si) si.value = state.settings?.salary || 4524.58;
+  renderAdminAccounts();
+}
+
+function renderAdminAccounts() {
+  const container = document.getElementById('admin-accounts-list');
+  if (!container) return;
+  const accounts = state.accounts || DEFAULT_ACCOUNTS;
+  container.innerHTML = accounts.map((a, i) =>
+    `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f4f8">
+      <span style="flex:1;font-size:0.9rem">${esc(a)}</span>
+      <button onclick="deleteAccount(${i})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:0.85rem;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">✕</button>
+    </div>`
+  ).join('');
+}
+
+function addAccount() {
+  const input = document.getElementById('new-account-input');
+  const name = input?.value.trim();
+  if (!name) return;
+  if (!state.accounts) state.accounts = [...DEFAULT_ACCOUNTS];
+  if (!state.accounts.includes(name)) {
+    state.accounts.push(name);
+    save();
+    renderAdminAccounts();
+    showToast('✓ Account added');
+  }
+  if (input) input.value = '';
+}
+
+function deleteAccount(idx) {
+  if (!state.accounts) return;
+  state.accounts.splice(idx, 1);
+  save(); renderAdminAccounts();
 }
 
 // ═══════════════════════════════════════════════════════════════
