@@ -1220,7 +1220,7 @@ body {
 <div class="modal-overlay" id="modal-allocate">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>📌 Allocate to Budget Period</h3>
+      <h3>Allocate to Budget Period</h3>
       <button class="modal-close" onclick="closeModal('modal-allocate')">✕</button>
     </div>
     <div class="modal-body">
@@ -1904,7 +1904,12 @@ function toggleRecurring(key,pi,id) {
 }
 function deleteBill(key,pi,id) {
   if (!isAdmin()) return;
-  const p=getPeriod(key,pi); if(p){p.bills=p.bills.filter(b=>b.id!==id);save();renderMonthView(key);}
+  const p=getPeriod(key,pi); if(!p) return;
+  p.bills=p.bills.filter(b=>b.id!==id);
+  // If this bill was linked to a payable, clear that payable's allocation
+  const linked=(pState.entries||[]).find(e=>e.allocatedTo?.billId===id);
+  if(linked){ linked.allocatedTo=null; pSave(); renderPayables(); }
+  save(); renderMonthView(key);
 }
 function addBill(key,pi) {
   if (!isAdmin()) return;
@@ -2627,7 +2632,13 @@ function deletePayableEntry(id) {
     if(period){period.bills=period.bills.filter(b=>b.id!==e.allocatedTo.billId);save();}
   }
   pState.entries=pState.entries.filter(x=>x.id!==id);
-  pSave();updatePayablesBadge();renderPayables();
+  pSave(); updatePayablesBadge(); renderPayables();
+}
+
+// Remove allocation from a payable (e.g. when the linked budget bill is deleted externally)
+function deallocatePayable(payableId) {
+  const e=(pState.entries||[]).find(x=>x.id===payableId); if(!e)return;
+  e.allocatedTo=null; pSave(); renderPayables();
 }
 
 // ── Allocation ──
@@ -2640,7 +2651,7 @@ function openAllocateModal(payableId) {
   const months=Object.keys(state.months).sort();
   document.getElementById('alloc-month-list').innerHTML=months.length
     ?months.map(key=>{const[y,m]=key.split('-').map(Number);return`<button class="move-month-btn" onclick="allocSelectMonth('${key}')">${MONTHS[m-1]} ${y}</button>`;}).join('')
-    :'<p style="color:#9ca3af;font-size:0.82rem">No budget months exist yet.</p>';
+    :'<p style="color:#9ca3af;font-size:0.82rem">No budget months found. Go to <strong>Monthly Budget</strong> tab and create a month first, then come back to allocate.</p>';
   openModal('modal-allocate');
 }
 function allocSelectMonth(key) {
@@ -2756,13 +2767,12 @@ function pRenderRow(e,isElly,myShare,isDone) {
   let allocBadge='';
   if(e.allocatedTo){
     const[y,m]=e.allocatedTo.key.split('-').map(Number);
-    allocBadge=`<span class="p-alloc-badge linked">${MONTHS[m-1].slice(0,3)} P${e.allocatedTo.pi+1}</span>`;
+    allocBadge=`<span class="p-alloc-badge linked" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Change allocation">${MONTHS[m-1].slice(0,3)} P${e.allocatedTo.pi+1}</span>`;
   } else if(isElly){
     allocBadge=`<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">＋ Allocate</span>`;
   }
   const actionBtns=isElly
     ?`<div class="p-row-actions">
-        <button class="p-action-btn" onclick="openAllocateModal('${e.id}')" title="Allocate to budget">📌</button>
         <button class="p-action-btn danger" onclick="deletePayableEntry('${e.id}')" title="Delete">✕</button>
       </div>`
     :'<span></span>';
@@ -2771,7 +2781,7 @@ function pRenderRow(e,isElly,myShare,isDone) {
     <span class="p-row-name">${esc(e.name)} ${splitBadge}</span>
     <span class="p-row-amount">${pFmt(myShare)}</span>
     <span class="p-row-payto">${esc(e.payTo||'')}</span>
-    <div class="p-row-meta">${allocBadge}<span style="font-size:0.68rem;color:#9ca3af">${esc(e.date||'')}</span></div>
+    <div class="p-row-meta">${allocBadge}</div>
     ${actionBtns}
   </div>`;
 }
