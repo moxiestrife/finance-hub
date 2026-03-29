@@ -1397,6 +1397,14 @@ function listenBudget() {
       const si = document.getElementById('salaryInput');
       if (si) si.value = state.settings?.salary || 4524.58;
       firebaseDataLoaded = true; // Firebase has real data — safe to push changes now
+      // Rolling backup: keep last 3 snapshots in localStorage keyed by timestamp
+      try {
+        const backupKey = 'fhBackup_' + new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
+        localStorage.setItem(backupKey, JSON.stringify(val));
+        // Prune old backups — keep only the 3 most recent
+        const allKeys = Object.keys(localStorage).filter(k=>k.startsWith('fhBackup_')).sort();
+        while (allKeys.length > 3) localStorage.removeItem(allKeys.shift());
+      } catch(e) {}
       if (curTab === 'monthly')  render();
       if (curTab === 'summary')  renderSummary();
       if (curTab === 'insights') renderInsights();
