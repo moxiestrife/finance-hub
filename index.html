@@ -1850,6 +1850,26 @@ function saveSettings() {
 function getPeriod(key,pi) { return state.months[key]?.periods[pi]; }
 function getBill(key,pi,id) { return getPeriod(key,pi)?.bills.find(b=>b.id===id); }
 
+function updateSalaryInline(key, val) {
+  state.settings.salary = parseFloat(val) || 0;
+  save();
+  (state.months[key]?.periods || []).forEach((_, i) => refreshChip(key, i));
+}
+
+// Update just the Safe to Spend chip for a period card without re-rendering the whole card.
+function refreshChip(key, pi) {
+  const period = getPeriod(key, pi); if (!period) return;
+  const totalIncome  = getPeriodIncome(period);
+  const savingsGoals = getSavingsGoals(period);
+  const totalSavings = savingsGoals.reduce((s,g)=>s+(parseFloat(g.amount)||0), 0);
+  const subtotal     = period.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0), 0);
+  const allowance    = totalIncome - subtotal - totalSavings;
+  const chip = document.querySelector(`[data-chip="${key}-${pi}"]`);
+  if (!chip) return;
+  chip.textContent = '$' + allowance.toFixed(2);
+  chip.parentElement.className = allowance < 0 ? 'safe-to-spend-chip negative' : 'safe-to-spend-chip';
+}
+
 function toggleDone(key,pi,id,val) {
   if (!isAdmin()) return;
   const b=getBill(key,pi,id); if(b){b.done=val;save();renderMonthView(key);}
@@ -1857,7 +1877,8 @@ function toggleDone(key,pi,id,val) {
 function updateBill(key,pi,id,field,val) {
   if (!isAdmin()) return;
   const b=getBill(key,pi,id); if(!b)return;
-  b[field]=field==='amount'?(parseFloat(val)||0):val; save();renderMonthView(key);
+  b[field]=field==='amount'?(parseFloat(val)||0):val;
+  save(); refreshChip(key, pi);
 }
 function toggleRecurring(key,pi,id) {
   if (!isAdmin()) return;
@@ -1955,7 +1976,7 @@ function updateSavingsGoal(key,pi,id,field,val) {
   const p=getPeriod(key,pi); if(!p)return;
   const g=getSavingsGoals(p).find(g=>g.id===id); if(!g)return;
   g[field] = field==='amount' ? (parseFloat(val)||0) : val;
-  save(); renderMonthView(key);
+  save(); refreshChip(key, pi);
 }
 function toggleSavingsDone(key,pi,id,val) {
   if (!isAdmin()) return;
@@ -2056,7 +2077,7 @@ function updateIncome(key, pi, id, field, val) {
   const p = getPeriod(key, pi); if (!p || !p.income) return;
   const item = p.income.find(i => i.id === id); if (!item) return;
   item[field] = field === 'amount' ? (parseFloat(val)||0) : val;
-  save(); render();
+  save(); refreshChip(key, pi);
 }
 
 function deleteIncome(key, pi, id) {
@@ -2121,7 +2142,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
     <div class="period-header-right">
       <div class="${chipClass}">
         <span class="safe-to-spend-label">Safe to spend</span>
-        $${allowance.toFixed(2)}
+        <span data-chip="${key}-${pi}">$${allowance.toFixed(2)}</span>
       </div>
       ${canEdit ? `<button class="edit-date-btn" onclick="editDate('${key}',${pi})">✏ Date</button>` : ''}
       ${canEdit ? `<button class="period-delete-btn" onclick="deletePeriod('${key}',${pi})">🗑</button>` : ''}
@@ -2154,7 +2175,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
       <span></span><span></span>
       <span class="bill-name-input" style="color:#059669;font-weight:600;pointer-events:none">Salary (fortnightly)</span>
       <input class="salary-inline-input" type="number" step="0.01" value="${salaryAmt.toFixed(2)}"
-        oninput="state.settings.salary=parseFloat(this.value)||0;save();render()"
+        oninput="updateSalaryInline('${key}',this.value)"
         title="Edit default salary">
       <span></span><span></span><span></span>`;
   } else {
