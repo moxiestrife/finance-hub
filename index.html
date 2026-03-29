@@ -436,24 +436,40 @@ body {
 .saving-row.is-done .bill-name-input { text-decoration: line-through; }
 
 /* ═══════════════════════════════════════
-   RIGHT-CLICK CONTEXT MENU
+   RIGHT-CLICK CONTEXT MENU + SUBMENUS
 ═══════════════════════════════════════ */
-#ctx-menu {
+.ctx-menu-shell {
   position: fixed; z-index: 9000;
   background: white; border-radius: 10px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
   border: 1px solid #e2e8f0;
-  padding: 6px 0; min-width: 190px;
+  padding: 5px 0; min-width: 200px;
   display: none;
 }
+.ctx-menu-shell.open { display: block; }
 .ctx-item {
-  padding: 8px 16px; font-size: 0.875rem; cursor: pointer;
-  display: flex; align-items: center; gap: 10px; color: #374151;
-  transition: background 0.1s;
+  padding: 9px 16px; font-size: 0.875rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; color: #374151; transition: background 0.1s; position: relative;
 }
 .ctx-item:hover { background: #f1f5f9; }
 .ctx-item.ctx-danger { color: #ef4444; }
-.ctx-divider { height: 1px; background: #f0f4f8; margin: 4px 0; }
+.ctx-item .ctx-arrow { font-size: 0.7rem; color: #9ca3af; }
+.ctx-divider { height: 1px; background: #f0f4f8; margin: 3px 0; }
+/* Submenu */
+.ctx-has-sub { position: relative; }
+.ctx-sub {
+  position: absolute; left: 100%; top: -5px;
+  background: white; border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+  border: 1px solid #e2e8f0;
+  padding: 5px 0; min-width: 210px;
+  display: none; z-index: 9100;
+}
+.ctx-has-sub:hover > .ctx-sub { display: block; }
+/* Flip submenu left if near right edge — toggled via JS */
+.ctx-sub.flip-left { left: auto; right: 100%; }
+/* Formula row inside Calculate submenu */
 .ctx-formula-row { padding: 8px 12px; display: flex; gap: 6px; }
 .ctx-formula-input {
   flex: 1; border: 1.5px solid #e2e8f0; border-radius: 6px;
@@ -465,6 +481,81 @@ body {
   border-radius: 6px; padding: 5px 10px; font-size: 0.82rem;
   cursor: pointer; font-family: inherit; font-weight: 600;
 }
+/* ═══════════════════════════════════════
+   MODAL SYSTEM
+═══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(15,23,42,0.45); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.18s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: white; border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  width: min(420px, 92vw); max-height: 80vh;
+  display: flex; flex-direction: column;
+  transform: translateY(12px); transition: transform 0.18s;
+}
+.modal-overlay.open .modal-box { transform: translateY(0); }
+.modal-header {
+  padding: 16px 20px 12px; border-bottom: 1px solid #f0f4f8;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-size: 1rem; font-weight: 700; color: #1e3a5f; }
+.modal-close {
+  background: none; border: none; font-size: 1.2rem; color: #9ca3af;
+  cursor: pointer; padding: 2px 6px; border-radius: 6px; line-height: 1;
+}
+.modal-close:hover { background: #f1f5f9; color: #374151; }
+.modal-body { padding: 16px 20px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 12px 20px; border-top: 1px solid #f0f4f8; display: flex; justify-content: flex-end; gap: 8px; }
+.modal-btn {
+  padding: 8px 18px; border-radius: 8px; border: none; font-size: 0.875rem;
+  font-family: inherit; font-weight: 600; cursor: pointer;
+}
+.modal-btn.primary { background: #1e3a5f; color: white; }
+.modal-btn.primary:hover { background: #2d5a9e; }
+.modal-btn.ghost { background: #f1f5f9; color: #374151; }
+.modal-btn.ghost:hover { background: #e2e8f0; }
+.modal-btn.danger { background: #fee2e2; color: #dc2626; }
+.modal-btn.danger:hover { background: #fecaca; }
+/* Pay To picker grid */
+.payto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.payto-option {
+  padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px;
+  cursor: pointer; font-size: 0.875rem; font-weight: 500; color: #374151;
+  transition: all 0.12s; text-align: center;
+}
+.payto-option:hover { border-color: #1e3a5f; background: #eff6ff; color: #1e3a5f; }
+.payto-option.selected { border-color: #1e3a5f; background: #1e3a5f; color: white; }
+/* Recurrence options */
+.recur-options { display: flex; gap: 10px; margin-top: 4px; }
+.recur-option {
+  flex: 1; padding: 14px; border: 2px solid #e2e8f0; border-radius: 10px;
+  cursor: pointer; text-align: center; transition: all 0.12s;
+}
+.recur-option:hover { border-color: #059669; }
+.recur-option.selected { border-color: #059669; background: #ecfdf5; }
+.recur-option .recur-icon { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+.recur-option .recur-label { font-size: 0.82rem; font-weight: 600; color: #374151; }
+.recur-option .recur-sub { font-size: 0.72rem; color: #6b7280; margin-top: 2px; }
+/* Move to modal */
+.move-month-list { display: flex; flex-direction: column; gap: 6px; }
+.move-month-btn {
+  padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px;
+  cursor: pointer; font-size: 0.875rem; font-weight: 500; color: #374151;
+  background: white; text-align: left; transition: all 0.12s; font-family: inherit;
+}
+.move-month-btn:hover, .move-month-btn.selected { border-color: #1e3a5f; background: #eff6ff; color: #1e3a5f; }
+.move-period-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0f4f8; }
+.move-period-btn {
+  padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px;
+  cursor: pointer; font-size: 0.875rem; color: #374151;
+  background: white; text-align: left; transition: all 0.12s; font-family: inherit;
+}
+.move-period-btn:hover, .move-period-btn.selected { border-color: #7C3AED; background: #f5f3ff; color: #5b21b6; }
 
 /* ═══════════════════════════════════════
    COMPUTATION SLIDE-IN PANEL
@@ -1019,31 +1110,115 @@ body {
 
 <div id="toast"></div>
 
-<!-- RIGHT-CLICK CONTEXT MENU -->
-<div id="ctx-menu">
-  <!-- Section 1: Properties -->
-  <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px">Properties</div>
-  <div class="ctx-item" onclick="ctxBulkPayTo()">🏦 &nbsp;Change Pay To…</div>
-  <div class="ctx-item" onclick="ctxBulkRecurring(true)">♻ &nbsp;Set all as Recurring</div>
-  <div class="ctx-item" onclick="ctxBulkRecurring(false)">✕ &nbsp;Set all as One-off</div>
-  <div class="ctx-item ctx-danger" onclick="ctxBulkDelete()">🗑 &nbsp;Delete selected</div>
-  <div class="ctx-divider"></div>
-  <!-- Section 2: Move -->
-  <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px">Move to…</div>
-  <div id="ctx-move-list" style="max-height:140px;overflow-y:auto"></div>
-  <div class="ctx-divider"></div>
-  <!-- Section 3: Calculate -->
-  <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px">Calculate</div>
-  <div class="ctx-item" onclick="ctxRun('sum')">∑ &nbsp;Sum</div>
-  <div class="ctx-item" onclick="ctxRun('avg')">∅ &nbsp;Average</div>
-  <div class="ctx-item" onclick="ctxRun('min')">↓ &nbsp;Min</div>
-  <div class="ctx-item" onclick="ctxRun('max')">↑ &nbsp;Max</div>
-  <div class="ctx-item" onclick="ctxRun('count')">＃ &nbsp;Count</div>
-  <div class="ctx-formula-row">
-    <input class="ctx-formula-input" id="ctx-formula-input" placeholder="e.g. SUM * 0.5">
-    <button class="ctx-formula-btn" onclick="ctxRunFormula()">= Go</button>
+<!-- RIGHT-CLICK CONTEXT MENU — 3 top-level items with hover submenus -->
+<div class="ctx-menu-shell" id="ctx-menu">
+
+  <!-- 1. Multi-row actions header label -->
+  <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px" id="ctx-sel-label">1 row selected</div>
+
+  <!-- 1a. Change Properties → submenu -->
+  <div class="ctx-item ctx-has-sub">
+    <span>✏️ &nbsp;Change properties</span><span class="ctx-arrow">›</span>
+    <div class="ctx-sub" id="ctx-sub-props">
+      <div class="ctx-item" onclick="closeCtx();openModalPayTo()">🏦 &nbsp;Change Pay To…</div>
+      <div class="ctx-item" onclick="closeCtx();openModalRecurrence()">♻ &nbsp;Change recurrence…</div>
+      <div class="ctx-divider"></div>
+      <div class="ctx-item ctx-danger" onclick="ctxBulkDelete()">🗑 &nbsp;Delete selected</div>
+    </div>
   </div>
-  <div style="padding:0 12px 8px;font-size:0.68rem;color:#9ca3af">Use SUM, AVG, MIN, MAX, COUNT as variables</div>
+
+  <!-- 1b. Move to → opens modal directly -->
+  <div class="ctx-item" onclick="closeCtx();openModalMoveTo()">
+    <span>📦 &nbsp;Move to…</span>
+  </div>
+
+  <!-- 1c. Calculate → submenu -->
+  <div class="ctx-item ctx-has-sub">
+    <span>🧮 &nbsp;Calculate</span><span class="ctx-arrow">›</span>
+    <div class="ctx-sub" id="ctx-sub-calc">
+      <div class="ctx-item" onclick="ctxRun('sum')">∑ &nbsp;Sum</div>
+      <div class="ctx-item" onclick="ctxRun('avg')">∅ &nbsp;Average</div>
+      <div class="ctx-item" onclick="ctxRun('min')">↓ &nbsp;Min</div>
+      <div class="ctx-item" onclick="ctxRun('max')">↑ &nbsp;Max</div>
+      <div class="ctx-item" onclick="ctxRun('count')">＃ &nbsp;Count</div>
+      <div class="ctx-divider"></div>
+      <div class="ctx-formula-row">
+        <input class="ctx-formula-input" id="ctx-formula-input" placeholder="e.g. SUM * 0.5" onclick="event.stopPropagation()">
+        <button class="ctx-formula-btn" onclick="ctxRunFormula()">= Go</button>
+      </div>
+      <div style="padding:0 12px 8px;font-size:0.68rem;color:#9ca3af">Use SUM, AVG, MIN, MAX, COUNT</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ MODAL: Change Pay To ═══ -->
+<div class="modal-overlay" id="modal-payto">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>🏦 Change Pay To</h3>
+      <button class="modal-close" onclick="closeModal('modal-payto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Select an account to apply to all <strong id="payto-sel-count">selected</strong> rows.</p>
+      <div class="payto-grid" id="payto-grid"></div>
+      <div style="margin-top:12px">
+        <input id="payto-new-input" class="ctx-formula-input" style="width:100%;box-sizing:border-box" placeholder="Or type a new account name…" oninput="paytoHighlightNew(this.value)">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn ghost" onclick="closeModal('modal-payto')">Cancel</button>
+      <button class="modal-btn primary" onclick="confirmPayTo()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Change Recurrence ═══ -->
+<div class="modal-overlay" id="modal-recurrence">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>♻ Change Recurrence</h3>
+      <button class="modal-close" onclick="closeModal('modal-recurrence')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px">Apply to all <strong id="recur-sel-count">selected</strong> rows.</p>
+      <div class="recur-options">
+        <div class="recur-option" id="recur-opt-on" onclick="selectRecurOpt(true)">
+          <span class="recur-icon">♻</span>
+          <div class="recur-label">Recurring</div>
+          <div class="recur-sub">Copies to next month</div>
+        </div>
+        <div class="recur-option" id="recur-opt-off" onclick="selectRecurOpt(false)">
+          <span class="recur-icon">1️⃣</span>
+          <div class="recur-label">One-off</div>
+          <div class="recur-sub">This period only</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn ghost" onclick="closeModal('modal-recurrence')">Cancel</button>
+      <button class="modal-btn primary" onclick="confirmRecurrence()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Move To ═══ -->
+<div class="modal-overlay" id="modal-moveto">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>📦 Move To</h3>
+      <button class="modal-close" onclick="closeModal('modal-moveto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Moving <strong id="moveto-sel-count">selected</strong> rows. Pick a month, then a pay period.</p>
+      <div class="move-month-list" id="move-month-list"></div>
+      <div class="move-period-list" id="move-period-list" style="display:none"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn ghost" onclick="closeModal('modal-moveto')">Cancel</button>
+      <button class="modal-btn primary" id="moveto-confirm-btn" onclick="confirmMoveTo()" disabled style="opacity:0.4">Move here</button>
+    </div>
+  </div>
 </div>
 
 <!-- COMPUTATION PANEL -->
@@ -2343,6 +2518,14 @@ function updateSelBadge() {
   badge.classList.add('visible');
 }
 
+// ──────────────────────────────────────────────
+//  CONTEXT MENU
+// ──────────────────────────────────────────────
+function closeCtx() {
+  const m = document.getElementById('ctx-menu');
+  if (m) m.classList.remove('open');
+}
+
 function handleRowRightClick(e, row) {
   e.preventDefault();
   if (!selectedRows.length) {
@@ -2350,79 +2533,223 @@ function handleRowRightClick(e, row) {
       amount: parseFloat(row.dataset.amount)||0, name: row.dataset.name, el: row };
     selectedRows = [r]; row.classList.add('selected'); updateSelBadge();
   }
-  // Populate Move To list
-  buildMoveToList();
+  // Update selection label
+  const lbl = document.getElementById('ctx-sel-label');
+  if (lbl) lbl.textContent = `${selectedRows.length} row${selectedRows.length!==1?'s':''} selected`;
+
   const menu = document.getElementById('ctx-menu');
-  menu.style.display = 'block';
+  menu.classList.add('open');
+  // Flip submenus if near right edge
+  const nearRight = e.clientX + 450 > window.innerWidth;
+  document.querySelectorAll('.ctx-sub').forEach(s => s.classList.toggle('flip-left', nearRight));
+
   let x = e.clientX, y = e.clientY;
-  const mh = menu.offsetHeight || 400;
+  const mh = 130; // approximate menu height
   if (x + 220 > window.innerWidth) x = window.innerWidth - 225;
   if (y + mh > window.innerHeight) y = Math.max(4, window.innerHeight - mh - 4);
   menu.style.left = x + 'px'; menu.style.top = y + 'px';
-  document.getElementById('ctx-formula-input').value = '';
+  const fi = document.getElementById('ctx-formula-input');
+  if (fi) fi.value = '';
 }
 
-function buildMoveToList() {
-  const container = document.getElementById('ctx-move-list');
-  if (!container) return;
-  const months = Object.keys(state.months).sort();
-  if (!months.length) {
-    container.innerHTML = `<div style="padding:6px 16px;font-size:0.8rem;color:#9ca3af">No months created yet.<br>Go to Monthly View and create cards first.</div>`;
-    return;
+// ──────────────────────────────────────────────
+//  MODAL SYSTEM
+// ──────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id)?.classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id)?.classList.remove('open');
+}
+
+// Close modal on overlay click
+document.addEventListener('click', (e) => {
+  // Close ctx menu
+  const menu = document.getElementById('ctx-menu');
+  if (menu && !menu.contains(e.target)) closeCtx();
+  // Close modals on backdrop click
+  if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
+  // Clear row selection on outside click
+  if (!e.target.closest('.bill-row') && !e.target.closest('#ctx-menu') &&
+      !e.target.closest('.modal-overlay') && !e.target.closest('#calc-panel') &&
+      !e.target.closest('#sel-badge')) {
+    clearSelection();
   }
-  const srcKey = selectedRows[0]?.key;
-  const srcPi  = selectedRows[0]?.pi;
-  let html = '';
-  months.forEach(key => {
-    const [y,m] = key.split('-').map(Number);
-    const label = MONTHS[m-1] + ' ' + y;
-    state.months[key].periods.forEach((p, pi) => {
-      if (key === srcKey && pi === srcPi) return; // skip source
-      html += `<div class="ctx-item" onclick="ctxMoveTo('${key}',${pi})">→ ${label} · P${pi+1} <span style="font-size:0.75rem;color:#9ca3af;margin-left:4px">${esc(p.date)}</span></div>`;
-    });
-  });
-  container.innerHTML = html || `<div style="padding:6px 16px;font-size:0.8rem;color:#9ca3af">No other periods available.</div>`;
+});
+
+// ─── Change Pay To modal ───
+let _selectedPayTo = null;
+
+function openModalPayTo() {
+  if (!selectedRows.length) return;
+  _selectedPayTo = null;
+  document.getElementById('payto-sel-count').textContent = `${selectedRows.length} row${selectedRows.length!==1?'s':''}`;
+  document.getElementById('payto-new-input').value = '';
+  const accounts = state.accounts || DEFAULT_ACCOUNTS;
+  const grid = document.getElementById('payto-grid');
+  grid.innerHTML = accounts.map(a =>
+    `<div class="payto-option" onclick="selectPayToOption(this,'${esc(a)}')">${esc(a)}</div>`
+  ).join('');
+  openModal('modal-payto');
 }
 
-// ── Bulk property actions ──
-function ctxBulkPayTo() {
-  document.getElementById('ctx-menu').style.display = 'none';
-  if (!selectedRows.length) return;
+function selectPayToOption(el, name) {
+  document.querySelectorAll('#payto-grid .payto-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  _selectedPayTo = name;
+  document.getElementById('payto-new-input').value = '';
+}
+
+function paytoHighlightNew(val) {
+  // Deselect grid when user types
+  if (val.trim()) {
+    document.querySelectorAll('#payto-grid .payto-option').forEach(o => o.classList.remove('selected'));
+    _selectedPayTo = null;
+  }
+}
+
+function confirmPayTo() {
+  const newVal = document.getElementById('payto-new-input').value.trim();
+  let resolved = newVal || _selectedPayTo;
+  if (!resolved) { showToast('⚠ Please select or enter an account'); return; }
   const accounts = state.accounts || DEFAULT_ACCOUNTS;
-  const opts = ['— Select account —', ...accounts, '＋ Add new…'].map((a,i)=>`${i===0?'':i===accounts.length+1?'__new__':a}`).join('\n');
-  // Build a quick select prompt via native prompt with list
-  const acct = prompt(`Change Pay To for ${selectedRows.length} row(s).\n\nAccounts:\n${accounts.map((a,i)=>`${i+1}. ${a}`).join('\n')}\n\nType account name or number:`);
-  if (!acct) return;
-  let resolved = acct.trim();
-  const idx = parseInt(resolved);
-  if (!isNaN(idx) && idx >= 1 && idx <= accounts.length) resolved = accounts[idx-1];
   if (!accounts.includes(resolved)) {
-    if (!confirm(`"${resolved}" is not in your list. Add it?`)) return;
-    state.accounts.push(resolved);
+    state.accounts = [...(state.accounts || []), resolved];
+    save();
   }
   selectedRows.forEach(r => {
     const bill = getBill(r.key, r.pi, r.billId);
     if (bill) bill.payTo = resolved;
   });
   save(); render();
-  showToast(`✓ Pay To updated for ${selectedRows.length} item(s)`);
+  closeModal('modal-payto');
+  showToast(`✓ Pay To → ${resolved} (${selectedRows.length} row${selectedRows.length!==1?'s':''})`);
 }
 
-function ctxBulkRecurring(val) {
-  document.getElementById('ctx-menu').style.display = 'none';
+// ─── Change Recurrence modal ───
+let _selectedRecur = null;
+
+function openModalRecurrence() {
+  if (!selectedRows.length) return;
+  _selectedRecur = null;
+  document.getElementById('recur-sel-count').textContent = `${selectedRows.length} row${selectedRows.length!==1?'s':''}`;
+  document.getElementById('recur-opt-on').classList.remove('selected');
+  document.getElementById('recur-opt-off').classList.remove('selected');
+  openModal('modal-recurrence');
+}
+
+function selectRecurOpt(val) {
+  _selectedRecur = val;
+  document.getElementById('recur-opt-on').classList.toggle('selected', val === true);
+  document.getElementById('recur-opt-off').classList.toggle('selected', val === false);
+}
+
+function confirmRecurrence() {
+  if (_selectedRecur === null) { showToast('⚠ Please select an option'); return; }
   selectedRows.forEach(r => {
     const bill = getBill(r.key, r.pi, r.billId);
-    if (bill) bill.recurring = val;
+    if (bill) bill.recurring = _selectedRecur;
   });
   save(); render();
-  showToast(`✓ ${selectedRows.length} item(s) set to ${val?'Recurring':'One-off'}`);
+  closeModal('modal-recurrence');
+  showToast(`✓ ${selectedRows.length} row${selectedRows.length!==1?'s':''} set to ${_selectedRecur?'Recurring':'One-off'}`);
 }
 
-function ctxBulkDelete() {
-  document.getElementById('ctx-menu').style.display = 'none';
+// ─── Move To modal ───
+let _moveDestKey = null, _moveDestPi = null;
+
+function openModalMoveTo() {
   if (!selectedRows.length) return;
-  if (!confirm(`Delete ${selectedRows.length} selected item(s)?`)) return;
-  // Group by key+pi for efficient deletion
+  _moveDestKey = null; _moveDestPi = null;
+  document.getElementById('moveto-sel-count').textContent = `${selectedRows.length} row${selectedRows.length!==1?'s':''}`;
+  document.getElementById('moveto-confirm-btn').disabled = true;
+  document.getElementById('moveto-confirm-btn').style.opacity = '0.4';
+  document.getElementById('move-period-list').style.display = 'none';
+  document.getElementById('move-period-list').innerHTML = '';
+
+  const srcKey = selectedRows[0]?.key;
+  const months = Object.keys(state.months).sort();
+  const monthList = document.getElementById('move-month-list');
+  if (!months.length) {
+    monthList.innerHTML = `<p style="color:#9ca3af;font-size:0.82rem">No months exist yet. Go to Monthly View and create cards first.</p>`;
+  } else {
+    monthList.innerHTML = months.map(key => {
+      const [y,m] = key.split('-').map(Number);
+      return `<button class="move-month-btn" onclick="selectMoveMonth('${key}')">${MONTHS[m-1]} ${y}</button>`;
+    }).join('');
+  }
+  openModal('modal-moveto');
+}
+
+function selectMoveMonth(key) {
+  _moveDestKey = key; _moveDestPi = null;
+  document.getElementById('moveto-confirm-btn').disabled = true;
+  document.getElementById('moveto-confirm-btn').style.opacity = '0.4';
+  // Highlight selected month
+  document.querySelectorAll('.move-month-btn').forEach(b => b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  // Show periods for this month
+  const srcKey = selectedRows[0]?.key;
+  const month = state.months[key];
+  const periodList = document.getElementById('move-period-list');
+  if (!month) { periodList.style.display = 'none'; return; }
+  periodList.style.display = 'flex';
+  periodList.innerHTML = `<div style="font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Select pay period</div>` +
+    month.periods.map((p, pi) => {
+      const isSrc = key === srcKey && pi === selectedRows[0]?.pi;
+      return `<button class="move-period-btn" onclick="selectMovePeriod(${pi},this)" ${isSrc?'disabled style="opacity:0.35;cursor:not-allowed"':''}>
+        Pay Period ${pi+1} <span style="font-size:0.75rem;color:#9ca3af;margin-left:4px">${esc(p.date)}</span>
+        ${isSrc?'<span style="font-size:0.7rem;color:#9ca3af"> (source)</span>':''}
+      </button>`;
+    }).join('');
+}
+
+function selectMovePeriod(pi, el) {
+  _moveDestPi = pi;
+  document.querySelectorAll('.move-period-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  const btn = document.getElementById('moveto-confirm-btn');
+  btn.disabled = false; btn.style.opacity = '1';
+}
+
+function confirmMoveTo() {
+  if (!selectedRows.length || _moveDestKey === null || _moveDestPi === null) return;
+  const destPeriod = getPeriod(_moveDestKey, _moveDestPi);
+  if (!destPeriod) { showToast('⚠ Destination period not found'); return; }
+
+  const groups = {};
+  selectedRows.forEach(r => {
+    const k = `${r.key}|${r.pi}`;
+    if (!groups[k]) groups[k] = { key: r.key, pi: r.pi, ids: [] };
+    groups[k].ids.push(r.billId);
+  });
+  const moved = [];
+  Object.values(groups).forEach(g => {
+    const srcPeriod = getPeriod(g.key, g.pi);
+    if (!srcPeriod) return;
+    g.ids.forEach(id => {
+      const bill = srcPeriod.bills.find(b => b.id === id);
+      if (bill) moved.push({...bill, id: newId()});
+    });
+    srcPeriod.bills = srcPeriod.bills.filter(b => !g.ids.includes(b.id));
+  });
+  destPeriod.bills.push(...moved);
+
+  closeModal('modal-moveto');
+  clearSelection();
+  save();
+  const [dy, dm] = _moveDestKey.split('-').map(Number);
+  curYear = dy; curMonth = dm - 1;
+  render();
+  showToast(`✓ Moved ${moved.length} item${moved.length!==1?'s':''} → ${MONTHS[dm-1]} ${dy} · P${_moveDestPi+1}`);
+}
+
+// ─── Bulk delete (confirm modal-free — still uses confirm() for safety) ───
+function ctxBulkDelete() {
+  closeCtx();
+  if (!selectedRows.length) return;
+  const n = selectedRows.length;
+  if (!confirm(`Delete ${n} selected item${n!==1?'s':''}?`)) return;
   const groups = {};
   selectedRows.forEach(r => {
     const k = `${r.key}|${r.pi}`;
@@ -2435,56 +2762,11 @@ function ctxBulkDelete() {
   });
   clearSelection();
   save(); render();
-  showToast(`✓ ${Object.values(groups).reduce((t,g)=>t+g.ids.length,0)} item(s) deleted`);
+  showToast(`✓ ${n} item${n!==1?'s':''} deleted`);
 }
-
-function ctxMoveTo(destKey, destPi) {
-  document.getElementById('ctx-menu').style.display = 'none';
-  if (!selectedRows.length) return;
-  const destPeriod = getPeriod(destKey, destPi);
-  if (!destPeriod) { showToast('⚠ Destination period not found'); return; }
-
-  // Group source rows by key+pi
-  const groups = {};
-  selectedRows.forEach(r => {
-    const k = `${r.key}|${r.pi}`;
-    if (!groups[k]) groups[k] = { key: r.key, pi: r.pi, ids: [] };
-    groups[k].ids.push(r.billId);
-  });
-
-  // Move bills
-  const moved = [];
-  Object.values(groups).forEach(g => {
-    const srcPeriod = getPeriod(g.key, g.pi);
-    if (!srcPeriod) return;
-    g.ids.forEach(id => {
-      const bill = srcPeriod.bills.find(b => b.id === id);
-      if (bill) { moved.push({...bill, id: newId()}); }
-    });
-    srcPeriod.bills = srcPeriod.bills.filter(b => !g.ids.includes(b.id));
-  });
-  destPeriod.bills.push(...moved);
-
-  clearSelection();
-  save();
-  // Navigate to destination month if different
-  const [dy, dm] = destKey.split('-').map(Number);
-  curYear = dy; curMonth = dm - 1;
-  render();
-  showToast(`✓ Moved ${moved.length} item(s) to ${MONTHS[dm-1]} ${dy} · P${destPi+1}`);
-}
-
-document.addEventListener('click', (e) => {
-  const menu = document.getElementById('ctx-menu');
-  if (menu && !menu.contains(e.target)) menu.style.display = 'none';
-  // Clear selection if clicking outside bill rows
-  if (!e.target.closest('.bill-row') && !e.target.closest('#ctx-menu') && !e.target.closest('#calc-panel') && !e.target.closest('#sel-badge')) {
-    clearSelection();
-  }
-});
 
 function ctxRun(op) {
-  document.getElementById('ctx-menu').style.display = 'none';
+  closeCtx();
   if (!selectedRows.length) return;
   const amounts = selectedRows.map(r => r.amount);
   const names   = selectedRows.map(r => r.name || '$' + r.amount.toFixed(2));
@@ -2499,7 +2781,7 @@ function ctxRun(op) {
 }
 
 function ctxRunFormula() {
-  document.getElementById('ctx-menu').style.display = 'none';
+  closeCtx();
   let formula = document.getElementById('ctx-formula-input').value.trim();
   if (!formula) return;
   const SUM  = selectedRows.reduce((a,r)=>a+r.amount,0);
