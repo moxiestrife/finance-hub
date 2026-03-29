@@ -105,17 +105,17 @@ body {
 .topbar {
   background: #1e3a5f; color: white;
   padding: 13px 24px;
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   position: sticky; top: 0; z-index: 100;
   gap: 10px;
 }
-.topbar h1 { font-size: 1.15rem; font-weight: 700; white-space: nowrap; flex: 1; }
-.topbar-right { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: flex-end; }
-/* Month nav absolutely centred within topbar */
+/* Title and right section each take equal flex space so the middle is truly centred */
+.topbar h1 { font-size: 1.15rem; font-weight: 700; white-space: nowrap; flex: 1; min-width: 0; }
+.topbar-right { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: flex-end; min-width: 0; }
 #monthNavWrap {
-  position: absolute; left: 50%; transform: translateX(-50%);
-  display: none; /* shown via JS when on monthly tab */
+  display: none; /* shown as flex by JS */
+  flex-shrink: 0;
 }
 .user-chip {
   display: flex; align-items: center; gap: 7px;
@@ -880,7 +880,7 @@ body {
 <!-- TOP BAR -->
 <div class="topbar">
   <h1>💰 Finance Hub</h1>
-  <div class="month-nav" id="monthNavWrap" style="position:relative">
+  <div class="month-nav" id="monthNavWrap" style="position:relative;z-index:200">
     <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
     <span class="month-label" id="monthLabel" onclick="toggleMonthPicker(event)">—</span>
     <button class="nav-btn" onclick="changeMonth(1)">›</button>
