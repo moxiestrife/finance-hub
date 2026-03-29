@@ -2383,7 +2383,7 @@ function switchPayablesViewSilent(view) {
 // Entry helpers
 function getPEricEntries() {
   const list = [];
-  pState.entries.forEach(e => {
+  (pState.entries || []).forEach(e => {
     if (e.owner==='eric') list.push({ ...e, displayAmt: e.amount, _for: 'eric' });
     else if (e.owner==='shared') list.push({ ...e, id:e.id+'_eric', displayAmt:e.amount/2, done:e.doneEric||false, doneAt:e.doneEricAt||null, _for:'eric', _raw:e.id });
   });
