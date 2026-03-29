@@ -594,6 +594,7 @@ body {
   padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px;
   cursor: pointer; font-size: 0.875rem; color: #374151;
   background: white; text-align: left; transition: all 0.12s; font-family: inherit;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
 }
 .move-period-btn:hover, .move-period-btn.selected { border-color: #7C3AED; background: #f5f3ff; color: #5b21b6; }
 
@@ -1106,7 +1107,7 @@ body {
     <span>✏️ &nbsp;Change properties</span><span class="ctx-arrow">›</span>
     <div class="ctx-sub" id="ctx-sub-props">
       <div class="ctx-item" onclick="closeCtx();openModalMarkAs()">✔ &nbsp;Mark as…</div>
-      <div class="ctx-item" onclick="closeCtx();openModalPayTo()">🏦 &nbsp;Change Pay To…</div>
+      <div class="ctx-item" onclick="closeCtx();openModalPayTo()">🏦 &nbsp;Change pay to…</div>
       <div class="ctx-item" onclick="closeCtx();openModalRecurrence()">♻ &nbsp;Change recurrence…</div>
       <div class="ctx-divider"></div>
       <div class="ctx-item ctx-danger" onclick="ctxBulkDelete()">🗑 &nbsp;Delete selected</div>
@@ -1142,7 +1143,7 @@ body {
 <div class="modal-overlay" id="modal-payto">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>🏦 Change Pay To</h3>
+      <h3>🏦 Change pay to</h3>
       <button class="modal-close" onclick="closeModal('modal-payto')">✕</button>
     </div>
     <div class="modal-body">
@@ -1163,7 +1164,7 @@ body {
 <div class="modal-overlay" id="modal-recurrence">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>♻ Change Recurrence</h3>
+      <h3>♻ Change recurrence</h3>
       <button class="modal-close" onclick="closeModal('modal-recurrence')">✕</button>
     </div>
     <div class="modal-body">
@@ -1192,7 +1193,7 @@ body {
 <div class="modal-overlay" id="modal-markas">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>✔ Mark as…</h3>
+      <h3>✔ Mark as</h3>
       <button class="modal-close" onclick="closeModal('modal-markas')">✕</button>
     </div>
     <div class="modal-body">
@@ -1221,7 +1222,7 @@ body {
 <div class="modal-overlay" id="modal-moveto">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>📦 Move To</h3>
+      <h3>📦 Move to</h3>
       <button class="modal-close" onclick="closeModal('modal-moveto')">✕</button>
     </div>
     <div class="modal-body">
@@ -1240,11 +1241,11 @@ body {
 <div class="modal-overlay" id="modal-allocate">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>Allocate to Budget Period</h3>
+      <h3>Allocate <span id="alloc-modal-amount" style="color:#ef4444"></span> to budget period</h3>
       <button class="modal-close" onclick="closeModal('modal-allocate')">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Pick a month, then a pay period. This will add the expense to that period's bill list so you can tick it off there.</p>
+      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Pick a month, then a pay period. This creates a bill in that period so you can tick it off there.</p>
       <div id="alloc-month-list" class="move-month-list"></div>
       <div id="alloc-period-list" class="move-period-list" style="display:none"></div>
     </div>
@@ -1273,10 +1274,10 @@ body {
 <!-- ═══ PAYABLES CONTEXT MENU ═══ -->
 <div class="ctx-menu-shell" id="p-ctx-menu" style="min-width:180px">
   <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px" id="p-ctx-label">1 row selected</div>
-  <div class="ctx-item" onclick="pCtxAllocate()">📌 &nbsp;Allocate to period…</div>
-  <div class="ctx-item" onclick="pCtxUnallocate()">✕ &nbsp;Remove allocation</div>
+  <div class="ctx-item" onclick="pCtxAllocate()">Allocate to period…</div>
+  <div class="ctx-item" onclick="pCtxUnallocate()">Remove allocation</div>
   <div class="ctx-divider"></div>
-  <div class="ctx-item ctx-danger" onclick="pCtxDelete()">🗑 &nbsp;Delete selected</div>
+  <div class="ctx-item ctx-danger" onclick="pCtxDelete()">Delete selected</div>
 </div>
 
 <!-- COMPUTATION PANEL -->
@@ -2004,7 +2005,7 @@ function billDrop(e, key, pi, billId) {
     // Different period — insert before target row (or append if no target)
     const toIdx = destPeriod.bills.findIndex(b=>b.id===billId);
     destPeriod.bills.splice(toIdx >= 0 ? toIdx : destPeriod.bills.length, 0, moved);
-    showToast(`✓ Moved to Pay Period ${pi+1}`);
+    showToast(`✓ Moved to pay period ${pi+1}`);
   }
   _dragKey=null; save(); render();
 }
@@ -2028,7 +2029,7 @@ function billListDrop(e, key, pi) {
   if (fromIdx < 0) { _dragKey=null; return; }
   const [moved] = srcPeriod.bills.splice(fromIdx, 1);
   destPeriod.bills.push(moved);
-  showToast(`✓ Moved to Pay Period ${pi+1}`);
+  showToast(`✓ Moved to pay period ${pi+1}`);
   _dragKey=null; save(); render();
 }
 
@@ -2117,7 +2118,7 @@ function getPeriodIncome(period) {
 
 function deletePeriod(key, pi) {
   if (!isAdmin()) return;
-  if (!confirm(`Delete Pay Period ${pi+1}? This cannot be undone.`)) return;
+  if (!confirm(`Delete pay period ${pi+1}? This cannot be undone.`)) return;
   const m = state.months[key];
   if (!m) return;
   m.periods.splice(pi, 1);
@@ -2202,7 +2203,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
   const headerDiv = document.createElement('div'); headerDiv.className = 'period-header';
   headerDiv.innerHTML = `
     <div class="period-header-left">
-      <span class="period-title">Pay Period ${pi+1}</span>
+      <span class="period-title">Pay period ${pi+1}</span>
       <span class="period-date-display">${esc(period.date)}</span>
     </div>
     <div class="period-header-right">
@@ -2692,10 +2693,14 @@ function openAllocateModal(payableId) {
   btn.disabled=true;btn.style.opacity='0.4';
   document.getElementById('alloc-period-list').style.display='none';
   document.getElementById('alloc-period-list').innerHTML='';
+  // Set amount in title
+  const entry=(pState.entries||[]).find(x=>x.id===payableId);
+  const amtEl=document.getElementById('alloc-modal-amount');
+  if(amtEl) amtEl.textContent=entry?pFmt(pMyShare(entry)):'';
   const months=Object.keys(state.months).sort();
   document.getElementById('alloc-month-list').innerHTML=months.length
     ?months.map(key=>{const[y,m]=key.split('-').map(Number);return`<button class="move-month-btn" onclick="allocSelectMonth('${key}')">${MONTHS[m-1]} ${y}</button>`;}).join('')
-    :'<p style="color:#9ca3af;font-size:0.82rem">No budget months found. Go to <strong>Monthly Budget</strong> tab and create a month first, then come back to allocate.</p>';
+    :'<p style="color:#9ca3af;font-size:0.82rem">No budget months found. Go to <strong>Monthly budget</strong> tab and create a month first, then come back to allocate.</p>';
   openModal('modal-allocate');
 }
 function allocSelectMonth(key) {
@@ -2708,7 +2713,15 @@ function allocSelectMonth(key) {
   const pl=document.getElementById('alloc-period-list');
   pl.style.display='flex';
   pl.innerHTML=`<div style="font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;margin-bottom:4px">Select pay period</div>`+
-    (month?.periods||[]).map((p,pi)=>`<button class="move-period-btn" onclick="allocSelectPeriod(${pi},this)">Pay Period ${pi+1} <span style="font-size:0.75rem;color:#9ca3af;margin-left:4px">${esc(p.date)}</span></button>`).join('');
+    (month?.periods||[]).map((p,pi)=>{
+      const inc=getPeriodIncome(p);
+      const sav=getSavingsGoals(p).reduce((s,g)=>s+(parseFloat(g.amount)||0),0);
+      const out=p.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+      const safe=inc-sav-out;
+      const safeCol=safe<0?'#ef4444':'#059669';
+      const safeStr=`<span style="font-size:0.72rem;margin-left:8px;color:${safeCol};font-weight:700">Safe to spend: ${pFmt(safe)}</span>`;
+      return`<button class="move-period-btn" onclick="allocSelectPeriod(${pi},this)">Pay period ${pi+1} <span style="font-size:0.75rem;color:#9ca3af;margin-left:4px">${esc(p.date)}</span>${safeStr}</button>`;
+    }).join('');
 }
 function allocSelectPeriod(pi,el) {
   _allocDestPi=pi;
@@ -3343,7 +3356,7 @@ function selectMoveMonth(key) {
     month.periods.map((p, pi) => {
       const isSrc = key === srcKey && pi === selectedRows[0]?.pi;
       return `<button class="move-period-btn" onclick="selectMovePeriod(${pi},this)" ${isSrc?'disabled style="opacity:0.35;cursor:not-allowed"':''}>
-        Pay Period ${pi+1} <span style="font-size:0.75rem;color:#9ca3af;margin-left:4px">${esc(p.date)}</span>
+        Pay period ${pi+1} <span style="font-size:0.75rem;color:#9ca3af;margin-left:4px">${esc(p.date)}</span>
         ${isSrc?'<span style="font-size:0.7rem;color:#9ca3af"> (source)</span>':''}
       </button>`;
     }).join('');
