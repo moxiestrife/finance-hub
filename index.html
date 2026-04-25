@@ -11,7 +11,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getDatabase, ref, set, get, onValue, update }
     from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged }
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -38,8 +38,7 @@
   window._dbUpdate = update;
   window._auth = auth;
   window._googleProvider = googleProvider;
-  window._signInWithRedirect = signInWithRedirect;
-  window._getRedirectResult = getRedirectResult;
+  window._signInWithPopup = signInWithPopup;
   window._signOut = signOut;
   window._onAuthStateChanged = onAuthStateChanged;
   window._firebaseReady = true;
@@ -1393,11 +1392,23 @@ function doGoogleLogin() {
   const errEl = document.getElementById('login-access-denied');
   btn.disabled = true;
   errEl.style.display = 'none';
-  // Redirect-based sign-in works in all browsers including embedded ones
-  window._signInWithRedirect(window._auth, window._googleProvider)
+  window._signInWithPopup(window._auth, window._googleProvider)
+    .then(result => {
+      const profile = AUTHORISED_USERS[result.user.email];
+      if (!profile) {
+        errEl.style.display = 'block';
+        window._signOut(window._auth);
+        btn.disabled = false;
+        return;
+      }
+      currentUser = profile.key;
+      showApp();
+    })
     .catch(err => {
-      errEl.textContent = 'Sign-in failed. Please try again.';
-      errEl.style.display = 'block';
+      if (err.code !== 'auth/popup-closed-by-user') {
+        errEl.textContent = 'Sign-in failed. Please try again.';
+        errEl.style.display = 'block';
+      }
       btn.disabled = false;
     });
 }
@@ -3767,27 +3778,15 @@ function init() {
     const btnEl      = document.getElementById('google-sign-in-btn');
     if (checkingEl) checkingEl.style.display = 'block';
     if (btnEl) btnEl.style.display = 'none';
-    // Handle redirect result first (covers redirect-based sign-in flow)
-    window._getRedirectResult(window._auth)
-      .then(result => {
-        if (result?.user) {
-          const profile = AUTHORISED_USERS[result.user.email];
-          if (!profile) { window._signOut(window._auth); }
-        }
-      })
-      .catch(() => {})
-      .finally(() => {
-        // Then watch for persistent session
-        window._onAuthStateChanged(window._auth, user => {
-          if (user) {
-            const profile = AUTHORISED_USERS[user.email];
-            if (profile) { currentUser = profile.key; showApp(); return; }
-            window._signOut(window._auth);
-          }
-          if (checkingEl) checkingEl.style.display = 'none';
-          if (btnEl) btnEl.style.display = 'flex';
-        });
-      });
+    window._onAuthStateChanged(window._auth, user => {
+      if (user) {
+        const profile = AUTHORISED_USERS[user.email];
+        if (profile) { currentUser = profile.key; showApp(); return; }
+        window._signOut(window._auth);
+      }
+      if (checkingEl) checkingEl.style.display = 'none';
+      if (btnEl) btnEl.style.display = 'flex';
+    });
   }
   document.addEventListener('DOMContentLoaded', waitForAuth);
 })();
