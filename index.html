@@ -127,7 +127,6 @@ body {
   padding: 13px 24px;
   display: flex; align-items: center;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-  position: sticky; top: 0; z-index: 100;
   gap: 10px;
 }
 /* Title and right section each take equal flex space so the middle is truly centred */
@@ -216,10 +215,10 @@ body {
 .data-btn:hover { background: rgba(255,255,255,0.22); }
 
 /* ── TOP-LEVEL TAB BAR ── */
+.sticky-header { position: sticky; top: 0; z-index: 100; }
 .tab-bar {
   background: #162d4a;
   display: flex; gap: 0; padding: 0 24px; flex-wrap: wrap;
-  position: sticky; top: 44px; z-index: 99;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 .tab-btn {
@@ -914,6 +913,7 @@ body {
 <div id="app" style="display:none">
 
 <!-- TOP BAR -->
+<div class="sticky-header">
 <div class="topbar">
   <h1>💰 Finance Hub</h1>
   <div class="month-nav" id="monthNavWrap" style="position:relative;z-index:200">
@@ -954,6 +954,7 @@ body {
   </button>
   <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">⚙ Admin</button>
 </div>
+</div><!-- /.sticky-header -->
 
 <!-- MAIN -->
 <div class="main">
