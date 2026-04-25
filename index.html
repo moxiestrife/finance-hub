@@ -813,6 +813,11 @@ body {
 .p-check { width: 18px; height: 18px; cursor: pointer; accent-color: #1e3a5f; flex-shrink: 0; }
 .p-row-name { font-size: 0.875rem; color: #1a202c; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .p-row-amount { font-size: 0.875rem; font-weight: 700; color: #1e3a5f; text-align: right; }
+.p-name-input { border: none; background: transparent; font-size: 0.875rem; color: #1a202c; font-weight: 500; outline: none; padding: 2px 4px; border-radius: 4px; min-width: 0; width: 100%; font-family: inherit; }
+.p-name-input:focus { background: #eff6ff; }
+.p-amount-input { border: none; background: transparent; font-size: 0.875rem; font-weight: 700; color: #1e3a5f; text-align: right; width: 100%; outline: none; padding: 2px 4px; border-radius: 4px; font-family: inherit; }
+.p-amount-input:focus { background: #eff6ff; }
+.is-done .p-name-input { text-decoration: line-through; color: #9ca3af; }
 .p-row-payto { font-size: 0.78rem; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .p-row-meta { display: flex; flex-direction: column; gap: 2px; }
 .p-split-badge {
@@ -2831,7 +2836,6 @@ function savePayableEdit() {
   e.split = document.getElementById('pef-split').value;
   e.payTo = document.getElementById('pef-payto').value;
   e.date = document.getElementById('pef-date').value.trim() || pTodayLabel();
-  // Also update the linked budget bill name if allocated
   if (e.allocatedTo?.billId) {
     const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
     const bill = period?.bills?.find(b => b.id === e.allocatedTo.billId);
@@ -2839,6 +2843,28 @@ function savePayableEdit() {
   }
   pSave(); closeModal('modal-edit-payable'); renderPayables();
   showToast('✓ Payable updated');
+}
+function updatePayable(id, field, val) {
+  if (!isAdmin()) return;
+  const e = (pState.entries||[]).find(x => x.id === id); if (!e) return;
+  if (field === 'name') {
+    const name = val.trim(); if (!name) return;
+    e.name = name;
+    if (e.allocatedTo?.billId) {
+      const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
+      const bill = period?.bills?.find(b => b.id === e.allocatedTo.billId);
+      if (bill) { bill.name = name; save(); }
+    }
+  } else if (field === 'amount') {
+    const full = parseFloat(val); if (!full || full <= 0) return;
+    e.fullAmount = full;
+    if (e.allocatedTo?.billId) {
+      const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
+      const bill = period?.bills?.find(b => b.id === e.allocatedTo.billId);
+      if (bill) { bill.amount = full; save(); }
+    }
+  }
+  pSave(); updatePayablesBadge();
 }
 
 // Remove allocation from a payable (e.g. when the linked budget bill is deleted externally)
@@ -3144,18 +3170,24 @@ function pRenderRow(e,isElly,myShare,isDone) {
   }
   const actionBtns=isElly
     ?`<div class="p-row-actions">
-        <button class="p-action-btn" onclick="event.stopPropagation();openEditPayable('${e.id}')" title="Edit">✎</button>
-        <button class="p-action-btn danger" onclick="deletePayableEntry('${e.id}')" title="Delete">✕</button>
+        <button class="p-action-btn danger" onclick="event.stopPropagation();deletePayableEntry('${e.id}')" title="Delete">✕</button>
       </div>`
     :'<span></span>';
   const shareVal = myShare.toFixed(2);
+  const fullAmt = (e.fullAmount||0).toFixed(2);
   return`<div class="p-row${isDone?' is-done':''}"
     data-pid="${e.id}" data-pamount="${shareVal}" data-pname="${esc(e.name)}"
     onclick="pHandleRowClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"
     oncontextmenu="pHandleRowRightClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})">
     <input type="checkbox" class="p-check" ${doneVal?'checked':''} onchange="event.stopPropagation();togglePayableDone('${e.id}','${forWhom}')">
-    <span class="p-row-name">${esc(e.name)} ${splitBadge}</span>
-    <span class="p-row-amount">${pFmt(myShare)}</span>
+    <div style="display:flex;align-items:center;gap:4px;min-width:0">
+      <input class="p-name-input" value="${esc(e.name)}" placeholder="Expense name"
+        onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','name',this.value)">
+      ${splitBadge}
+    </div>
+    <input class="p-amount-input" type="number" step="0.01" value="${fullAmt}" placeholder="0.00"
+      onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','amount',this.value)" ${!isElly?'readonly':''}
+      title="Full amount — your share is shown in the header">
     <span class="p-row-payto">${esc(e.payTo||'')}</span>
     <div class="p-row-meta">${allocBadge}</div>
     ${actionBtns}
