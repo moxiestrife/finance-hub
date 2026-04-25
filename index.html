@@ -1415,6 +1415,12 @@ let fbReady = false;
 let firebaseDataLoaded = false; // guard: never push to Firebase until we've received data FROM it first
 let budgetUnsub   = null;
 let payablesUnsub = null;
+let _budgetLoaded = false;
+let _payablesLoaded = false;
+function _onBothLoaded() {
+  if (!_budgetLoaded || !_payablesLoaded) return;
+  pSyncDoneFromBudget();
+}
 let adminUnsub    = null;
 
 function setSyncStatus(status) {
@@ -1465,7 +1471,7 @@ function listenBudget() {
       if (curTab === 'summary')  renderSummary();
       if (curTab === 'insights') renderInsights();
       if (curTab === 'admin')    renderAdmin();
-      pSyncDoneFromBudget();
+      _budgetLoaded = true; _onBothLoaded();
     } else {
       // No data in Firebase yet — safe to push our local state up
       firebaseDataLoaded = true;
@@ -1483,7 +1489,7 @@ function listenPayables() {
       pState = { entries: [], ...val };
       if (!Array.isArray(pState.entries)) pState.entries = Object.values(pState.entries||{});
       pRepairAllocations();
-      pSyncDoneFromBudget();
+      _payablesLoaded = true; _onBothLoaded();
       if (curTab === 'payables') renderPayables();
       updatePayablesBadge();
     }
