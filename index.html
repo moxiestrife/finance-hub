@@ -1969,7 +1969,16 @@ function refreshChip(key, pi) {
 
 function toggleDone(key,pi,id,val) {
   if (!isAdmin()) return;
-  const b=getBill(key,pi,id); if(b){b.done=val;save();renderMonthView(key);}
+  const b=getBill(key,pi,id); if(!b)return;
+  b.done=val; save(); renderMonthView(key);
+  // Sync back to any linked payable entry
+  const linked=(pState.entries||[]).find(e=>e.allocatedTo?.billId===id);
+  if(linked){
+    linked.ellyDone=val;
+    linked.ellyDoneAt=val?pTodayLabel():null;
+    pSave(); updatePayablesBadge();
+    if(curTab==='payables') renderPayables();
+  }
 }
 function updateBill(key,pi,id,field,val) {
   if (!isAdmin()) return;
