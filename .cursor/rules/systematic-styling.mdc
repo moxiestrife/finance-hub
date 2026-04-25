@@ -1,0 +1,47 @@
+---
+description: Prefer tokens, reusable classes and structural patterns over one-off inline styles
+alwaysApply: true
+---
+
+# Systematic Styling
+
+This is a single-file app (`index.html`) but it should be treated with the same discipline as a component-based project.
+
+## Rules
+
+### 1. Use CSS custom properties for repeated values
+Colours, spacing, radii and z-index layers are already used in multiple places. Define them once, reference everywhere.
+
+```css
+/* ✅ Define at top of <style> */
+:root {
+  --color-primary: #1e3a5f;
+  --color-accent:  #10b981;
+  --color-danger:  #ef4444;
+  --radius-card:   12px;
+  --z-sticky:      100;
+}
+
+/* ❌ BAD: repeating the same hex in 12 places */
+background: #1e3a5f;
+```
+
+### 2. No one-off inline styles for layout
+`style="..."` on elements is acceptable only for dynamic values set by JavaScript. Static layout and appearance must use a named CSS class.
+
+```html
+<!-- ❌ BAD -->
+<div style="display:flex;gap:8px;align-items:center">
+
+<!-- ✅ GOOD -->
+<div class="row-actions">
+```
+
+### 3. Reuse existing classes before creating new ones
+Before adding a new class, search the stylesheet for a class that already does the same thing. Extend with a modifier if needed.
+
+### 4. New UI patterns need a named shell/template
+When adding a new recurring UI element (modal, card, row, badge), define a base class for it even if there is currently only one instance — that is the template for future instances.
+
+### 5. Think before each change
+Ask: "Will this change scale if there are 10 of these? Will the next developer (or future me) understand why this value exists?"

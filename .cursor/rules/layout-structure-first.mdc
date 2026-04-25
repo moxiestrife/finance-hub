@@ -1,0 +1,37 @@
+---
+description: Check HTML structure before applying CSS layout fixes
+alwaysApply: true
+---
+
+# Layout: Structure Before CSS
+
+Before fixing any layout or positioning issue, read the HTML structure first.
+
+## Rule
+Never apply hardcoded pixel offsets (e.g. `top: 44px`) to solve a layout problem without first checking whether a structural HTML change would be more robust.
+
+## Pattern to follow
+
+1. Read the relevant HTML to understand the element hierarchy
+2. Ask: can a wrapper element solve this without needing to know any sizes?
+3. If yes — use the wrapper. If no — use a CSS custom property, not a magic number.
+
+## Examples
+
+```html
+<!-- ❌ BAD: guessing the topbar height -->
+.tab-bar { position: sticky; top: 44px; }
+
+<!-- ✅ GOOD: wrap both elements so they stick together -->
+<div class="sticky-header">      <!-- position: sticky; top: 0 -->
+  <div class="topbar">…</div>
+  <div class="tab-bar">…</div>
+</div>
+```
+
+If a pixel value is truly unavoidable, define it as a CSS custom property on `:root` so it has one source of truth:
+
+```css
+:root { --topbar-height: 44px; }
+.tab-bar { top: var(--topbar-height); }
+```
