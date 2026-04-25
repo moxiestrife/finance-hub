@@ -1542,7 +1542,9 @@ function listenPayables() {
 }
 
 // Clear any allocatedTo references where the linked bill no longer exists in the budget.
+// Only runs once budget data is confirmed loaded — avoids clearing links due to load-order race conditions.
 function pRepairAllocations() {
+  if (!_budgetLoaded) return;
   let changed = false;
   (pState.entries || []).forEach(e => {
     if (!e.allocatedTo) return;
