@@ -1465,6 +1465,7 @@ function listenBudget() {
       if (curTab === 'summary')  renderSummary();
       if (curTab === 'insights') renderInsights();
       if (curTab === 'admin')    renderAdmin();
+      pSyncDoneFromBudget();
     } else {
       // No data in Firebase yet — safe to push our local state up
       firebaseDataLoaded = true;
@@ -1482,6 +1483,7 @@ function listenPayables() {
       pState = { entries: [], ...val };
       if (!Array.isArray(pState.entries)) pState.entries = Object.values(pState.entries||{});
       pRepairAllocations();
+      pSyncDoneFromBudget();
       if (curTab === 'payables') renderPayables();
       updatePayablesBadge();
     }
@@ -1496,6 +1498,22 @@ function pRepairAllocations() {
     const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
     const billExists = period?.bills?.some(b => b.id === e.allocatedTo.billId);
     if (!billExists) { e.allocatedTo = null; changed = true; }
+  });
+  if (changed) pSave();
+}
+// Reconcile ellyDone on payables against their linked budget bill's done state.
+function pSyncDoneFromBudget() {
+  let changed = false;
+  (pState.entries || []).forEach(e => {
+    if (!e.allocatedTo?.billId) return;
+    const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
+    const bill = period?.bills?.find(b => b.id === e.allocatedTo.billId);
+    if (!bill) return;
+    if (e.ellyDone !== bill.done) {
+      e.ellyDone = bill.done;
+      e.ellyDoneAt = bill.done ? pTodayLabel() : null;
+      changed = true;
+    }
   });
   if (changed) pSave();
 }
