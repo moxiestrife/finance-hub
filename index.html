@@ -2887,14 +2887,10 @@ function openAllocateModal(payableId) {
   const today = new Date(); today.setHours(0,0,0,0);
   const months = Object.keys(state.months).sort().filter(key => {
     const month = state.months[key];
-    // Exclude month only if EVERY period is both past-dated AND fully ticked off
+    // Exclude month if every period date has already passed
     return !(month.periods || []).every(p => {
       const d = parsePeriodDate(p.date);
-      const isPast = d && d < today;
-      const bills = p.bills || [];
-      const goals = getSavingsGoals(p);
-      const allDone = [...bills, ...goals].length > 0 && [...bills, ...goals].every(b => b.done);
-      return isPast && allDone;
+      return d && d < today;
     });
   });
   document.getElementById('alloc-month-list').innerHTML=months.length
