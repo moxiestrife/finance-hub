@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>???? Finance Hub ??? Elly & Eric</title>
+<title>💰 Finance Hub — Elly & Eric</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <!-- Firebase -->
@@ -46,9 +46,9 @@
 </script>
 
 <style>
-/* ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+/* ═══════════════════════════════════════
    CSS VARIABLES
-????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? */
+═══════════════════════════════════════ */
 :root {
   --elly: #7C3AED;
   --elly-light: #EDE9FE;
@@ -65,18 +65,18 @@
   --radius: 12px;
 }
 
-/* ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+/* ═══════════════════════════════════════
    BASE
-????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? */
+═══════════════════════════════════════ */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #f0f2f5; color: #1a202c; min-height: 100vh;
 }
 
-/* ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+/* ═══════════════════════════════════════
    LOGIN SCREEN
-????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? */
+═══════════════════════════════════════ */
 #login-screen {
   min-height: 100vh;
   display: flex; align-items: center; justify-content: center;
@@ -121,7 +121,7 @@ body {
 .login-checking { font-size: 0.88rem; color: #64748b; margin-bottom: 20px; }
 .login-access-denied { color: #dc2626; font-size: 0.85rem; margin-top: 12px; display: none; }
 
-/* ?????? TOP BAR ?????? */
+/* ── TOP BAR ── */
 .topbar {
   background: #1e3a5f; color: white;
   padding: 13px 24px;
@@ -171,7 +171,7 @@ body {
   transition: background 0.15s; user-select: none;
 }
 .month-label:hover { background: rgba(255,255,255,0.15); }
-.month-label::after { content: ' ???'; font-size: 0.7rem; opacity: 0.7; }
+.month-label::after { content: ' ▾'; font-size: 0.7rem; opacity: 0.7; }
 /* Month picker popover */
 #month-picker {
   position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
@@ -215,7 +215,7 @@ body {
 }
 .data-btn:hover { background: rgba(255,255,255,0.22); }
 
-/* ?????? TOP-LEVEL TAB BAR ?????? */
+/* ── TOP-LEVEL TAB BAR ── */
 .tab-bar {
   background: #162d4a;
   display: flex; gap: 0; padding: 0 24px; flex-wrap: wrap;
@@ -236,14 +236,14 @@ body {
   min-width: 14px; text-align: center;
 }
 
-/* ?????? MAIN ?????? */
+/* ── MAIN ── */
 .main { max-width: 1140px; margin: 0 auto; padding: 20px 16px; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+/* ═══════════════════════════════════════
    ADMIN TAB
-????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? */
+═══════════════════════════════════════ */
 .admin-section { max-width: 640px; margin: 0 auto; }
 .admin-card {
   background: white; border-radius: 12px;
@@ -294,9 +294,9 @@ body {
 .locked-banner h3 { color: #374151; font-size: 1.1rem; margin-bottom: 6px; }
 .locked-banner p { font-size: 0.88rem; }
 
-/* ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+/* ═══════════════════════════════════════
    BUDGET PLANNER STYLES
-????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? */
+═══════════════════════════════════════ */
 .month-toolbar {
   background: white; border-radius: 12px;
   padding: 11px 18px; margin-bottom: 18px;
@@ -398,7 +398,7 @@ body {
 .sort-col.active { color: #1e3a5f; }
 .sort-arrow { font-size: 0.6rem; opacity: 0.5; }
 .sort-col.active .sort-arrow { opacity: 1; color: #1e3a5f; }
-/* Select / drag handle ??? the tappable zone */
+/* Select / drag handle — the tappable zone */
 .row-handle {
   width: 20px; height: 100%; display: flex; align-items: center; justify-content: center;
   color: #cbd5e1; font-size: 0.7rem; cursor: grab; letter-spacing: -1px;
@@ -495,9 +495,9 @@ body {
 .saving-row.is-done { opacity: 0.4; }
 .saving-row.is-done .bill-name-input { text-decoration: line-through; }
 
-/* ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+/* ═══════════════════════════════════════
    RIGHT-CLICK CONTEXT MENU + SUBMENUS
-????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? */
+═══════════════════════════════════════ */
 .ctx-menu-shell {
   position: fixed; z-index: 9000;
   background: white; border-radius: 10px;
@@ -527,7 +527,7 @@ body {
   display: none; z-index: 9100;
 }
 .ctx-has-sub:hover > .ctx-sub { display: block; }
-/* Flip submenu left if near right edge ??? toggled via JS */
+/* Flip submenu left if near right edge — toggled via JS */
 .ctx-sub.flip-left { left: auto; right: 100%; }
 /* Formula row inside Calculate submenu */
 .ctx-formula-row { padding: 8px 12px; display: flex; gap: 6px; }
@@ -541,9 +541,9 @@ body {
   border-radius: 6px; padding: 5px 10px; font-size: 0.82rem;
   cursor: pointer; font-family: inherit; font-weight: 600;
 }
-/* ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+/* ═══════════════════════════════════════
    MODAL SYSTEM
-????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? */
+═══════════════════════════════════════ */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 10000;
   background: rgba(15,23,42,0.45); backdrop-filter: blur(3px);
@@ -618,9 +618,9 @@ body {
 }
 .move-period-btn:hover, .move-period-btn.selected { border-color: #7C3AED; background: #f5f3ff; color: #5b21b6; }
 
-/* ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+/* ═══════════════════════════════════════
    COMPUTATION SLIDE-IN PANEL
-????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? */
+═══════════════════════════════════════ */
 #calc-panel {
   position: fixed; top: 0; right: -340px; width: 320px; height: 100vh;
   background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.12);
@@ -731,9 +731,9 @@ body {
 }
 #toast.show { opacity: 1; transform: translateY(0); }
 
-/* ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+/* ═══════════════════════════════════════
    PAYABLES STYLES
-????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? */
+═══════════════════════════════════════ */
 .payables-content { max-width: 900px; margin: 0 auto; }
 
 /* Owing card */
@@ -871,12 +871,12 @@ body {
 </head>
 <body>
 
-<!-- ????????????????????????????????????????????????????????????????????????????????????????????????????????????
+<!-- ════════════════════════════════════
      LOGIN SCREEN
-???????????????????????????????????????????????????????????????????????????????????????????????????????????? -->
+════════════════════════════════════ -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">????</div>
+    <div class="login-logo">💰</div>
     <div class="login-title">Finance Hub</div>
     <div class="login-sub">Private household finance tracker</div>
 
@@ -896,29 +896,29 @@ body {
 
     <div class="login-sync-note">
       <span class="login-sync-dot" id="login-sync-dot"></span>
-      <span id="login-sync-msg">Connecting to sync server???</span>
+      <span id="login-sync-msg">Connecting to sync server…</span>
     </div>
   </div>
 </div>
 
-<!-- ????????????????????????????????????????????????????????????????????????????????????????????????????????????
+<!-- ════════════════════════════════════
      APP (hidden until login)
-???????????????????????????????????????????????????????????????????????????????????????????????????????????? -->
+════════════════════════════════════ -->
 <div id="app" style="display:none">
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <h1>???? Finance Hub</h1>
+  <h1>💰 Finance Hub</h1>
   <div class="month-nav" id="monthNavWrap" style="position:relative;z-index:200">
-    <button class="nav-btn" onclick="changeMonth(-1)">???</button>
-    <span class="month-label" id="monthLabel" onclick="toggleMonthPicker(event)">???</span>
-    <button class="nav-btn" onclick="changeMonth(1)">???</button>
+    <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+    <span class="month-label" id="monthLabel" onclick="toggleMonthPicker(event)">—</span>
+    <button class="nav-btn" onclick="changeMonth(1)">›</button>
     <!-- Month picker popover -->
     <div id="month-picker">
       <div class="mp-year-row">
-        <button class="mp-year-btn" onclick="mpChangeYear(-1)">???</button>
+        <button class="mp-year-btn" onclick="mpChangeYear(-1)">‹</button>
         <span class="mp-year-label" id="mp-year-label">2026</span>
-        <button class="mp-year-btn" onclick="mpChangeYear(1)">???</button>
+        <button class="mp-year-btn" onclick="mpChangeYear(1)">›</button>
       </div>
       <div class="mp-months" id="mp-months"></div>
     </div>
@@ -926,7 +926,7 @@ body {
   <div class="topbar-right">
     <div class="sync-indicator">
       <div class="sync-dot" id="sync-dot"></div>
-      <span id="sync-label">???</span>
+      <span id="sync-label">—</span>
     </div>
     <div class="user-chip">
       <div class="user-avatar" id="user-avatar"></div>
@@ -938,23 +938,23 @@ body {
 
 <!-- TOP-LEVEL TAB BAR -->
 <div class="tab-bar">
-  <button class="tab-btn active" id="tab-btn-monthly" onclick="switchTab('monthly')">???? Monthly Budget</button>
-  <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">???? Summary</button>
-  <button class="tab-btn" id="tab-btn-insights" onclick="switchTab('insights')">???? Insights</button>
+  <button class="tab-btn active" id="tab-btn-monthly" onclick="switchTab('monthly')">📅 Monthly Budget</button>
+  <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">📊 Summary</button>
+  <button class="tab-btn" id="tab-btn-insights" onclick="switchTab('insights')">💡 Insights</button>
   <button class="tab-btn" id="tab-btn-payables" onclick="switchTab('payables')">
-    ???? Payables
+    💸 Payables
     <span class="tab-badge" id="payables-badge" style="display:none"></span>
   </button>
-  <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">??? Admin</button>
+  <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">⚙ Admin</button>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-  <!-- ?????? MONTHLY TAB ?????? -->
+  <!-- ── MONTHLY TAB ── -->
   <div class="tab-content active" id="tab-monthly">
     <div class="month-toolbar">
-      <div class="legend">??? = recurring ? copies to next month &nbsp;|&nbsp; ??? = paid off this period</div>
+      <div class="legend">♻ = recurring · copies to next month &nbsp;|&nbsp; ✓ = paid off this period</div>
       <div class="progress-wrap" id="progressWrap" style="display:none">
         <span id="progressText">0 / 0</span>
         <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -963,12 +963,12 @@ body {
     <div class="periods-grid" id="periodsGrid"></div>
   </div>
 
-  <!-- ?????? ADMIN TAB ?????? -->
+  <!-- ── ADMIN TAB ── -->
   <div class="tab-content" id="tab-admin">
     <div class="admin-section">
 
       <div class="admin-card">
-        <h2>???? Eric's Access</h2>
+        <h2>🔵 Eric's Access</h2>
         <div class="admin-toggle">
           <div>
             <div class="admin-toggle-label">Eric can view budget &amp; ledger</div>
@@ -982,7 +982,7 @@ body {
       </div>
 
       <div class="admin-card">
-        <h2>???? Salary Settings</h2>
+        <h2>💰 Salary Settings</h2>
         <div class="admin-toggle">
           <div>
             <div class="admin-toggle-label">Default fortnightly salary</div>
@@ -997,20 +997,20 @@ body {
       </div>
 
       <div class="admin-card">
-        <h2>???? Pay To Accounts</h2>
+        <h2>🏦 Pay To Accounts</h2>
         <div id="admin-accounts-list" style="margin-bottom:12px"></div>
         <div style="display:flex;gap:8px;margin-top:4px">
-          <input id="new-account-input" class="admin-salary-input" style="flex:1;width:auto" type="text" placeholder="New account name???" onkeydown="if(event.key==='Enter')addAccount()">
+          <input id="new-account-input" class="admin-salary-input" style="flex:1;width:auto" type="text" placeholder="New account name…" onkeydown="if(event.key==='Enter')addAccount()">
           <button class="admin-save-btn" onclick="addAccount()">Add</button>
         </div>
       </div>
 
       <div class="admin-card">
-        <h2>???? Data Tools</h2>
+        <h2>🔧 Data Tools</h2>
         <div class="admin-data-row">
-          <button class="p-btn p-btn-export" onclick="exportBudget()">?? Export Budget</button>
+          <button class="p-btn p-btn-export" onclick="exportBudget()">⬇ Export Budget</button>
           <label class="p-btn p-btn-export" style="cursor:pointer">
-            ?? Import Budget
+            ⬆ Import Budget
             <input type="file" accept=".json" onchange="importBudget(event)" style="display:none">
           </label>
         </div>
@@ -1019,17 +1019,17 @@ body {
     </div>
   </div>
 
-  <!-- ?????? SUMMARY TAB ?????? -->
+  <!-- ── SUMMARY TAB ── -->
   <div class="tab-content" id="tab-summary">
     <div id="summaryContent"></div>
   </div>
 
-  <!-- ?????? INSIGHTS TAB ?????? -->
+  <!-- ── INSIGHTS TAB ── -->
   <div class="tab-content" id="tab-insights">
     <div id="insightsContent"></div>
   </div>
 
-  <!-- ?????? PAYABLES TAB ?????? -->
+  <!-- ── PAYABLES TAB ── -->
   <div class="tab-content" id="tab-payables">
     <div class="payables-content" id="payables-main-view">
 
@@ -1044,13 +1044,13 @@ body {
           <div style="font-size:0.72rem;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.4px">Eric owes</div>
           <div style="font-size:1.3rem;font-weight:800;margin-top:2px" id="p-eric-owing-amt">$0.00</div>
           <div style="font-size:0.72rem;opacity:0.65" id="p-eric-owing-sub">0 items</div>
-          <a class="p-eric-peek" onclick="openEricPeek()">View Eric's list ???</a>
+          <a class="p-eric-peek" onclick="openEricPeek()">View Eric's list →</a>
         </div>
       </div>
 
       <!-- Add form -->
       <div class="p-add-card" id="p-add-card" style="display:none">
-        <div class="p-add-title">?? Add payable</div>
+        <div class="p-add-title">＋ Add payable</div>
         <div class="p-form-grid">
           <div class="p-form-col" style="grid-column:1/3">
             <label class="p-flabel">Expense name</label>
@@ -1096,7 +1096,7 @@ body {
               <button class="p-sf-btn" onclick="pSetSplitFilter('shared',this)">Shared</button>
               <button class="p-sf-btn" onclick="pSetSplitFilter('mine',this)">Mine</button>
             </div>
-            <button class="p-btn p-btn-primary" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">?? Add</button>
+            <button class="p-btn p-btn-primary" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">＋ Add</button>
           </div>
         </div>
         <div class="p-list-col-header">
@@ -1106,7 +1106,7 @@ body {
         <div id="p-active-list"></div>
         <!-- Completed collapsed section -->
         <div class="p-completed-toggle" id="p-completed-toggle" onclick="pToggleCompleted()">
-          <span class="p-comp-arrow">???</span>
+          <span class="p-comp-arrow">›</span>
           <span id="p-completed-label">Completed (0)</span>
         </div>
         <div id="p-completed-list" style="display:none"></div>
@@ -1120,38 +1120,38 @@ body {
 
 <div id="toast"></div>
 
-<!-- RIGHT-CLICK CONTEXT MENU ??? 3 top-level items with hover submenus -->
+<!-- RIGHT-CLICK CONTEXT MENU — 3 top-level items with hover submenus -->
 <div class="ctx-menu-shell" id="ctx-menu">
 
   <!-- 1. Multi-row actions header label -->
   <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px" id="ctx-sel-label">1 row selected</div>
 
-  <!-- 1a. Change Properties ??? submenu -->
+  <!-- 1a. Change Properties → submenu -->
   <div class="ctx-item ctx-has-sub">
-    <span>???? &nbsp;Change properties</span><span class="ctx-arrow">???</span>
+    <span>✏️ &nbsp;Change properties</span><span class="ctx-arrow">›</span>
     <div class="ctx-sub" id="ctx-sub-props">
-      <div class="ctx-item" onclick="closeCtx();openModalMarkAs()">??? &nbsp;Mark as???</div>
-      <div class="ctx-item" onclick="closeCtx();openModalPayTo()">???? &nbsp;Change pay to???</div>
-      <div class="ctx-item" onclick="closeCtx();openModalRecurrence()">??? &nbsp;Change recurrence???</div>
+      <div class="ctx-item" onclick="closeCtx();openModalMarkAs()">✔ &nbsp;Mark as…</div>
+      <div class="ctx-item" onclick="closeCtx();openModalPayTo()">🏦 &nbsp;Change pay to…</div>
+      <div class="ctx-item" onclick="closeCtx();openModalRecurrence()">♻ &nbsp;Change recurrence…</div>
       <div class="ctx-divider"></div>
-      <div class="ctx-item ctx-danger" onclick="ctxBulkDelete()">???? &nbsp;Delete selected</div>
+      <div class="ctx-item ctx-danger" onclick="ctxBulkDelete()">🗑 &nbsp;Delete selected</div>
     </div>
   </div>
 
-  <!-- 1b. Move to ??? opens modal directly -->
+  <!-- 1b. Move to → opens modal directly -->
   <div class="ctx-item" onclick="closeCtx();openModalMoveTo()">
-    <span>???? &nbsp;Move to???</span>
+    <span>📦 &nbsp;Move to…</span>
   </div>
 
-  <!-- 1c. Calculate ??? submenu -->
+  <!-- 1c. Calculate → submenu -->
   <div class="ctx-item ctx-has-sub">
-    <span>???? &nbsp;Calculate</span><span class="ctx-arrow">???</span>
+    <span>🧮 &nbsp;Calculate</span><span class="ctx-arrow">›</span>
     <div class="ctx-sub" id="ctx-sub-calc">
-      <div class="ctx-item" onclick="ctxRun('sum')">??? &nbsp;Sum</div>
-      <div class="ctx-item" onclick="ctxRun('avg')">??? &nbsp;Average</div>
-      <div class="ctx-item" onclick="ctxRun('min')">??? &nbsp;Min</div>
-      <div class="ctx-item" onclick="ctxRun('max')">??? &nbsp;Max</div>
-      <div class="ctx-item" onclick="ctxRun('count')">?? &nbsp;Count</div>
+      <div class="ctx-item" onclick="ctxRun('sum')">∑ &nbsp;Sum</div>
+      <div class="ctx-item" onclick="ctxRun('avg')">∅ &nbsp;Average</div>
+      <div class="ctx-item" onclick="ctxRun('min')">↓ &nbsp;Min</div>
+      <div class="ctx-item" onclick="ctxRun('max')">↑ &nbsp;Max</div>
+      <div class="ctx-item" onclick="ctxRun('count')">＃ &nbsp;Count</div>
       <div class="ctx-divider"></div>
       <div class="ctx-formula-row">
         <input class="ctx-formula-input" id="ctx-formula-input" placeholder="e.g. SUM * 0.5" onclick="event.stopPropagation()">
@@ -1163,18 +1163,18 @@ body {
 
 </div>
 
-<!-- ????????? MODAL: Change Pay To ????????? -->
+<!-- ═══ MODAL: Change Pay To ═══ -->
 <div class="modal-overlay" id="modal-payto">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>???? Change pay to</h3>
-      <button class="modal-close" onclick="closeModal('modal-payto')">???</button>
+      <h3>🏦 Change pay to</h3>
+      <button class="modal-close" onclick="closeModal('modal-payto')">✕</button>
     </div>
     <div class="modal-body">
       <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Select an account to apply to all <strong id="payto-sel-count">selected</strong> rows.</p>
       <div class="payto-grid" id="payto-grid"></div>
       <div style="margin-top:12px">
-        <input id="payto-new-input" class="ctx-formula-input" style="width:100%;box-sizing:border-box" placeholder="Or type a new account name???" oninput="paytoHighlightNew(this.value)">
+        <input id="payto-new-input" class="ctx-formula-input" style="width:100%;box-sizing:border-box" placeholder="Or type a new account name…" oninput="paytoHighlightNew(this.value)">
       </div>
     </div>
     <div class="modal-footer">
@@ -1184,23 +1184,23 @@ body {
   </div>
 </div>
 
-<!-- ????????? MODAL: Change Recurrence ????????? -->
+<!-- ═══ MODAL: Change Recurrence ═══ -->
 <div class="modal-overlay" id="modal-recurrence">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>??? Change recurrence</h3>
-      <button class="modal-close" onclick="closeModal('modal-recurrence')">???</button>
+      <h3>♻ Change recurrence</h3>
+      <button class="modal-close" onclick="closeModal('modal-recurrence')">✕</button>
     </div>
     <div class="modal-body">
       <p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px">Apply to all <strong id="recur-sel-count">selected</strong> rows.</p>
       <div class="recur-options">
         <div class="recur-option" id="recur-opt-on" onclick="selectRecurOpt(true)">
-          <span class="recur-icon">???</span>
+          <span class="recur-icon">♻</span>
           <div class="recur-label">Recurring</div>
           <div class="recur-sub">Copies to next month</div>
         </div>
         <div class="recur-option" id="recur-opt-off" onclick="selectRecurOpt(false)">
-          <span class="recur-icon">1????</span>
+          <span class="recur-icon">1️⃣</span>
           <div class="recur-label">One-off</div>
           <div class="recur-sub">This period only</div>
         </div>
@@ -1213,23 +1213,23 @@ body {
   </div>
 </div>
 
-<!-- ????????? MODAL: Mark As ????????? -->
+<!-- ═══ MODAL: Mark As ═══ -->
 <div class="modal-overlay" id="modal-markas">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>??? Mark as</h3>
-      <button class="modal-close" onclick="closeModal('modal-markas')">???</button>
+      <h3>✔ Mark as</h3>
+      <button class="modal-close" onclick="closeModal('modal-markas')">✕</button>
     </div>
     <div class="modal-body">
       <p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px">Apply to all <strong id="markas-sel-count">selected</strong> rows.</p>
       <div class="recur-options">
         <div class="recur-option" id="markas-opt-done" onclick="selectMarkAsOpt(true)">
-          <span class="recur-icon">???</span>
+          <span class="recur-icon">✅</span>
           <div class="recur-label">Done</div>
           <div class="recur-sub">Bill has been paid</div>
         </div>
         <div class="recur-option" id="markas-opt-undone" onclick="selectMarkAsOpt(false)">
-          <span class="recur-icon">??</span>
+          <span class="recur-icon">⬜</span>
           <div class="recur-label">Not done</div>
           <div class="recur-sub">Mark as unpaid</div>
         </div>
@@ -1242,12 +1242,12 @@ body {
   </div>
 </div>
 
-<!-- ????????? MODAL: Move To ????????? -->
+<!-- ═══ MODAL: Move To ═══ -->
 <div class="modal-overlay" id="modal-moveto">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>???? Move to</h3>
-      <button class="modal-close" onclick="closeModal('modal-moveto')">???</button>
+      <h3>📦 Move to</h3>
+      <button class="modal-close" onclick="closeModal('modal-moveto')">✕</button>
     </div>
     <div class="modal-body">
       <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Moving <strong id="moveto-sel-count">selected</strong> rows. Pick a month, then a pay period.</p>
@@ -1261,12 +1261,12 @@ body {
   </div>
 </div>
 
-<!-- ????????? MODAL: Allocate Payable to Budget Period ????????? -->
+<!-- ═══ MODAL: Allocate Payable to Budget Period ═══ -->
 <div class="modal-overlay" id="modal-allocate">
   <div class="modal-box">
     <div class="modal-header">
       <h3>Allocate <span id="alloc-modal-amount" style="color:#ef4444"></span> to budget period</h3>
-      <button class="modal-close" onclick="closeModal('modal-allocate')">???</button>
+      <button class="modal-close" onclick="closeModal('modal-allocate')">✕</button>
     </div>
     <div class="modal-body">
       <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Pick a month, then a pay period. This creates a bill in that period so you can tick it off there.</p>
@@ -1280,12 +1280,12 @@ body {
   </div>
 </div>
 
-<!-- ????????? MODAL: Eric's Payables Peek ????????? -->
+<!-- ═══ MODAL: Eric's Payables Peek ═══ -->
 <div class="modal-overlay" id="modal-eric-peek">
   <div class="modal-box">
     <div class="modal-header">
       <h3>Eric's Payables</h3>
-      <button class="modal-close" onclick="closeModal('modal-eric-peek')">???</button>
+      <button class="modal-close" onclick="closeModal('modal-eric-peek')">✕</button>
     </div>
     <div class="modal-body">
       <div class="p-eric-peek-total" id="eric-peek-total">$0.00</div>
@@ -1295,10 +1295,10 @@ body {
   </div>
 </div>
 
-<!-- ????????? PAYABLES CONTEXT MENU ????????? -->
+<!-- ═══ PAYABLES CONTEXT MENU ═══ -->
 <div class="ctx-menu-shell" id="p-ctx-menu" style="min-width:180px">
   <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px" id="p-ctx-label">1 row selected</div>
-  <div class="ctx-item" onclick="pCtxAllocate()">Allocate to period???</div>
+  <div class="ctx-item" onclick="pCtxAllocate()">Allocate to period…</div>
   <div class="ctx-item" onclick="pCtxUnallocate()">Remove allocation</div>
   <div class="ctx-divider"></div>
   <div class="ctx-item ctx-danger" onclick="pCtxDelete()">Delete selected</div>
@@ -1307,8 +1307,8 @@ body {
 <!-- COMPUTATION PANEL -->
 <div id="calc-panel">
   <div class="calc-panel-header">
-    <h3>???? Computations</h3>
-    <button class="calc-close-btn" onclick="closeCalcPanel()">???</button>
+    <h3>🧮 Computations</h3>
+    <button class="calc-close-btn" onclick="closeCalcPanel()">✕</button>
   </div>
   <div class="calc-panel-body" id="calc-panel-body">
     <div class="calc-empty">Right-click selected rows to run calculations. Results appear here.</div>
@@ -1322,11 +1322,11 @@ body {
 <div class="sel-badge" id="sel-badge"></div>
 
 <script>
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-//  CREDENTIALS (simple PIN-based auth ??? no server needed)
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
+//  CREDENTIALS (simple PIN-based auth — no server needed)
+// ═══════════════════════════════════════════════════════════════
 
-// Google account ? role mapping
+// Google account → role mapping
 const AUTHORISED_USERS = {
   'ellyhizon1@gmail.com':  { role: 'admin',  displayName: 'Elly', avatar: 'EH', key: 'elly' },
   'ericdefelix@gmail.com': { role: 'member', displayName: 'Eric', avatar: 'EF', key: 'eric' }
@@ -1403,9 +1403,9 @@ function applyRoleUI() {
   }
 }
 
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 //  FIREBASE SYNC
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 
 const DB_BUDGET_PATH   = 'finance-hub/budget';
 const DB_PAYABLES_PATH = 'finance-hub/payables';
@@ -1422,7 +1422,7 @@ function setSyncStatus(status) {
   const label = document.getElementById('sync-label');
   if (!dot) return;
   dot.className = 'sync-dot' + (status === 'live' ? ' live' : status === 'saving' ? ' saving' : '');
-  label.textContent = status === 'live' ? 'Live sync' : status === 'saving' ? 'Saving???' : 'Offline';
+  label.textContent = status === 'live' ? 'Live sync' : status === 'saving' ? 'Saving…' : 'Offline';
 }
 
 function dbPath(path) { return window._dbRef(window._db, path); }
@@ -1452,12 +1452,12 @@ function listenBudget() {
       if (!state.accounts) state.accounts = [...DEFAULT_ACCOUNTS];
       const si = document.getElementById('salaryInput');
       if (si) si.value = state.settings?.salary || 4524.58;
-      firebaseDataLoaded = true; // Firebase has real data ??? safe to push changes now
+      firebaseDataLoaded = true; // Firebase has real data — safe to push changes now
       // Rolling backup: keep last 3 snapshots in localStorage keyed by timestamp
       try {
         const backupKey = 'fhBackup_' + new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
         localStorage.setItem(backupKey, JSON.stringify(val));
-        // Prune old backups ??? keep only the 3 most recent
+        // Prune old backups — keep only the 3 most recent
         const allKeys = Object.keys(localStorage).filter(k=>k.startsWith('fhBackup_')).sort();
         while (allKeys.length > 3) localStorage.removeItem(allKeys.shift());
       } catch(e) {}
@@ -1466,7 +1466,7 @@ function listenBudget() {
       if (curTab === 'insights') renderInsights();
       if (curTab === 'admin')    renderAdmin();
     } else {
-      // No data in Firebase yet ??? safe to push our local state up
+      // No data in Firebase yet — safe to push our local state up
       firebaseDataLoaded = true;
       pushBudgetToFirebase();
     }
@@ -1517,7 +1517,7 @@ document.addEventListener('firebaseReady', () => {
   const dot = document.getElementById('login-sync-dot');
   const msg = document.getElementById('login-sync-msg');
   if (dot) { dot.classList.add('connected'); }
-  if (msg) { msg.textContent = 'Connected ??? data will sync in real time'; }
+  if (msg) { msg.textContent = 'Connected — data will sync in real time'; }
 
   // If a session is already active, start listening
   if (currentUser) {
@@ -1525,9 +1525,9 @@ document.addEventListener('firebaseReady', () => {
   }
 });
 
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 //  ADMIN SETTINGS
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 
 let adminSettings = { ericCanViewBudget: false };
 
@@ -1535,7 +1535,7 @@ function saveAdminSettings() {
   adminSettings.ericCanViewBudget = document.getElementById('toggle-eric-budget').checked;
   pushAdminSettingsToFirebase();
   applyAdminSettings();
-  showToast(adminSettings.ericCanViewBudget ? '??? Eric can now view the budget' : '??? Budget hidden from Eric');
+  showToast(adminSettings.ericCanViewBudget ? '✓ Eric can now view the budget' : '✓ Budget hidden from Eric');
 }
 
 function applyAdminSettings() {
@@ -1560,9 +1560,9 @@ function renderAdmin() {
   if (salaryInput) salaryInput.value = state.settings?.salary || 4524.58;
 }
 
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 //  BUDGET PLANNER
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 
 const MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
@@ -1608,12 +1608,12 @@ let curTab = 'monthly';
 let idSeq = Date.now();
 let chartInstances = {};
 
-// ?????? Per-card sort state: { 'key-pi': { col, dir } } ??????
+// ── Per-card sort state: { 'key-pi': { col, dir } } ──
 // col: 'default' | 'name' | 'amount' | 'payTo' | 'recurring' | 'done'
 // dir: 1 (asc) | -1 (desc)
 const cardSortState = {};
 
-// Custom Pay To sort order ??? NAB first, then CB, then credit cards, then rest
+// Custom Pay To sort order — NAB first, then CB, then credit cards, then rest
 const PAYTO_ORDER = [
   'nab offset', 'nab rewards saver', 'nab personal debit',
   'manual transfer to offset', 'manual transfer to ja',
@@ -1642,7 +1642,7 @@ function getSortedBills(bills, sortKey) {
     if (col === 'payTo' || s === 'default') {
       const diff = payToRank(a.payTo) - payToRank(b.payTo);
       if (diff !== 0) return s === 'default' ? diff : diff * dir;
-      if (s === 'default') return (parseFloat(b.amount)||0) - (parseFloat(a.amount)||0); // secondary: amount high???low
+      if (s === 'default') return (parseFloat(b.amount)||0) - (parseFloat(a.amount)||0); // secondary: amount high→low
       return (a.name||'').localeCompare(b.name||'');
     }
     if (col === 'name')      return (a.name||'').localeCompare(b.name||'') * dir;
@@ -1666,7 +1666,7 @@ function cycleSort(periodKey, col) {
   render();
 }
 
-// ?????? Row selection state ??????
+// ── Row selection state ──
 let selectedRows  = []; // array of { key, pi, billId, amount, name }
 let selectedRows2 = []; // second group for formula
 let lastClickedRow = null;
@@ -1691,7 +1691,7 @@ function exportBudget() {
   a.href = URL.createObjectURL(blob);
   a.download = 'budget-backup.json';
   a.click();
-  showToast('??? Budget exported!');
+  showToast('✓ Budget exported!');
 }
 function importBudget(evt) {
   if (!isAdmin()) return;
@@ -1699,8 +1699,8 @@ function importBudget(evt) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    try { state = JSON.parse(e.target.result); save(); render(); showToast('??? Budget imported!'); }
-    catch(err) { showToast('??? Could not read file'); }
+    try { state = JSON.parse(e.target.result); save(); render(); showToast('✓ Budget imported!'); }
+    catch(err) { showToast('⚠ Could not read file'); }
   };
   reader.readAsText(file);
   evt.target.value = '';
@@ -1725,7 +1725,7 @@ function parsePeriodDate(str) {
 }
 
 // Returns dates for a new month by chaining fortnights from the last period of the previous month.
-// e.g. prev = [11 Mar, 25 Mar] ??? new = [8 Apr, 22 Apr]
+// e.g. prev = [11 Mar, 25 Mar] → new = [8 Apr, 22 Apr]
 // Format a Date object as "D Mon YYYY" without any timezone shifting.
 function formatPeriodDate(d) {
   const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1786,9 +1786,9 @@ function createMonthFromLastRecurring(y, m) {
   }
 
   if (!prevKey) {
-    // No previous month at all ??? fall back to blank periods
+    // No previous month at all — fall back to blank periods
     createMonth(y, m, false);
-    showToast('No previous month found ??? created blank periods');
+    showToast('No previous month found — created blank periods');
     return;
   }
 
@@ -1810,7 +1810,7 @@ function createMonthFromLastRecurring(y, m) {
 
   save();
   const [py, pm] = prevKey.split('-').map(Number);
-  showToast(`??? Created from ${MONTHS[pm-1]} ${py}'s recurring bills`);
+  showToast(`✓ Created from ${MONTHS[pm-1]} ${py}'s recurring bills`);
 }
 function esc(s) {
   return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -1862,7 +1862,7 @@ function changeMonth(dir) {
   render();
 }
 
-// ?????? Month Picker ??????
+// ── Month Picker ──
 let mpYear = new Date().getFullYear();
 
 function toggleMonthPicker(e) {
@@ -1926,7 +1926,7 @@ function handleNextMonth() {
     }))
   };
   save(); curYear=ny; curMonth=nm;
-  showToast(`??? ${MONTHS[nm]} ${ny} created!`);
+  showToast(`✓ ${MONTHS[nm]} ${ny} created!`);
   render();
 }
 
@@ -1934,7 +1934,7 @@ function saveSettings() {
   if (!isAdmin()) return;
   state.settings.salary = parseFloat(document.getElementById('salaryInput').value)||0;
   save();
-  showToast('??? Salary saved!');
+  showToast('✓ Salary saved!');
 }
 
 function getPeriod(key,pi) { return state.months[key]?.periods[pi]; }
@@ -2001,7 +2001,7 @@ function addBill(key,pi) {
   },30);
 }
 
-// ?????? Drag-to-reorder bills ??????
+// ── Drag-to-reorder bills ──
 let _dragKey=null, _dragPi=null, _dragId=null;
 
 function billDragStart(e, key, pi, billId) {
@@ -2033,14 +2033,14 @@ function billDrop(e, key, pi, billId) {
   const [moved] = srcPeriod.bills.splice(fromIdx, 1);
 
   if (_dragKey === key && _dragPi === pi) {
-    // Same period ??? reorder
+    // Same period — reorder
     const toIdx = destPeriod.bills.findIndex(b=>b.id===billId);
     destPeriod.bills.splice(toIdx >= 0 ? toIdx : destPeriod.bills.length, 0, moved);
   } else {
-    // Different period ??? insert before target row (or append if no target)
+    // Different period — insert before target row (or append if no target)
     const toIdx = destPeriod.bills.findIndex(b=>b.id===billId);
     destPeriod.bills.splice(toIdx >= 0 ? toIdx : destPeriod.bills.length, 0, moved);
-    showToast(`??? Moved to pay period ${pi+1}`);
+    showToast(`✓ Moved to pay period ${pi+1}`);
   }
   _dragKey=null; save(); render();
 }
@@ -2064,7 +2064,7 @@ function billListDrop(e, key, pi) {
   if (fromIdx < 0) { _dragKey=null; return; }
   const [moved] = srcPeriod.bills.splice(fromIdx, 1);
   destPeriod.bills.push(moved);
-  showToast(`??? Moved to pay period ${pi+1}`);
+  showToast(`✓ Moved to pay period ${pi+1}`);
   _dragKey=null; save(); render();
 }
 
@@ -2102,7 +2102,7 @@ function deleteSavingsGoal(key,pi,id) {
   if (!isAdmin()) return;
   const p=getPeriod(key,pi); if(!p)return;
   const goals=getSavingsGoals(p);
-  // Never delete the first (General Savings) ??? 0-index guard
+  // Never delete the first (General Savings) — 0-index guard
   const idx=goals.findIndex(g=>g.id===id);
   if(idx<=0)return;
   goals.splice(idx,1); save(); renderMonthView(key);
@@ -2114,9 +2114,9 @@ function editDate(key,pi) {
   if(d&&d.trim()){p.date=d.trim();save();render();}
 }
 
-// ???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ─────────────────────────────────────────────
 //  MONTHLY RENDER
-// ???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ─────────────────────────────────────────────
 function render() {
   if (curTab !== 'monthly') return;
   const canEdit = isAdmin();
@@ -2126,7 +2126,7 @@ function render() {
   const grid = document.getElementById('periodsGrid');
 
   if (isEric() && !adminSettings.ericCanViewBudget) {
-    grid.innerHTML = `<div class="locked-banner"><div class="lock-icon">????</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.<br>You can still see your Payables tab.</p></div>`;
+    grid.innerHTML = `<div class="locked-banner"><div class="lock-icon">🔒</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.<br>You can still see your Payables tab.</p></div>`;
     document.getElementById('progressWrap').style.display='none'; return;
   }
 
@@ -2159,7 +2159,7 @@ function deletePeriod(key, pi) {
   m.periods.splice(pi, 1);
   if (m.periods.length === 0) delete state.months[key];
   save(); render();
-  showToast('??? Pay period deleted');
+  showToast('✓ Pay period deleted');
 }
 
 function addIncomeLine(key, pi) {
@@ -2202,7 +2202,7 @@ function getAccountOptions(selected) {
   const opts = accounts.map(a =>
     `<option value="${esc(a)}" ${a===selected?'selected':''}>${esc(a)}</option>`
   ).join('');
-  return `<option value="">??? Pay to ???</option>${opts}<option value="__new__">?? Add account???</option>`;
+  return `<option value="">— Pay to —</option>${opts}<option value="__new__">＋ Add account…</option>`;
 }
 
 function handlePayToChange(key, pi, billId, sel) {
@@ -2246,18 +2246,18 @@ function buildPeriodCard(key, period, pi, canEdit) {
         <span class="safe-to-spend-label">Safe to spend</span>
         <span data-chip="${key}-${pi}">$${allowance.toFixed(2)}</span>
       </div>
-      ${canEdit ? `<button class="edit-date-btn" onclick="editDate('${key}',${pi})">??? Date</button>` : ''}
-      ${canEdit ? `<button class="period-delete-btn" onclick="deletePeriod('${key}',${pi})">????</button>` : ''}
+      ${canEdit ? `<button class="edit-date-btn" onclick="editDate('${key}',${pi})">✏ Date</button>` : ''}
+      ${canEdit ? `<button class="period-delete-btn" onclick="deletePeriod('${key}',${pi})">🗑</button>` : ''}
     </div>`;
   card.appendChild(headerDiv);
 
-  // ?????? MONEY IN section ??????
+  // ── MONEY IN section ──
   const incomeSectionId = `income-body-${key}-${pi}`;
   const incomeToggle = document.createElement('div');
   incomeToggle.className = 'section-toggle money-in';
   incomeToggle.innerHTML = `
     <div class="section-toggle-left">
-      <span class="section-chevron" id="chev-in-${key}-${pi}">???</span>
+      <span class="section-chevron" id="chev-in-${key}-${pi}">▼</span>
       <span class="section-toggle-label">Money In</span>
     </div>
     <span class="section-toggle-amount">$${totalIncome.toFixed(2)}</span>`;
@@ -2268,7 +2268,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
   incomeBody.className = 'section-body collapsed';
   incomeBody.id = incomeSectionId;
 
-  // Salary row ??? editable inline
+  // Salary row — editable inline
   const salaryRow = document.createElement('div');
   salaryRow.className = 'bill-row';
   const salaryAmt = state.settings.salary || 0;
@@ -2299,8 +2299,8 @@ function buildPeriodCard(key, period, pi, canEdit) {
         <input class="bill-amount-input" type="number" step="0.01" value="${incAmt}" placeholder="0.00"
           onchange="updateIncome('${key}',${pi},'${item.id}','amount',this.value)" oninput="refreshChip('${key}',${pi})">
         <span></span>
-        <button class="recur-btn ${item.recurring?'on':''}" onclick="toggleIncomeRecurring('${key}',${pi},'${item.id}')">???</button>
-        <button class="del-btn" onclick="deleteIncome('${key}',${pi},'${item.id}')">??</button>`;
+        <button class="recur-btn ${item.recurring?'on':''}" onclick="toggleIncomeRecurring('${key}',${pi},'${item.id}')">♻</button>
+        <button class="del-btn" onclick="deleteIncome('${key}',${pi},'${item.id}')">×</button>`;
     } else {
       row.innerHTML = `<span></span><span></span><span class="bill-name-input">${esc(item.name)}</span><span class="readonly-amount" style="color:#059669">$${parseFloat(item.amount||0).toFixed(2)}</span><span></span><span></span><span></span>`;
     }
@@ -2310,18 +2310,18 @@ function buildPeriodCard(key, period, pi, canEdit) {
 
   if (canEdit) {
     const addIncomeDiv = document.createElement('div'); addIncomeDiv.className = 'add-row';
-    addIncomeDiv.innerHTML = `<button class="add-btn" style="color:#059669;border-color:#a7f3d0" onclick="addIncomeLine('${key}',${pi})">?? Add income</button>`;
+    addIncomeDiv.innerHTML = `<button class="add-btn" style="color:#059669;border-color:#a7f3d0" onclick="addIncomeLine('${key}',${pi})">＋ Add income</button>`;
     incomeBody.appendChild(addIncomeDiv);
   }
   card.appendChild(incomeBody);
 
-  // ?????? MONEY OUT section ??????
+  // ── MONEY OUT section ──
   const outSectionId = `out-body-${key}-${pi}`;
   const outToggle = document.createElement('div');
   outToggle.className = 'section-toggle money-out';
   outToggle.innerHTML = `
     <div class="section-toggle-left">
-      <span class="section-chevron open" id="chev-out-${key}-${pi}">???</span>
+      <span class="section-chevron open" id="chev-out-${key}-${pi}">▼</span>
       <span class="section-toggle-label">Money Out</span>
     </div>
     <span class="section-toggle-amount" data-out-total="${key}-${pi}">$${(subtotal + totalSavings).toFixed(2)}</span>`;
@@ -2332,13 +2332,13 @@ function buildPeriodCard(key, period, pi, canEdit) {
   outBody.className = 'section-body';
   outBody.id = outSectionId;
 
-  // Column header ??? sortable
+  // Column header — sortable
   const periodSortKey = `${key}-${pi}`;
   const sortSt = cardSortState[periodSortKey];
   const arrow = (col) => {
-    if (!sortSt && col === 'payTo') return `<span class="sort-arrow">???</span>`; // default indicator
-    if (!sortSt || sortSt.col !== col) return `<span class="sort-arrow">???</span>`;
-    return `<span class="sort-arrow">${sortSt.dir === 1 ? '???' : '???'}</span>`;
+    if (!sortSt && col === 'payTo') return `<span class="sort-arrow">↕</span>`; // default indicator
+    if (!sortSt || sortSt.col !== col) return `<span class="sort-arrow">↕</span>`;
+    return `<span class="sort-arrow">${sortSt.dir === 1 ? '↑' : '↓'}</span>`;
   };
   const cls = (col) => {
     if (!sortSt && col === 'payTo') return 'sort-col active';
@@ -2362,7 +2362,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
     listDiv.addEventListener('drop', (e) => billListDrop(e, key, pi));
   }
 
-  // Apply sort ??? view only, doesn't change saved order
+  // Apply sort — view only, doesn't change saved order
   const sortKey = sortSt ? (sortSt.dir === -1 ? `-${sortSt.col}` : sortSt.col) : 'default';
   const sortedBills = getSortedBills(period.bills, sortKey);
 
@@ -2375,8 +2375,8 @@ function buildPeriodCard(key, period, pi, canEdit) {
     // Build handle element (select + drag zone)
     const handle = document.createElement('div');
     handle.className = 'row-handle';
-    handle.title = 'Drag to reorder ? Click to select ? Shift/Ctrl+click for multi-select';
-    handle.innerHTML = '??????';
+    handle.title = 'Drag to reorder · Click to select · Shift/Ctrl+click for multi-select';
+    handle.innerHTML = '⋮⋮';
     handle.addEventListener('click', (e) => { e.stopPropagation(); handleRowClick(e, row, key, pi, bill, billIdx, true); });
     if (canEdit) {
       row.setAttribute('draggable', 'true');
@@ -2397,8 +2397,8 @@ function buildPeriodCard(key, period, pi, canEdit) {
         <input class="bill-amount-input" type="number" step="0.01" value="${amtVal}" placeholder="0.00"
           onchange="updateBill('${key}',${pi},'${bill.id}','amount',this.value)" oninput="refreshChip('${key}',${pi})" onclick="event.stopPropagation()">
         ${payToSel}
-        <button class="recur-btn ${bill.recurring?'on':''}" onclick="event.stopPropagation();toggleRecurring('${key}',${pi},'${bill.id}')">???</button>
-        <button class="del-btn" onclick="event.stopPropagation();deleteBill('${key}',${pi},'${bill.id}')">??</button>`;
+        <button class="recur-btn ${bill.recurring?'on':''}" onclick="event.stopPropagation();toggleRecurring('${key}',${pi},'${bill.id}')">♻</button>
+        <button class="del-btn" onclick="event.stopPropagation();deleteBill('${key}',${pi},'${bill.id}')">×</button>`;
       row.children[0].replaceWith(handle);
     } else {
       row.innerHTML = `
@@ -2407,7 +2407,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
         <span class="bill-name-input" style="pointer-events:none">${esc(bill.name)}</span>
         <span class="readonly-amount">$${parseFloat(bill.amount||0).toFixed(2)}</span>
         <span class="readonly-payto">${esc(bill.payTo||'')}</span>
-        <span class="recur-btn ${bill.recurring?'on':''}" style="pointer-events:none">???</span>
+        <span class="recur-btn ${bill.recurring?'on':''}" style="pointer-events:none">♻</span>
         <span></span>`;
       row.children[0].replaceWith(handle);
     }
@@ -2424,12 +2424,12 @@ function buildPeriodCard(key, period, pi, canEdit) {
 
   if (canEdit) {
     const addDiv = document.createElement('div'); addDiv.className = 'add-row';
-    addDiv.innerHTML = `<button class="add-btn" onclick="addBill('${key}',${pi})">?? Add expense</button>`;
+    addDiv.innerHTML = `<button class="add-btn" onclick="addBill('${key}',${pi})">＋ Add expense</button>`;
     outBody.appendChild(addDiv);
   }
   card.appendChild(outBody);
 
-  // ?????? Savings Goals section ??????
+  // ── Savings Goals section ──
   const savSection = document.createElement('div');
   savSection.className = 'savings-section';
   const savHeader = document.createElement('div');
@@ -2438,7 +2438,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
   savSection.appendChild(savHeader);
 
   savingsGoals.forEach((goal, gi) => {
-    const isFirst = gi === 0; // General Savings ??? no delete
+    const isFirst = gi === 0; // General Savings — no delete
     const sRow = document.createElement('div');
     sRow.className = 'saving-row' + (goal.done ? ' is-done' : '');
     if (canEdit) {
@@ -2451,22 +2451,22 @@ function buildPeriodCard(key, period, pi, canEdit) {
         <input class="bill-amount-input" type="number" step="0.01" value="${amtVal}" placeholder="0.00"
           onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','amount',this.value)" oninput="refreshChip('${key}',${pi})" onclick="event.stopPropagation()">
         <select class="payto-select" onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','payTo',this.value)" onclick="event.stopPropagation()">${getAccountOptions(goal.payTo)}</select>
-        <button class="recur-btn ${goal.recurring?'on':''}" onclick="event.stopPropagation();toggleSavingsRecurring('${key}',${pi},'${goal.id}')">???</button>
-        ${isFirst ? '<span></span>' : `<button class="del-btn" onclick="event.stopPropagation();deleteSavingsGoal('${key}',${pi},'${goal.id}')">??</button>`}`;
+        <button class="recur-btn ${goal.recurring?'on':''}" onclick="event.stopPropagation();toggleSavingsRecurring('${key}',${pi},'${goal.id}')">♻</button>
+        ${isFirst ? '<span></span>' : `<button class="del-btn" onclick="event.stopPropagation();deleteSavingsGoal('${key}',${pi},'${goal.id}')">×</button>`}`;
     } else {
       sRow.innerHTML = `
         <input type="checkbox" class="bill-check" ${goal.done?'checked':''} disabled>
         <span class="bill-name-input" ${gi===0?'style="color:#059669;font-weight:600"':''}>${goal.name||'General Savings'}</span>
         <span class="readonly-amount" style="color:#059669">$${parseFloat(goal.amount||0).toFixed(2)}</span>
         <span class="readonly-payto">${esc(goal.payTo||'')}</span>
-        <span class="recur-btn ${goal.recurring?'on':''}" style="pointer-events:none">???</span>`;
+        <span class="recur-btn ${goal.recurring?'on':''}" style="pointer-events:none">♻</span>`;
     }
     savSection.appendChild(sRow);
   });
 
   if (canEdit) {
     const addSavDiv = document.createElement('div'); addSavDiv.className = 'add-row';
-    addSavDiv.innerHTML = `<button class="add-btn" style="color:#059669;border-color:#a7f3d0" onclick="addSavingsGoal('${key}',${pi})">?? Add savings goal</button>`;
+    addSavDiv.innerHTML = `<button class="add-btn" style="color:#059669;border-color:#a7f3d0" onclick="addSavingsGoal('${key}',${pi})">＋ Add savings goal</button>`;
     savSection.appendChild(addSavDiv);
   }
 
@@ -2482,16 +2482,16 @@ function toggleSection(bodyId, chevId) {
   if (chev) chev.classList.toggle('open');
 }
 
-// ???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ─────────────────────────────────────────────
 //  SUMMARY RENDER
-// ???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ─────────────────────────────────────────────
 function renderSummary() {
   const container=document.getElementById('summaryContent');
   if (isEric() && !adminSettings.ericCanViewBudget) {
-    container.innerHTML=`<div class="locked-banner"><div class="lock-icon">????</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.</p></div>`; return;
+    container.innerHTML=`<div class="locked-banner"><div class="lock-icon">🔒</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.</p></div>`; return;
   }
   const keys=Object.keys(state.months).sort();
-  if(!keys.length){container.innerHTML=`<div class="no-data"><div style="font-size:3rem">????</div><p>No data yet.</p></div>`;return;}
+  if(!keys.length){container.innerHTML=`<div class="no-data"><div style="font-size:3rem">📊</div><p>No data yet.</p></div>`;return;}
   const labels=[],spendData=[],savingsData=[],allowanceData=[],salaryData=[];
   keys.forEach(key=>{
     const [y,m]=key.split('-').map(Number);
@@ -2519,19 +2519,19 @@ function renderSummary() {
   const variableTotal=curMonthData.periods.flatMap(p=>p.bills.filter(b=>!b.recurring)).reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
   container.innerHTML=`
     <div class="stat-grid">
-      <div class="stat-card blue"><div class="stat-label">Total expenses ? ${displayName}</div><div class="stat-value">$${curStats.totalSpend.toFixed(0)}</div><div class="stat-sub">across both pay periods</div></div>
+      <div class="stat-card blue"><div class="stat-label">Total expenses · ${displayName}</div><div class="stat-value">$${curStats.totalSpend.toFixed(0)}</div><div class="stat-sub">across both pay periods</div></div>
       <div class="stat-card green"><div class="stat-label">Saved this month</div><div class="stat-value">$${curStats.totalSavings.toFixed(0)}</div><div class="stat-sub">${yearKeys.length?'$'+yearSavings.toFixed(0)+' saved in '+dy:'to offset account'}</div></div>
-      <div class="stat-card ${curStats.totalAllowance<0?'red':'amber'}"><div class="stat-label">Allowance ? ${displayName}</div><div class="stat-value">$${curStats.totalAllowance.toFixed(0)}</div><div class="stat-sub">avg $${avgAllowance.toFixed(0)}/month</div></div>
-      <div class="stat-card ${unpaidTotal>0?'red':'green'}"><div class="stat-label">Still to pay ? ${displayName}</div><div class="stat-value">$${unpaidTotal.toFixed(0)}</div><div class="stat-sub">${unpaidBills.length} bill${unpaidBills.length!==1?'s':''} unpaid ? $${paidTotal.toFixed(0)} done</div></div>
+      <div class="stat-card ${curStats.totalAllowance<0?'red':'amber'}"><div class="stat-label">Allowance · ${displayName}</div><div class="stat-value">$${curStats.totalAllowance.toFixed(0)}</div><div class="stat-sub">avg $${avgAllowance.toFixed(0)}/month</div></div>
+      <div class="stat-card ${unpaidTotal>0?'red':'green'}"><div class="stat-label">Still to pay · ${displayName}</div><div class="stat-value">$${unpaidTotal.toFixed(0)}</div><div class="stat-sub">${unpaidBills.length} bill${unpaidBills.length!==1?'s':''} unpaid · $${paidTotal.toFixed(0)} done</div></div>
     </div>
     <div class="charts-grid">
       <div class="chart-card"><h3>Monthly Spending vs Salary</h3><div class="chart-wrap"><canvas id="chartSpend"></canvas></div></div>
       <div class="chart-card"><h3>Allowance Trend</h3><div class="chart-wrap"><canvas id="chartAllowance"></canvas></div></div>
       <div class="chart-card"><h3>Savings per Month</h3><div class="chart-wrap"><canvas id="chartSavings"></canvas></div></div>
-      <div class="chart-card"><h3>Fixed vs Variable ? ${displayName}</h3><div class="chart-wrap"><canvas id="chartDonut"></canvas></div></div>
+      <div class="chart-card"><h3>Fixed vs Variable · ${displayName}</h3><div class="chart-wrap"><canvas id="chartDonut"></canvas></div></div>
     </div>
     <div class="chart-card summary-section" style="margin-bottom:24px">
-      <h3>Top Recurring Bills ? ${displayName}</h3>
+      <h3>Top Recurring Bills · ${displayName}</h3>
       <table class="expenses-table"><thead><tr><th>Expense</th><th>Amount</th><th style="width:40%">Share</th></tr></thead><tbody>
       ${topBills.map(b=>`<tr><td>${esc(b.name)}</td><td><strong>$${parseFloat(b.amount).toFixed(2)}</strong></td><td><div class="bar-cell"><div class="mini-bar" style="width:${Math.round((b.amount/maxBillAmt)*160)}px"></div><span style="font-size:0.78rem;color:#6b7280">${Math.round((b.amount/curStats.totalSpend)*100)}%</span></div></td></tr>`).join('')}
       </tbody></table>
@@ -2546,16 +2546,16 @@ function renderSummary() {
   chartInstances.chartDonut=new Chart(document.getElementById('chartDonut'),{type:'doughnut',data:{labels:['Fixed','Variable'],datasets:[{data:[fixedTotal,variableTotal],backgroundColor:['rgba(59,130,246,0.8)','rgba(245,158,11,0.8)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:ctx=>` $${ctx.parsed.toFixed(2)}`}}},cutout:'65%'}});
 }
 
-// ???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ─────────────────────────────────────────────
 //  INSIGHTS RENDER
-// ???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ─────────────────────────────────────────────
 function renderInsights() {
   const container=document.getElementById('insightsContent');
   if (isEric() && !adminSettings.ericCanViewBudget) {
-    container.innerHTML=`<div class="locked-banner"><div class="lock-icon">????</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.</p></div>`; return;
+    container.innerHTML=`<div class="locked-banner"><div class="lock-icon">🔒</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.</p></div>`; return;
   }
   const keys=Object.keys(state.months).sort();
-  if(!keys.length){container.innerHTML=`<div class="no-data"><div style="font-size:3rem">????</div><p>No data yet.</p></div>`;return;}
+  if(!keys.length){container.innerHTML=`<div class="no-data"><div style="font-size:3rem">💡</div><p>No data yet.</p></div>`;return;}
   const curKey=mKey(curYear,curMonth);
   const displayKey=state.months[curKey]?curKey:keys[keys.length-1];
   const [dy,dm]=displayKey.split('-').map(Number);
@@ -2572,38 +2572,38 @@ function renderInsights() {
   const fixedTotal=curMonthData.periods.flatMap(p=>p.bills.filter(b=>b.recurring)).reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
   const variableTotal=curMonthData.periods.flatMap(p=>p.bills.filter(b=>!b.recurring)).reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
   const insights=[];
-  if(topBills.length>0) insights.push({icon:'????',title:'Biggest expense',text:`<strong>${topBills[0].name}</strong> is your largest recurring bill at <strong>$${parseFloat(topBills[0].amount).toFixed(2)}</strong> ??? ${Math.round((topBills[0].amount/curStats.totalSpend)*100)}% of total spend.`});
-  if(fixedTotal>0) insights.push({icon:'????',title:'Fixed costs',text:`<strong>$${fixedTotal.toFixed(0)}</strong> is fixed recurring bills. Only <strong>$${variableTotal.toFixed(0)}</strong> is variable ??? ${Math.round((fixedTotal/curStats.totalSpend)*100)}% predictability.`});
-  if(allowanceData.length>=2){const last=allowanceData[allowanceData.length-1],prev=allowanceData[allowanceData.length-2],diff=last-prev;insights.push({icon:diff>=0?'????':'????',title:'Allowance trend',text:`Your allowance ${diff>=0?'<strong style="color:#059669">increased</strong>':'<strong style="color:#ef4444">decreased</strong>'} by <strong>$${Math.abs(diff).toFixed(0)}</strong> vs last month.`});}
+  if(topBills.length>0) insights.push({icon:'🏠',title:'Biggest expense',text:`<strong>${topBills[0].name}</strong> is your largest recurring bill at <strong>$${parseFloat(topBills[0].amount).toFixed(2)}</strong> — ${Math.round((topBills[0].amount/curStats.totalSpend)*100)}% of total spend.`});
+  if(fixedTotal>0) insights.push({icon:'🔒',title:'Fixed costs',text:`<strong>$${fixedTotal.toFixed(0)}</strong> is fixed recurring bills. Only <strong>$${variableTotal.toFixed(0)}</strong> is variable — ${Math.round((fixedTotal/curStats.totalSpend)*100)}% predictability.`});
+  if(allowanceData.length>=2){const last=allowanceData[allowanceData.length-1],prev=allowanceData[allowanceData.length-2],diff=last-prev;insights.push({icon:diff>=0?'📈':'📉',title:'Allowance trend',text:`Your allowance ${diff>=0?'<strong style="color:#059669">increased</strong>':'<strong style="color:#ef4444">decreased</strong>'} by <strong>$${Math.abs(diff).toFixed(0)}</strong> vs last month.`});}
   const subKw=['netflix','spotify','amazon prime','disney','adobe','chatgpt','clip studio','hp ink','uber one','internet'];
   const subBills=recurringBills.filter(b=>subKw.some(k=>b.name.toLowerCase().includes(k)));
   const subTotal=subBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-  if(subTotal>0) insights.push({icon:'????',title:'Subscriptions',text:`<strong>$${subTotal.toFixed(2)}/pay period</strong> across ${subBills.length} subscriptions: ${subBills.map(b=>b.name).join(', ')}.`});
+  if(subTotal>0) insights.push({icon:'📱',title:'Subscriptions',text:`<strong>$${subTotal.toFixed(2)}/pay period</strong> across ${subBills.length} subscriptions: ${subBills.map(b=>b.name).join(', ')}.`});
   const salaryTotal=state.settings.salary*2;
   const savingsRate=salaryTotal>0?(curStats.totalSavings/salaryTotal)*100:0;
-  insights.push({icon:'????',title:'Savings rate',text:`Saving <strong>${savingsRate.toFixed(1)}%</strong> of monthly income ??? <strong>$${curStats.totalSavings.toFixed(0)}</strong> of <strong>$${salaryTotal.toFixed(0)}</strong>.`});
-  if(yearSavings>0) insights.push({icon:'????',title:`${dy} savings total`,text:`You've put away <strong>$${yearSavings.toFixed(0)}</strong> across ${yearKeys.length} month${yearKeys.length!==1?'s':''} in ${dy}.`});
-  if(keys.length>1) insights.push({icon:'????',title:'Average spending',text:`Avg monthly spend: <strong>$${avgSpend.toFixed(0)}</strong>. Avg allowance: <strong>$${avgAllowance.toFixed(0)}</strong>.`});
-  if(curStats.totalAllowance<200&&curStats.totalAllowance>=0) insights.push({icon:'????',title:'Tight month',text:`Allowance is only <strong>$${curStats.totalAllowance.toFixed(0)}</strong>. Consider deferring variable expenses.`});
-  else if(curStats.totalAllowance<0) insights.push({icon:'????',title:'Over budget!',text:`You're <strong style="color:#ef4444">$${Math.abs(curStats.totalAllowance).toFixed(0)} over budget</strong> this month.`});
+  insights.push({icon:'💰',title:'Savings rate',text:`Saving <strong>${savingsRate.toFixed(1)}%</strong> of monthly income — <strong>$${curStats.totalSavings.toFixed(0)}</strong> of <strong>$${salaryTotal.toFixed(0)}</strong>.`});
+  if(yearSavings>0) insights.push({icon:'🎯',title:`${dy} savings total`,text:`You've put away <strong>$${yearSavings.toFixed(0)}</strong> across ${yearKeys.length} month${yearKeys.length!==1?'s':''} in ${dy}.`});
+  if(keys.length>1) insights.push({icon:'📊',title:'Average spending',text:`Avg monthly spend: <strong>$${avgSpend.toFixed(0)}</strong>. Avg allowance: <strong>$${avgAllowance.toFixed(0)}</strong>.`});
+  if(curStats.totalAllowance<200&&curStats.totalAllowance>=0) insights.push({icon:'⚠️',title:'Tight month',text:`Allowance is only <strong>$${curStats.totalAllowance.toFixed(0)}</strong>. Consider deferring variable expenses.`});
+  else if(curStats.totalAllowance<0) insights.push({icon:'🚨',title:'Over budget!',text:`You're <strong style="color:#ef4444">$${Math.abs(curStats.totalAllowance).toFixed(0)} over budget</strong> this month.`});
   const ht=recurringBills.filter(b=>['mortgage','car'].some(k=>b.name.toLowerCase().includes(k)));
   const htTotal=ht.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-  if(htTotal>0) insights.push({icon:'????',title:'Housing & car',text:`Mortgage + Car combined = <strong>$${htTotal.toFixed(0)}/pay period</strong> ??? ${Math.round((htTotal/curStats.totalSpend)*100)}% of total spend.`});
-  container.innerHTML=`<div style="margin-bottom:20px"><div style="font-size:0.8rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Based on ? ${displayName}</div><div style="font-size:0.85rem;color:#9ca3af">${insights.length} insights generated</div></div><div class="insights-grid">${insights.map(ins=>`<div class="insight-card"><div class="insight-icon">${ins.icon}</div><div class="insight-body"><div class="insight-title">${ins.title}</div><div class="insight-text">${ins.text}</div></div></div>`).join('')}</div>`;
+  if(htTotal>0) insights.push({icon:'🚗',title:'Housing & car',text:`Mortgage + Car combined = <strong>$${htTotal.toFixed(0)}/pay period</strong> — ${Math.round((htTotal/curStats.totalSpend)*100)}% of total spend.`});
+  container.innerHTML=`<div style="margin-bottom:20px"><div style="font-size:0.8rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Based on · ${displayName}</div><div style="font-size:0.85rem;color:#9ca3af">${insights.length} insights generated</div></div><div class="insights-grid">${insights.map(ins=>`<div class="insight-card"><div class="insight-icon">${ins.icon}</div><div class="insight-body"><div class="insight-title">${ins.title}</div><div class="insight-text">${ins.text}</div></div></div>`).join('')}</div>`;
 }
 
-// ???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ─────────────────────────────────────────────
 //  TOAST
-// ???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ─────────────────────────────────────────────
 let toastTimer;
 function showToast(msg) {
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 //  PAYABLES TRACKER  (v2)
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 // Data model per entry:
 // { id, name, fullAmount, myShare, split:'shared'|'mine'|'eric',
 //   payTo, date, createdAt, createdBy:'elly'|'eric',
@@ -2613,7 +2613,7 @@ function showToast(msg) {
 const ERIC_EMAIL = 'ericdefelix@gmail.com';
 const ELLY_EMAIL = 'ellyhizon1@gmail.com';
 
-// ?????? State ??????
+// ── State ──
 let pState = { entries: [] };
 let pSplitFilter = 'all'; // 'all' | 'shared' | 'mine'
 let pIdSeq = Date.now() + 1000000;
@@ -2636,7 +2636,7 @@ function pTodayLabel() {
 }
 function pFmt(n) { return '$'+(parseFloat(n)||0).toFixed(2); }
 
-// ?????? Entry helpers ??????
+// ── Entry helpers ──
 function pMyShare(e) {
   return e.split === 'shared' ? (parseFloat(e.fullAmount)||0)/2 : (parseFloat(e.fullAmount)||0);
 }
@@ -2650,7 +2650,7 @@ function pIsEricDone(e) { return e.split==='mine' ? true : !!e.ericDone; }
 function pEllyEntries() { return (pState.entries||[]).filter(e=>e.split!=='eric'); }
 function pEricEntries() { return (pState.entries||[]).filter(e=>e.split==='shared'||e.split==='eric'); }
 
-// ?????? Add form ??????
+// ── Add form ──
 function pShowAddForm() {
   const card=document.getElementById('p-add-card');
   card.style.display='';
@@ -2668,7 +2668,7 @@ function pUpdateSplitHint() {
   const split=document.getElementById('pf-split')?.value;
   const hint=document.getElementById('pf-split-hint');
   if(!hint)return;
-  if(split==='shared'&&amt>0) hint.textContent=`You owe $${(amt/2).toFixed(2)} ? Eric owes $${(amt/2).toFixed(2)}`;
+  if(split==='shared'&&amt>0) hint.textContent=`You owe $${(amt/2).toFixed(2)} · Eric owes $${(amt/2).toFixed(2)}`;
   else if(split==='mine'&&amt>0) hint.textContent=`Full $${amt.toFixed(2)} is yours`;
   else if(split==='eric'&&amt>0) hint.textContent=`Full $${amt.toFixed(2)} goes to Eric`;
   else hint.textContent='';
@@ -2679,8 +2679,8 @@ function addPayable() {
   const split=document.getElementById('pf-split').value;
   const payTo=document.getElementById('pf-payto').value;
   const date=document.getElementById('pf-date').value.trim()||pTodayLabel();
-  if(!name){showToast('??? Enter an expense name');return;}
-  if(!full||full<=0){showToast('??? Enter a valid amount');return;}
+  if(!name){showToast('⚠ Enter an expense name');return;}
+  if(!full||full<=0){showToast('⚠ Enter a valid amount');return;}
   pState.entries.unshift({
     id:pUid(),name,fullAmount:full,split,payTo,date,
     createdAt:Date.now(),createdBy:currentUser,
@@ -2688,10 +2688,10 @@ function addPayable() {
   });
   pSave();updatePayablesBadge();renderPayables();
   document.getElementById('p-add-card').style.display='none';
-  showToast('??? Payable added');
+  showToast('✓ Payable added');
 }
 
-// ?????? Toggle done ??????
+// ── Toggle done ──
 function togglePayableDone(id, forWhom) {
   const e=(pState.entries||[]).find(x=>x.id===id);if(!e)return;
   const now=pTodayLabel();
@@ -2721,7 +2721,7 @@ function deallocatePayable(payableId) {
   e.allocatedTo=null; pSave(); renderPayables();
 }
 
-// ?????? Allocation ??????
+// ── Allocation ──
 function openAllocateModal(payableId) {
   _allocPayableId=payableId;_allocDestKey=null;_allocDestPi=null;
   const btn=document.getElementById('alloc-confirm-btn');
@@ -2791,10 +2791,10 @@ function confirmAllocate() {
   e.allocatedTo={key:_allocDestKey,pi:_allocDestPi,billId};
   const[dy,dm]=_allocDestKey.split('-').map(Number);
   save();pSave();closeModal('modal-allocate');renderPayables();
-  showToast(`??? Allocated to ${MONTHS[dm-1]} ${dy} ? P${_allocDestPi+1}`);
+  showToast(`✓ Allocated to ${MONTHS[dm-1]} ${dy} · P${_allocDestPi+1}`);
 }
 
-// ?????? Eric peek ??????
+// ── Eric peek ──
 function openEricPeek() {
   const pending=pEricEntries().filter(e=>!pIsEricDone(e));
   const total=pending.reduce((s,e)=>s+pEricShare(e),0);
@@ -2809,7 +2809,7 @@ function openEricPeek() {
   openModal('modal-eric-peek');
 }
 
-// ?????? Row selection ??????
+// ── Row selection ──
 let pSelectedRows = []; // { id, amount, name, el }
 let pLastClickedRow = null;
 
@@ -2856,7 +2856,7 @@ function pUpdateSelBadge() {
   if (pSelectedRows.length === 0) { badge.classList.remove('visible'); return; }
   const sum = pSelectedRows.reduce((t,r) => t + r.amount, 0);
   badge.style.pointerEvents = 'auto';
-  badge.textContent = `${pSelectedRows.length} payable${pSelectedRows.length>1?'s':''} selected ? $${sum.toFixed(2)} ? Right-click for options`;
+  badge.textContent = `${pSelectedRows.length} payable${pSelectedRows.length>1?'s':''} selected · $${sum.toFixed(2)} · Right-click for options`;
   badge.classList.add('visible');
 }
 
@@ -2906,7 +2906,7 @@ function pCtxUnallocate() {
     e.allocatedTo = null;
   });
   pSave(); pClearSelection(); renderPayables();
-  showToast(`??? Allocation removed`);
+  showToast(`✓ Allocation removed`);
 }
 
 function pCtxDelete() {
@@ -2923,10 +2923,10 @@ function pCtxDelete() {
   const ids = new Set(pSelectedRows.map(r => r.id));
   pState.entries = pState.entries.filter(x => !ids.has(x.id));
   pSave(); pClearSelection(); updatePayablesBadge(); renderPayables();
-  showToast(`??? Deleted`);
+  showToast(`✓ Deleted`);
 }
 
-// ?????? Split filter ??????
+// ── Split filter ──
 function pSetSplitFilter(val, btn) {
   pSplitFilter = val;
   document.querySelectorAll('.p-sf-btn').forEach(b => b.classList.remove('active'));
@@ -2934,21 +2934,21 @@ function pSetSplitFilter(val, btn) {
   renderPayables();
 }
 
-// ?????? Completed toggle ??????
+// ── Completed toggle ──
 function pToggleCompleted() {
   pCompletedOpen=!pCompletedOpen;
   document.getElementById('p-completed-list').style.display=pCompletedOpen?'':'none';
   document.getElementById('p-completed-toggle').classList.toggle('open',pCompletedOpen);
 }
 
-// ?????? Badge ??????
+// ── Badge ──
 function updatePayablesBadge() {
   const pending=(isEric()?pEricEntries().filter(e=>!pIsEricDone(e)):pEllyEntries().filter(e=>!pIsEllyDone(e))).length;
   const badge=document.getElementById('payables-badge');
   if(badge){badge.textContent=pending;badge.style.display=pending>0?'':'none';}
 }
 
-// ?????? Main render ??????
+// ── Main render ──
 function renderPayables() {
   const isElly=!isEric();
   let entries=isElly?pEllyEntries():pEricEntries();
@@ -2981,7 +2981,7 @@ function renderPayables() {
   const activeList=safeEl('p-active-list');
   if(activeList)activeList.innerHTML=active.length
     ?active.map(e=>pRenderRow(e,isElly,shareFn(e),false)).join('')
-    :'<div class="p-empty">All clear ??? nothing pending! ????</div>';
+    :'<div class="p-empty">All clear — nothing pending! 🎉</div>';
 
   const compList=safeEl('p-completed-list');
   if(compList)compList.innerHTML=done.length
@@ -3014,11 +3014,11 @@ function pRenderRow(e,isElly,myShare,isDone) {
     const[y,m]=e.allocatedTo.key.split('-').map(Number);
     allocBadge=`<span class="p-alloc-badge linked" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Change allocation">${MONTHS[m-1].slice(0,3)} P${e.allocatedTo.pi+1}</span>`;
   } else if(isElly){
-    allocBadge=`<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">?? Allocate</span>`;
+    allocBadge=`<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">＋ Allocate</span>`;
   }
   const actionBtns=isElly
     ?`<div class="p-row-actions">
-        <button class="p-action-btn danger" onclick="deletePayableEntry('${e.id}')" title="Delete">???</button>
+        <button class="p-action-btn danger" onclick="deletePayableEntry('${e.id}')" title="Delete">✕</button>
       </div>`
     :'<span></span>';
   const shareVal = myShare.toFixed(2);
@@ -3035,7 +3035,7 @@ function pRenderRow(e,isElly,myShare,isDone) {
   </div>`;
 }
 
-// ?????? Seed Elly's data (runs once if entries are empty) ??????
+// ── Seed Elly's data (runs once if entries are empty) ──
 function pMaybeSeedElly() {
   if ((pState.entries||[]).length > 0) return; // Already seeded
   const CB = 'CB Bills', NAB = 'NAB Offset';
@@ -3051,7 +3051,7 @@ function pMaybeSeedElly() {
     mk('Elly borrow offset',15.40,'mine',NAB, '1 Jan 2025', true,'Jan 2025'),
     mk('Council rates 31 Aug',533,'shared',CB,'31 Jul 2025',true,'31 Jul 2025'),
     mk('CTP Green Slip (Allianz)',478,'shared',CB,'10 Sep 2025',true,'10 Sep 2025'),
-    // UNPAID ??? shared
+    // UNPAID — shared
     mk('Limey careers market',20,    'shared',CB,'1 Jan 2025'),
     mk('Limey medicine',43.33,       'shared',CB,'1 Jan 2025'),
     mk('Limey white card',100,       'shared',CB,'1 Jan 2025'),
@@ -3102,7 +3102,7 @@ function pMaybeSeedElly() {
     mk('Limey school fees',28,       'shared',CB,'1 Feb 2026'),
     mk('Sydney water Mar 2026',561.06,'shared',CB,'1 Mar 2026'),
     mk('Energy Australia Mar 2026',206.64,'shared',CB,'1 Mar 2026'),
-    // UNPAID ??? mine only
+    // UNPAID — mine only
     mk('Google One',44.99,'mine',CB,'1 Apr 2025'),
   ];
   pSave();
@@ -3120,9 +3120,9 @@ function exportPayables(){
   a.download='payables-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
 }
 
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 //  ROW SELECTION + COMPUTATION ENGINE
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 
 let calcHistory = [];
 
@@ -3161,7 +3161,7 @@ function handleRowClick(e, row, key, pi, bill, billIdx, fromHandle=false) {
       row.classList.add('selected');
     }
   } else {
-    // Plain click ??? clear and select just this one
+    // Plain click — clear and select just this one
     clearSelection();
     selectedRows.push(rowData);
     row.classList.add('selected');
@@ -3184,13 +3184,13 @@ function updateSelBadge() {
   if (!badge) return;
   if (selectedRows.length === 0) { badge.classList.remove('visible'); return; }
   const sum = selectedRows.reduce((t,r)=>t+r.amount,0);
-  badge.textContent = `${selectedRows.length} row${selectedRows.length>1?'s':''} selected ? Sum: $${sum.toFixed(2)} ? Right-click for options`;
+  badge.textContent = `${selectedRows.length} row${selectedRows.length>1?'s':''} selected · Sum: $${sum.toFixed(2)} · Right-click for options`;
   badge.classList.add('visible');
 }
 
-// ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ──────────────────────────────────────────────
 //  CONTEXT MENU
-// ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ──────────────────────────────────────────────
 function closeCtx() {
   const m = document.getElementById('ctx-menu');
   if (m) m.classList.remove('open');
@@ -3222,9 +3222,9 @@ function handleRowRightClick(e, row) {
   if (fi) fi.value = '';
 }
 
-// ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ──────────────────────────────────────────────
 //  MODAL SYSTEM
-// ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ──────────────────────────────────────────────
 function openModal(id) {
   document.getElementById(id)?.classList.add('open');
 }
@@ -3255,7 +3255,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ????????? Change Pay To modal ?????????
+// ─── Change Pay To modal ───
 let _selectedPayTo = null;
 
 function openModalPayTo() {
@@ -3289,7 +3289,7 @@ function paytoHighlightNew(val) {
 function confirmPayTo() {
   const newVal = document.getElementById('payto-new-input').value.trim();
   let resolved = newVal || _selectedPayTo;
-  if (!resolved) { showToast('??? Please select or enter an account'); return; }
+  if (!resolved) { showToast('⚠ Please select or enter an account'); return; }
   const accounts = state.accounts || DEFAULT_ACCOUNTS;
   if (!accounts.includes(resolved)) {
     state.accounts = [...(state.accounts || []), resolved];
@@ -3301,10 +3301,10 @@ function confirmPayTo() {
   });
   save(); render();
   closeModal('modal-payto');
-  showToast(`??? Pay To ??? ${resolved} (${selectedRows.length} row${selectedRows.length!==1?'s':''})`);
+  showToast(`✓ Pay To → ${resolved} (${selectedRows.length} row${selectedRows.length!==1?'s':''})`);
 }
 
-// ????????? Change Recurrence modal ?????????
+// ─── Change Recurrence modal ───
 let _selectedRecur = null;
 
 function openModalRecurrence() {
@@ -3323,17 +3323,17 @@ function selectRecurOpt(val) {
 }
 
 function confirmRecurrence() {
-  if (_selectedRecur === null) { showToast('??? Please select an option'); return; }
+  if (_selectedRecur === null) { showToast('⚠ Please select an option'); return; }
   selectedRows.forEach(r => {
     const bill = getBill(r.key, r.pi, r.billId);
     if (bill) bill.recurring = _selectedRecur;
   });
   save(); render();
   closeModal('modal-recurrence');
-  showToast(`??? ${selectedRows.length} row${selectedRows.length!==1?'s':''} set to ${_selectedRecur?'Recurring':'One-off'}`);
+  showToast(`✓ ${selectedRows.length} row${selectedRows.length!==1?'s':''} set to ${_selectedRecur?'Recurring':'One-off'}`);
 }
 
-// ????????? Mark As modal ?????????
+// ─── Mark As modal ───
 let _selectedMarkAs = null;
 
 function openModalMarkAs() {
@@ -3352,17 +3352,17 @@ function selectMarkAsOpt(val) {
 }
 
 function confirmMarkAs() {
-  if (_selectedMarkAs === null) { showToast('??? Please select an option'); return; }
+  if (_selectedMarkAs === null) { showToast('⚠ Please select an option'); return; }
   selectedRows.forEach(r => {
     const bill = getBill(r.key, r.pi, r.billId);
     if (bill) bill.done = _selectedMarkAs;
   });
   save(); render();
   closeModal('modal-markas');
-  showToast(`??? ${selectedRows.length} row${selectedRows.length!==1?'s':''} marked as ${_selectedMarkAs?'Done':'Not done'}`);
+  showToast(`✓ ${selectedRows.length} row${selectedRows.length!==1?'s':''} marked as ${_selectedMarkAs?'Done':'Not done'}`);
 }
 
-// ????????? Move To modal ?????????
+// ─── Move To modal ───
 let _moveDestKey = null, _moveDestPi = null;
 
 function openModalMoveTo() {
@@ -3422,7 +3422,7 @@ function selectMovePeriod(pi, el) {
 function confirmMoveTo() {
   if (!selectedRows.length || _moveDestKey === null || _moveDestPi === null) return;
   const destPeriod = getPeriod(_moveDestKey, _moveDestPi);
-  if (!destPeriod) { showToast('??? Destination period not found'); return; }
+  if (!destPeriod) { showToast('⚠ Destination period not found'); return; }
 
   const groups = {};
   selectedRows.forEach(r => {
@@ -3448,10 +3448,10 @@ function confirmMoveTo() {
   const [dy, dm] = _moveDestKey.split('-').map(Number);
   curYear = dy; curMonth = dm - 1;
   render();
-  showToast(`??? Moved ${moved.length} item${moved.length!==1?'s':''} ??? ${MONTHS[dm-1]} ${dy} ? P${_moveDestPi+1}`);
+  showToast(`✓ Moved ${moved.length} item${moved.length!==1?'s':''} → ${MONTHS[dm-1]} ${dy} · P${_moveDestPi+1}`);
 }
 
-// ????????? Bulk delete (confirm modal-free ??? still uses confirm() for safety) ?????????
+// ─── Bulk delete (confirm modal-free — still uses confirm() for safety) ───
 function ctxBulkDelete() {
   closeCtx();
   if (!selectedRows.length) return;
@@ -3469,7 +3469,7 @@ function ctxBulkDelete() {
   });
   clearSelection();
   save(); render();
-  showToast(`??? ${n} item${n!==1?'s':''} deleted`);
+  showToast(`✓ ${n} item${n!==1?'s':''} deleted`);
 }
 
 function ctxRun(op) {
@@ -3504,7 +3504,7 @@ function ctxRunFormula() {
     addCalcEntry(formula, names, result, isFinite(result) && typeof result==='number' ? '$' : null);
     openCalcPanel();
   } catch(err) {
-    showToast('??? Formula error: ' + err.message);
+    showToast('⚠ Formula error: ' + err.message);
   }
 }
 
@@ -3530,7 +3530,7 @@ function renderCalcPanel() {
     const negClass = e.prefix === '$' && e.result < 0 ? 'color:#ef4444' : '';
     return `<div class="calc-entry">
       <div class="calc-entry-formula">${esc(e.formula)}</div>
-      <div class="calc-entry-items">${e.names.map(n=>esc(n)).join(' ? ')}</div>
+      <div class="calc-entry-items">${e.names.map(n=>esc(n)).join(' · ')}</div>
       <div class="calc-entry-result" style="${negClass}">${val}</div>
       <div class="calc-entry-time">${e.time}</div>
     </div>`;
@@ -3555,7 +3555,7 @@ function renderAdminAccounts() {
   container.innerHTML = accounts.map((a, i) =>
     `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f4f8">
       <span style="flex:1;font-size:0.9rem">${esc(a)}</span>
-      <button onclick="deleteAccount(${i})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:0.85rem;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">???</button>
+      <button onclick="deleteAccount(${i})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:0.85rem;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">✕</button>
     </div>`
   ).join('');
 }
@@ -3569,7 +3569,7 @@ function addAccount() {
     state.accounts.push(name);
     save();
     renderAdminAccounts();
-    showToast('??? Account added');
+    showToast('✓ Account added');
   }
   if (input) input.value = '';
 }
@@ -3580,9 +3580,9 @@ function deleteAccount(idx) {
   save(); renderAdminAccounts();
 }
 
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 //  INIT
-// ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ═══════════════════════════════════════════════════════════════
 function init() {
   const hadData = load();
   const now = new Date();
