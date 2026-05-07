@@ -1177,8 +1177,8 @@ body {
                 <button class="p-btn p-btn-primary" id="p-add-btn" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">＋ Add</button>
               </div>
             </div>
-            <div class="p-list-col-header">
-              <span></span><span>Expense</span><span style="text-align:right">My share</span>
+            <div class="p-list-col-header" id="p-mine-col-header">
+              <span></span><span>Expense</span><span style="text-align:right" id="p-share-label">Your share</span>
               <span>Pay To</span><span>Allocation</span><span></span>
             </div>
             <div id="p-active-list"></div>
@@ -2153,11 +2153,15 @@ function toggleDone(key,pi,id,val) {
   if (!isAdmin()) return;
   const b=getBill(key,pi,id); if(!b)return;
   b.done=val; save(); renderMonthView(key);
-  // Sync back to any linked payable entry
+  // Sync back to any linked payable entry (respect who allocated it)
   const linked=(pState.entries||[]).find(e=>e.allocatedTo?.billId===id);
   if(linked){
-    linked.ellyDone=val;
-    linked.ellyDoneAt=val?pTodayLabel():null;
+    const allocBy = linked.allocatedTo?.allocatedBy || 'elly';
+    if (allocBy === 'eric') {
+      linked.ericDone=val; linked.ericDoneAt=val?pTodayLabel():null;
+    } else {
+      linked.ellyDone=val; linked.ellyDoneAt=val?pTodayLabel():null;
+    }
     pSave(); updatePayablesBadge();
     if(curTab==='payables') renderPayables();
   }
@@ -3029,7 +3033,7 @@ function openAllocateModal(payableId) {
   // Set amount in title
   const entry=(pState.entries||[]).find(x=>x.id===payableId);
   const amtEl=document.getElementById('alloc-modal-amount');
-  if(amtEl) amtEl.textContent=entry?pFmt(pMyShare(entry)):'';
+  if(amtEl) amtEl.textContent=entry?pFmt(isEric()?pEricShare(entry):pMyShare(entry)):'';
   const today = new Date(); today.setHours(0,0,0,0);
   const months = Object.keys(state.months).sort().filter(key => {
     const month = state.months[key];
@@ -3081,8 +3085,10 @@ function confirmAllocate() {
     if(old)old.bills=old.bills.filter(b=>b.id!==e.allocatedTo.billId);
   }
   const billId=newId();
-  period.bills.push({id:billId,name:e.name,amount:pMyShare(e),payTo:e.payTo,recurring:false,done:e.ellyDone||false});
-  e.allocatedTo={key:_allocDestKey,pi:_allocDestPi,billId};
+  const allocShare = isEric() ? pEricShare(e) : pMyShare(e);
+  const allocDone  = isEric() ? (e.ericDone||false) : (e.ellyDone||false);
+  period.bills.push({id:billId,name:e.name,amount:allocShare,payTo:e.payTo,recurring:false,done:allocDone});
+  e.allocatedTo={key:_allocDestKey,pi:_allocDestPi,billId,allocatedBy:currentUser};
   const[dy,dm]=_allocDestKey.split('-').map(Number);
   save();pSave();closeModal('modal-allocate');renderPayables();
   showToast(`✓ Allocated to ${MONTHS[dm-1]} ${dy} · P${_allocDestPi+1}`);
@@ -3293,6 +3299,10 @@ function renderPayables() {
   const isElly = !isEric();
   const safeEl = id => document.getElementById(id);
 
+  // ── Share label (personalised per user) ──
+  const shareLabel = safeEl('p-share-label');
+  if (shareLabel) shareLabel.textContent = isElly ? 'My share' : 'Your share';
+
   // ── Populate account dropdowns ──
   const acctOptions = (state.accounts || DEFAULT_ACCOUNTS).map(a => a.name || a);
   ['p-account-filter', 'p-eric-account-filter'].forEach((selId, i) => {
@@ -3390,7 +3400,9 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
   const splitClass = e.split==='mine' ? 'p-split-mine'
                    : e.split==='eric' ? 'p-split-eric'
                    : 'p-split-shared';
-  const splitBadge = (isElly && !compact)
+  // compact = Elly viewing Eric's column; !compact non-owner = Eric's own session
+  const canEditRow = !compact;
+  const splitBadge = canEditRow
     ? `<select class="p-split-select ${splitClass}" onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','split',this.value)" title="Change split">
          <option value="shared" ${e.split==='shared'?'selected':''}>Shared</option>
          <option value="mine"   ${e.split==='mine'?'selected':''}>Mine</option>
@@ -3402,19 +3414,18 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
     if (e.allocatedTo) {
       const [y,m] = e.allocatedTo.key.split('-').map(Number);
       allocBadge = `<span class="p-alloc-badge linked" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Change allocation">${MONTHS[m-1].slice(0,3)} P${e.allocatedTo.pi+1}</span>`;
-    } else if (isElly) {
+    } else {
       allocBadge = `<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">＋ Allocate</span>`;
     }
   }
   const actionBtns = compact ? ''
-    : isElly
-      ? `<div class="p-row-actions">
-           <button class="p-action-btn danger" onclick="event.stopPropagation();deletePayableEntry('${e.id}')" title="Delete">✕</button>
-         </div>`
-      : '<span></span>';
+    : `<div class="p-row-actions">
+         <button class="p-action-btn danger" onclick="event.stopPropagation();deletePayableEntry('${e.id}')" title="Delete">✕</button>
+       </div>`;
   const shareVal = myShare.toFixed(2);
+  const viewerName = isElly ? 'Your' : (compact ? "Eric's" : 'Your');
   const fullTip = e.split==='shared'
-    ? `${isElly ? 'Your' : "Eric's"} share — full amount is $${(e.fullAmount||0).toFixed(2)}`
+    ? `${viewerName} share — full amount is $${(e.fullAmount||0).toFixed(2)}`
     : 'Amount';
   const rowHandlers = compact ? ''
     : `onclick="pHandleRowClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"
@@ -3425,11 +3436,11 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
     <input type="checkbox" class="p-check" ${doneVal?'checked':''} onchange="event.stopPropagation();togglePayableDone('${e.id}','${forWhom}')">
     <div style="display:flex;align-items:center;gap:4px;min-width:0">
       <input class="p-name-input" value="${esc(e.name)}" placeholder="Expense name"
-        onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','name',this.value)" ${(!isElly||compact)?'readonly':''}>
+        onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','name',this.value)" ${compact?'readonly':''}>
       ${splitBadge}
     </div>
     <input class="p-amount-input" type="number" step="0.01" value="${shareVal}" placeholder="0.00"
-      onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','share',this.value)" ${(!isElly||compact)?'readonly':''}
+      onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','share',this.value)" ${compact?'readonly':''}
       title="${fullTip}">
     <span class="p-row-payto">${esc(e.payTo||'')}</span>
     ${compact ? '' : `<div class="p-row-meta">${allocBadge}</div>`}
