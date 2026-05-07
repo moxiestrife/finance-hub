@@ -1672,27 +1672,30 @@ function listenPayables() {
 // Only runs once budget data is confirmed loaded — avoids clearing links due to load-order race conditions.
 function pRepairAllocations() {
   if (!_budgetLoaded) return;
+  // Each user only validates their own allocation field against their own loaded budget
+  const field = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
   let changed = false;
   (pState.entries || []).forEach(e => {
-    if (!e.allocatedTo) return;
-    const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
-    const billExists = period?.bills?.some(b => b.id === e.allocatedTo.billId);
-    if (!billExists) { e.allocatedTo = null; changed = true; }
+    if (!e[field]) return;
+    const period = getPeriod(e[field].key, e[field].pi);
+    const billExists = period?.bills?.some(b => b.id === e[field].billId);
+    if (!billExists) { e[field] = null; changed = true; }
   });
   if (changed) pSave();
 }
 // Reconcile ellyDone on payables against their linked budget bill's done state.
 function pSyncDoneFromBudget() {
+  const field = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
   let changed = false;
-  (pState.entries || []).forEach(e => {
-    if (!e.allocatedTo?.billId) return;
-    const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
-    const bill = period?.bills?.find(b => b.id === e.allocatedTo.billId);
+  (pState.entries||[]).forEach(e => {
+    if (!e[field]?.billId) return;
+    const period = getPeriod(e[field].key, e[field].pi);
+    const bill = period?.bills?.find(b => b.id === e[field].billId);
     if (!bill) return;
-    if (e.ellyDone !== bill.done) {
-      e.ellyDone = bill.done;
-      e.ellyDoneAt = bill.done ? pTodayLabel() : null;
-      changed = true;
+    if (isEric()) {
+      if (e.ericDone !== bill.done) { e.ericDone = bill.done; e.ericDoneAt = bill.done ? pTodayLabel() : null; changed = true; }
+    } else {
+      if (e.ellyDone !== bill.done) { e.ellyDone = bill.done; e.ellyDoneAt = bill.done ? pTodayLabel() : null; changed = true; }
     }
   });
   if (changed) pSave();
@@ -2159,15 +2162,12 @@ function toggleDone(key,pi,id,val) {
   if (!isAdmin()) return;
   const b=getBill(key,pi,id); if(!b)return;
   b.done=val; save(); renderMonthView(key);
-  // Sync back to any linked payable entry (respect who allocated it)
-  const linked=(pState.entries||[]).find(e=>e.allocatedTo?.billId===id);
+  // Sync back to any linked payable entry using the active user's allocation field
+  const allocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
+  const linked=(pState.entries||[]).find(e=>e[allocField]?.billId===id);
   if(linked){
-    const allocBy = linked.allocatedTo?.allocatedBy || 'elly';
-    if (allocBy === 'eric') {
-      linked.ericDone=val; linked.ericDoneAt=val?pTodayLabel():null;
-    } else {
-      linked.ellyDone=val; linked.ellyDoneAt=val?pTodayLabel():null;
-    }
+    if(isEric()){ linked.ericDone=val; linked.ericDoneAt=val?pTodayLabel():null; }
+    else { linked.ellyDone=val; linked.ellyDoneAt=val?pTodayLabel():null; }
     pSave(); updatePayablesBadge();
     if(curTab==='payables') renderPayables();
   }
@@ -2186,9 +2186,10 @@ function deleteBill(key,pi,id) {
   if (!isAdmin()) return;
   const p=getPeriod(key,pi); if(!p) return;
   p.bills=p.bills.filter(b=>b.id!==id);
-  // If this bill was linked to a payable, clear that payable's allocation
-  const linked=(pState.entries||[]).find(e=>e.allocatedTo?.billId===id);
-  if(linked){ linked.allocatedTo=null; pSave(); renderPayables(); }
+  // If this bill was linked to a payable, clear that user's allocation field
+  const delAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
+  const linked=(pState.entries||[]).find(e=>e[delAllocField]?.billId===id);
+  if(linked){ linked[delAllocField]=null; pSave(); renderPayables(); }
   save(); renderMonthView(key);
 }
 function addBill(key,pi) {
@@ -2922,7 +2923,7 @@ function addPayable() {
   pState.entries.unshift({
     id:pUid(),name,fullAmount:full,split,payTo,date,
     createdAt:Date.now(),createdBy:currentUser,
-    ellyDone:false,ellyDoneAt:null,ericDone:false,ericDoneAt:null,allocatedTo:null
+    ellyDone:false,ellyDoneAt:null,ericDone:false,ericDoneAt:null,allocatedTo:null,ericAllocatedTo:null
   });
   pSave();updatePayablesBadge();renderPayables();
   document.getElementById('p-add-card').style.display='none';
@@ -2945,10 +2946,13 @@ function togglePayableDone(id, forWhom) {
 function deletePayableEntry(id) {
   if(!confirm('Delete this payable?'))return;
   const e=(pState.entries||[]).find(x=>x.id===id);
-  if(e?.allocatedTo?.billId){
-    const period=getPeriod(e.allocatedTo.key,e.allocatedTo.pi);
-    if(period){period.bills=period.bills.filter(b=>b.id!==e.allocatedTo.billId);save();}
-  }
+  // Clean up both users' allocation bills from their respective budgets
+  ['allocatedTo','ericAllocatedTo'].forEach(f => {
+    if(e?.[f]?.billId){
+      const period=getPeriod(e[f].key,e[f].pi);
+      if(period){period.bills=period.bills.filter(b=>b.id!==e[f].billId);save();}
+    }
+  });
   pState.entries=pState.entries.filter(x=>x.id!==id);
   pSave(); updatePayablesBadge(); renderPayables();
 }
@@ -3000,22 +3004,22 @@ function savePayableEdit() {
 function updatePayable(id, field, val) {
   if (!isAdmin()) return;
   const e = (pState.entries||[]).find(x => x.id === id); if (!e) return;
+  const upAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
   if (field === 'name') {
     const name = val.trim(); if (!name) return;
     e.name = name;
-    if (e.allocatedTo?.billId) {
-      const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
-      const bill = period?.bills?.find(b => b.id === e.allocatedTo.billId);
+    if (e[upAllocField]?.billId) {
+      const period = getPeriod(e[upAllocField].key, e[upAllocField].pi);
+      const bill = period?.bills?.find(b => b.id === e[upAllocField].billId);
       if (bill) { bill.name = name; save(); }
     }
   } else if (field === 'share') {
     const share = parseFloat(val); if (!share || share <= 0) return;
-    // Back-calculate full amount based on current split
     e.fullAmount = e.split === 'shared' ? share * 2 : share;
-    if (e.allocatedTo?.billId) {
-      const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
-      const bill = period?.bills?.find(b => b.id === e.allocatedTo.billId);
-      if (bill) { bill.amount = e.fullAmount; save(); }
+    if (e[upAllocField]?.billId) {
+      const period = getPeriod(e[upAllocField].key, e[upAllocField].pi);
+      const bill = period?.bills?.find(b => b.id === e[upAllocField].billId);
+      if (bill) { bill.amount = share; save(); }
     }
   } else if (field === 'split') {
     if (!['shared','mine','eric'].includes(val)) return;
@@ -3087,15 +3091,17 @@ function allocSelectPeriod(pi,el) {
 function confirmAllocate() {
   const e=(pState.entries||[]).find(x=>x.id===_allocPayableId);if(!e)return;
   const period=getPeriod(_allocDestKey,_allocDestPi);if(!period)return;
-  if(e.allocatedTo?.billId){
-    const old=getPeriod(e.allocatedTo.key,e.allocatedTo.pi);
-    if(old)old.bills=old.bills.filter(b=>b.id!==e.allocatedTo.billId);
+  const cAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
+  // Remove previously linked bill for this user (re-allocation)
+  if(e[cAllocField]?.billId){
+    const old=getPeriod(e[cAllocField].key,e[cAllocField].pi);
+    if(old)old.bills=old.bills.filter(b=>b.id!==e[cAllocField].billId);
   }
   const billId=newId();
   const allocShare = isEric() ? pEricShare(e) : pMyShare(e);
   const allocDone  = isEric() ? (e.ericDone||false) : (e.ellyDone||false);
   period.bills.push({id:billId,name:e.name,amount:allocShare,payTo:e.payTo,recurring:false,done:allocDone});
-  e.allocatedTo={key:_allocDestKey,pi:_allocDestPi,billId,allocatedBy:currentUser};
+  e[cAllocField]={key:_allocDestKey,pi:_allocDestPi,billId,allocatedBy:currentUser};
   const[dy,dm]=_allocDestKey.split('-').map(Number);
   save();pSave();closeModal('modal-allocate');renderPayables();
   showToast(`✓ Allocated to ${MONTHS[dm-1]} ${dy} · P${_allocDestPi+1}`);
@@ -3204,13 +3210,13 @@ let _pMultiAllocQueue = [];
 function pCtxUnallocate() {
   pCloseCtx();
   if (!pSelectedRows.length) return;
+  const uAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
   pSelectedRows.forEach(r => {
     const e = (pState.entries||[]).find(x => x.id === r.id);
-    if (!e || !e.allocatedTo) return;
-    // Remove the linked bill from budget
-    const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
-    if (period) { period.bills = period.bills.filter(b => b.id !== e.allocatedTo.billId); save(); }
-    e.allocatedTo = null;
+    if (!e || !e[uAllocField]) return;
+    const period = getPeriod(e[uAllocField].key, e[uAllocField].pi);
+    if (period) { period.bills = period.bills.filter(b => b.id !== e[uAllocField].billId); save(); }
+    e[uAllocField] = null;
   });
   pSave(); pClearSelection(); renderPayables();
   showToast(`✓ Allocation removed`);
@@ -3220,11 +3226,12 @@ function pCtxDelete() {
   pCloseCtx();
   if (!pSelectedRows.length) return;
   if (!confirm(`Delete ${pSelectedRows.length} payable${pSelectedRows.length>1?'s':''}?`)) return;
+  const dAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
   pSelectedRows.forEach(r => {
     const e = (pState.entries||[]).find(x => x.id === r.id);
-    if (e?.allocatedTo?.billId) {
-      const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
-      if (period) { period.bills = period.bills.filter(b => b.id !== e.allocatedTo.billId); save(); }
+    if (e?.[dAllocField]?.billId) {
+      const period = getPeriod(e[dAllocField].key, e[dAllocField].pi);
+      if (period) { period.bills = period.bills.filter(b => b.id !== e[dAllocField].billId); save(); }
     }
   });
   const ids = new Set(pSelectedRows.map(r => r.id));
@@ -3419,11 +3426,14 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
          <option value="eric"   ${e.split==='eric'?'selected':''}>${ericSoloLabel}</option>
        </select>`
     : `<span class="p-split-badge ${splitClass}">${e.split==='shared'?'Shared':e.split==='eric'?ericSoloLabel:'Solo'}</span>`;
+  // Each user sees their own allocation field; Elly's column → allocatedTo, Eric's → ericAllocatedTo
+  const rowAllocField = isElly ? 'allocatedTo' : 'ericAllocatedTo';
+  const rowAlloc = e[rowAllocField];
   let allocBadge = '';
   if (!compact) {
-    if (e.allocatedTo) {
-      const [y,m] = e.allocatedTo.key.split('-').map(Number);
-      allocBadge = `<span class="p-alloc-badge linked" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Change allocation">${MONTHS[m-1].slice(0,3)} P${e.allocatedTo.pi+1}</span>`;
+    if (rowAlloc) {
+      const [y,m] = rowAlloc.key.split('-').map(Number);
+      allocBadge = `<span class="p-alloc-badge linked" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Change allocation">${MONTHS[m-1].slice(0,3)} P${rowAlloc.pi+1}</span>`;
     } else {
       allocBadge = `<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">＋ Allocate</span>`;
     }
