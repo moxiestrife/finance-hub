@@ -1171,8 +1171,8 @@ body {
                 </select>
                 <div class="p-split-filter" id="p-split-filter">
                   <button class="p-sf-btn active" onclick="pSetSplitFilter('all',this)">All</button>
-                  <button class="p-sf-btn" onclick="pSetSplitFilter('shared',this)">Shared</button>
-                  <button class="p-sf-btn" onclick="pSetSplitFilter('mine',this)">Mine</button>
+                  <button class="p-sf-btn" id="p-sf-shared" onclick="pSetSplitFilter('shared',this)">Shared</button>
+                  <button class="p-sf-btn" id="p-sf-mine" onclick="pSetSplitFilter('mine',this)">Mine</button>
                 </div>
                 <button class="p-btn p-btn-primary" id="p-add-btn" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">＋ Add</button>
               </div>
@@ -1201,8 +1201,7 @@ body {
                 </select>
                 <div class="p-split-filter" id="p-eric-split-filter">
                   <button class="p-sf-btn active" onclick="pSetEricSplitFilter('all',this)">All</button>
-                  <button class="p-sf-btn" onclick="pSetEricSplitFilter('shared',this)">Shared</button>
-                  <button class="p-sf-btn" onclick="pSetEricSplitFilter('eric',this)">Eric's</button>
+                  <button class="p-sf-btn" onclick="pSetEricSplitFilter('eric',this)">His</button>
                 </div>
               </div>
             </div>
@@ -1548,10 +1547,16 @@ function applyRoleUI() {
   // Admin tab visible only to Elly
   document.getElementById('tab-btn-admin').style.display = isOwner() ? '' : 'none';
 
-  // View switcher (Elly only — Eric sees his own payables fullscreen, no need to switch)
+  // View switcher (Elly only — Eric sees only his own payables)
   if (isEric()) {
     const switcher = document.getElementById('p-view-switcher');
     if (switcher) switcher.style.display = 'none';
+    // "Shared" filter button irrelevant for Eric (he has no shared-split items)
+    const sfShared = document.getElementById('p-sf-shared');
+    if (sfShared) sfShared.style.display = 'none';
+    // "Mine" label → already means his own, but rename for clarity
+    const sfMine = document.getElementById('p-sf-mine');
+    if (sfMine) sfMine.textContent = 'Mine';
   }
 }
 
@@ -1559,9 +1564,15 @@ function applyRoleUI() {
 //  FIREBASE SYNC
 // ═══════════════════════════════════════════════════════════════
 
-const DB_BUDGET_PATH   = 'finance-hub/budget';
-const DB_PAYABLES_PATH = 'finance-hub/payables';
-const DB_SETTINGS_PATH = 'finance-hub/admin-settings';
+const DB_BUDGET_PATH       = 'finance-hub/budget';
+const DB_ERIC_BUDGET_PATH  = 'finance-hub/eric-budget'; // Eric's private budget ledger
+const DB_PAYABLES_PATH     = 'finance-hub/payables';
+const DB_SETTINGS_PATH     = 'finance-hub/admin-settings';
+
+// Returns the Firebase path and localStorage key for the active user's budget
+function activeBudgetPath()     { return isEric() ? DB_ERIC_BUDGET_PATH : DB_BUDGET_PATH; }
+function activeBudgetLocalKey() { return isEric() ? 'ericBudgetV1' : 'budgetPlannerV2'; }
+function activeBudgetBackupPrefix() { return isEric() ? 'fhEricBackup_' : 'fhBackup_'; }
 
 let fbReady = false;
 let firebaseDataLoaded = false; // guard: never push to Firebase until we've received data FROM it first
@@ -1588,7 +1599,7 @@ function dbPath(path) { return window._dbRef(window._db, path); }
 function pushBudgetToFirebase() {
   if (!fbReady) return;
   setSyncStatus('saving');
-  window._dbSet(dbPath(DB_BUDGET_PATH), state).then(() => setSyncStatus('live')).catch(() => setSyncStatus('offline'));
+  window._dbSet(dbPath(activeBudgetPath()), state).then(() => setSyncStatus('live')).catch(() => setSyncStatus('offline'));
 }
 function pushPayablesToFirebase() {
   if (!fbReady) return;
@@ -1603,20 +1614,19 @@ function pushAdminSettingsToFirebase() {
 function listenBudget() {
   if (!fbReady) return;
   if (budgetUnsub) budgetUnsub();
-  budgetUnsub = window._dbOnValue(dbPath(DB_BUDGET_PATH), snap => {
+  budgetUnsub = window._dbOnValue(dbPath(activeBudgetPath()), snap => {
     const val = snap.val();
     if (val) {
       state = val;
       if (!state.accounts) state.accounts = [...DEFAULT_ACCOUNTS];
       const si = document.getElementById('salaryInput');
       if (si) si.value = state.settings?.salary || 4524.58;
-      firebaseDataLoaded = true; // Firebase has real data — safe to push changes now
-      // Rolling backup: keep last 3 snapshots in localStorage keyed by timestamp
+      firebaseDataLoaded = true;
       try {
-        const backupKey = 'fhBackup_' + new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
+        const pfx = activeBudgetBackupPrefix();
+        const backupKey = pfx + new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
         localStorage.setItem(backupKey, JSON.stringify(val));
-        // Prune old backups — keep only the 3 most recent
-        const allKeys = Object.keys(localStorage).filter(k=>k.startsWith('fhBackup_')).sort();
+        const allKeys = Object.keys(localStorage).filter(k=>k.startsWith(pfx)).sort();
         while (allKeys.length > 3) localStorage.removeItem(allKeys.shift());
       } catch(e) {}
       if (curTab === 'monthly')  render();
@@ -1625,7 +1635,6 @@ function listenBudget() {
       if (curTab === 'admin')    renderAdmin();
       _budgetLoaded = true; _onBothLoaded();
     } else {
-      // No data in Firebase yet — safe to push our local state up
       firebaseDataLoaded = true;
       pushBudgetToFirebase();
     }
@@ -1858,12 +1867,12 @@ let selectingGroup2 = false;
 function newId() { return 'b' + (++idSeq); }
 
 function save() {
-  try { localStorage.setItem('budgetPlannerV2', JSON.stringify(state)); } catch(e) {}
+  try { localStorage.setItem(activeBudgetLocalKey(), JSON.stringify(state)); } catch(e) {}
   if (firebaseDataLoaded) pushBudgetToFirebase();
 }
 function load() {
   try {
-    const raw = localStorage.getItem('budgetPlannerV2');
+    const raw = localStorage.getItem(activeBudgetLocalKey());
     if (raw) { state = JSON.parse(raw); return true; }
   } catch(e) {}
   return false;
@@ -1948,12 +1957,14 @@ function createMonth(y, m, withSeed=false) {
   const key = mKey(y, m);
   if (state.months[key]) return;
   const [d1, d2] = defaultDates(y, m);
-  state.months[key] = {
-    periods: [
-      { date: d1, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P1) : [] },
-      { date: d2, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P2) : [] }
-    ]
-  };
+  // Eric has a monthly pay cycle — 1 period per month; Elly has fortnightly — 2 periods
+  const periods = isEric()
+    ? [{ date: d1, savingsGoals: defaultSavingsGoals(), bills: [] }]
+    : [
+        { date: d1, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P1) : [] },
+        { date: d2, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P2) : [] }
+      ];
+  state.months[key] = { periods };
   save();
 }
 
@@ -2867,7 +2878,8 @@ function pEricShare(e) {
 function pIsEllyDone(e) { return e.split==='eric' ? true : !!e.ellyDone; }
 function pIsEricDone(e) { return e.split==='mine' ? true : !!e.ericDone; }
 function pEllyEntries() { return (pState.entries||[]).filter(e=>e.split!=='eric'); }
-function pEricEntries() { return (pState.entries||[]).filter(e=>e.split==='shared'||e.split==='eric'); }
+// Eric sees only items assigned to him; shared items stay in Elly's ledger for now
+function pEricEntries() { return (pState.entries||[]).filter(e=>e.split==='eric'); }
 
 // ── Add form ──
 function pShowAddForm() {
