@@ -1553,11 +1553,27 @@ function listenPayables() {
     if (val) {
       pState = { entries: [], ...val };
       if (!Array.isArray(pState.entries)) pState.entries = Object.values(pState.entries||{});
+      // Rolling backup: keep last 3 payables snapshots in localStorage keyed by timestamp
+      try {
+        const backupKey = 'fhPBackup_' + new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
+        localStorage.setItem(backupKey, JSON.stringify(val));
+        const allKeys = Object.keys(localStorage).filter(k=>k.startsWith('fhPBackup_')).sort();
+        while (allKeys.length > 3) localStorage.removeItem(allKeys.shift());
+      } catch(e) {}
+      // Mirror Firebase data into localStorage so a later seed never runs on stale empty state
+      try { localStorage.setItem('payablesV2', JSON.stringify(pState)); } catch(e) {}
+      _payablesLoaded = true;
+      // pRepairAllocations may pSave() if it changes anything, so it must run after _payablesLoaded=true
       pRepairAllocations();
-      _payablesLoaded = true; _onBothLoaded();
+      _onBothLoaded();
       if (curTab === 'payables') renderPayables();
       updatePayablesBadge();
+    } else {
+      // No payables data in Firebase yet — safe to push our local state up
+      _payablesLoaded = true; _onBothLoaded();
+      pushPayablesToFirebase();
     }
+    setSyncStatus('live');
   });
 }
 
@@ -2723,7 +2739,10 @@ let _allocPayableId = null, _allocDestKey = null, _allocDestPi = null;
 
 function pSave() {
   try { localStorage.setItem('payablesV2', JSON.stringify(pState)); } catch(e) {}
-  pushPayablesToFirebase();
+  // Only push to Firebase once the payables listener has loaded real data.
+  // Otherwise, a fresh device with empty localStorage could clobber Firebase
+  // with seed data before the listener fires.
+  if (_payablesLoaded) pushPayablesToFirebase();
 }
 function pLoad() {
   const raw = localStorage.getItem('payablesV2');
@@ -3218,6 +3237,7 @@ function pRenderRow(e,isElly,myShare,isDone) {
 
 // ── Seed Elly's data (runs once if entries are empty) ──
 function pMaybeSeedElly() {
+  if (!isAdmin()) return; // Only Elly should ever seed defaults
   if ((pState.entries||[]).length > 0) return; // Already seeded
   const CB = 'CB Bills', NAB = 'NAB Offset';
   const t = Date.now();
