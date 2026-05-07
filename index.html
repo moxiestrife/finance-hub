@@ -905,6 +905,24 @@ body {
   .p-col-mine .p-list-col-header,
   .p-col-mine .p-row { grid-template-columns: 24px 1fr 90px 120px 100px 28px; }
 }
+
+/* ── Account grouping sections ───────────────────── */
+.p-acct-section { border-bottom: 1px solid #f0f4f8; }
+.p-acct-section:last-child { border-bottom: none; }
+.p-acct-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px; cursor: pointer;
+  background: #f4f7fb; font-size: 0.8rem; font-weight: 700;
+  color: #1e3a5f; user-select: none; border-top: 1px solid #edf0f5;
+}
+.p-acct-section:first-child .p-acct-header { border-top: none; }
+.p-acct-header:hover { background: #eef2f8; }
+.p-acct-name { flex: 1; }
+.p-acct-stats { font-size: 0.72rem; font-weight: 600; color: #6b7280; }
+.p-acct-header .p-comp-arrow { font-size: 0.9rem; transition: transform 0.2s; display: inline-block; }
+.p-acct-header .p-comp-arrow.open { transform: rotate(90deg); }
+.p-col-eric .p-acct-header { background: #f0f8ff; color: #0369a1; }
+.p-col-eric .p-acct-header:hover { background: #e0f0ff; }
 </style>
 </head>
 <body>
@@ -3188,6 +3206,44 @@ function updatePayablesBadge() {
 }
 
 // ── Main render ──
+function pToggleAcctSection(header) {
+  const body  = header.nextElementSibling;
+  const arrow = header.querySelector('.p-comp-arrow');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : '';
+  arrow.classList.toggle('open', !isOpen);
+}
+
+// Renders active payables grouped by Pay To account.
+// compact=true uses the 4-item Eric column row format.
+function pRenderAccountGroups(entries, isElly, shareFn, compact) {
+  if (!entries.length) return '<div class="p-empty">All clear — nothing pending! 🎉</div>';
+  const accounts = (state.accounts || DEFAULT_ACCOUNTS).map(a => a.name || a);
+  const groups = {};
+  accounts.forEach(a => { groups[a] = []; });
+  groups['_other'] = [];
+  entries.forEach(e => {
+    const key = accounts.includes(e.payTo) ? e.payTo : '_other';
+    groups[key].push(e);
+  });
+  return [...accounts, '_other']
+    .filter(a => groups[a].length > 0)
+    .map(a => {
+      const items = groups[a];
+      const total = items.reduce((s, e) => s + shareFn(e), 0);
+      const label = a === '_other' ? 'Other' : a;
+      const rows  = items.map(e => pRenderRow(e, isElly, shareFn(e), false, compact)).join('');
+      return `<div class="p-acct-section">
+        <div class="p-acct-header" onclick="pToggleAcctSection(this)">
+          <span class="p-comp-arrow open">›</span>
+          <span class="p-acct-name">${esc(label)}</span>
+          <span class="p-acct-stats">${items.length} item${items.length!==1?'s':''} · ${pFmt(total)}</span>
+        </div>
+        <div class="p-acct-body">${rows}</div>
+      </div>`;
+    }).join('');
+}
+
 function renderPayables() {
   const isElly = !isEric();
   const safeEl = id => document.getElementById(id);
@@ -3207,9 +3263,7 @@ function renderPayables() {
   if (safeEl('p-completed-label')) safeEl('p-completed-label').textContent = `Completed (${done.length})`;
 
   const activeList = safeEl('p-active-list');
-  if (activeList) activeList.innerHTML = active.length
-    ? active.map(e => pRenderRow(e, isElly, shareFn(e), false)).join('')
-    : '<div class="p-empty">All clear — nothing pending! 🎉</div>';
+  if (activeList) activeList.innerHTML = pRenderAccountGroups(active, isElly, shareFn, false);
 
   const compList = safeEl('p-completed-list');
   if (compList) compList.innerHTML = done.length
@@ -3234,9 +3288,10 @@ function renderPayables() {
     if (safeEl('p-eric-completed-label')) safeEl('p-eric-completed-label').textContent = `Completed (${ericDone.length})`;
 
     const ericActiveList = safeEl('p-eric-active-list');
-    if (ericActiveList) ericActiveList.innerHTML = ericActive.length
-      ? ericActive.map(e => pRenderRow(e, false, pEricShare(e), false, true)).join('')
-      : '<div class="p-empty">Eric is all clear! 🎉</div>';
+    if (ericActiveList) ericActiveList.innerHTML =
+      ericActive.length
+        ? pRenderAccountGroups(ericActive, false, e => pEricShare(e), true)
+        : '<div class="p-empty">Eric is all clear! 🎉</div>';
 
     const ericCompList = safeEl('p-eric-completed-list');
     if (ericCompList) ericCompList.innerHTML = ericDone.length
