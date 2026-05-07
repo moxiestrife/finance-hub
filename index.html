@@ -906,6 +906,14 @@ body {
 .p-vs-btn:hover { color: #374151; }
 .p-vs-btn.active { background: white; color: #1e3a5f; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
 
+/* ── Account filter dropdown ─────────────────────── */
+.p-account-select {
+  padding: 5px 8px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+  font-size: 0.75rem; color: #374151; background: #f8fafc;
+  outline: none; font-family: inherit; cursor: pointer; max-width: 140px;
+}
+.p-account-select:focus { border-color: #1e3a5f; background: white; }
+
 /* ── Account grouping sections ───────────────────── */
 .p-acct-section { border-bottom: 1px solid #f0f4f8; }
 .p-acct-section:last-child { border-bottom: none; }
@@ -1157,7 +1165,10 @@ body {
           <div class="p-list-card">
             <div class="p-list-header">
               <h3 id="p-list-title">My Payables</h3>
-              <div style="display:flex;align-items:center;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <select class="p-account-select" id="p-account-filter" onchange="pSetAccountFilter(this.value)">
+                  <option value="all">All accounts</option>
+                </select>
                 <div class="p-split-filter" id="p-split-filter">
                   <button class="p-sf-btn active" onclick="pSetSplitFilter('all',this)">All</button>
                   <button class="p-sf-btn" onclick="pSetSplitFilter('shared',this)">Shared</button>
@@ -1184,6 +1195,16 @@ body {
           <div class="p-list-card">
             <div class="p-list-header p-list-header-eric">
               <h3>Eric's Payables</h3>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <select class="p-account-select" id="p-eric-account-filter" onchange="pSetEricAccountFilter(this.value)">
+                  <option value="all">All accounts</option>
+                </select>
+                <div class="p-split-filter" id="p-eric-split-filter">
+                  <button class="p-sf-btn active" onclick="pSetEricSplitFilter('all',this)">All</button>
+                  <button class="p-sf-btn" onclick="pSetEricSplitFilter('shared',this)">Shared</button>
+                  <button class="p-sf-btn" onclick="pSetEricSplitFilter('eric',this)">Eric's</button>
+                </div>
+              </div>
             </div>
             <div class="p-list-col-header">
               <span></span><span>Expense</span><span style="text-align:right">His share</span><span>Pay To</span>
@@ -1519,23 +1540,18 @@ function showApp() {
   init();
 }
 
-function isAdmin()  { return currentUser === 'elly'; }
+function isOwner()  { return currentUser === 'elly'; } // admin-tab + account settings only
+function isAdmin()  { return !!currentUser; }          // any logged-in user can edit
 function isEric()   { return currentUser === 'eric'; }
 
 function applyRoleUI() {
   // Admin tab visible only to Elly
-  document.getElementById('tab-btn-admin').style.display = isAdmin() ? '' : 'none';
+  document.getElementById('tab-btn-admin').style.display = isOwner() ? '' : 'none';
 
-  // Eric: hide add form, filter buttons, add button, and view switcher
+  // View switcher (Elly only — Eric sees his own payables fullscreen, no need to switch)
   if (isEric()) {
-    const addCard     = document.getElementById('p-add-card');
-    const splitFilter = document.getElementById('p-split-filter');
-    const addBtn      = document.getElementById('p-add-btn');
-    const switcher    = document.getElementById('p-view-switcher');
-    if (addCard)     addCard.style.display     = 'none';
-    if (splitFilter) splitFilter.style.display = 'none';
-    if (addBtn)      addBtn.style.display      = 'none';
-    if (switcher)    switcher.style.display    = 'none';
+    const switcher = document.getElementById('p-view-switcher');
+    if (switcher) switcher.style.display = 'none';
   }
 }
 
@@ -1719,18 +1735,7 @@ function saveAdminSettings() {
 function applyAdminSettings() {
   const toggle = document.getElementById('toggle-eric-budget');
   if (toggle) toggle.checked = !!adminSettings.ericCanViewBudget;
-
-  if (isEric()) {
-    const budgetTabs = ['monthly','summary','insights'];
-    budgetTabs.forEach(t => {
-      const btn = document.getElementById('tab-btn-' + t);
-      if (!btn) return;
-      btn.style.display = adminSettings.ericCanViewBudget ? '' : 'none';
-    });
-    if (!adminSettings.ericCanViewBudget && ['monthly','summary','insights'].includes(curTab)) {
-      switchTab('payables');
-    }
-  }
+  // Eric now always has access to all budget tabs — no tab hiding needed
 }
 
 function renderAdmin() {
@@ -1872,7 +1877,7 @@ function exportBudget() {
   showToast('✓ Budget exported!');
 }
 function importBudget(evt) {
-  if (!isAdmin()) return;
+  if (!isOwner()) return;
   const file = evt.target.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -2033,7 +2038,6 @@ function switchTab(tab) {
 }
 
 function changeMonth(dir) {
-  if (!isAdmin() && !adminSettings.ericCanViewBudget) return;
   curMonth += dir;
   if (curMonth < 0)  { curMonth = 11; curYear--; }
   if (curMonth > 11) { curMonth = 0;  curYear++; }
@@ -2312,10 +2316,6 @@ function render() {
   const monthData = state.months[key];
   const grid = document.getElementById('periodsGrid');
 
-  if (isEric() && !adminSettings.ericCanViewBudget) {
-    grid.innerHTML = `<div class="locked-banner"><div class="lock-icon">🔒</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.<br>You can still see your Payables tab.</p></div>`;
-    document.getElementById('progressWrap').style.display='none'; return;
-  }
 
   if (!monthData) {
     grid.innerHTML = `<div class="empty-msg"><h3>No data for ${MONTHS[curMonth]} ${curYear}</h3><p>You can start by copying last month's pay period data.</p>${canEdit?`<button class="create-btn" onclick="createMonthFromLastRecurring(${curYear},${curMonth});render()">Create using last month's recurring bills</button>`:''}</div>`;
@@ -2802,8 +2802,20 @@ const ELLY_EMAIL = 'ellyhizon1@gmail.com';
 
 // ── State ──
 let pState = { entries: [] };
-let pSplitFilter = 'all'; // 'all' | 'shared' | 'mine'
-let pActiveView  = 'mine'; // 'mine' | 'eric' (Elly only)
+let pSplitFilter        = 'all'; // for mine column
+let pAccountFilter      = 'all'; // for mine column
+let pEricSplitFilter    = 'all'; // for eric column (Elly's view only)
+let pEricAccountFilter  = 'all'; // for eric column (Elly's view only)
+let pActiveView         = 'mine'; // 'mine' | 'eric' (Elly only)
+
+function pSetAccountFilter(val) { pAccountFilter = val; renderPayables(); }
+function pSetEricAccountFilter(val) { pEricAccountFilter = val; renderPayables(); }
+function pSetEricSplitFilter(val, btn) {
+  pEricSplitFilter = val;
+  document.querySelectorAll('#p-eric-split-filter .p-sf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPayables();
+}
 
 function pSetView(view) {
   pActiveView = view;
@@ -2860,6 +2872,18 @@ function pShowAddForm() {
   const sel=document.getElementById('pf-payto');
   const accounts=state.accounts||DEFAULT_ACCOUNTS;
   sel.innerHTML=accounts.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
+  // Populate split options based on who is logged in
+  const splitSel = document.getElementById('pf-split');
+  if (isEric()) {
+    splitSel.innerHTML =
+      `<option value="shared">Shared (50/50)</option>` +
+      `<option value="eric">Mine only</option>`;
+  } else {
+    splitSel.innerHTML =
+      `<option value="shared">Shared (50/50)</option>` +
+      `<option value="mine">Mine only</option>` +
+      `<option value="eric">Eric only</option>`;
+  }
   document.getElementById('pf-date').value=pTodayLabel();
   document.getElementById('pf-name').value='';
   document.getElementById('pf-amount').value='';
@@ -2871,9 +2895,9 @@ function pUpdateSplitHint() {
   const split=document.getElementById('pf-split')?.value;
   const hint=document.getElementById('pf-split-hint');
   if(!hint)return;
-  if(split==='shared'&&amt>0) hint.textContent=`You owe $${(amt/2).toFixed(2)} · Eric owes $${(amt/2).toFixed(2)}`;
+  if(split==='shared'&&amt>0) hint.textContent=`You owe $${(amt/2).toFixed(2)} · ${isEric()?'Elly':'Eric'} owes $${(amt/2).toFixed(2)}`;
   else if(split==='mine'&&amt>0) hint.textContent=`Full $${amt.toFixed(2)} is yours`;
-  else if(split==='eric'&&amt>0) hint.textContent=`Full $${amt.toFixed(2)} goes to Eric`;
+  else if(split==='eric'&&amt>0) hint.textContent=isEric()?`Full $${amt.toFixed(2)} is your expense`:`Full $${amt.toFixed(2)} goes to Eric`;
   else hint.textContent='';
 }
 function addPayable() {
@@ -3199,7 +3223,7 @@ function pCtxDelete() {
 // ── Split filter ──
 function pSetSplitFilter(val, btn) {
   pSplitFilter = val;
-  document.querySelectorAll('.p-sf-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#p-split-filter .p-sf-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderPayables();
 }
@@ -3269,9 +3293,23 @@ function renderPayables() {
   const isElly = !isEric();
   const safeEl = id => document.getElementById(id);
 
+  // ── Populate account dropdowns ──
+  const acctOptions = (state.accounts || DEFAULT_ACCOUNTS).map(a => a.name || a);
+  ['p-account-filter', 'p-eric-account-filter'].forEach((selId, i) => {
+    const sel = safeEl(selId); if (!sel) return;
+    const curr = i === 0 ? pAccountFilter : pEricAccountFilter;
+    sel.innerHTML = `<option value="all">All accounts</option>` +
+      acctOptions.map(a => `<option value="${esc(a)}"${a===curr?' selected':''}>${esc(a)}</option>`).join('');
+  });
+
   // ── Mine column ──
   let entries = isElly ? pEllyEntries() : pEricEntries();
-  if (isElly && pSplitFilter !== 'all') entries = entries.filter(e => e.split === pSplitFilter);
+  // Split filter: for Eric 'mine' maps to his own items (split='eric')
+  if (pSplitFilter !== 'all') {
+    const sv = (pSplitFilter === 'mine' && !isElly) ? 'eric' : pSplitFilter;
+    entries = entries.filter(e => e.split === sv);
+  }
+  if (pAccountFilter !== 'all') entries = entries.filter(e => e.payTo === pAccountFilter);
   const isDoneFn = e => isElly ? pIsEllyDone(e) : pIsEricDone(e);
   const shareFn  = e => isElly ? pMyShare(e)    : pEricShare(e);
   const active = entries.filter(e => !isDoneFn(e));
@@ -3296,7 +3334,12 @@ function renderPayables() {
   if (ericRight) ericRight.style.display = isElly ? '' : 'none';
 
   if (isElly) {
-    const ericAll    = pEricEntries();
+    let ericAll = pEricEntries();
+    if (pEricSplitFilter !== 'all') {
+      const sv = pEricSplitFilter === 'mine' ? 'eric' : pEricSplitFilter;
+      ericAll = ericAll.filter(e => e.split === sv);
+    }
+    if (pEricAccountFilter !== 'all') ericAll = ericAll.filter(e => e.payTo === pEricAccountFilter);
     const ericActive = ericAll.filter(e => !pIsEricDone(e));
     const ericDone   = ericAll.filter(e =>  pIsEricDone(e));
     const ericTotal  = ericActive.reduce((s, e) => s + pEricShare(e), 0);
@@ -3396,7 +3439,7 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
 
 // ── Seed Elly's data (runs once if entries are empty) ──
 function pMaybeSeedElly() {
-  if (!isAdmin()) return; // Only Elly should ever seed defaults
+  if (!isOwner()) return; // Only Elly should ever seed defaults
   if ((pState.entries||[]).length > 0) return; // Already seeded
   const CB = 'CB Bills', NAB = 'NAB Offset';
   const t = Date.now();
@@ -3954,13 +3997,8 @@ function init() {
   pMaybeSeedElly();
   updatePayablesBadge();
 
-  // Eric defaults to payables tab; budget tabs may be hidden
-  if (isEric()) {
-    applyAdminSettings();
-    switchTab('payables');
-  } else {
-    switchTab('monthly');
-  }
+  applyAdminSettings();
+  switchTab('monthly');
 
   // Start Firebase listeners (if Firebase is ready, otherwise they fire after firebaseReady event)
   if (fbReady) {
