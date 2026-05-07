@@ -886,25 +886,25 @@ body {
   .p-col-mine .p-list-col-header span:nth-child(4), .p-col-mine .p-row .p-row-meta { display: none; }
 }
 
-/* ── Payables: two-column layout ─────────────────── */
-.p-cols { display: flex; gap: 16px; align-items: flex-start; }
-.p-col  { flex: 1 1 0; min-width: 0; }
+/* ── Payables: single-column layout with view switcher ── */
+.p-cols { display: block; }
+.p-col  { width: 100%; }
 .p-list-header-eric { background: #f0f9ff; }
 .p-list-header-eric h3 { color: #0369a1; }
-/* Eric's column: compact 4-item grid (no allocation, no actions) */
-.p-col-eric .p-list-col-header,
-.p-col-eric .p-row { grid-template-columns: 22px 1fr 80px 90px; }
-/* Elly's column: slightly tighter columns to fit side-by-side */
-@media (min-width: 769px) {
-  .p-col-mine .p-list-col-header,
-  .p-col-mine .p-row { grid-template-columns: 22px 1fr 72px 90px 80px 22px; }
+
+/* ── View switcher (Elly only) ─────────────────────── */
+.p-view-switcher {
+  display: flex; margin-bottom: 14px;
+  background: #f1f5f9; border-radius: 10px; padding: 3px;
 }
-/* Stack columns on tablet/mobile */
-@media (max-width: 768px) {
-  .p-cols { flex-direction: column; }
-  .p-col-mine .p-list-col-header,
-  .p-col-mine .p-row { grid-template-columns: 24px 1fr 90px 120px 100px 28px; }
+.p-vs-btn {
+  flex: 1; padding: 8px 16px; border: none; border-radius: 8px;
+  font-size: 0.875rem; font-weight: 600; cursor: pointer;
+  background: transparent; color: #6b7280; font-family: inherit;
+  transition: all 0.15s;
 }
+.p-vs-btn:hover { color: #374151; }
+.p-vs-btn.active { background: white; color: #1e3a5f; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
 
 /* ── Account grouping sections ───────────────────── */
 .p-acct-section { border-bottom: 1px solid #f0f4f8; }
@@ -1143,7 +1143,13 @@ body {
         </div>
       </div>
 
-      <!-- Side-by-side columns -->
+      <!-- View switcher (Elly only — Eric sees no switcher) -->
+      <div class="p-view-switcher" id="p-view-switcher">
+        <button class="p-vs-btn active" id="p-vs-mine" onclick="pSetView('mine')">💳 My Payables</button>
+        <button class="p-vs-btn" id="p-vs-eric" onclick="pSetView('eric')">👤 Eric's Payables</button>
+      </div>
+
+      <!-- Columns (one visible at a time via switcher) -->
       <div class="p-cols">
 
         <!-- Mine (Elly's full list, or Eric's own list) -->
@@ -1520,14 +1526,16 @@ function applyRoleUI() {
   // Admin tab visible only to Elly
   document.getElementById('tab-btn-admin').style.display = isAdmin() ? '' : 'none';
 
-  // Eric: hide add form, filter buttons, and add button
+  // Eric: hide add form, filter buttons, add button, and view switcher
   if (isEric()) {
     const addCard     = document.getElementById('p-add-card');
     const splitFilter = document.getElementById('p-split-filter');
     const addBtn      = document.getElementById('p-add-btn');
+    const switcher    = document.getElementById('p-view-switcher');
     if (addCard)     addCard.style.display     = 'none';
     if (splitFilter) splitFilter.style.display = 'none';
     if (addBtn)      addBtn.style.display      = 'none';
+    if (switcher)    switcher.style.display    = 'none';
   }
 }
 
@@ -2795,6 +2803,19 @@ const ELLY_EMAIL = 'ellyhizon1@gmail.com';
 // ── State ──
 let pState = { entries: [] };
 let pSplitFilter = 'all'; // 'all' | 'shared' | 'mine'
+let pActiveView  = 'mine'; // 'mine' | 'eric' (Elly only)
+
+function pSetView(view) {
+  pActiveView = view;
+  const mineCol = document.getElementById('p-col-mine');
+  const ericCol = document.getElementById('p-col-eric');
+  const mineBtn = document.getElementById('p-vs-mine');
+  const ericBtn = document.getElementById('p-vs-eric');
+  if (mineCol) mineCol.style.display = view === 'mine' ? '' : 'none';
+  if (ericCol) ericCol.style.display = view === 'eric' ? '' : 'none';
+  if (mineBtn) mineBtn.classList.toggle('active', view === 'mine');
+  if (ericBtn) ericBtn.classList.toggle('active', view === 'eric');
+}
 let pIdSeq = Date.now() + 1000000;
 const pUid = () => 'p' + (++pIdSeq);
 let pCompletedOpen = false;
@@ -3271,9 +3292,6 @@ function renderPayables() {
     : '<div class="p-empty">Nothing completed yet.</div>';
 
   // ── Eric's column (Elly only) ──
-  const ericCol = safeEl('p-col-eric');
-  if (ericCol) ericCol.style.display = isElly ? '' : 'none';
-
   const ericRight = safeEl('p-owing-right');
   if (ericRight) ericRight.style.display = isElly ? '' : 'none';
 
@@ -3290,13 +3308,20 @@ function renderPayables() {
     const ericActiveList = safeEl('p-eric-active-list');
     if (ericActiveList) ericActiveList.innerHTML =
       ericActive.length
-        ? pRenderAccountGroups(ericActive, false, e => pEricShare(e), true)
+        ? pRenderAccountGroups(ericActive, false, e => pEricShare(e), false)
         : '<div class="p-empty">Eric is all clear! 🎉</div>';
 
     const ericCompList = safeEl('p-eric-completed-list');
     if (ericCompList) ericCompList.innerHTML = ericDone.length
-      ? ericDone.map(e => pRenderRow(e, false, pEricShare(e), true, true)).join('')
+      ? ericDone.map(e => pRenderRow(e, false, pEricShare(e), true, false)).join('')
       : '<div class="p-empty">Nothing completed yet.</div>';
+
+    // Re-apply whichever view was active before the re-render
+    pSetView(pActiveView);
+  } else {
+    // Eric's own session: his column is p-col-mine; hide the eric column
+    const ericCol = safeEl('p-col-eric');
+    if (ericCol) ericCol.style.display = 'none';
   }
 
   // Re-apply selection highlights after re-render (mine column only)
