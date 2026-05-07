@@ -1201,6 +1201,7 @@ body {
                 </select>
                 <div class="p-split-filter" id="p-eric-split-filter">
                   <button class="p-sf-btn active" onclick="pSetEricSplitFilter('all',this)">All</button>
+                  <button class="p-sf-btn" onclick="pSetEricSplitFilter('shared',this)">Shared</button>
                   <button class="p-sf-btn" onclick="pSetEricSplitFilter('eric',this)">His</button>
                 </div>
               </div>
@@ -1547,16 +1548,10 @@ function applyRoleUI() {
   // Admin tab visible only to Elly
   document.getElementById('tab-btn-admin').style.display = isOwner() ? '' : 'none';
 
-  // View switcher (Elly only — Eric sees only his own payables)
+  // View switcher (Elly only — Eric sees his own payables fullscreen)
   if (isEric()) {
     const switcher = document.getElementById('p-view-switcher');
     if (switcher) switcher.style.display = 'none';
-    // "Shared" filter button irrelevant for Eric (he has no shared-split items)
-    const sfShared = document.getElementById('p-sf-shared');
-    if (sfShared) sfShared.style.display = 'none';
-    // "Mine" label → already means his own, but rename for clarity
-    const sfMine = document.getElementById('p-sf-mine');
-    if (sfMine) sfMine.textContent = 'Mine';
   }
 }
 
@@ -2878,8 +2873,8 @@ function pEricShare(e) {
 function pIsEllyDone(e) { return e.split==='eric' ? true : !!e.ellyDone; }
 function pIsEricDone(e) { return e.split==='mine' ? true : !!e.ericDone; }
 function pEllyEntries() { return (pState.entries||[]).filter(e=>e.split!=='eric'); }
-// Eric sees only items assigned to him; shared items stay in Elly's ledger for now
-function pEricEntries() { return (pState.entries||[]).filter(e=>e.split==='eric'); }
+// Eric sees shared items (both owe half) + his own personal items; NOT Elly's mine-only
+function pEricEntries() { return (pState.entries||[]).filter(e=>e.split==='shared'||e.split==='eric'); }
 
 // ── Add form ──
 function pShowAddForm() {
