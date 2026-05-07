@@ -1129,8 +1129,8 @@ body {
             <label class="p-flabel">Split</label>
             <select class="p-input" id="pf-split" onchange="pUpdateSplitHint()">
               <option value="shared">Shared (50/50)</option>
-              <option value="mine">Mine only</option>
-              <option value="eric">Eric only</option>
+              <option value="mine">Solo (mine)</option>
+              <option value="eric">Solo (Eric's)</option>
             </select>
           </div>
           <div class="p-form-col" style="grid-column:1/3">
@@ -1172,7 +1172,7 @@ body {
                 <div class="p-split-filter" id="p-split-filter">
                   <button class="p-sf-btn active" onclick="pSetSplitFilter('all',this)">All</button>
                   <button class="p-sf-btn" id="p-sf-shared" onclick="pSetSplitFilter('shared',this)">Shared</button>
-                  <button class="p-sf-btn" id="p-sf-mine" onclick="pSetSplitFilter('mine',this)">Mine</button>
+                  <button class="p-sf-btn" id="p-sf-mine" onclick="pSetSplitFilter('mine',this)">Solo</button>
                 </div>
                 <button class="p-btn p-btn-primary" id="p-add-btn" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">＋ Add</button>
               </div>
@@ -1409,8 +1409,8 @@ body {
           <label class="p-flabel">Split</label>
           <select class="p-input" id="pef-split" onchange="pUpdateEditSplitHint()">
             <option value="shared">Shared (50/50)</option>
-            <option value="mine">Mine only</option>
-            <option value="eric">Eric only</option>
+            <option value="mine">Solo (mine)</option>
+            <option value="eric">Solo (Eric's)</option>
           </select>
         </div>
         <div class="p-form-col" style="grid-column:1/3">
@@ -2888,12 +2888,12 @@ function pShowAddForm() {
   if (isEric()) {
     splitSel.innerHTML =
       `<option value="shared">Shared (50/50)</option>` +
-      `<option value="eric">Mine only</option>`;
+      `<option value="eric">Solo (mine)</option>`;
   } else {
     splitSel.innerHTML =
       `<option value="shared">Shared (50/50)</option>` +
-      `<option value="mine">Mine only</option>` +
-      `<option value="eric">Eric only</option>`;
+      `<option value="mine">Solo (mine)</option>` +
+      `<option value="eric">Solo (Eric's)</option>`;
   }
   document.getElementById('pf-date').value=pTodayLabel();
   document.getElementById('pf-name').value='';
@@ -2907,8 +2907,8 @@ function pUpdateSplitHint() {
   const hint=document.getElementById('pf-split-hint');
   if(!hint)return;
   if(split==='shared'&&amt>0) hint.textContent=`You owe $${(amt/2).toFixed(2)} · ${isEric()?'Elly':'Eric'} owes $${(amt/2).toFixed(2)}`;
-  else if(split==='mine'&&amt>0) hint.textContent=`Full $${amt.toFixed(2)} is yours`;
-  else if(split==='eric'&&amt>0) hint.textContent=isEric()?`Full $${amt.toFixed(2)} is your expense`:`Full $${amt.toFixed(2)} goes to Eric`;
+  else if(split==='mine'&&amt>0) hint.textContent=`Solo — full $${amt.toFixed(2)} is yours`;
+  else if(split==='eric'&&amt>0) hint.textContent=isEric()?`Solo — full $${amt.toFixed(2)} is yours`:`Solo — full $${amt.toFixed(2)} goes to Eric`;
   else hint.textContent='';
 }
 function addPayable() {
@@ -3410,14 +3410,15 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
   // compact = Elly viewing Eric's column; !compact non-owner = Eric's own session
   const canEditRow = !compact;
   // "Eric" label → "Mine" when Eric is viewing his own column; stays "Eric" in Elly's compact view
-  const ericLabel = isEric() ? 'Mine' : 'Eric';
+  // "Solo" for non-shared items; from Eric's own session his solo items say "Solo (mine)"
+  const ericSoloLabel = isEric() ? 'Solo (mine)' : 'Solo (Eric\'s)';
   const splitBadge = canEditRow
     ? `<select class="p-split-select ${splitClass}" onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','split',this.value)" title="Change split">
          <option value="shared" ${e.split==='shared'?'selected':''}>Shared</option>
-         <option value="mine"   ${e.split==='mine'?'selected':''}>Mine</option>
-         <option value="eric"   ${e.split==='eric'?'selected':''}>${ericLabel}</option>
+         <option value="mine"   ${e.split==='mine'?'selected':''}>Solo (mine)</option>
+         <option value="eric"   ${e.split==='eric'?'selected':''}>${ericSoloLabel}</option>
        </select>`
-    : `<span class="p-split-badge ${splitClass}">${e.split==='shared'?'Shared':e.split==='eric'?ericLabel:'Mine'}</span>`;
+    : `<span class="p-split-badge ${splitClass}">${e.split==='shared'?'Shared':e.split==='eric'?ericSoloLabel:'Solo'}</span>`;
   let allocBadge = '';
   if (!compact) {
     if (e.allocatedTo) {
