@@ -882,8 +882,28 @@ body {
 
 @media (max-width: 600px) {
   .p-form-grid { grid-template-columns: 1fr 1fr; }
-  .p-list-col-header, .p-row { grid-template-columns: 24px 1fr 80px 90px 22px; }
-  .p-list-col-header span:nth-child(4), .p-row .p-row-meta { display: none; }
+  .p-col-mine .p-list-col-header, .p-col-mine .p-row { grid-template-columns: 24px 1fr 80px 90px 22px; }
+  .p-col-mine .p-list-col-header span:nth-child(4), .p-col-mine .p-row .p-row-meta { display: none; }
+}
+
+/* ── Payables: two-column layout ─────────────────── */
+.p-cols { display: flex; gap: 16px; align-items: flex-start; }
+.p-col  { flex: 1 1 0; min-width: 0; }
+.p-list-header-eric { background: #f0f9ff; }
+.p-list-header-eric h3 { color: #0369a1; }
+/* Eric's column: compact 4-item grid (no allocation, no actions) */
+.p-col-eric .p-list-col-header,
+.p-col-eric .p-row { grid-template-columns: 22px 1fr 80px 90px; }
+/* Elly's column: slightly tighter columns to fit side-by-side */
+@media (min-width: 769px) {
+  .p-col-mine .p-list-col-header,
+  .p-col-mine .p-row { grid-template-columns: 22px 1fr 72px 90px 80px 22px; }
+}
+/* Stack columns on tablet/mobile */
+@media (max-width: 768px) {
+  .p-cols { flex-direction: column; }
+  .p-col-mine .p-list-col-header,
+  .p-col-mine .p-row { grid-template-columns: 24px 1fr 90px 120px 100px 28px; }
 }
 </style>
 </head>
@@ -1064,7 +1084,6 @@ body {
           <div style="font-size:0.72rem;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.4px">Eric owes</div>
           <div style="font-size:1.3rem;font-weight:800;margin-top:2px" id="p-eric-owing-amt">$0.00</div>
           <div style="font-size:0.72rem;opacity:0.65" id="p-eric-owing-sub">0 items</div>
-          <a class="p-eric-peek" onclick="openEricPeek()">View Eric's list →</a>
         </div>
       </div>
 
@@ -1106,31 +1125,55 @@ body {
         </div>
       </div>
 
-      <!-- Active payables list -->
-      <div class="p-list-card" id="p-active-card">
-        <div class="p-list-header">
-          <h3 id="p-list-title">My Payables</h3>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="p-split-filter" id="p-split-filter">
-              <button class="p-sf-btn active" onclick="pSetSplitFilter('all',this)">All</button>
-              <button class="p-sf-btn" onclick="pSetSplitFilter('shared',this)">Shared</button>
-              <button class="p-sf-btn" onclick="pSetSplitFilter('mine',this)">Mine</button>
+      <!-- Side-by-side columns -->
+      <div class="p-cols">
+
+        <!-- Mine (Elly's full list, or Eric's own list) -->
+        <div class="p-col p-col-mine" id="p-col-mine">
+          <div class="p-list-card">
+            <div class="p-list-header">
+              <h3 id="p-list-title">My Payables</h3>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="p-split-filter" id="p-split-filter">
+                  <button class="p-sf-btn active" onclick="pSetSplitFilter('all',this)">All</button>
+                  <button class="p-sf-btn" onclick="pSetSplitFilter('shared',this)">Shared</button>
+                  <button class="p-sf-btn" onclick="pSetSplitFilter('mine',this)">Mine</button>
+                </div>
+                <button class="p-btn p-btn-primary" id="p-add-btn" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">＋ Add</button>
+              </div>
             </div>
-            <button class="p-btn p-btn-primary" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">＋ Add</button>
+            <div class="p-list-col-header">
+              <span></span><span>Expense</span><span style="text-align:right">My share</span>
+              <span>Pay To</span><span>Allocation</span><span></span>
+            </div>
+            <div id="p-active-list"></div>
+            <div class="p-completed-toggle" id="p-completed-toggle" onclick="pToggleCompleted()">
+              <span class="p-comp-arrow">›</span>
+              <span id="p-completed-label">Completed (0)</span>
+            </div>
+            <div id="p-completed-list" style="display:none"></div>
           </div>
         </div>
-        <div class="p-list-col-header">
-          <span></span><span>Expense</span><span style="text-align:right">My share</span>
-          <span>Pay To</span><span>Allocation</span><span></span>
+
+        <!-- Eric's column (visible to Elly only) -->
+        <div class="p-col p-col-eric" id="p-col-eric" style="display:none">
+          <div class="p-list-card">
+            <div class="p-list-header p-list-header-eric">
+              <h3>Eric's Payables</h3>
+            </div>
+            <div class="p-list-col-header">
+              <span></span><span>Expense</span><span style="text-align:right">His share</span><span>Pay To</span>
+            </div>
+            <div id="p-eric-active-list"></div>
+            <div class="p-completed-toggle" id="p-eric-completed-toggle" onclick="pToggleEricCompleted()">
+              <span class="p-comp-arrow">›</span>
+              <span id="p-eric-completed-label">Completed (0)</span>
+            </div>
+            <div id="p-eric-completed-list" style="display:none"></div>
+          </div>
         </div>
-        <div id="p-active-list"></div>
-        <!-- Completed collapsed section -->
-        <div class="p-completed-toggle" id="p-completed-toggle" onclick="pToggleCompleted()">
-          <span class="p-comp-arrow">›</span>
-          <span id="p-completed-label">Completed (0)</span>
-        </div>
-        <div id="p-completed-list" style="display:none"></div>
-      </div>
+
+      </div><!-- end .p-cols -->
 
     </div>
   </div><!-- end tab-payables -->
@@ -1459,12 +1502,14 @@ function applyRoleUI() {
   // Admin tab visible only to Elly
   document.getElementById('tab-btn-admin').style.display = isAdmin() ? '' : 'none';
 
-  // Eric: hide admin add button in payables
+  // Eric: hide add form, filter buttons, and add button
   if (isEric()) {
-    const addCard = document.getElementById('p-add-card');
-    if (addCard) addCard.style.display = 'none';
-    const ericRight = document.getElementById('p-owing-right');
-    if (ericRight) ericRight.style.display = 'none';
+    const addCard     = document.getElementById('p-add-card');
+    const splitFilter = document.getElementById('p-split-filter');
+    const addBtn      = document.getElementById('p-add-btn');
+    if (addCard)     addCard.style.display     = 'none';
+    if (splitFilter) splitFilter.style.display = 'none';
+    if (addBtn)      addBtn.style.display      = 'none';
   }
 }
 
@@ -3126,6 +3171,14 @@ function pToggleCompleted() {
   document.getElementById('p-completed-list').style.display=pCompletedOpen?'':'none';
   document.getElementById('p-completed-toggle').classList.toggle('open',pCompletedOpen);
 }
+let pEricCompletedOpen = false;
+function pToggleEricCompleted() {
+  pEricCompletedOpen = !pEricCompletedOpen;
+  const list   = document.getElementById('p-eric-completed-list');
+  const toggle = document.getElementById('p-eric-completed-toggle');
+  if (list)   list.style.display = pEricCompletedOpen ? '' : 'none';
+  if (toggle) toggle.classList.toggle('open', pEricCompletedOpen);
+}
 
 // ── Badge ──
 function updatePayablesBadge() {
@@ -3136,45 +3189,62 @@ function updatePayablesBadge() {
 
 // ── Main render ──
 function renderPayables() {
-  const isElly=!isEric();
-  let entries=isElly?pEllyEntries():pEricEntries();
-  // Apply split filter (Elly only; Eric always sees shared)
-  if(isElly && pSplitFilter!=='all') entries=entries.filter(e=>e.split===pSplitFilter);
-  const isDoneFn=e=>isElly?pIsEllyDone(e):pIsEricDone(e);
-  const shareFn=e=>isElly?pMyShare(e):pEricShare(e);
-  const active=entries.filter(e=>!isDoneFn(e));
-  const done=entries.filter(e=>isDoneFn(e));
-  const total=active.reduce((s,e)=>s+shareFn(e),0);
+  const isElly = !isEric();
+  const safeEl = id => document.getElementById(id);
 
-  const safeEl=(id)=>document.getElementById(id);
-  if(safeEl('p-owing-amount'))safeEl('p-owing-amount').textContent=pFmt(total);
-  if(safeEl('p-owing-sub'))safeEl('p-owing-sub').textContent=`${active.length} item${active.length!==1?'s':''} pending`;
+  // ── Mine column ──
+  let entries = isElly ? pEllyEntries() : pEricEntries();
+  if (isElly && pSplitFilter !== 'all') entries = entries.filter(e => e.split === pSplitFilter);
+  const isDoneFn = e => isElly ? pIsEllyDone(e) : pIsEricDone(e);
+  const shareFn  = e => isElly ? pMyShare(e)    : pEricShare(e);
+  const active = entries.filter(e => !isDoneFn(e));
+  const done   = entries.filter(e =>  isDoneFn(e));
+  const total  = active.reduce((s, e) => s + shareFn(e), 0);
 
-  const ericRight=safeEl('p-owing-right');
-  if(ericRight){
-    if(isElly){
-      const ep=pEricEntries().filter(e=>!pIsEricDone(e));
-      const et=ep.reduce((s,e)=>s+pEricShare(e),0);
-      safeEl('p-eric-owing-amt').textContent=pFmt(et);
-      safeEl('p-eric-owing-sub').textContent=`${ep.length} item${ep.length!==1?'s':''} pending`;
-      ericRight.style.display='';
-    } else { ericRight.style.display='none'; }
+  if (safeEl('p-owing-amount')) safeEl('p-owing-amount').textContent = pFmt(total);
+  if (safeEl('p-owing-sub'))    safeEl('p-owing-sub').textContent = `${active.length} item${active.length!==1?'s':''} pending`;
+  if (safeEl('p-list-title'))   safeEl('p-list-title').textContent = 'My Payables';
+  if (safeEl('p-completed-label')) safeEl('p-completed-label').textContent = `Completed (${done.length})`;
+
+  const activeList = safeEl('p-active-list');
+  if (activeList) activeList.innerHTML = active.length
+    ? active.map(e => pRenderRow(e, isElly, shareFn(e), false)).join('')
+    : '<div class="p-empty">All clear — nothing pending! 🎉</div>';
+
+  const compList = safeEl('p-completed-list');
+  if (compList) compList.innerHTML = done.length
+    ? done.map(e => pRenderRow(e, isElly, shareFn(e), true)).join('')
+    : '<div class="p-empty">Nothing completed yet.</div>';
+
+  // ── Eric's column (Elly only) ──
+  const ericCol = safeEl('p-col-eric');
+  if (ericCol) ericCol.style.display = isElly ? '' : 'none';
+
+  const ericRight = safeEl('p-owing-right');
+  if (ericRight) ericRight.style.display = isElly ? '' : 'none';
+
+  if (isElly) {
+    const ericAll    = pEricEntries();
+    const ericActive = ericAll.filter(e => !pIsEricDone(e));
+    const ericDone   = ericAll.filter(e =>  pIsEricDone(e));
+    const ericTotal  = ericActive.reduce((s, e) => s + pEricShare(e), 0);
+
+    if (safeEl('p-eric-owing-amt')) safeEl('p-eric-owing-amt').textContent = pFmt(ericTotal);
+    if (safeEl('p-eric-owing-sub')) safeEl('p-eric-owing-sub').textContent = `${ericActive.length} item${ericActive.length!==1?'s':''} pending`;
+    if (safeEl('p-eric-completed-label')) safeEl('p-eric-completed-label').textContent = `Completed (${ericDone.length})`;
+
+    const ericActiveList = safeEl('p-eric-active-list');
+    if (ericActiveList) ericActiveList.innerHTML = ericActive.length
+      ? ericActive.map(e => pRenderRow(e, false, pEricShare(e), false, true)).join('')
+      : '<div class="p-empty">Eric is all clear! 🎉</div>';
+
+    const ericCompList = safeEl('p-eric-completed-list');
+    if (ericCompList) ericCompList.innerHTML = ericDone.length
+      ? ericDone.map(e => pRenderRow(e, false, pEricShare(e), true, true)).join('')
+      : '<div class="p-empty">Nothing completed yet.</div>';
   }
 
-  if(safeEl('p-list-title'))safeEl('p-list-title').textContent=isElly?'My Payables':'What I Owe';
-  if(safeEl('p-completed-label'))safeEl('p-completed-label').textContent=`Completed (${done.length})`;
-
-  const activeList=safeEl('p-active-list');
-  if(activeList)activeList.innerHTML=active.length
-    ?active.map(e=>pRenderRow(e,isElly,shareFn(e),false)).join('')
-    :'<div class="p-empty">All clear — nothing pending! 🎉</div>';
-
-  const compList=safeEl('p-completed-list');
-  if(compList)compList.innerHTML=done.length
-    ?done.map(e=>pRenderRow(e,isElly,shareFn(e),true)).join('')
-    :'<div class="p-empty">Nothing completed yet.</div>';
-
-  // Re-apply selection highlights after re-render
+  // Re-apply selection highlights after re-render (mine column only)
   const selIds = new Set(pSelectedRows.map(r => r.id));
   if (selIds.size) {
     document.querySelectorAll('#p-active-list .p-row, #p-completed-list .p-row').forEach(row => {
@@ -3189,48 +3259,57 @@ function renderPayables() {
   updatePayablesBadge();
 }
 
-function pRenderRow(e,isElly,myShare,isDone) {
-  const forWhom=isElly?'elly':'eric';
-  const doneVal=isElly?e.ellyDone:e.ericDone;
+// compact=true: 4-item row (checkbox, name, amount, payto) used for Eric's column in Elly's view.
+// No allocation badge, no action buttons, no row-click selection handler.
+function pRenderRow(e, isElly, myShare, isDone, compact=false) {
+  const forWhom = isElly ? 'elly' : 'eric';
+  const doneVal = isElly ? e.ellyDone : e.ericDone;
   const splitClass = e.split==='mine' ? 'p-split-mine'
-                  : e.split==='eric' ? 'p-split-eric'
-                  : 'p-split-shared';
-  const splitBadge = isElly
+                   : e.split==='eric' ? 'p-split-eric'
+                   : 'p-split-shared';
+  const splitBadge = (isElly && !compact)
     ? `<select class="p-split-select ${splitClass}" onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','split',this.value)" title="Change split">
          <option value="shared" ${e.split==='shared'?'selected':''}>Shared</option>
          <option value="mine"   ${e.split==='mine'?'selected':''}>Mine</option>
          <option value="eric"   ${e.split==='eric'?'selected':''}>Eric</option>
        </select>`
     : `<span class="p-split-badge ${splitClass}">${e.split==='shared'?'Shared':e.split==='eric'?'Eric':'Mine'}</span>`;
-  let allocBadge='';
-  if(e.allocatedTo){
-    const[y,m]=e.allocatedTo.key.split('-').map(Number);
-    allocBadge=`<span class="p-alloc-badge linked" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Change allocation">${MONTHS[m-1].slice(0,3)} P${e.allocatedTo.pi+1}</span>`;
-  } else if(isElly){
-    allocBadge=`<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">＋ Allocate</span>`;
+  let allocBadge = '';
+  if (!compact) {
+    if (e.allocatedTo) {
+      const [y,m] = e.allocatedTo.key.split('-').map(Number);
+      allocBadge = `<span class="p-alloc-badge linked" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Change allocation">${MONTHS[m-1].slice(0,3)} P${e.allocatedTo.pi+1}</span>`;
+    } else if (isElly) {
+      allocBadge = `<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">＋ Allocate</span>`;
+    }
   }
-  const actionBtns=isElly
-    ?`<div class="p-row-actions">
-        <button class="p-action-btn danger" onclick="event.stopPropagation();deletePayableEntry('${e.id}')" title="Delete">✕</button>
-      </div>`
-    :'<span></span>';
+  const actionBtns = compact ? ''
+    : isElly
+      ? `<div class="p-row-actions">
+           <button class="p-action-btn danger" onclick="event.stopPropagation();deletePayableEntry('${e.id}')" title="Delete">✕</button>
+         </div>`
+      : '<span></span>';
   const shareVal = myShare.toFixed(2);
-  const fullTip = e.split==='shared' ? `Your share — full amount is $${(e.fullAmount||0).toFixed(2)}` : 'Amount';
-  return`<div class="p-row${isDone?' is-done':''}"
+  const fullTip = e.split==='shared'
+    ? `${isElly ? 'Your' : "Eric's"} share — full amount is $${(e.fullAmount||0).toFixed(2)}`
+    : 'Amount';
+  const rowHandlers = compact ? ''
+    : `onclick="pHandleRowClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"
+       oncontextmenu="pHandleRowRightClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"`;
+  return `<div class="p-row${isDone?' is-done':''}"
     data-pid="${e.id}" data-pamount="${shareVal}" data-pname="${esc(e.name)}"
-    onclick="pHandleRowClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"
-    oncontextmenu="pHandleRowRightClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})">
+    ${rowHandlers}>
     <input type="checkbox" class="p-check" ${doneVal?'checked':''} onchange="event.stopPropagation();togglePayableDone('${e.id}','${forWhom}')">
     <div style="display:flex;align-items:center;gap:4px;min-width:0">
       <input class="p-name-input" value="${esc(e.name)}" placeholder="Expense name"
-        onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','name',this.value)" ${!isElly?'readonly':''}>
+        onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','name',this.value)" ${(!isElly||compact)?'readonly':''}>
       ${splitBadge}
     </div>
     <input class="p-amount-input" type="number" step="0.01" value="${shareVal}" placeholder="0.00"
-      onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','share',this.value)" ${!isElly?'readonly':''}
+      onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','share',this.value)" ${(!isElly||compact)?'readonly':''}
       title="${fullTip}">
     <span class="p-row-payto">${esc(e.payTo||'')}</span>
-    <div class="p-row-meta">${allocBadge}</div>
+    ${compact ? '' : `<div class="p-row-meta">${allocBadge}</div>`}
     ${actionBtns}
   </div>`;
 }
