@@ -3308,7 +3308,7 @@ function renderPayables() {
 
   // ── Share label (personalised per user) ──
   const shareLabel = safeEl('p-share-label');
-  if (shareLabel) shareLabel.textContent = isElly ? 'My share' : 'Your share';
+  if (shareLabel) shareLabel.textContent = 'My share'; // always first-person for the logged-in user
 
   // ── Populate account dropdowns ──
   const acctOptions = (state.accounts || DEFAULT_ACCOUNTS).map(a => a.name || a);
@@ -3409,13 +3409,15 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
                    : 'p-split-shared';
   // compact = Elly viewing Eric's column; !compact non-owner = Eric's own session
   const canEditRow = !compact;
+  // "Eric" label → "Mine" when Eric is viewing his own column; stays "Eric" in Elly's compact view
+  const ericLabel = isEric() ? 'Mine' : 'Eric';
   const splitBadge = canEditRow
     ? `<select class="p-split-select ${splitClass}" onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','split',this.value)" title="Change split">
          <option value="shared" ${e.split==='shared'?'selected':''}>Shared</option>
          <option value="mine"   ${e.split==='mine'?'selected':''}>Mine</option>
-         <option value="eric"   ${e.split==='eric'?'selected':''}>Eric</option>
+         <option value="eric"   ${e.split==='eric'?'selected':''}>${ericLabel}</option>
        </select>`
-    : `<span class="p-split-badge ${splitClass}">${e.split==='shared'?'Shared':e.split==='eric'?'Eric':'Mine'}</span>`;
+    : `<span class="p-split-badge ${splitClass}">${e.split==='shared'?'Shared':e.split==='eric'?ericLabel:'Mine'}</span>`;
   let allocBadge = '';
   if (!compact) {
     if (e.allocatedTo) {
@@ -3430,7 +3432,8 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
          <button class="p-action-btn danger" onclick="event.stopPropagation();deletePayableEntry('${e.id}')" title="Delete">✕</button>
        </div>`;
   const shareVal = myShare.toFixed(2);
-  const viewerName = isElly ? 'Your' : (compact ? "Eric's" : 'Your');
+  // Tooltip: "Your share" for whoever is looking at their own column; "Eric's share" for Elly viewing his column
+  const viewerName = (isElly || isEric()) ? 'Your' : "Eric's";
   const fullTip = e.split==='shared'
     ? `${viewerName} share — full amount is $${(e.fullAmount||0).toFixed(2)}`
     : 'Amount';
