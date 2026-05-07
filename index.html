@@ -1788,9 +1788,11 @@ const SEED_P2 = [
 ];
 
 const DEFAULT_ACCOUNTS = [
-  'NAB Offset', 'CB Bills', 'CB Groceries', 'CB Grocery',
-  'NAB credit card', 'Latitude credit card', 'Savings'
+  'CB Bills', 'CB Groceries', 'CB Grocery',
+  'Latitude credit card', 'NAB credit card', 'NAB Elly Personal', 'NAB Offset', 'Savings'
 ];
+// Always returns accounts sorted A→Z
+function getAccounts() { return (state.accounts || DEFAULT_ACCOUNTS).slice().sort((a,b) => a.localeCompare(b)); }
 
 let state = { settings: { salary: 4524.58 }, months: {}, accounts: [...DEFAULT_ACCOUNTS] };
 let curYear, curMonth;
@@ -2396,7 +2398,7 @@ function toggleIncomeRecurring(key, pi, id) {
 }
 
 function getAccountOptions(selected) {
-  const accounts = state.accounts || DEFAULT_ACCOUNTS;
+  const accounts = getAccounts();
   const opts = accounts.map(a =>
     `<option value="${esc(a)}" ${a===selected?'selected':''}>${esc(a)}</option>`
   ).join('');
@@ -2882,8 +2884,7 @@ function pShowAddForm() {
   const card=document.getElementById('p-add-card');
   card.style.display='';
   const sel=document.getElementById('pf-payto');
-  const accounts=state.accounts||DEFAULT_ACCOUNTS;
-  sel.innerHTML=accounts.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
+  getAccounts().forEach(a => { const o = document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o); });
   // Populate split options based on who is logged in
   const splitSel = document.getElementById('pf-split');
   if (isEric()) {
@@ -2968,8 +2969,7 @@ function openEditPayable(id) {
   document.getElementById('pef-date').value = e.date || '';
   // Populate pay-to dropdown
   const sel = document.getElementById('pef-payto');
-  const accounts = (state.accounts || DEFAULT_ACCOUNTS).map(a => a.name || a);
-  sel.innerHTML = accounts.map(a => `<option value="${esc(a)}"${a===e.payTo?' selected':''}>${esc(a)}</option>`).join('');
+  sel.innerHTML = getAccounts().map(a => `<option value="${esc(a)}"${a===e.payTo?' selected':''}>${esc(a)}</option>`).join('');
   pUpdateEditSplitHint();
   openModal('modal-edit-payable');
 }
@@ -3283,7 +3283,7 @@ function pToggleAcctSection(header) {
 // compact=true uses the 4-item Eric column row format.
 function pRenderAccountGroups(entries, isElly, shareFn, compact) {
   if (!entries.length) return '<div class="p-empty">All clear — nothing pending! 🎉</div>';
-  const accounts = (state.accounts || DEFAULT_ACCOUNTS).map(a => a.name || a);
+  const accounts = getAccounts();
   const groups = {};
   accounts.forEach(a => { groups[a] = []; });
   groups['_other'] = [];
@@ -3318,7 +3318,7 @@ function renderPayables() {
   if (shareLabel) shareLabel.textContent = 'My share'; // always first-person for the logged-in user
 
   // ── Populate account dropdowns ──
-  const acctOptions = (state.accounts || DEFAULT_ACCOUNTS).map(a => a.name || a);
+  const acctOptions = getAccounts();
   ['p-account-filter', 'p-eric-account-filter'].forEach((selId, i) => {
     const sel = safeEl(selId); if (!sel) return;
     const curr = i === 0 ? pAccountFilter : pEricAccountFilter;
@@ -3698,7 +3698,7 @@ function openModalPayTo() {
   _selectedPayTo = null;
   document.getElementById('payto-sel-count').textContent = `${selectedRows.length} row${selectedRows.length!==1?'s':''}`;
   document.getElementById('payto-new-input').value = '';
-  const accounts = state.accounts || DEFAULT_ACCOUNTS;
+  const accounts = getAccounts();
   const grid = document.getElementById('payto-grid');
   grid.innerHTML = accounts.map(a =>
     `<div class="payto-option" onclick="selectPayToOption(this,'${esc(a)}')">${esc(a)}</div>`
@@ -3986,7 +3986,7 @@ function renderAdmin() {
 function renderAdminAccounts() {
   const container = document.getElementById('admin-accounts-list');
   if (!container) return;
-  const accounts = state.accounts || DEFAULT_ACCOUNTS;
+  const accounts = getAccounts();
   container.innerHTML = accounts.map((a, i) =>
     `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f4f8">
       <span style="flex:1;font-size:0.9rem">${esc(a)}</span>
