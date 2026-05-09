@@ -1832,7 +1832,16 @@ async function renderCompare() {
 
   const ellyPeriods = state.months[key]?.periods || [];
   const ericPeriods = ericData.months?.[key]?.periods || [];
-  const ellyBills = ellyPeriods.flatMap(p => (p.bills || []).filter(b => b.recurring));
+  // Group Elly's recurring bills by name and sum amounts — handles 2- or 3-payday months correctly
+  const ellyRaw = ellyPeriods.flatMap(p => (p.bills || []).filter(b => b.recurring));
+  const ellyGrouped = {};
+  ellyRaw.forEach(b => {
+    const key = (b.name || '').trim().toLowerCase();
+    if (!ellyGrouped[key]) ellyGrouped[key] = { ...b, amount: 0, count: 0 };
+    ellyGrouped[key].amount += parseFloat(b.amount) || 0;
+    ellyGrouped[key].count++;
+  });
+  const ellyBills = Object.values(ellyGrouped);
   const ericBills = ericPeriods.flatMap(p => (p.bills || []).filter(b => b.recurring));
 
   const ellyMonthlySalary = (state.settings?.salary || 0) * ellyPeriods.length;
@@ -1875,7 +1884,7 @@ async function renderCompare() {
 
   container.innerHTML = `
     <h2 style="font-size:1.2rem;font-weight:700;margin:0 0 4px">${monthName} — Recurring Bills Comparison</h2>
-    <p style="font-size:0.82rem;color:#6b7280;margin:0 0 16px">Recurring bills only. Elly's fortnightly periods combined.</p>
+    <p style="font-size:0.82rem;color:#6b7280;margin:0 0 16px">Recurring bills only. Elly's ${ellyPeriods.length} fortnightly period${ellyPeriods.length !== 1 ? 's' : ''} combined into monthly totals.</p>
 
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
       ${[
