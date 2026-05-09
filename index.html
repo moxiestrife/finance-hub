@@ -2779,9 +2779,6 @@ function toggleSection(bodyId, chevId) {
 // ─────────────────────────────────────────────
 function renderSummary() {
   const container=document.getElementById('summaryContent');
-  if (isEric() && !adminSettings.ericCanViewBudget) {
-    container.innerHTML=`<div class="locked-banner"><div class="lock-icon">🔒</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.</p></div>`; return;
-  }
   const keys=Object.keys(state.months).sort();
   if(!keys.length){container.innerHTML=`<div class="no-data"><div style="font-size:3rem">📊</div><p>No data yet.</p></div>`;return;}
   const labels=[],spendData=[],savingsData=[],allowanceData=[],salaryData=[];
@@ -2843,9 +2840,6 @@ function renderSummary() {
 // ─────────────────────────────────────────────
 function renderInsights() {
   const container=document.getElementById('insightsContent');
-  if (isEric() && !adminSettings.ericCanViewBudget) {
-    container.innerHTML=`<div class="locked-banner"><div class="lock-icon">🔒</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.</p></div>`; return;
-  }
   const keys=Object.keys(state.months).sort();
   if(!keys.length){container.innerHTML=`<div class="no-data"><div style="font-size:3rem">💡</div><p>No data yet.</p></div>`;return;}
   const curKey=mKey(curYear,curMonth);
