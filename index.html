@@ -1862,10 +1862,12 @@ async function renderCompare() {
 
   // Manual aliases: [elly normalised name, eric normalised name prefix]
   const ALIASES = [
-    ['groceries',           'food budget'],
-    ['mortgage',            'nab mortgage'],
-    ['volvo insurance',     'car insurance'],
-    ['hp ink subscription', 'hp ink'],
+    ['groceries',                'food budget'],
+    ['mortgage',                 'nab mortgage'],
+    ['volvo insurance',          'car insurance'],
+    ['hp ink subscription',      'hp ink'],
+    ['elly personal loan share', 'personal loan share'],
+    ['omm ploan',                'renovation loan'],
   ];
 
   const matched = new Set(), ericMatched = new Set();
@@ -3077,8 +3079,12 @@ async function renderInsights() {
   const normN = n => (n||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
   const fw    = n => normN(n).split(' ')[0];
   const HALIASES = [
-    ['groceries','food budget'],['mortgage','nab mortgage'],
-    ['volvo insurance','car insurance'],['hp ink subscription','hp ink'],
+    ['groceries',                'food budget'],
+    ['mortgage',                 'nab mortgage'],
+    ['volvo insurance',          'car insurance'],
+    ['hp ink subscription',      'hp ink'],
+    ['elly personal loan share', 'personal loan share'],
+    ['omm ploan',                'renovation loan'],
   ];
   const themMatched = new Set();
   const sharedBills = [];
