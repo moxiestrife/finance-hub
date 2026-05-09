@@ -3100,7 +3100,7 @@ async function renderInsights() {
   // Exclude mortgage, loans, car finance from living expenses
   const isExcluded = name => {
     const n = normN(name);
-    return ['mortgage','loan','finance','novated','installment','instalment'].some(k => n.includes(k));
+    return ['mortgage'].some(k => n.includes(k));
   };
   const livingBills = sharedBills.filter(b => !isExcluded(b.name));
   const livingTotal = livingBills.reduce((s, b) => s + b.me + b.them, 0);
@@ -3109,7 +3109,7 @@ async function renderInsights() {
 
   const hInsights = [];
   if (livingTotal > 0) {
-    hInsights.push({ icon: '🏡', title: 'Total living expenses', text: `Combined shared bills (excl. mortgage & loans): <strong>$${livingTotal.toFixed(0)}/month</strong> — ${livingBills.length} bills across both budgets.` });
+    hInsights.push({ icon: '🏡', title: 'Total living expenses', text: `Combined shared bills (excl. mortgage): <strong>$${livingTotal.toFixed(0)}/month</strong> — ${livingBills.length} bills across both budgets.` });
   }
   if (householdIncome > 0) {
     const pct = Math.round((livingTotal / householdIncome) * 100);
