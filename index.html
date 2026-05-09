@@ -3100,12 +3100,59 @@ async function renderHouseholdSummary() {
   const hInc    = hSalaryData[idx] || 0;
   const hCash   = hCashflowData[idx] || 0;
 
-  // Top shared recurring bills this month
-  const myRec  = (state.months[dispKey]?.periods || []).flatMap(p=>p.bills.filter(b=>b.recurring));
-  const othRec = (otherMonths[dispKey]?.periods || []).flatMap(p=>p.bills.filter(b=>b.recurring));
-  const allRec = [...myRec.map(b=>({...b,who:myName})), ...othRec.map(b=>({...b,who:otherName}))];
-  const topHousehold = [...allRec].sort((a,b)=>parseFloat(b.amount)-parseFloat(a.amount)).slice(0,10);
-  const maxH = parseFloat(topHousehold[0]?.amount)||1;
+  // ── Match recurring bills using same alias logic as Compare tab ──────
+  // My bills: group by name (strip trailing numbers) to handle fortnightly dupes
+  const myRecRaw = (state.months[dispKey]?.periods || []).flatMap(p => p.bills.filter(b => b.recurring));
+  const myGrouped = {};
+  myRecRaw.forEach(b => {
+    const k = (b.name || '').trim().toLowerCase().replace(/\s+\d+$/, '');
+    if (!myGrouped[k]) myGrouped[k] = { ...b, amount: 0 };
+    myGrouped[k].amount += parseFloat(b.amount) || 0;
+  });
+  const myBills  = Object.values(myGrouped);
+  const othBills = (otherMonths[dispKey]?.periods || []).flatMap(p => p.bills.filter(b => b.recurring));
+
+  // Determine which side is "Elly" for alias lookup (aliases are defined Elly→Eric)
+  const ellyBillsH = isEric() ? othBills : myBills;
+  const ericBillsH = isEric() ? myBills  : othBills;
+
+  const normH = n => (n || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+  const fwH   = n => normH(n).split(' ')[0];
+  const HALIASES_S = [
+    ['groceries',                'food budget'],
+    ['mortgage',                 'nab mortgage'],
+    ['volvo insurance',          'car insurance'],
+    ['hp ink subscription',      'hp ink'],
+    ['elly personal loan share', 'personal loan share'],
+    ['omm ploan',                'renovation loan'],
+    ['telstra',                  'my vodafone'],
+  ];
+  const HLABELS = { 'telstra': 'Phone bill (Telstra / Vodafone)' };
+
+  const hMatched = new Set(), hEricMatched = new Set();
+  const sharedH = [];
+  ellyBillsH.forEach(eb => {
+    const en = normH(eb.name), ew = fwH(eb.name);
+    const alias = HALIASES_S.find(([a]) => a === en);
+    const match = ericBillsH.find(er => !hEricMatched.has(er.id) && (
+      normH(er.name) === en ||
+      (alias && normH(er.name).startsWith(alias[1])) ||
+      normH(er.name).startsWith(ew) ||
+      en.startsWith(fwH(er.name))
+    ));
+    if (match && (alias || ew.length > 2)) {
+      hMatched.add(eb.id); hEricMatched.add(match.id);
+      const label = HLABELS[en] || eb.name;
+      const ellyAmt = parseFloat(eb.amount) || 0;
+      const ericAmt = parseFloat(match.amount) || 0;
+      sharedH.push({ label, ellyAmt, ericAmt, total: ellyAmt + ericAmt });
+    }
+  });
+  sharedH.sort((a, b) => b.total - a.total);
+
+  const myOnly  = myBills.filter(b => !(isEric() ? hEricMatched : hMatched).has(b.id));
+  const othOnly = othBills.filter(b => !(isEric() ? hMatched : hEricMatched).has(b.id));
+  const maxShared = sharedH[0]?.total || 1;
 
   wrap.innerHTML = `
     <div class="stat-grid">
@@ -3121,10 +3168,28 @@ async function renderHouseholdSummary() {
       <div class="chart-card"><h3>Household Allowance Trend</h3><div class="chart-wrap"><canvas id="hChartAllowance"></canvas></div></div>
     </div>
     <div class="chart-card summary-section" style="margin-bottom:24px">
-      <h3>Top Recurring Bills · ${dispName}</h3>
-      <table class="expenses-table"><thead><tr><th>Expense</th><th>Who</th><th>Amount</th><th style="width:35%">Share</th></tr></thead><tbody>
-      ${topHousehold.map(b=>`<tr><td>${esc(b.name)}</td><td style="font-size:0.8rem;color:#6b7280">${b.who}</td><td><strong>$${parseFloat(b.amount).toFixed(2)}</strong></td><td><div class="bar-cell"><div class="mini-bar" style="width:${Math.round((parseFloat(b.amount)/maxH)*160)}px"></div><span style="font-size:0.78rem;color:#6b7280">${Math.round((parseFloat(b.amount)/hSpend)*100)}%</span></div></td></tr>`).join('')}
+      <h3>Shared Recurring Bills · ${dispName}</h3>
+      <p style="font-size:0.8rem;color:#6b7280;margin:0 0 12px">Bills matched between ${myName} and ${otherName}, sorted by combined total.</p>
+      <table class="expenses-table"><thead><tr><th>Expense</th><th>${myName}</th><th>${otherName}</th><th>Combined</th><th style="width:30%">Share of spend</th></tr></thead><tbody>
+      ${sharedH.map(b=>`<tr>
+        <td>${esc(b.label)}</td>
+        <td>$${(isEric()?b.ericAmt:b.ellyAmt).toFixed(2)}</td>
+        <td style="color:#6b7280">$${(isEric()?b.ellyAmt:b.ericAmt).toFixed(2)}</td>
+        <td><strong>$${b.total.toFixed(2)}</strong></td>
+        <td><div class="bar-cell"><div class="mini-bar" style="width:${Math.round((b.total/maxShared)*160)}px"></div><span style="font-size:0.78rem;color:#6b7280">${hSpend>0?Math.round((b.total/hSpend)*100):0}%</span></div></td>
+      </tr>`).join('')}
       </tbody></table>
+      ${myOnly.length||othOnly.length ? `
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        ${myOnly.length ? `<div>
+          <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#4f46e5;margin-bottom:6px">${myName} only</div>
+          ${myOnly.map(b=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:0.83rem;border-bottom:1px solid #f3f4f6"><span>${esc(b.name)}</span><span style="color:#374151;font-weight:600">$${parseFloat(b.amount).toFixed(2)}</span></div>`).join('')}
+        </div>` : ''}
+        ${othOnly.length ? `<div>
+          <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:6px">${otherName} only</div>
+          ${othOnly.map(b=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:0.83rem;border-bottom:1px solid #f3f4f6"><span>${esc(b.name)}</span><span style="color:#374151;font-weight:600">$${parseFloat(b.amount).toFixed(2)}</span></div>`).join('')}
+        </div>` : ''}
+      </div>` : ''}
     </div>`;
 
   ['hChartSpend','hChartCashflow','hChartSavings','hChartAllowance'].forEach(id=>{
