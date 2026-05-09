@@ -1402,7 +1402,7 @@ body {
       <button class="modal-close" onclick="closeModal('modal-allocate')">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Pick a month, then a pay period. This creates a bill in that period so you can tick it off there.</p>
+      <p id="alloc-modal-subtext" style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Pick a month, then a pay period. This creates a bill in that period so you can tick it off there.</p>
       <div id="alloc-month-list" class="move-month-list"></div>
       <div id="alloc-period-list" class="move-period-list" style="display:none"></div>
     </div>
@@ -3169,6 +3169,10 @@ function openAllocateModal(payableId) {
       return`<button class="move-month-btn" onclick="allocSelectMonth('${key}')">${MONTHS[m-1]} ${y}</button>`;
     }).join('')
     :'<p style="color:#9ca3af;font-size:0.82rem">No budget months found. Go to <strong>Monthly budget</strong> tab and create a month first, then come back to allocate.</p>';
+  const subtextEl = document.getElementById('alloc-modal-subtext');
+  if (subtextEl) subtextEl.textContent = isEric()
+    ? 'Pick a month that has a budget. This creates a bill in that period so you can tick it off there.'
+    : 'Pick a month, then a pay period. This creates a bill in that period so you can tick it off there.';
   openModal('modal-allocate');
 }
 function allocSelectMonth(key) {
