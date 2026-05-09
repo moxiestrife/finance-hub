@@ -2026,8 +2026,9 @@ function createMonth(y, m, withSeed=false) {
   if (state.months[key]) return;
   const [d1, d2] = defaultDates(y, m);
   // Eric has a monthly pay cycle — 1 period per month; Elly has fortnightly — 2 periods
+  const ericDate = `16 ${MONTHS[m].slice(0,3)} ${y}`;
   const periods = isEric()
-    ? [{ date: d1, savingsGoals: defaultSavingsGoals(), bills: [] }]
+    ? [{ date: ericDate, savingsGoals: defaultSavingsGoals(), bills: [] }]
     : [
         { date: d1, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P1) : [] },
         { date: d2, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P2) : [] }
@@ -3148,7 +3149,25 @@ function openAllocateModal(payableId) {
     });
   });
   document.getElementById('alloc-month-list').innerHTML=months.length
-    ?months.map(key=>{const[y,m]=key.split('-').map(Number);return`<button class="move-month-btn" onclick="allocSelectMonth('${key}')">${MONTHS[m-1]} ${y}</button>`;}).join('')
+    ?months.map(key=>{
+      const[y,m]=key.split('-').map(Number);
+      // For Eric (1 period/month): show Safe to Spend inline and auto-select on click
+      if(isEric()){
+        const p=(state.months[key]?.periods||[])[0];
+        if(p){
+          const inc=getPeriodIncome(p);
+          const sav=getSavingsGoals(p).reduce((s,g)=>s+(parseFloat(g.amount)||0),0);
+          const out=p.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+          const safe=inc-sav-out;
+          const safeCol=safe<0?'#ef4444':'#059669';
+          return`<button class="move-month-btn" style="flex-direction:column;align-items:flex-start;gap:2px" onclick="allocSelectMonth('${key}')">
+            <span>${MONTHS[m-1]} ${y}</span>
+            <span style="font-size:0.72rem;color:${safeCol};font-weight:700">Safe to spend: ${pFmt(safe)}</span>
+          </button>`;
+        }
+      }
+      return`<button class="move-month-btn" onclick="allocSelectMonth('${key}')">${MONTHS[m-1]} ${y}</button>`;
+    }).join('')
     :'<p style="color:#9ca3af;font-size:0.82rem">No budget months found. Go to <strong>Monthly budget</strong> tab and create a month first, then come back to allocate.</p>';
   openModal('modal-allocate');
 }
@@ -3160,6 +3179,14 @@ function allocSelectMonth(key) {
   event.currentTarget.classList.add('selected');
   const month=state.months[key];
   const pl=document.getElementById('alloc-period-list');
+  // Eric has 1 period per month — skip the period picker, auto-select period 0
+  if(isEric()){
+    pl.style.display='none'; pl.innerHTML='';
+    _allocDestPi=0;
+    document.getElementById('alloc-confirm-btn').disabled=false;
+    document.getElementById('alloc-confirm-btn').style.opacity='1';
+    return;
+  }
   pl.style.display='flex';
   pl.innerHTML=`<div style="font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;margin-bottom:4px">Select pay period</div>`+
     (month?.periods||[]).map((p,pi)=>{
