@@ -1540,14 +1540,24 @@ function doGoogleLogin() {
 
 let _preImpersonateUser = null;
 
-function impersonateEric() {
-  if (!isOwner()) return;
-  _preImpersonateUser = currentUser;
-  currentUser = 'eric';
+function _switchBudgetUser(newUser) {
+  currentUser = newUser;
+  // Wipe local state so the old user's data never bleeds through while Firebase loads
+  state = { months: {}, settings: {}, accounts: [...DEFAULT_ACCOUNTS] };
+  firebaseDataLoaded = false;
   if (budgetUnsub) { budgetUnsub(); budgetUnsub = null; }
+  // Render immediately with blank state so stale data disappears
+  render();
+  // Re-subscribe to the new user's Firebase path; the onValue callback will call render() once data arrives
   listenBudget();
   applyRoleUI();
   applyAdminSettings();
+}
+
+function impersonateEric() {
+  if (!isOwner()) return;
+  _preImpersonateUser = currentUser;
+  _switchBudgetUser('eric');
   const banner = document.getElementById('impersonate-banner');
   if (banner) banner.style.display = 'flex';
   const ctrl = document.getElementById('impersonate-controls');
@@ -1558,14 +1568,13 @@ function impersonateEric() {
 
 function stopImpersonating() {
   if (!_preImpersonateUser) return;
-  currentUser = _preImpersonateUser;
+  const prev = _preImpersonateUser;
   _preImpersonateUser = null;
-  if (typeof budgetUnsub === 'function') { budgetUnsub(); budgetUnsub = null; }
-  listenBudget();
-  applyRoleUI();
-  applyAdminSettings();
+  _switchBudgetUser(prev);
   const banner = document.getElementById('impersonate-banner');
-  if (banner) { banner.style.display = 'none'; }
+  if (banner) banner.style.display = 'none';
+  const ctrl = document.getElementById('impersonate-controls');
+  if (ctrl) ctrl.innerHTML = '<button class="p-btn" style="background:#6366f1;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;border:none;cursor:pointer" onclick="impersonateEric()">👤 View as Eric</button>';
   showToast('✅ Back to Elly view');
   switchTab('monthly');
 }
@@ -1689,7 +1698,8 @@ function listenBudget() {
       _budgetLoaded = true; _onBothLoaded();
     } else {
       firebaseDataLoaded = true;
-      pushBudgetToFirebase();
+      // Only auto-seed Firebase when NOT impersonating — prevents writing the wrong user's data
+      if (!_preImpersonateUser) pushBudgetToFirebase();
     }
     setSyncStatus('live');
   });
