@@ -1859,17 +1859,27 @@ async function renderCompare() {
   function normName(n) { return (n || '').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim(); }
   function firstWord(n) { return normName(n).split(' ')[0]; }
 
+  // Manual aliases: [elly normalised name, eric normalised name prefix]
+  const ALIASES = [
+    ['groceries',           'food budget'],
+    ['groceries 2',         'food budget'],
+    ['volvo insurance',     'car insurance'],
+    ['hp ink subscription', 'hp ink'],
+  ];
+
   const matched = new Set(), ericMatched = new Set();
   const sharedRows = [];
   ellyBills.forEach(eb => {
     const ew = firstWord(eb.name);
     const en = normName(eb.name);
+    const alias = ALIASES.find(([a]) => a === en);
     const match = ericBills.find(er => !ericMatched.has(er.id) && (
-      normName(er.name) === en ||                                    // exact match
-      normName(er.name).startsWith(ew) ||                           // Eric name starts with Elly's first word
-      en.startsWith(firstWord(er.name))                             // Elly name starts with Eric's first word
+      normName(er.name) === en ||                                      // exact match
+      (alias && normName(er.name).startsWith(alias[1])) ||            // manual alias
+      normName(er.name).startsWith(ew) ||                             // Eric name starts with Elly's first word
+      en.startsWith(firstWord(er.name))                               // Elly name starts with Eric's first word
     ));
-    if (match && ew.length > 2) {
+    if (match && (alias || ew.length > 2)) {
       matched.add(eb.id); ericMatched.add(match.id);
       const diff = (parseFloat(match.amount) || 0) - (parseFloat(eb.amount) || 0);
       const diffStr = diff === 0 ? '' : (diff > 0 ? `+${fmt(diff)} Eric` : `${fmt(diff)} Elly`);
