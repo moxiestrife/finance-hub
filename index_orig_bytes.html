@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -11,8 +11,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getDatabase, ref, set, get, onValue, update }
     from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
-    from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey:            "AIzaSyCehzkWndBARs8g5uThkTcaEsA1LDMKiIE",
@@ -26,8 +24,6 @@
 
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
-  const auth = getAuth(app);
-  const googleProvider = new GoogleAuthProvider();
 
   // Expose helpers globally so non-module scripts can call them
   window._db = db;
@@ -36,11 +32,6 @@
   window._dbGet = get;
   window._dbOnValue = onValue;
   window._dbUpdate = update;
-  window._auth = auth;
-  window._googleProvider = googleProvider;
-  window._signInWithPopup = signInWithPopup;
-  window._signOut = signOut;
-  window._onAuthStateChanged = onAuthStateChanged;
   window._firebaseReady = true;
   document.dispatchEvent(new Event('firebaseReady'));
 </script>
@@ -109,24 +100,15 @@ body {
 .login-sync-note { margin-top: 18px; font-size: 0.75rem; color: #9ca3af; }
 .login-sync-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; margin-right: 5px; vertical-align: middle; }
 .login-sync-dot.connected { background: #10b981; }
-.google-btn {
-  width: 100%; padding: 13px; border: 2px solid #e2e8f0; border-radius: 10px;
-  font-size: 1rem; font-weight: 600; cursor: pointer;
-  background: white; color: #374151; transition: all 0.2s;
-  font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 10px;
-}
-.google-btn:hover { background: #f8fafc; border-color: #94a3b8; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.google-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.google-icon { width: 20px; height: 20px; flex-shrink: 0; }
-.login-checking { font-size: 0.88rem; color: #64748b; margin-bottom: 20px; }
-.login-access-denied { color: #dc2626; font-size: 0.85rem; margin-top: 12px; display: none; }
 
 /* ── TOP BAR ── */
 .topbar {
   background: #1e3a5f; color: white;
-  padding: 13px 0;
-  display: flex; align-items: center; justify-content: center;
+  padding: 13px 24px;
+  display: flex; align-items: center;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  position: sticky; top: 0; z-index: 100;
+  gap: 10px;
 }
 /* Title and right section each take equal flex space so the middle is truly centred */
 .topbar h1 { font-size: 1.15rem; font-weight: 700; white-space: nowrap; flex: 1; min-width: 0; }
@@ -214,12 +196,9 @@ body {
 .data-btn:hover { background: rgba(255,255,255,0.22); }
 
 /* ── TOP-LEVEL TAB BAR ── */
-.sticky-header { position: sticky; top: 0; z-index: 100; }
-.header-inner { max-width: 1140px; margin: 0 auto; width: 100%; display: flex; align-items: center; gap: 10px; padding: 0 16px; box-sizing: border-box; }
 .tab-bar {
   background: #162d4a;
-  display: flex; gap: 0; padding: 0; flex-wrap: wrap;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  display: flex; gap: 0; padding: 0 24px; flex-wrap: wrap;
 }
 .tab-btn {
   background: none; border: none; color: rgba(255,255,255,0.55);
@@ -482,23 +461,6 @@ body {
 .sum-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 16px; font-size: 0.875rem; }
 /* Savings goals section inside footer */
 .savings-section { border-top: 2px solid #e2e8f0; }
-/* Summary sub-tabs */
-.sum-sub-tabs { display:flex; gap:8px; margin-bottom:20px; }
-.sum-sub-btn { padding:8px 20px; border-radius:20px; border:2px solid #c7d2fe; background:#fff; color:#4f46e5; font-size:0.88rem; font-weight:600; cursor:pointer; transition:all .15s; }
-.sum-sub-btn.active { background:#4f46e5; color:#fff; border-color:#4f46e5; }
-.sum-sub-btn:hover:not(.active) { background:#eef2ff; }
-
-.bill-group-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 5px 12px 3px;
-  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-  color: #4f46e5; border-top: 1px solid #e0e7ff; background: #f5f3ff;
-  margin-top: 4px;
-}
-.bill-group-header.variable {
-  color: #b45309; border-top-color: #fef3c7; background: #fffbeb;
-}
-.bill-group-header .bill-group-total { font-weight: 600; opacity: 0.8; }
 .savings-section-header {
   padding: 6px 12px 2px; font-size: 0.68rem; font-weight: 700;
   color: #059669; text-transform: uppercase; letter-spacing: 0.5px;
@@ -831,11 +793,6 @@ body {
 .p-check { width: 18px; height: 18px; cursor: pointer; accent-color: #1e3a5f; flex-shrink: 0; }
 .p-row-name { font-size: 0.875rem; color: #1a202c; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .p-row-amount { font-size: 0.875rem; font-weight: 700; color: #1e3a5f; text-align: right; }
-.p-name-input { border: none; background: transparent; font-size: 0.875rem; color: #1a202c; font-weight: 500; outline: none; padding: 2px 4px; border-radius: 4px; min-width: 0; width: 100%; font-family: inherit; }
-.p-name-input:focus { background: #eff6ff; }
-.p-amount-input { border: none; background: transparent; font-size: 0.875rem; font-weight: 700; color: #1e3a5f; text-align: right; width: 100%; outline: none; padding: 2px 4px; border-radius: 4px; font-family: inherit; }
-.p-amount-input:focus { background: #eff6ff; }
-.is-done .p-name-input { text-decoration: line-through; color: #9ca3af; }
 .p-row-payto { font-size: 0.78rem; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .p-row-meta { display: flex; flex-direction: column; gap: 2px; }
 .p-split-badge {
@@ -844,18 +801,6 @@ body {
 }
 .p-split-mine   { background: #ede9fe; color: #5b21b6; }
 .p-split-shared { background: #dcfce7; color: #166534; }
-.p-split-eric   { background: #dbeafe; color: #1d4ed8; }
-.p-split-select {
-  border: none; outline: none; cursor: pointer; font-family: inherit;
-  font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 999px;
-  text-transform: uppercase; letter-spacing: 0.3px;
-  -webkit-appearance: none; -moz-appearance: none; appearance: none;
-  text-align: center; text-align-last: center;
-}
-.p-split-select:hover { filter: brightness(0.95); }
-.p-split-select.p-split-mine   { background: #ede9fe; color: #5b21b6; }
-.p-split-select.p-split-shared { background: #dcfce7; color: #166534; }
-.p-split-select.p-split-eric   { background: #dbeafe; color: #1d4ed8; }
 .p-alloc-badge {
   font-size: 0.65rem; color: #6b7280; background: #f1f5f9;
   padding: 1px 6px; border-radius: 999px; white-space: nowrap;
@@ -899,55 +844,9 @@ body {
 
 @media (max-width: 600px) {
   .p-form-grid { grid-template-columns: 1fr 1fr; }
-  .p-col-mine .p-list-col-header, .p-col-mine .p-row { grid-template-columns: 24px 1fr 80px 90px 22px; }
-  .p-col-mine .p-list-col-header span:nth-child(4), .p-col-mine .p-row .p-row-meta { display: none; }
+  .p-list-col-header, .p-row { grid-template-columns: 24px 1fr 80px 90px 22px; }
+  .p-list-col-header span:nth-child(4), .p-row .p-row-meta { display: none; }
 }
-
-/* ── Payables: single-column layout with view switcher ── */
-.p-cols { display: block; }
-.p-col  { width: 100%; }
-.p-list-header-eric { background: #f0f9ff; }
-.p-list-header-eric h3 { color: #0369a1; }
-
-/* ── View switcher (Elly only) ─────────────────────── */
-.p-view-switcher {
-  display: flex; margin-bottom: 14px;
-  background: #f1f5f9; border-radius: 10px; padding: 3px;
-}
-.p-vs-btn {
-  flex: 1; padding: 8px 16px; border: none; border-radius: 8px;
-  font-size: 0.875rem; font-weight: 600; cursor: pointer;
-  background: transparent; color: #6b7280; font-family: inherit;
-  transition: all 0.15s;
-}
-.p-vs-btn:hover { color: #374151; }
-.p-vs-btn.active { background: white; color: #1e3a5f; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
-
-/* ── Account filter dropdown ─────────────────────── */
-.p-account-select {
-  padding: 5px 8px; border: 1.5px solid #e2e8f0; border-radius: 8px;
-  font-size: 0.75rem; color: #374151; background: #f8fafc;
-  outline: none; font-family: inherit; cursor: pointer; max-width: 140px;
-}
-.p-account-select:focus { border-color: #1e3a5f; background: white; }
-
-/* ── Account grouping sections ───────────────────── */
-.p-acct-section { border-bottom: 1px solid #f0f4f8; }
-.p-acct-section:last-child { border-bottom: none; }
-.p-acct-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 14px; cursor: pointer;
-  background: #f4f7fb; font-size: 0.8rem; font-weight: 700;
-  color: #1e3a5f; user-select: none; border-top: 1px solid #edf0f5;
-}
-.p-acct-section:first-child .p-acct-header { border-top: none; }
-.p-acct-header:hover { background: #eef2f8; }
-.p-acct-name { flex: 1; }
-.p-acct-stats { font-size: 0.72rem; font-weight: 600; color: #6b7280; }
-.p-acct-header .p-comp-arrow { font-size: 0.9rem; transition: transform 0.2s; display: inline-block; }
-.p-acct-header .p-comp-arrow.open { transform: rotate(90deg); }
-.p-col-eric .p-acct-header { background: #f0f8ff; color: #0369a1; }
-.p-col-eric .p-acct-header:hover { background: #e0f0ff; }
 </style>
 </head>
 <body>
@@ -961,19 +860,15 @@ body {
     <div class="login-title">Finance Hub</div>
     <div class="login-sub">Private household finance tracker</div>
 
-    <p class="login-checking" id="login-checking" style="display:none;">Checking your account&hellip;</p>
+    <label class="login-label" for="login-name">Your name</label>
+    <input class="login-input" id="login-name" type="text" placeholder="Your name" autocomplete="off" autocapitalize="words">
 
-    <button class="google-btn" id="google-sign-in-btn" onclick="doGoogleLogin()">
-      <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-      </svg>
-      Sign in with Google
-    </button>
+    <label class="login-label" for="login-pin">PIN</label>
+    <input class="login-input" id="login-pin" type="password" placeholder="Enter your PIN" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
 
-    <p class="login-access-denied" id="login-access-denied">This Google account is not authorised. Please sign in with Elly&rsquo;s or Eric&rsquo;s account.</p>
+    <div class="login-error" id="login-error">Incorrect name or PIN. Try again.</div>
+
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
 
     <div class="login-sync-note">
       <span class="login-sync-dot" id="login-sync-dot"></span>
@@ -987,16 +882,8 @@ body {
 ════════════════════════════════════ -->
 <div id="app" style="display:none">
 
-<!-- IMPERSONATION BANNER -->
-<div id="impersonate-banner" style="display:none;background:#6366f1;color:#fff;text-align:center;padding:8px 16px;font-size:0.85rem;font-weight:600;position:sticky;top:0;z-index:1000;display:none;align-items:center;justify-content:center;gap:12px">
-  <span>🎭 Viewing as Eric — your Elly session is still active</span>
-  <button onclick="stopImpersonating()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.5);color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:0.8rem;font-weight:600">✕ Back to Elly</button>
-</div>
-
 <!-- TOP BAR -->
-<div class="sticky-header">
 <div class="topbar">
-<div class="header-inner">
   <h1>💰 Finance Hub</h1>
   <div class="month-nav" id="monthNavWrap" style="position:relative;z-index:200">
     <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
@@ -1024,22 +911,18 @@ body {
     <button class="logout-btn" onclick="doLogout()">Sign out</button>
   </div>
 </div>
-</div>
 
 <!-- TOP-LEVEL TAB BAR -->
-<div class="tab-bar"><div class="header-inner" style="display:flex;gap:0;padding:0">
+<div class="tab-bar">
   <button class="tab-btn active" id="tab-btn-monthly" onclick="switchTab('monthly')">📅 Monthly Budget</button>
+  <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">📊 Summary</button>
+  <button class="tab-btn" id="tab-btn-insights" onclick="switchTab('insights')">💡 Insights</button>
   <button class="tab-btn" id="tab-btn-payables" onclick="switchTab('payables')">
     💸 Payables
     <span class="tab-badge" id="payables-badge" style="display:none"></span>
   </button>
-  <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">📊 Summary</button>
-  <button class="tab-btn" id="tab-btn-insights" onclick="switchTab('insights')">💡 Insights</button>
-  <button class="tab-btn" id="tab-btn-compare" onclick="switchTab('compare')" style="display:none">⚖ Compare</button>
   <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">⚙ Admin</button>
-</div></div>
 </div>
-</div><!-- /.sticky-header -->
 
 <!-- MAIN -->
 <div class="main">
@@ -1109,20 +992,7 @@ body {
         </div>
       </div>
 
-      <div class="admin-card">
-        <h2>🎭 Impersonate User</h2>
-        <div class="admin-toggle-desc" style="margin-bottom:12px;color:#6b7280">Switch your view to test the app as Eric. Your Elly login stays active — Firebase writes still work on both paths.</div>
-        <div id="impersonate-controls">
-          <button class="p-btn" style="background:#6366f1;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;border:none;cursor:pointer" onclick="impersonateEric()">👤 View as Eric</button>
-        </div>
-      </div>
-
     </div>
-  </div>
-
-  <!-- ── COMPARE TAB ── -->
-  <div class="tab-content" id="tab-compare">
-    <div id="compareContent" style="padding:16px 20px;max-width:960px;margin:0 auto"></div>
   </div>
 
   <!-- ── SUMMARY TAB ── -->
@@ -1150,6 +1020,7 @@ body {
           <div style="font-size:0.72rem;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.4px">Eric owes</div>
           <div style="font-size:1.3rem;font-weight:800;margin-top:2px" id="p-eric-owing-amt">$0.00</div>
           <div style="font-size:0.72rem;opacity:0.65" id="p-eric-owing-sub">0 items</div>
+          <a class="p-eric-peek" onclick="openEricPeek()">View Eric's list →</a>
         </div>
       </div>
 
@@ -1169,8 +1040,8 @@ body {
             <label class="p-flabel">Split</label>
             <select class="p-input" id="pf-split" onchange="pUpdateSplitHint()">
               <option value="shared">Shared (50/50)</option>
-              <option value="mine">Solo (mine)</option>
-              <option value="eric">Solo (Eric's)</option>
+              <option value="mine">Mine only</option>
+              <option value="eric">Eric only</option>
             </select>
           </div>
           <div class="p-form-col" style="grid-column:1/3">
@@ -1191,74 +1062,31 @@ body {
         </div>
       </div>
 
-      <!-- View switcher (Elly only — Eric sees no switcher) -->
-      <div class="p-view-switcher" id="p-view-switcher">
-        <button class="p-vs-btn active" id="p-vs-mine" onclick="pSetView('mine')">💳 My Payables</button>
-        <button class="p-vs-btn" id="p-vs-eric" onclick="pSetView('eric')">👤 Eric's Payables</button>
+      <!-- Active payables list -->
+      <div class="p-list-card" id="p-active-card">
+        <div class="p-list-header">
+          <h3 id="p-list-title">My Payables</h3>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="p-split-filter" id="p-split-filter">
+              <button class="p-sf-btn active" onclick="pSetSplitFilter('all',this)">All</button>
+              <button class="p-sf-btn" onclick="pSetSplitFilter('shared',this)">Shared</button>
+              <button class="p-sf-btn" onclick="pSetSplitFilter('mine',this)">Mine</button>
+            </div>
+            <button class="p-btn p-btn-primary" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">＋ Add</button>
+          </div>
+        </div>
+        <div class="p-list-col-header">
+          <span></span><span>Expense</span><span style="text-align:right">My share</span>
+          <span>Pay To</span><span>Allocation</span><span></span>
+        </div>
+        <div id="p-active-list"></div>
+        <!-- Completed collapsed section -->
+        <div class="p-completed-toggle" id="p-completed-toggle" onclick="pToggleCompleted()">
+          <span class="p-comp-arrow">›</span>
+          <span id="p-completed-label">Completed (0)</span>
+        </div>
+        <div id="p-completed-list" style="display:none"></div>
       </div>
-
-      <!-- Columns (one visible at a time via switcher) -->
-      <div class="p-cols">
-
-        <!-- Mine (Elly's full list, or Eric's own list) -->
-        <div class="p-col p-col-mine" id="p-col-mine">
-          <div class="p-list-card">
-            <div class="p-list-header">
-              <h3 id="p-list-title">My Payables</h3>
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                <select class="p-account-select" id="p-account-filter" onchange="pSetAccountFilter(this.value)">
-                  <option value="all">All accounts</option>
-                </select>
-                <div class="p-split-filter" id="p-split-filter">
-                  <button class="p-sf-btn active" onclick="pSetSplitFilter('all',this)">All</button>
-                  <button class="p-sf-btn" id="p-sf-shared" onclick="pSetSplitFilter('shared',this)">Shared</button>
-                  <button class="p-sf-btn" id="p-sf-mine" onclick="pSetSplitFilter('mine',this)">Solo</button>
-                </div>
-                <button class="p-btn p-btn-primary" id="p-add-btn" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">＋ Add</button>
-              </div>
-            </div>
-            <div class="p-list-col-header" id="p-mine-col-header">
-              <span></span><span>Expense</span><span style="text-align:right" id="p-share-label">Your share</span>
-              <span>Pay To</span><span>Allocation</span><span></span>
-            </div>
-            <div id="p-active-list"></div>
-            <div class="p-completed-toggle" id="p-completed-toggle" onclick="pToggleCompleted()">
-              <span class="p-comp-arrow">›</span>
-              <span id="p-completed-label">Completed (0)</span>
-            </div>
-            <div id="p-completed-list" style="display:none"></div>
-          </div>
-        </div>
-
-        <!-- Eric's column (visible to Elly only) -->
-        <div class="p-col p-col-eric" id="p-col-eric" style="display:none">
-          <div class="p-list-card">
-            <div class="p-list-header p-list-header-eric">
-              <h3>Eric's Payables</h3>
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                <select class="p-account-select" id="p-eric-account-filter" onchange="pSetEricAccountFilter(this.value)">
-                  <option value="all">All accounts</option>
-                </select>
-                <div class="p-split-filter" id="p-eric-split-filter">
-                  <button class="p-sf-btn active" onclick="pSetEricSplitFilter('all',this)">All</button>
-                  <button class="p-sf-btn" onclick="pSetEricSplitFilter('shared',this)">Shared</button>
-                  <button class="p-sf-btn" onclick="pSetEricSplitFilter('eric',this)">His</button>
-                </div>
-              </div>
-            </div>
-            <div class="p-list-col-header">
-              <span></span><span>Expense</span><span style="text-align:right">His share</span><span>Pay To</span>
-            </div>
-            <div id="p-eric-active-list"></div>
-            <div class="p-completed-toggle" id="p-eric-completed-toggle" onclick="pToggleEricCompleted()">
-              <span class="p-comp-arrow">›</span>
-              <span id="p-eric-completed-label">Completed (0)</span>
-            </div>
-            <div id="p-eric-completed-list" style="display:none"></div>
-          </div>
-        </div>
-
-      </div><!-- end .p-cols -->
 
     </div>
   </div><!-- end tab-payables -->
@@ -1417,58 +1245,13 @@ body {
       <button class="modal-close" onclick="closeModal('modal-allocate')">✕</button>
     </div>
     <div class="modal-body">
-      <p id="alloc-modal-subtext" style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Pick a month, then a pay period. This creates a bill in that period so you can tick it off there.</p>
+      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Pick a month, then a pay period. This creates a bill in that period so you can tick it off there.</p>
       <div id="alloc-month-list" class="move-month-list"></div>
       <div id="alloc-period-list" class="move-period-list" style="display:none"></div>
     </div>
     <div class="modal-footer">
       <button class="modal-btn ghost" onclick="closeModal('modal-allocate')">Cancel</button>
       <button class="modal-btn primary" id="alloc-confirm-btn" onclick="confirmAllocate()" disabled style="opacity:0.4">Allocate</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ MODAL: Edit Payable ═══ -->
-<div class="modal-overlay" id="modal-edit-payable">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>Edit payable</h3>
-      <button class="modal-close" onclick="closeModal('modal-edit-payable')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="p-form-grid">
-        <div class="p-form-col" style="grid-column:1/3">
-          <label class="p-flabel">Expense name</label>
-          <input class="p-input" id="pef-name" placeholder="e.g. Energy bill">
-        </div>
-        <div class="p-form-col">
-          <label class="p-flabel">Full amount ($)</label>
-          <input class="p-input" type="number" id="pef-amount" step="0.01" placeholder="0.00" oninput="pUpdateEditSplitHint()">
-        </div>
-        <div class="p-form-col">
-          <label class="p-flabel">Split</label>
-          <select class="p-input" id="pef-split" onchange="pUpdateEditSplitHint()">
-            <option value="shared">Shared (50/50)</option>
-            <option value="mine">Solo (mine)</option>
-            <option value="eric">Solo (Eric's)</option>
-          </select>
-        </div>
-        <div class="p-form-col" style="grid-column:1/3">
-          <label class="p-flabel">Pay To account</label>
-          <select class="p-input" id="pef-payto"></select>
-        </div>
-        <div class="p-form-col">
-          <label class="p-flabel">Date incurred</label>
-          <input class="p-input" id="pef-date" placeholder="e.g. 25 Mar 2026">
-        </div>
-        <div class="p-form-col" style="grid-column:1/-1">
-          <span class="p-split-hint" id="pef-split-hint"></span>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="modal-btn ghost" onclick="closeModal('modal-edit-payable')">Cancel</button>
-      <button class="modal-btn primary" onclick="savePayableEdit()">Save changes</button>
     </div>
   </div>
 </div>
@@ -1519,100 +1302,47 @@ body {
 //  CREDENTIALS (simple PIN-based auth — no server needed)
 // ═══════════════════════════════════════════════════════════════
 
-// Google account → role mapping
-const AUTHORISED_USERS = {
-  'ellyhizon1@gmail.com':  { role: 'admin',  displayName: 'Elly', avatar: 'EH', key: 'elly' },
-  'ericdefelix@gmail.com': { role: 'member', displayName: 'Eric', avatar: 'EF', key: 'eric' }
+// Change these PINs to whatever you like before deploying
+const USERS = {
+  elly: { pin: '182454', role: 'admin', displayName: 'Elly', avatar: 'EH' },
+  eric: { pin: '201006', role: 'member', displayName: 'Eric', avatar: 'EF' }
 };
 
 let currentUser = null; // 'elly' | 'eric'
 
-function doGoogleLogin() {
-  const btn   = document.getElementById('google-sign-in-btn');
-  const errEl = document.getElementById('login-access-denied');
-  btn.disabled = true;
+function doLogin() {
+  const nameRaw = document.getElementById('login-name').value.trim().toLowerCase();
+  const pin     = document.getElementById('login-pin').value.trim();
+  const errEl   = document.getElementById('login-error');
+  const user    = USERS[nameRaw];
+
+  if (!user || user.pin !== pin) {
+    errEl.style.display = 'block';
+    document.getElementById('login-pin').value = '';
+    document.getElementById('login-pin').focus();
+    return;
+  }
+
   errEl.style.display = 'none';
-  window._signInWithPopup(window._auth, window._googleProvider)
-    .then(result => {
-      const profile = AUTHORISED_USERS[result.user.email];
-      if (!profile) {
-        errEl.style.display = 'block';
-        window._signOut(window._auth);
-        btn.disabled = false;
-        return;
-      }
-      currentUser = profile.key;
-      showApp();
-    })
-    .catch(err => {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        errEl.textContent = 'Sign-in failed. Please try again.';
-        errEl.style.display = 'block';
-      }
-      btn.disabled = false;
-    });
-}
-
-let _preImpersonateUser = null;
-
-function _switchBudgetUser(newUser) {
-  currentUser = newUser;
-  // Wipe local state so the old user's data never bleeds through while Firebase loads
-  state = { months: {}, settings: {}, accounts: [...DEFAULT_ACCOUNTS] };
-  firebaseDataLoaded = false;
-  if (budgetUnsub) { budgetUnsub(); budgetUnsub = null; }
-  // Render immediately with blank state so stale data disappears
-  render();
-  // Re-subscribe to the new user's Firebase path; the onValue callback will call render() once data arrives
-  listenBudget();
-  applyRoleUI();
-  applyAdminSettings();
-}
-
-function impersonateEric() {
-  if (!isOwner()) return;
-  _preImpersonateUser = currentUser;
-  _switchBudgetUser('eric');
-  const banner = document.getElementById('impersonate-banner');
-  if (banner) banner.style.display = 'flex';
-  const ctrl = document.getElementById('impersonate-controls');
-  if (ctrl) ctrl.innerHTML = '<span style="color:#6b7280;font-size:0.85rem">Currently viewing as Eric. Use the banner at the top to switch back.</span>';
-  showToast('🎭 Now viewing as Eric');
-  switchTab('monthly');
-}
-
-function stopImpersonating() {
-  if (!_preImpersonateUser) return;
-  const prev = _preImpersonateUser;
-  _preImpersonateUser = null;
-  _switchBudgetUser(prev);
-  const banner = document.getElementById('impersonate-banner');
-  if (banner) banner.style.display = 'none';
-  const ctrl = document.getElementById('impersonate-controls');
-  if (ctrl) ctrl.innerHTML = '<button class="p-btn" style="background:#6366f1;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;border:none;cursor:pointer" onclick="impersonateEric()">👤 View as Eric</button>';
-  showToast('✅ Back to Elly view');
-  switchTab('monthly');
+  currentUser = nameRaw;
+  sessionStorage.setItem('fh_user', nameRaw);
+  showApp();
 }
 
 function doLogout() {
-  stopImpersonating();
   currentUser = null;
-  window._signOut(window._auth);
+  sessionStorage.removeItem('fh_user');
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
-  const errEl = document.getElementById('login-access-denied');
-  if (errEl) errEl.style.display = 'none';
-  const btn = document.getElementById('google-sign-in-btn');
-  if (btn) btn.disabled = false;
+  document.getElementById('login-name').value = '';
+  document.getElementById('login-pin').value = '';
 }
 
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
-  const firebaseUser = window._auth && window._auth.currentUser;
-  const profile = firebaseUser ? AUTHORISED_USERS[firebaseUser.email] : null;
-  const u = profile || { displayName: currentUser, avatar: currentUser ? currentUser.slice(0,2).toUpperCase() : '?' };
+  const u = USERS[currentUser];
   const avatarEl = document.getElementById('user-avatar');
   avatarEl.textContent = u.avatar;
   avatarEl.className = `user-avatar avatar-${currentUser}`;
@@ -1622,19 +1352,19 @@ function showApp() {
   init();
 }
 
-function isOwner()  { return currentUser === 'elly'; } // admin-tab + account settings only
-function isAdmin()  { return !!currentUser; }          // any logged-in user can edit
+function isAdmin()  { return currentUser === 'elly'; }
 function isEric()   { return currentUser === 'eric'; }
 
 function applyRoleUI() {
-  // Admin + Compare tabs visible only to Elly
-  document.getElementById('tab-btn-admin').style.display   = isOwner() ? '' : 'none';
-  document.getElementById('tab-btn-compare').style.display = isOwner() ? '' : 'none';
+  // Admin tab visible only to Elly
+  document.getElementById('tab-btn-admin').style.display = isAdmin() ? '' : 'none';
 
-  // View switcher (Elly only — Eric sees his own payables fullscreen)
+  // Eric: hide admin add button in payables
   if (isEric()) {
-    const switcher = document.getElementById('p-view-switcher');
-    if (switcher) switcher.style.display = 'none';
+    const addCard = document.getElementById('p-add-card');
+    if (addCard) addCard.style.display = 'none';
+    const ericRight = document.getElementById('p-owing-right');
+    if (ericRight) ericRight.style.display = 'none';
   }
 }
 
@@ -1642,26 +1372,14 @@ function applyRoleUI() {
 //  FIREBASE SYNC
 // ═══════════════════════════════════════════════════════════════
 
-const DB_BUDGET_PATH       = 'finance-hub/budget';
-const DB_ERIC_BUDGET_PATH  = 'finance-hub/eric-budget'; // Eric's private budget ledger
-const DB_PAYABLES_PATH     = 'finance-hub/payables';
-const DB_SETTINGS_PATH     = 'finance-hub/admin-settings';
-
-// Returns the Firebase path and localStorage key for the active user's budget
-function activeBudgetPath()     { return isEric() ? DB_ERIC_BUDGET_PATH : DB_BUDGET_PATH; }
-function activeBudgetLocalKey() { return isEric() ? 'ericBudgetV1' : 'budgetPlannerV2'; }
-function activeBudgetBackupPrefix() { return isEric() ? 'fhEricBackup_' : 'fhBackup_'; }
+const DB_BUDGET_PATH   = 'finance-hub/budget';
+const DB_PAYABLES_PATH = 'finance-hub/payables';
+const DB_SETTINGS_PATH = 'finance-hub/admin-settings';
 
 let fbReady = false;
 let firebaseDataLoaded = false; // guard: never push to Firebase until we've received data FROM it first
 let budgetUnsub   = null;
 let payablesUnsub = null;
-let _budgetLoaded = false;
-let _payablesLoaded = false;
-function _onBothLoaded() {
-  if (!_budgetLoaded || !_payablesLoaded) return;
-  pSyncDoneFromBudget();
-}
 let adminUnsub    = null;
 
 function setSyncStatus(status) {
@@ -1677,7 +1395,7 @@ function dbPath(path) { return window._dbRef(window._db, path); }
 function pushBudgetToFirebase() {
   if (!fbReady) return;
   setSyncStatus('saving');
-  window._dbSet(dbPath(activeBudgetPath()), state).then(() => setSyncStatus('live')).catch(() => setSyncStatus('offline'));
+  window._dbSet(dbPath(DB_BUDGET_PATH), state).then(() => setSyncStatus('live')).catch(() => setSyncStatus('offline'));
 }
 function pushPayablesToFirebase() {
   if (!fbReady) return;
@@ -1692,30 +1410,30 @@ function pushAdminSettingsToFirebase() {
 function listenBudget() {
   if (!fbReady) return;
   if (budgetUnsub) budgetUnsub();
-  budgetUnsub = window._dbOnValue(dbPath(activeBudgetPath()), snap => {
+  budgetUnsub = window._dbOnValue(dbPath(DB_BUDGET_PATH), snap => {
     const val = snap.val();
     if (val) {
       state = val;
       if (!state.accounts) state.accounts = [...DEFAULT_ACCOUNTS];
       const si = document.getElementById('salaryInput');
       if (si) si.value = state.settings?.salary || 4524.58;
-      firebaseDataLoaded = true;
+      firebaseDataLoaded = true; // Firebase has real data — safe to push changes now
+      // Rolling backup: keep last 3 snapshots in localStorage keyed by timestamp
       try {
-        const pfx = activeBudgetBackupPrefix();
-        const backupKey = pfx + new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
+        const backupKey = 'fhBackup_' + new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
         localStorage.setItem(backupKey, JSON.stringify(val));
-        const allKeys = Object.keys(localStorage).filter(k=>k.startsWith(pfx)).sort();
+        // Prune old backups — keep only the 3 most recent
+        const allKeys = Object.keys(localStorage).filter(k=>k.startsWith('fhBackup_')).sort();
         while (allKeys.length > 3) localStorage.removeItem(allKeys.shift());
       } catch(e) {}
       if (curTab === 'monthly')  render();
       if (curTab === 'summary')  renderSummary();
       if (curTab === 'insights') renderInsights();
       if (curTab === 'admin')    renderAdmin();
-      _budgetLoaded = true; _onBothLoaded();
     } else {
+      // No data in Firebase yet — safe to push our local state up
       firebaseDataLoaded = true;
-      // Only auto-seed Firebase when NOT impersonating — prevents writing the wrong user's data
-      if (!_preImpersonateUser) pushBudgetToFirebase();
+      pushBudgetToFirebase();
     }
     setSyncStatus('live');
   });
@@ -1728,59 +1446,21 @@ function listenPayables() {
     if (val) {
       pState = { entries: [], ...val };
       if (!Array.isArray(pState.entries)) pState.entries = Object.values(pState.entries||{});
-      // Rolling backup: keep last 3 payables snapshots in localStorage keyed by timestamp
-      try {
-        const backupKey = 'fhPBackup_' + new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
-        localStorage.setItem(backupKey, JSON.stringify(val));
-        const allKeys = Object.keys(localStorage).filter(k=>k.startsWith('fhPBackup_')).sort();
-        while (allKeys.length > 3) localStorage.removeItem(allKeys.shift());
-      } catch(e) {}
-      // Mirror Firebase data into localStorage so a later seed never runs on stale empty state
-      try { localStorage.setItem('payablesV2', JSON.stringify(pState)); } catch(e) {}
-      _payablesLoaded = true;
-      // pRepairAllocations may pSave() if it changes anything, so it must run after _payablesLoaded=true
       pRepairAllocations();
-      _onBothLoaded();
       if (curTab === 'payables') renderPayables();
       updatePayablesBadge();
-    } else {
-      // No payables data in Firebase yet — safe to push our local state up
-      _payablesLoaded = true; _onBothLoaded();
-      pushPayablesToFirebase();
     }
-    setSyncStatus('live');
   });
 }
 
 // Clear any allocatedTo references where the linked bill no longer exists in the budget.
-// Only runs once budget data is confirmed loaded — avoids clearing links due to load-order race conditions.
 function pRepairAllocations() {
-  if (!_budgetLoaded) return;
-  // Each user only validates their own allocation field against their own loaded budget
-  const field = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
   let changed = false;
   (pState.entries || []).forEach(e => {
-    if (!e[field]) return;
-    const period = getPeriod(e[field].key, e[field].pi);
-    const billExists = period?.bills?.some(b => b.id === e[field].billId);
-    if (!billExists) { e[field] = null; changed = true; }
-  });
-  if (changed) pSave();
-}
-// Reconcile ellyDone on payables against their linked budget bill's done state.
-function pSyncDoneFromBudget() {
-  const field = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
-  let changed = false;
-  (pState.entries||[]).forEach(e => {
-    if (!e[field]?.billId) return;
-    const period = getPeriod(e[field].key, e[field].pi);
-    const bill = period?.bills?.find(b => b.id === e[field].billId);
-    if (!bill) return;
-    if (isEric()) {
-      if (e.ericDone !== bill.done) { e.ericDone = bill.done; e.ericDoneAt = bill.done ? pTodayLabel() : null; changed = true; }
-    } else {
-      if (e.ellyDone !== bill.done) { e.ellyDone = bill.done; e.ellyDoneAt = bill.done ? pTodayLabel() : null; changed = true; }
-    }
+    if (!e.allocatedTo) return;
+    const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
+    const billExists = period?.bills?.some(b => b.id === e.allocatedTo.billId);
+    if (!billExists) { e.allocatedTo = null; changed = true; }
   });
   if (changed) pSave();
 }
@@ -1826,160 +1506,18 @@ function saveAdminSettings() {
 function applyAdminSettings() {
   const toggle = document.getElementById('toggle-eric-budget');
   if (toggle) toggle.checked = !!adminSettings.ericCanViewBudget;
-  // Eric now always has access to all budget tabs — no tab hiding needed
-}
 
-async function renderCompare() {
-  if (!isOwner()) return;
-  const container = document.getElementById('compareContent');
-  container.innerHTML = '<div style="color:#9ca3af;padding:24px 0">Loading Eric\'s data…</div>';
-
-  const ericSnap = await window._dbGet(window._dbRef(window._db, 'finance-hub/eric-budget'));
-  const ericData = ericSnap.val() || {};
-  const key = mKey(curYear, curMonth);
-  const monthName = MONTHS[curMonth] + ' ' + curYear;
-
-  const ellyPeriods = state.months[key]?.periods || [];
-  const ericPeriods = ericData.months?.[key]?.periods || [];
-  // Group Elly's recurring bills by name and sum amounts — handles 2- or 3-payday months correctly
-  const ellyRaw = ellyPeriods.flatMap(p => (p.bills || []).filter(b => b.recurring));
-  const ellyGrouped = {};
-  ellyRaw.forEach(b => {
-    // Strip trailing number suffix so "Groceries 2" groups with "Groceries"
-    const key = (b.name || '').trim().toLowerCase().replace(/\s+\d+$/, '');
-    if (!ellyGrouped[key]) ellyGrouped[key] = { ...b, amount: 0, count: 0 };
-    ellyGrouped[key].amount += parseFloat(b.amount) || 0;
-    ellyGrouped[key].count++;
-  });
-  const ellyBills = Object.values(ellyGrouped);
-  const ericBills = ericPeriods.flatMap(p => (p.bills || []).filter(b => b.recurring));
-
-  const ellyMonthlySalary = (state.settings?.salary || 0) * ellyPeriods.length;
-  const ericMonthlySalary = ericData.settings?.salary || 0;
-
-  const ellyRecurring = ellyBills.filter(b => b.recurring);
-  const ellyVariable  = ellyBills.filter(b => !b.recurring);
-  const ericRecurring = ericBills.filter(b => b.recurring);
-  const ericVariable  = ericBills.filter(b => !b.recurring);
-
-  const sum = arr => arr.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0);
-  const fmt = n => '$' + parseFloat(n || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-  // Match bills by normalised name (first significant word)
-  function normName(n) { return (n || '').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim(); }
-  function firstWord(n) { return normName(n).split(' ')[0]; }
-
-  // Manual aliases: [elly normalised name, eric normalised name prefix]
-  const ALIASES = [
-    ['groceries',                'food budget'],
-    ['mortgage',                 'nab mortgage'],
-    ['volvo insurance',          'car insurance'],
-    ['hp ink subscription',      'hp ink'],
-    ['elly personal loan share', 'personal loan share'],
-    ['omm ploan',                'renovation loan'],
-    ['telstra',                  'my vodafone'],
-  ];
-
-  const matched = new Set(), ericMatched = new Set();
-  const sharedRows = [];
-  ellyBills.forEach(eb => {
-    const ew = firstWord(eb.name);
-    const en = normName(eb.name);
-    const alias = ALIASES.find(([a]) => a === en);
-    const match = ericBills.find(er => !ericMatched.has(er.id) && (
-      normName(er.name) === en ||                                      // exact match
-      (alias && normName(er.name).startsWith(alias[1])) ||            // manual alias
-      normName(er.name).startsWith(ew) ||                             // Eric name starts with Elly's first word
-      en.startsWith(firstWord(er.name))                               // Elly name starts with Eric's first word
-    ));
-    if (match && (alias || ew.length > 2)) {
-      matched.add(eb.id); ericMatched.add(match.id);
-      const diff = (parseFloat(match.amount) || 0) - (parseFloat(eb.amount) || 0);
-      const diffStr = diff === 0 ? '' : (diff > 0 ? `+${fmt(diff)} Eric` : `${fmt(diff)} Elly`);
-      const LABELS = { 'telstra': 'Phone bill (Telstra / Vodafone)' };
-      const label = LABELS[normName(eb.name)] || eb.name;
-      sharedRows.push({ label, elly: parseFloat(eb.amount) || 0, eric: parseFloat(match.amount) || 0, note: diffStr, match: diff === 0 });
+  if (isEric()) {
+    const budgetTabs = ['monthly','summary','insights'];
+    budgetTabs.forEach(t => {
+      const btn = document.getElementById('tab-btn-' + t);
+      if (!btn) return;
+      btn.style.display = adminSettings.ericCanViewBudget ? '' : 'none';
+    });
+    if (!adminSettings.ericCanViewBudget && ['monthly','summary','insights'].includes(curTab)) {
+      switchTab('payables');
     }
-  });
-  sharedRows.sort((a, b) => b.elly - a.elly);
-
-  const ellyOnly = ellyBills.filter(b => !matched.has(b.id));
-  const ericOnly = ericBills.filter(b => !ericMatched.has(b.id));
-
-  const pillStyle = (ok) => ok
-    ? 'background:#d1fae5;color:#065f46;border-radius:4px;padding:1px 7px;font-size:0.72rem;font-weight:600'
-    : 'background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 7px;font-size:0.72rem;font-weight:600';
-
-  container.innerHTML = `
-    <h2 style="font-size:1.2rem;font-weight:700;margin:0 0 4px">${monthName} — Recurring Bills Comparison</h2>
-    <p style="font-size:0.82rem;color:#6b7280;margin:0 0 16px">Recurring bills only. Elly's ${ellyPeriods.length} fortnightly period${ellyPeriods.length !== 1 ? 's' : ''} combined into monthly totals.</p>
-
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
-      ${[
-        ['Elly total out', fmt(sum(ellyBills))],
-        ['Elly recurring', fmt(sum(ellyRecurring))],
-        ['Eric total out', fmt(sum(ericBills))],
-        ['Eric recurring', fmt(sum(ericRecurring))],
-      ].map(([l,v]) => `<div style="background:var(--vscode-editor-background,#f9fafb);border:1px solid var(--vscode-panel-border,#e5e7eb);border-radius:8px;padding:12px 14px">
-        <div style="font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">${l}</div>
-        <div style="font-size:1.1rem;font-weight:700">${v}</div>
-      </div>`).join('')}
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-      ${[
-        ['Elly monthly salary (×' + ellyPeriods.length + ' periods)', fmt(ellyMonthlySalary), fmt(ellyMonthlySalary - sum(ellyBills))],
-        ['Eric monthly salary', fmt(ericMonthlySalary), fmt(ericMonthlySalary - sum(ericBills))],
-      ].map(([l,sal,left]) => `<div style="background:var(--vscode-editor-background,#f9fafb);border:1px solid var(--vscode-panel-border,#e5e7eb);border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">${l}</div>
-          <div style="font-weight:600">${sal}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:0.72rem;color:#6b7280;margin-bottom:2px">Left over</div>
-          <div style="font-weight:700;color:${parseFloat(left.replace(/[^0-9.-]/g,''))>=0?'#059669':'#ef4444'}">${left}</div>
-        </div>
-      </div>`).join('')}
-    </div>
-
-    <h3 style="font-size:0.95rem;font-weight:700;margin:0 0 8px">Shared Bills (${sharedRows.length})</h3>
-    <div style="border:1px solid var(--vscode-panel-border,#e5e7eb);border-radius:8px;overflow:hidden;margin-bottom:20px">
-      <div style="display:grid;grid-template-columns:1fr 110px 110px 1fr;background:var(--vscode-panel-border,#f3f4f6);padding:7px 12px;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#6b7280">
-        <span>Bill</span><span style="text-align:right">Elly</span><span style="text-align:right">Eric</span><span style="padding-left:12px">Note</span>
-      </div>
-      ${sharedRows.map((r, i) => `
-        <div style="display:grid;grid-template-columns:1fr 110px 110px 1fr;padding:7px 12px;font-size:0.83rem;border-top:1px solid var(--vscode-panel-border,#e5e7eb);background:${i%2===0?'transparent':'var(--vscode-editor-background,#fafafa)'};align-items:center">
-          <span style="font-weight:500">${esc(r.label)}</span>
-          <span style="text-align:right">${fmt(r.elly)}</span>
-          <span style="text-align:right">${fmt(r.eric)}</span>
-          <span style="padding-left:12px"><span style="${pillStyle(r.match)}">${r.match ? 'Match' : r.note || 'Differs'}</span></span>
-        </div>`).join('')}
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-      <div>
-        <h3 style="font-size:0.95rem;font-weight:700;margin:0 0 8px">Elly only (${ellyOnly.length})</h3>
-        <div style="border:1px solid var(--vscode-panel-border,#e5e7eb);border-radius:8px;overflow:hidden">
-          ${ellyOnly.sort((a,b)=>(b.amount||0)-(a.amount||0)).map((b,i) => `
-            <div style="display:grid;grid-template-columns:1fr auto auto;padding:6px 12px;font-size:0.82rem;border-top:${i>0?'1px solid var(--vscode-panel-border,#e5e7eb)':'none'};gap:8px;align-items:center">
-              <span>${esc(b.name)}</span>
-              <span style="font-weight:600">${fmt(b.amount)}</span>
-              <span style="${pillStyle(!b.recurring)}">${b.recurring ? 'R' : 'V'}</span>
-            </div>`).join('')}
-        </div>
-      </div>
-      <div>
-        <h3 style="font-size:0.95rem;font-weight:700;margin:0 0 8px">Eric only (${ericOnly.length})</h3>
-        <div style="border:1px solid var(--vscode-panel-border,#e5e7eb);border-radius:8px;overflow:hidden">
-          ${ericOnly.sort((a,b)=>(b.amount||0)-(a.amount||0)).map((b,i) => `
-            <div style="display:grid;grid-template-columns:1fr auto auto;padding:6px 12px;font-size:0.82rem;border-top:${i>0?'1px solid var(--vscode-panel-border,#e5e7eb)':'none'};gap:8px;align-items:center">
-              <span>${esc(b.name)}</span>
-              <span style="font-weight:600">${fmt(b.amount)}</span>
-              <span style="${pillStyle(!b.recurring)}">${b.recurring ? 'R' : 'V'}</span>
-            </div>`).join('')}
-        </div>
-      </div>
-    </div>`;
+  }
 }
 
 function renderAdmin() {
@@ -2025,11 +1563,9 @@ const SEED_P2 = [
 ];
 
 const DEFAULT_ACCOUNTS = [
-  'CB Bills', 'CB Groceries', 'CB Grocery',
-  'Latitude credit card', 'NAB credit card', 'NAB Elly Personal', 'NAB Offset', 'Savings'
+  'NAB Offset', 'CB Bills', 'CB Groceries', 'CB Grocery',
+  'Qantas credit card', 'Latitude credit card', 'Savings'
 ];
-// Always returns accounts sorted A→Z
-function getAccounts() { return (state.accounts || DEFAULT_ACCOUNTS).slice().sort((a,b) => a.localeCompare(b)); }
 
 let state = { settings: { salary: 4524.58 }, months: {}, accounts: [...DEFAULT_ACCOUNTS] };
 let curYear, curMonth;
@@ -2104,12 +1640,12 @@ let selectingGroup2 = false;
 function newId() { return 'b' + (++idSeq); }
 
 function save() {
-  try { localStorage.setItem(activeBudgetLocalKey(), JSON.stringify(state)); } catch(e) {}
+  try { localStorage.setItem('budgetPlannerV2', JSON.stringify(state)); } catch(e) {}
   if (firebaseDataLoaded) pushBudgetToFirebase();
 }
 function load() {
   try {
-    const raw = localStorage.getItem(activeBudgetLocalKey());
+    const raw = localStorage.getItem('budgetPlannerV2');
     if (raw) { state = JSON.parse(raw); return true; }
   } catch(e) {}
   return false;
@@ -2123,7 +1659,7 @@ function exportBudget() {
   showToast('✓ Budget exported!');
 }
 function importBudget(evt) {
-  if (!isOwner()) return;
+  if (!isAdmin()) return;
   const file = evt.target.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -2194,15 +1730,12 @@ function createMonth(y, m, withSeed=false) {
   const key = mKey(y, m);
   if (state.months[key]) return;
   const [d1, d2] = defaultDates(y, m);
-  // Eric has a monthly pay cycle — 1 period per month; Elly has fortnightly — 2 periods
-  const ericDate = `16 ${MONTHS[m].slice(0,3)} ${y}`;
-  const periods = isEric()
-    ? [{ date: ericDate, savingsGoals: defaultSavingsGoals(), bills: [] }]
-    : [
-        { date: d1, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P1) : [] },
-        { date: d2, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P2) : [] }
-      ];
-  state.months[key] = { periods };
+  state.months[key] = {
+    periods: [
+      { date: d1, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P1) : [] },
+      { date: d2, savingsGoals: defaultSavingsGoals(), bills: withSeed ? seedBills(SEED_P2) : [] }
+    ]
+  };
   save();
 }
 
@@ -2264,7 +1797,7 @@ function getMonthStats(key) {
 function switchTab(tab) {
   curTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  ['monthly','summary','insights','payables','admin','compare'].forEach(t => {
+  ['monthly','summary','insights','payables','admin'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.classList.remove('active');
   });
@@ -2282,12 +1815,12 @@ function switchTab(tab) {
     if (tab === 'summary')  renderSummary();
     if (tab === 'insights') renderInsights();
     if (tab === 'payables') renderPayables();
-    if (tab === 'compare')  renderCompare();
     if (tab === 'admin')    renderAdmin();
   }
 }
 
 function changeMonth(dir) {
+  if (!isAdmin() && !adminSettings.ericCanViewBudget) return;
   curMonth += dir;
   if (curMonth < 0)  { curMonth = 11; curYear--; }
   if (curMonth > 11) { curMonth = 0;  curYear++; }
@@ -2345,23 +1878,10 @@ function handleNextMonth() {
   if (state.months[nextKey]) { curYear=ny; curMonth=nm; render(); return; }
   const cur = state.months[mKey(curYear,curMonth)];
   if (!cur) { showToast('No data in current month'); return; }
+  const newDates = nextDatesFromPrev(cur.periods, ny, nm);
   const copyBills   = bills  => (bills  ||[]).filter(b=>b.recurring).map(b=>({...b, id:newId(), done:false}));
   const copyIncome  = income => (income ||[]).filter(i=>i.recurring).map(i=>({...i, id:newId()}));
   const copySavings = p => getSavingsGoals(p).filter(g=>g.recurring).map(g=>({...g, id:newId(), done:false}));
-  // Eric: monthly pay cycle — always 16th of the new month, single period
-  if (isEric()) {
-    const p0 = cur.periods[0] || {};
-    state.months[nextKey] = { periods: [{
-      date:         `16 ${MONTHS[nm].slice(0,3)} ${ny}`,
-      savingsGoals: copySavings(p0),
-      bills:        copyBills(p0.bills || []),
-      income:       copyIncome(p0.income || [])
-    }]};
-    save(); curYear=ny; curMonth=nm;
-    showToast(`✓ ${MONTHS[nm]} ${ny} created!`);
-    render(); return;
-  }
-  const newDates = nextDatesFromPrev(cur.periods, ny, nm);
   state.months[nextKey] = {
     periods: cur.periods.map((p, pi) => ({
       date:         newDates[pi] ?? newDates[newDates.length-1],
@@ -2414,17 +1934,7 @@ function refreshChip(key, pi) {
 
 function toggleDone(key,pi,id,val) {
   if (!isAdmin()) return;
-  const b=getBill(key,pi,id); if(!b)return;
-  b.done=val; save(); renderMonthView(key);
-  // Sync back to any linked payable entry using the active user's allocation field
-  const allocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
-  const linked=(pState.entries||[]).find(e=>e[allocField]?.billId===id);
-  if(linked){
-    if(isEric()){ linked.ericDone=val; linked.ericDoneAt=val?pTodayLabel():null; }
-    else { linked.ellyDone=val; linked.ellyDoneAt=val?pTodayLabel():null; }
-    pSave(); updatePayablesBadge();
-    if(curTab==='payables') renderPayables();
-  }
+  const b=getBill(key,pi,id); if(b){b.done=val;save();renderMonthView(key);}
 }
 function updateBill(key,pi,id,field,val) {
   if (!isAdmin()) return;
@@ -2440,10 +1950,9 @@ function deleteBill(key,pi,id) {
   if (!isAdmin()) return;
   const p=getPeriod(key,pi); if(!p) return;
   p.bills=p.bills.filter(b=>b.id!==id);
-  // If this bill was linked to a payable, clear that user's allocation field
-  const delAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
-  const linked=(pState.entries||[]).find(e=>e[delAllocField]?.billId===id);
-  if(linked){ linked[delAllocField]=null; pSave(); renderPayables(); }
+  // If this bill was linked to a payable, clear that payable's allocation
+  const linked=(pState.entries||[]).find(e=>e.allocatedTo?.billId===id);
+  if(linked){ linked.allocatedTo=null; pSave(); renderPayables(); }
   save(); renderMonthView(key);
 }
 function addBill(key,pi) {
@@ -2581,6 +2090,10 @@ function render() {
   const monthData = state.months[key];
   const grid = document.getElementById('periodsGrid');
 
+  if (isEric() && !adminSettings.ericCanViewBudget) {
+    grid.innerHTML = `<div class="locked-banner"><div class="lock-icon">🔒</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.<br>You can still see your Payables tab.</p></div>`;
+    document.getElementById('progressWrap').style.display='none'; return;
+  }
 
   if (!monthData) {
     grid.innerHTML = `<div class="empty-msg"><h3>No data for ${MONTHS[curMonth]} ${curYear}</h3><p>You can start by copying last month's pay period data.</p>${canEdit?`<button class="create-btn" onclick="createMonthFromLastRecurring(${curYear},${curMonth});render()">Create using last month's recurring bills</button>`:''}</div>`;
@@ -2650,7 +2163,7 @@ function toggleIncomeRecurring(key, pi, id) {
 }
 
 function getAccountOptions(selected) {
-  const accounts = getAccounts();
+  const accounts = state.accounts || DEFAULT_ACCOUNTS;
   const opts = accounts.map(a =>
     `<option value="${esc(a)}" ${a===selected?'selected':''}>${esc(a)}</option>`
   ).join('');
@@ -2806,27 +2319,17 @@ function buildPeriodCard(key, period, pi, canEdit) {
     <span class="${cls('done')}" onclick="cycleSort('${periodSortKey}','done')" title="Sort by done">${arrow('done')}</span>`;
   outBody.appendChild(colHeader);
 
+  const listDiv = document.createElement('div');
+  listDiv.className = 'bill-list';
+  listDiv.setAttribute('data-period', `${key}-${pi}`);
+  if (canEdit) {
+    listDiv.addEventListener('dragover', billListDragOver);
+    listDiv.addEventListener('drop', (e) => billListDrop(e, key, pi));
+  }
+
   // Apply sort — view only, doesn't change saved order
   const sortKey = sortSt ? (sortSt.dir === -1 ? `-${sortSt.col}` : sortSt.col) : 'default';
   const sortedBills = getSortedBills(period.bills, sortKey);
-
-  const recurringBills = sortedBills.filter(b => b.recurring);
-  const variableBills  = sortedBills.filter(b => !b.recurring);
-  const recurringTotal = recurringBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-  const variableTotal  = variableBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-
-  function mkListDiv() {
-    const ld = document.createElement('div');
-    ld.className = 'bill-list';
-    ld.setAttribute('data-period', `${key}-${pi}`);
-    if (canEdit) {
-      ld.addEventListener('dragover', billListDragOver);
-      ld.addEventListener('drop', (e) => billListDrop(e, key, pi));
-    }
-    return ld;
-  }
-  const recurListDiv = mkListDiv();
-  const varListDiv   = mkListDiv();
 
   sortedBills.forEach((bill, billIdx) => {
     const row = document.createElement('div');
@@ -2880,22 +2383,9 @@ function buildPeriodCard(key, period, pi, canEdit) {
       handleRowClick(e, row, key, pi, bill, billIdx, false);
     });
     row.addEventListener('contextmenu', (e) => handleRowRightClick(e, row));
-    (bill.recurring ? recurListDiv : varListDiv).appendChild(row);
+    listDiv.appendChild(row);
   });
-
-  // Recurring group
-  const recurGroupHeader = document.createElement('div');
-  recurGroupHeader.className = 'bill-group-header';
-  recurGroupHeader.innerHTML = `<span class="bill-group-label">Recurring</span><span class="bill-group-total">$${recurringTotal.toFixed(2)}</span>`;
-  outBody.appendChild(recurGroupHeader);
-  outBody.appendChild(recurListDiv);
-
-  // Variable group
-  const varGroupHeader = document.createElement('div');
-  varGroupHeader.className = 'bill-group-header variable';
-  varGroupHeader.innerHTML = `<span class="bill-group-label">Variable</span><span class="bill-group-total">$${variableTotal.toFixed(2)}</span>`;
-  outBody.appendChild(varGroupHeader);
-  outBody.appendChild(varListDiv);
+  outBody.appendChild(listDiv);
 
   if (canEdit) {
     const addDiv = document.createElement('div'); addDiv.className = 'add-row';
@@ -2960,38 +2450,20 @@ function toggleSection(bodyId, chevId) {
 // ─────────────────────────────────────────────
 //  SUMMARY RENDER
 // ─────────────────────────────────────────────
-let _summaryView = 'solo'; // 'solo' | 'household'
-function switchSummaryView(v) {
-  _summaryView = v;
-  document.querySelectorAll('.sum-sub-btn').forEach(b => b.classList.toggle('active', b.dataset.v === v));
-  renderSummary();
-}
-
 function renderSummary() {
-  const container = document.getElementById('summaryContent');
-  const keys = Object.keys(state.months).sort();
-  if (!keys.length) { container.innerHTML = `<div class="no-data"><div style="font-size:3rem">📊</div><p>No data yet.</p></div>`; return; }
-
-  const subTabsHtml = `<div class="sum-sub-tabs">
-    <button class="sum-sub-btn${_summaryView==='solo'?' active':''}" data-v="solo" onclick="switchSummaryView('solo')">👤 My Summary</button>
-    <button class="sum-sub-btn${_summaryView==='household'?' active':''}" data-v="household" onclick="switchSummaryView('household')">🏠 Household</button>
-  </div>`;
-
-  if (_summaryView === 'household') {
-    container.innerHTML = subTabsHtml + `<div id="sumHousehold"><div class="no-data" style="padding:40px"><div style="font-size:2rem">⏳</div><p>Loading household data…</p></div></div>`;
-    renderHouseholdSummary();
-    return;
+  const container=document.getElementById('summaryContent');
+  if (isEric() && !adminSettings.ericCanViewBudget) {
+    container.innerHTML=`<div class="locked-banner"><div class="lock-icon">🔒</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.</p></div>`; return;
   }
-
-  // ── Solo view ────────────────────────────────
-  const labels=[],spendData=[],savingsData=[],allowanceData=[],salaryData=[],cashflowData=[];
+  const keys=Object.keys(state.months).sort();
+  if(!keys.length){container.innerHTML=`<div class="no-data"><div style="font-size:3rem">📊</div><p>No data yet.</p></div>`;return;}
+  const labels=[],spendData=[],savingsData=[],allowanceData=[],salaryData=[];
   keys.forEach(key=>{
     const [y,m]=key.split('-').map(Number);
     labels.push(MONTHS[m-1].slice(0,3)+' '+y);
     const s=getMonthStats(key);
     spendData.push(+(s.totalSpend.toFixed(2))); savingsData.push(+(s.totalSavings.toFixed(2)));
     allowanceData.push(+(s.totalAllowance.toFixed(2))); salaryData.push(+(s.salary.toFixed(2)));
-    cashflowData.push(+((s.salary - s.totalSpend - s.totalSavings).toFixed(2)));
   });
   const curKey=mKey(curYear,curMonth);
   const displayKey=state.months[curKey]?curKey:keys[keys.length-1];
@@ -3010,16 +2482,15 @@ function renderSummary() {
   const avgAllowance=keys.length?(allowanceData.reduce((a,b)=>a+b,0)/keys.length):0;
   const fixedTotal=curMonthData.periods.flatMap(p=>p.bills.filter(b=>b.recurring)).reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
   const variableTotal=curMonthData.periods.flatMap(p=>p.bills.filter(b=>!b.recurring)).reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-  container.innerHTML= subTabsHtml + `
+  container.innerHTML=`
     <div class="stat-grid">
-      <div class="stat-card blue"><div class="stat-label">Total expenses · ${displayName}</div><div class="stat-value">$${curStats.totalSpend.toFixed(0)}</div><div class="stat-sub">across pay periods</div></div>
+      <div class="stat-card blue"><div class="stat-label">Total expenses · ${displayName}</div><div class="stat-value">$${curStats.totalSpend.toFixed(0)}</div><div class="stat-sub">across both pay periods</div></div>
       <div class="stat-card green"><div class="stat-label">Saved this month</div><div class="stat-value">$${curStats.totalSavings.toFixed(0)}</div><div class="stat-sub">${yearKeys.length?'$'+yearSavings.toFixed(0)+' saved in '+dy:'to offset account'}</div></div>
       <div class="stat-card ${curStats.totalAllowance<0?'red':'amber'}"><div class="stat-label">Allowance · ${displayName}</div><div class="stat-value">$${curStats.totalAllowance.toFixed(0)}</div><div class="stat-sub">avg $${avgAllowance.toFixed(0)}/month</div></div>
       <div class="stat-card ${unpaidTotal>0?'red':'green'}"><div class="stat-label">Still to pay · ${displayName}</div><div class="stat-value">$${unpaidTotal.toFixed(0)}</div><div class="stat-sub">${unpaidBills.length} bill${unpaidBills.length!==1?'s':''} unpaid · $${paidTotal.toFixed(0)} done</div></div>
     </div>
     <div class="charts-grid">
       <div class="chart-card"><h3>Monthly Spending vs Salary</h3><div class="chart-wrap"><canvas id="chartSpend"></canvas></div></div>
-      <div class="chart-card"><h3>Cashflow</h3><div class="chart-wrap"><canvas id="chartCashflow"></canvas></div></div>
       <div class="chart-card"><h3>Allowance Trend</h3><div class="chart-wrap"><canvas id="chartAllowance"></canvas></div></div>
       <div class="chart-card"><h3>Savings per Month</h3><div class="chart-wrap"><canvas id="chartSavings"></canvas></div></div>
       <div class="chart-card"><h3>Fixed vs Variable · ${displayName}</h3><div class="chart-wrap"><canvas id="chartDonut"></canvas></div></div>
@@ -3030,118 +2501,24 @@ function renderSummary() {
       ${topBills.map(b=>`<tr><td>${esc(b.name)}</td><td><strong>$${parseFloat(b.amount).toFixed(2)}</strong></td><td><div class="bar-cell"><div class="mini-bar" style="width:${Math.round((b.amount/maxBillAmt)*160)}px"></div><span style="font-size:0.78rem;color:#6b7280">${Math.round((b.amount/curStats.totalSpend)*100)}%</span></div></td></tr>`).join('')}
       </tbody></table>
     </div>`;
-  ['chartSpend','chartCashflow','chartAllowance','chartSavings','chartDonut'].forEach(id=>{
+  ['chartSpend','chartAllowance','chartSavings','chartDonut'].forEach(id=>{
     if(chartInstances[id]){chartInstances[id].destroy();delete chartInstances[id];}
   });
   const cd={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0f4f8'},ticks:{font:{size:11},callback:v=>'$'+v.toLocaleString()}}}};
   chartInstances.chartSpend=new Chart(document.getElementById('chartSpend'),{type:'bar',data:{labels,datasets:[{label:'Salary',data:salaryData,backgroundColor:'rgba(16,185,129,0.15)',borderColor:'#10b981',borderWidth:2,type:'line',fill:true,tension:0.3,pointRadius:4},{label:'Spending',data:spendData,backgroundColor:'rgba(59,130,246,0.7)',borderRadius:4}]},options:{...cd,plugins:{legend:{display:true,position:'top',labels:{font:{size:11},boxWidth:12}}}}});
-  chartInstances.chartCashflow=new Chart(document.getElementById('chartCashflow'),{type:'bar',data:{labels,datasets:[{label:'Cashflow',data:cashflowData,backgroundColor:cashflowData.map(v=>v>=0?'rgba(16,185,129,0.75)':'rgba(239,68,68,0.75)'),borderRadius:4}]},options:{...cd}});
   chartInstances.chartAllowance=new Chart(document.getElementById('chartAllowance'),{type:'line',data:{labels,datasets:[{label:'Allowance',data:allowanceData,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.12)',borderWidth:2.5,fill:true,tension:0.35,pointRadius:5,pointBackgroundColor:allowanceData.map(v=>v<0?'#ef4444':'#f59e0b')}]},options:{...cd}});
   chartInstances.chartSavings=new Chart(document.getElementById('chartSavings'),{type:'bar',data:{labels,datasets:[{label:'Saved',data:savingsData,backgroundColor:'rgba(16,185,129,0.75)',borderRadius:4}]},options:{...cd}});
   chartInstances.chartDonut=new Chart(document.getElementById('chartDonut'),{type:'doughnut',data:{labels:['Fixed','Variable'],datasets:[{data:[fixedTotal,variableTotal],backgroundColor:['rgba(59,130,246,0.8)','rgba(245,158,11,0.8)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:ctx=>` $${ctx.parsed.toFixed(2)}`}}},cutout:'65%'}});
 }
 
-async function renderHouseholdSummary() {
-  const wrap = document.getElementById('sumHousehold');
-  if (!wrap) return;
-
-  const otherPath = isEric() ? 'finance-hub/budget' : 'finance-hub/eric-budget';
-  let otherData = {};
-  try {
-    const snap = await window._dbGet(window._dbRef(window._db, otherPath));
-    otherData = snap.val() || {};
-  } catch(e) { otherData = {}; }
-  const otherMonths = otherData.months || {};
-  const otherSalary = parseFloat(otherData.settings?.salary || 0);
-
-  const myKeys   = Object.keys(state.months).sort();
-  const allKeys  = Array.from(new Set([...myKeys, ...Object.keys(otherMonths)])).sort();
-  const otherName = isEric() ? 'Elly' : 'Eric';
-  const myName    = isEric() ? 'Eric' : 'Elly';
-
-  const labels=[], hSpendData=[], hSalaryData=[], hSavingsData=[], hCashflowData=[], hAllowanceData=[];
-  allKeys.forEach(key => {
-    const [y,m] = key.split('-').map(Number);
-    labels.push(MONTHS[m-1].slice(0,3)+' '+y);
-    const myS  = state.months[key] ? getMonthStats(key) : { totalSpend:0, totalSavings:0, totalAllowance:0, salary:0 };
-    const otherM = otherMonths[key];
-    let othSpend=0, othSav=0, othInc=0;
-    if (otherM) {
-      otherM.periods.forEach(p => {
-        othSpend += p.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-        const gs = p.savingsGoals?.length ? p.savingsGoals : (p.savings ? [{amount:p.savings}] : []);
-        othSav   += gs.reduce((s,g)=>s+(parseFloat(g.amount)||0),0);
-        // income from settings salary split by period count
-      });
-      const pCount = otherM.periods.length || 1;
-      othInc = otherSalary / (isEric() ? 26 : 1) * pCount; // rough per-period
-      // Better: just use otherSalary as monthly
-      othInc = otherSalary;
-    }
-    const totSpend   = myS.totalSpend + othSpend;
-    const totSavings = myS.totalSavings + othSav;
-    const totIncome  = myS.salary + othInc;
-    const cashflow   = totIncome - totSpend - totSavings;
-    hSpendData.push(+totSpend.toFixed(2));
-    hSavingsData.push(+totSavings.toFixed(2));
-    hSalaryData.push(+totIncome.toFixed(2));
-    hCashflowData.push(+cashflow.toFixed(2));
-    hAllowanceData.push(+(myS.totalAllowance + (othInc - othSpend - othSav)).toFixed(2));
-  });
-
-  // Current month combined stats
-  const curKey = mKey(curYear, curMonth);
-  const dispKey = state.months[curKey] ? curKey : myKeys[myKeys.length-1] || allKeys[allKeys.length-1];
-  const [dy,dm] = dispKey.split('-').map(Number);
-  const dispName = MONTHS[dm-1]+' '+dy;
-  const idx = allKeys.indexOf(dispKey);
-  const hSpend  = hSpendData[idx] || 0;
-  const hSav    = hSavingsData[idx] || 0;
-  const hInc    = hSalaryData[idx] || 0;
-  const hCash   = hCashflowData[idx] || 0;
-
-  // Top shared recurring bills this month
-  const myRec  = (state.months[dispKey]?.periods || []).flatMap(p=>p.bills.filter(b=>b.recurring));
-  const othRec = (otherMonths[dispKey]?.periods || []).flatMap(p=>p.bills.filter(b=>b.recurring));
-  const allRec = [...myRec.map(b=>({...b,who:myName})), ...othRec.map(b=>({...b,who:otherName}))];
-  const topHousehold = [...allRec].sort((a,b)=>parseFloat(b.amount)-parseFloat(a.amount)).slice(0,10);
-  const maxH = parseFloat(topHousehold[0]?.amount)||1;
-
-  wrap.innerHTML = `
-    <div class="stat-grid">
-      <div class="stat-card blue"><div class="stat-label">Combined expenses · ${dispName}</div><div class="stat-value">$${hSpend.toFixed(0)}</div><div class="stat-sub">both ${myName} + ${otherName}</div></div>
-      <div class="stat-card green"><div class="stat-label">Combined income · ${dispName}</div><div class="stat-value">$${hInc.toFixed(0)}</div><div class="stat-sub">household monthly salary</div></div>
-      <div class="stat-card green"><div class="stat-label">Combined savings · ${dispName}</div><div class="stat-value">$${hSav.toFixed(0)}</div><div class="stat-sub">household total savings</div></div>
-      <div class="stat-card ${hCash<0?'red':'amber'}"><div class="stat-label">Household cashflow · ${dispName}</div><div class="stat-value">$${hCash.toFixed(0)}</div><div class="stat-sub">income minus expenses &amp; savings</div></div>
-    </div>
-    <div class="charts-grid">
-      <div class="chart-card"><h3>Household Spending vs Income</h3><div class="chart-wrap"><canvas id="hChartSpend"></canvas></div></div>
-      <div class="chart-card"><h3>Household Cashflow</h3><div class="chart-wrap"><canvas id="hChartCashflow"></canvas></div></div>
-      <div class="chart-card"><h3>Household Savings</h3><div class="chart-wrap"><canvas id="hChartSavings"></canvas></div></div>
-      <div class="chart-card"><h3>Household Allowance Trend</h3><div class="chart-wrap"><canvas id="hChartAllowance"></canvas></div></div>
-    </div>
-    <div class="chart-card summary-section" style="margin-bottom:24px">
-      <h3>Top Recurring Bills · ${dispName}</h3>
-      <table class="expenses-table"><thead><tr><th>Expense</th><th>Who</th><th>Amount</th><th style="width:35%">Share</th></tr></thead><tbody>
-      ${topHousehold.map(b=>`<tr><td>${esc(b.name)}</td><td style="font-size:0.8rem;color:#6b7280">${b.who}</td><td><strong>$${parseFloat(b.amount).toFixed(2)}</strong></td><td><div class="bar-cell"><div class="mini-bar" style="width:${Math.round((parseFloat(b.amount)/maxH)*160)}px"></div><span style="font-size:0.78rem;color:#6b7280">${Math.round((parseFloat(b.amount)/hSpend)*100)}%</span></div></td></tr>`).join('')}
-      </tbody></table>
-    </div>`;
-
-  ['hChartSpend','hChartCashflow','hChartSavings','hChartAllowance'].forEach(id=>{
-    if(chartInstances[id]){chartInstances[id].destroy();delete chartInstances[id];}
-  });
-  const cd={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0f4f8'},ticks:{font:{size:11},callback:v=>'$'+v.toLocaleString()}}}};
-  chartInstances.hChartSpend=new Chart(document.getElementById('hChartSpend'),{type:'bar',data:{labels,datasets:[{label:'Income',data:hSalaryData,backgroundColor:'rgba(16,185,129,0.15)',borderColor:'#10b981',borderWidth:2,type:'line',fill:true,tension:0.3,pointRadius:4},{label:'Spending',data:hSpendData,backgroundColor:'rgba(59,130,246,0.7)',borderRadius:4}]},options:{...cd,plugins:{legend:{display:true,position:'top',labels:{font:{size:11},boxWidth:12}}}}});
-  chartInstances.hChartCashflow=new Chart(document.getElementById('hChartCashflow'),{type:'bar',data:{labels,datasets:[{label:'Cashflow',data:hCashflowData,backgroundColor:hCashflowData.map(v=>v>=0?'rgba(16,185,129,0.75)':'rgba(239,68,68,0.75)'),borderRadius:4}]},options:{...cd}});
-  chartInstances.hChartSavings=new Chart(document.getElementById('hChartSavings'),{type:'bar',data:{labels,datasets:[{label:'Saved',data:hSavingsData,backgroundColor:'rgba(16,185,129,0.75)',borderRadius:4}]},options:{...cd}});
-  chartInstances.hChartAllowance=new Chart(document.getElementById('hChartAllowance'),{type:'line',data:{labels,datasets:[{label:'Allowance',data:hAllowanceData,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.12)',borderWidth:2.5,fill:true,tension:0.35,pointRadius:5,pointBackgroundColor:hAllowanceData.map(v=>v<0?'#ef4444':'#f59e0b')}]},options:{...cd}});
-}
-
 // ─────────────────────────────────────────────
 //  INSIGHTS RENDER
 // ─────────────────────────────────────────────
-async function renderInsights() {
+function renderInsights() {
   const container=document.getElementById('insightsContent');
+  if (isEric() && !adminSettings.ericCanViewBudget) {
+    container.innerHTML=`<div class="locked-banner"><div class="lock-icon">🔒</div><h3>Budget is private</h3><p>Elly hasn't shared the budget yet.</p></div>`; return;
+  }
   const keys=Object.keys(state.months).sort();
   if(!keys.length){container.innerHTML=`<div class="no-data"><div style="font-size:3rem">💡</div><p>No data yet.</p></div>`;return;}
   const curKey=mKey(curYear,curMonth);
@@ -3177,135 +2554,7 @@ async function renderInsights() {
   const ht=recurringBills.filter(b=>['mortgage','car'].some(k=>b.name.toLowerCase().includes(k)));
   const htTotal=ht.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
   if(htTotal>0) insights.push({icon:'🚗',title:'Housing & car',text:`Mortgage + Car combined = <strong>$${htTotal.toFixed(0)}/pay period</strong> — ${Math.round((htTotal/curStats.totalSpend)*100)}% of total spend.`});
-  const insightCardHTML = ins => `<div class="insight-card"><div class="insight-icon">${ins.icon}</div><div class="insight-body"><div class="insight-title">${ins.title}</div><div class="insight-text">${ins.text}</div></div></div>`;
-  const sectionLabel = (label, sub) => `<div style="margin-bottom:16px"><div style="font-size:0.8rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px">${label}</div><div style="font-size:0.82rem;color:#9ca3af">${sub}</div></div>`;
-
-  container.innerHTML =
-    sectionLabel(`My insights · ${displayName}`, `${insights.length} insights from your budget`) +
-    `<div class="insights-grid">${insights.map(insightCardHTML).join('')}</div>` +
-    `<div id="household-insights-wrap" style="margin-top:32px"><div style="font-size:0.8rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.4px">Household insights</div><div style="margin-top:6px;color:#9ca3af;font-size:0.82rem">Loading…</div></div>`;
-
-  // ── Household insights (fetch other user's budget) ──────────────
-  const otherPath = isEric() ? 'finance-hub/budget' : 'finance-hub/eric-budget';
-  const otherSnap = await window._dbGet(window._dbRef(window._db, otherPath));
-  const otherData = otherSnap.val() || {};
-  const otherMonths = otherData.months || {};
-  const otherKey = otherMonths[displayKey] ? displayKey : Object.keys(otherMonths).sort().pop();
-  const otherPeriods = otherKey ? (otherMonths[otherKey]?.periods || []) : [];
-  const otherSalary = otherData.settings?.salary || 0;
-
-  const mePeriods  = curMonthData.periods;
-  const meRecurring   = mePeriods.flatMap(p => p.bills.filter(b => b.recurring));
-  const themRecurring = otherPeriods.flatMap(p => p.bills.filter(b => b.recurring));
-
-  // Group my recurring by name (handle fortnightly duplicates)
-  const meGrouped = {};
-  meRecurring.forEach(b => {
-    const k = (b.name||'').trim().toLowerCase().replace(/\s+\d+$/,'');
-    if (!meGrouped[k]) meGrouped[k] = { ...b, amount: 0 };
-    meGrouped[k].amount += parseFloat(b.amount)||0;
-  });
-
-  // Match shared bills (same logic as Compare tab)
-  const normN = n => (n||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
-  const fw    = n => normN(n).split(' ')[0];
-  const HALIASES = [
-    ['groceries',                'food budget'],
-    ['mortgage',                 'nab mortgage'],
-    ['volvo insurance',          'car insurance'],
-    ['hp ink subscription',      'hp ink'],
-    ['elly personal loan share', 'personal loan share'],
-    ['omm ploan',                'renovation loan'],
-    ['telstra',                  'my vodafone'],
-  ];
-  const themMatched = new Set();
-  const sharedBills = [];
-  Object.values(meGrouped).forEach(me => {
-    const en = normN(me.name), ew = fw(me.name);
-    const alias = HALIASES.find(([a]) => a === en);
-    const them = themRecurring.find(t => !themMatched.has(t.id) && (
-      normN(t.name) === en ||
-      (alias && normN(t.name).startsWith(alias[1])) ||
-      normN(t.name).startsWith(ew) ||
-      en.startsWith(fw(t.name))
-    ));
-    if (them && (alias || ew.length > 2)) {
-      themMatched.add(them.id);
-      sharedBills.push({ name: me.name, me: me.amount, them: parseFloat(them.amount)||0 });
-    }
-  });
-
-  // Exclude mortgage, loans, car finance from living expenses
-  const isExcluded = name => {
-    const n = normN(name);
-    return ['mortgage'].some(k => n.includes(k));
-  };
-  const livingBills = sharedBills.filter(b => !isExcluded(b.name));
-  const livingTotal = livingBills.reduce((s, b) => s + b.me + b.them, 0);
-  const mySalary = isEric() ? (state.settings?.salary||0) : (state.settings?.salary||0) * mePeriods.length;
-  const householdIncome = mySalary + otherSalary;
-
-  const hInsights = [];
-  const normNh = n => (n||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
-  const isMortgage  = n => ['mortgage'].some(k => normNh(n).includes(k));
-  const isVehicle   = n => ['car finance','car installment','novated','volvo insurance','car insurance'].some(k => normNh(n).includes(k));
-  const isSavings   = n => normNh(n).includes('saving');
-
-  // Mortgage
-  const mortgageBills = sharedBills.filter(b => isMortgage(b.name));
-  const mortgageTotal = mortgageBills.reduce((s,b) => s+b.me+b.them, 0);
-  if (mortgageTotal > 0) {
-    hInsights.push({ icon: '🏠', title: 'Household mortgage', text: `Combined mortgage payments: <strong>$${mortgageTotal.toFixed(0)}/month</strong>` + (mortgageBills.length > 1 ? ` across ${mortgageBills.length} entries.` : '.') });
-  }
-
-  // Living expenses (excl mortgage)
-  if (livingTotal > 0) {
-    hInsights.push({ icon: '🏡', title: 'Total living expenses', text: `Combined shared bills (excl. mortgage): <strong>$${livingTotal.toFixed(0)}/month</strong> — ${livingBills.length} bills across both budgets.` });
-  }
-  if (householdIncome > 0) {
-    const pct = Math.round((livingTotal / householdIncome) * 100);
-    hInsights.push({ icon: '📊', title: 'Living expenses vs income', text: `Living expenses are <strong>${pct}%</strong> of combined household income (<strong>$${householdIncome.toFixed(0)}/month</strong>).` });
-  }
-
-  // Vehicles
-  const vehicleBills = sharedBills.filter(b => isVehicle(b.name));
-  const vehicleTotal = vehicleBills.reduce((s,b) => s+b.me+b.them, 0);
-  if (vehicleTotal > 0) {
-    hInsights.push({ icon: '🚗', title: 'Household vehicles', text: `Car loans + insurance combined: <strong>$${vehicleTotal.toFixed(0)}/month</strong> (${vehicleBills.map(b=>b.name).join(', ')}).` });
-  }
-
-  // Savings
-  const getGoalsSafe = p => p.savingsGoals?.length ? p.savingsGoals : (p.savings ? [{ amount: p.savings }] : []);
-  const meSavings   = mePeriods.flatMap(p => getGoalsSafe(p)).reduce((s,g) => s+(parseFloat(g.amount)||0), 0);
-  const themSavings = otherPeriods.flatMap(p => getGoalsSafe(p)).reduce((s,g) => s+(parseFloat(g.amount)||0), 0);
-  const totalSavings = meSavings + themSavings;
-  if (totalSavings > 0 || meSavings > 0) {
-    hInsights.push({ icon: '💰', title: 'Household savings', text: `Combined savings this month: <strong>$${totalSavings.toFixed(0)}/month</strong> — your share $${meSavings.toFixed(0)}, theirs $${themSavings.toFixed(0)}.` });
-  }
-
-  // Year spend (both users combined, current year)
-  const curYear2 = curYear;
-  const myYearKeys    = Object.keys(state.months).filter(k => k.startsWith(curYear2 + '-'));
-  const themYearKeys  = Object.keys(otherMonths).filter(k => k.startsWith(curYear2 + '-'));
-  const myYearSpend   = myYearKeys.reduce((s,k)   => s + (getMonthStats(k)?.totalSpend || 0), 0);
-  const themYearSpend = themYearKeys.reduce((s,k)  => {
-    const m = otherMonths[k]; if (!m) return s;
-    return s + m.periods.flatMap(p => p.bills||[]).reduce((t,b) => t+(parseFloat(b.amount)||0), 0);
-  }, 0);
-  const householdYearSpend = myYearSpend + themYearSpend;
-  if (householdYearSpend > 0) {
-    hInsights.push({ icon: '📅', title: `${curYear2} household spend`, text: `Combined total spend so far this year: <strong>$${householdYearSpend.toFixed(0)}</strong> across ${Math.max(myYearKeys.length, themYearKeys.length)} month(s).` });
-  }
-
-  const sharedTotal = sharedBills.reduce((s,b) => s+b.me+b.them, 0);
-  if (sharedTotal > 0) {
-    hInsights.push({ icon: '🤝', title: 'Total shared commitments', text: `All shared recurring bills combined: <strong>$${sharedTotal.toFixed(0)}/month</strong> across ${sharedBills.length} shared expenses.` });
-  }
-
-  const wrap = document.getElementById('household-insights-wrap');
-  if (wrap) wrap.innerHTML =
-    sectionLabel('Household insights · ' + displayName, `Combined data — ${hInsights.length} insights`) +
-    `<div class="insights-grid">${hInsights.map(insightCardHTML).join('')}</div>`;
+  container.innerHTML=`<div style="margin-bottom:20px"><div style="font-size:0.8rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Based on · ${displayName}</div><div style="font-size:0.85rem;color:#9ca3af">${insights.length} insights generated</div></div><div class="insights-grid">${insights.map(ins=>`<div class="insight-card"><div class="insight-icon">${ins.icon}</div><div class="insight-body"><div class="insight-title">${ins.title}</div><div class="insight-text">${ins.text}</div></div></div>`).join('')}</div>`;
 }
 
 // ─────────────────────────────────────────────
@@ -3331,32 +2580,7 @@ const ELLY_EMAIL = 'ellyhizon1@gmail.com';
 
 // ── State ──
 let pState = { entries: [] };
-let pSplitFilter        = 'all'; // for mine column
-let pAccountFilter      = 'all'; // for mine column
-let pEricSplitFilter    = 'all'; // for eric column (Elly's view only)
-let pEricAccountFilter  = 'all'; // for eric column (Elly's view only)
-let pActiveView         = 'mine'; // 'mine' | 'eric' (Elly only)
-
-function pSetAccountFilter(val) { pAccountFilter = val; renderPayables(); }
-function pSetEricAccountFilter(val) { pEricAccountFilter = val; renderPayables(); }
-function pSetEricSplitFilter(val, btn) {
-  pEricSplitFilter = val;
-  document.querySelectorAll('#p-eric-split-filter .p-sf-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderPayables();
-}
-
-function pSetView(view) {
-  pActiveView = view;
-  const mineCol = document.getElementById('p-col-mine');
-  const ericCol = document.getElementById('p-col-eric');
-  const mineBtn = document.getElementById('p-vs-mine');
-  const ericBtn = document.getElementById('p-vs-eric');
-  if (mineCol) mineCol.style.display = view === 'mine' ? '' : 'none';
-  if (ericCol) ericCol.style.display = view === 'eric' ? '' : 'none';
-  if (mineBtn) mineBtn.classList.toggle('active', view === 'mine');
-  if (ericBtn) ericBtn.classList.toggle('active', view === 'eric');
-}
+let pSplitFilter = 'all'; // 'all' | 'shared' | 'mine'
 let pIdSeq = Date.now() + 1000000;
 const pUid = () => 'p' + (++pIdSeq);
 let pCompletedOpen = false;
@@ -3364,10 +2588,7 @@ let _allocPayableId = null, _allocDestKey = null, _allocDestPi = null;
 
 function pSave() {
   try { localStorage.setItem('payablesV2', JSON.stringify(pState)); } catch(e) {}
-  // Only push to Firebase once the payables listener has loaded real data.
-  // Otherwise, a fresh device with empty localStorage could clobber Firebase
-  // with seed data before the listener fires.
-  if (_payablesLoaded) pushPayablesToFirebase();
+  pushPayablesToFirebase();
 }
 function pLoad() {
   const raw = localStorage.getItem('payablesV2');
@@ -3392,7 +2613,6 @@ function pEricShare(e) {
 function pIsEllyDone(e) { return e.split==='eric' ? true : !!e.ellyDone; }
 function pIsEricDone(e) { return e.split==='mine' ? true : !!e.ericDone; }
 function pEllyEntries() { return (pState.entries||[]).filter(e=>e.split!=='eric'); }
-// Eric sees shared items (both owe half) + his own personal items; NOT Elly's mine-only
 function pEricEntries() { return (pState.entries||[]).filter(e=>e.split==='shared'||e.split==='eric'); }
 
 // ── Add form ──
@@ -3400,19 +2620,8 @@ function pShowAddForm() {
   const card=document.getElementById('p-add-card');
   card.style.display='';
   const sel=document.getElementById('pf-payto');
-  getAccounts().forEach(a => { const o = document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o); });
-  // Populate split options based on who is logged in
-  const splitSel = document.getElementById('pf-split');
-  if (isEric()) {
-    splitSel.innerHTML =
-      `<option value="shared">Shared (50/50)</option>` +
-      `<option value="eric">Solo (mine)</option>`;
-  } else {
-    splitSel.innerHTML =
-      `<option value="shared">Shared (50/50)</option>` +
-      `<option value="mine">Solo (mine)</option>` +
-      `<option value="eric">Solo (Eric's)</option>`;
-  }
+  const accounts=state.accounts||DEFAULT_ACCOUNTS;
+  sel.innerHTML=accounts.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
   document.getElementById('pf-date').value=pTodayLabel();
   document.getElementById('pf-name').value='';
   document.getElementById('pf-amount').value='';
@@ -3424,9 +2633,9 @@ function pUpdateSplitHint() {
   const split=document.getElementById('pf-split')?.value;
   const hint=document.getElementById('pf-split-hint');
   if(!hint)return;
-  if(split==='shared'&&amt>0) hint.textContent=`You owe $${(amt/2).toFixed(2)} · ${isEric()?'Elly':'Eric'} owes $${(amt/2).toFixed(2)}`;
-  else if(split==='mine'&&amt>0) hint.textContent=`Solo — full $${amt.toFixed(2)} is yours`;
-  else if(split==='eric'&&amt>0) hint.textContent=isEric()?`Solo — full $${amt.toFixed(2)} is yours`:`Solo — full $${amt.toFixed(2)} goes to Eric`;
+  if(split==='shared'&&amt>0) hint.textContent=`You owe $${(amt/2).toFixed(2)} · Eric owes $${(amt/2).toFixed(2)}`;
+  else if(split==='mine'&&amt>0) hint.textContent=`Full $${amt.toFixed(2)} is yours`;
+  else if(split==='eric'&&amt>0) hint.textContent=`Full $${amt.toFixed(2)} goes to Eric`;
   else hint.textContent='';
 }
 function addPayable() {
@@ -3440,7 +2649,7 @@ function addPayable() {
   pState.entries.unshift({
     id:pUid(),name,fullAmount:full,split,payTo,date,
     createdAt:Date.now(),createdBy:currentUser,
-    ellyDone:false,ellyDoneAt:null,ericDone:false,ericDoneAt:null,allocatedTo:null,ericAllocatedTo:null
+    ellyDone:false,ellyDoneAt:null,ericDone:false,ericDoneAt:null,allocatedTo:null
   });
   pSave();updatePayablesBadge();renderPayables();
   document.getElementById('p-add-card').style.display='none';
@@ -3463,85 +2672,12 @@ function togglePayableDone(id, forWhom) {
 function deletePayableEntry(id) {
   if(!confirm('Delete this payable?'))return;
   const e=(pState.entries||[]).find(x=>x.id===id);
-  // Clean up both users' allocation bills from their respective budgets
-  ['allocatedTo','ericAllocatedTo'].forEach(f => {
-    if(e?.[f]?.billId){
-      const period=getPeriod(e[f].key,e[f].pi);
-      if(period){period.bills=period.bills.filter(b=>b.id!==e[f].billId);save();}
-    }
-  });
+  if(e?.allocatedTo?.billId){
+    const period=getPeriod(e.allocatedTo.key,e.allocatedTo.pi);
+    if(period){period.bills=period.bills.filter(b=>b.id!==e.allocatedTo.billId);save();}
+  }
   pState.entries=pState.entries.filter(x=>x.id!==id);
   pSave(); updatePayablesBadge(); renderPayables();
-}
-
-// ── Edit payable ──
-let _editPayableId = null;
-function openEditPayable(id) {
-  const e = (pState.entries||[]).find(x => x.id === id); if (!e) return;
-  _editPayableId = id;
-  document.getElementById('pef-name').value = e.name || '';
-  document.getElementById('pef-amount').value = e.fullAmount || '';
-  document.getElementById('pef-split').value = e.split || 'shared';
-  document.getElementById('pef-date').value = e.date || '';
-  // Populate pay-to dropdown
-  const sel = document.getElementById('pef-payto');
-  sel.innerHTML = getAccounts().map(a => `<option value="${esc(a)}"${a===e.payTo?' selected':''}>${esc(a)}</option>`).join('');
-  pUpdateEditSplitHint();
-  openModal('modal-edit-payable');
-}
-function pUpdateEditSplitHint() {
-  const amt = parseFloat(document.getElementById('pef-amount')?.value) || 0;
-  const split = document.getElementById('pef-split')?.value;
-  const hint = document.getElementById('pef-split-hint');
-  if (!hint) return;
-  if (split === 'shared') hint.textContent = `Elly pays $${(amt/2).toFixed(2)} · Eric pays $${(amt/2).toFixed(2)}`;
-  else if (split === 'mine') hint.textContent = `Elly pays $${amt.toFixed(2)} · Eric pays nothing`;
-  else hint.textContent = `Eric pays $${amt.toFixed(2)} · Elly pays nothing`;
-}
-function savePayableEdit() {
-  const e = (pState.entries||[]).find(x => x.id === _editPayableId); if (!e) return;
-  const name = document.getElementById('pef-name').value.trim();
-  const full = parseFloat(document.getElementById('pef-amount').value);
-  if (!name) { showToast('⚠ Name is required'); return; }
-  if (!full || full <= 0) { showToast('⚠ Amount must be greater than 0'); return; }
-  e.name = name;
-  e.fullAmount = full;
-  e.split = document.getElementById('pef-split').value;
-  e.payTo = document.getElementById('pef-payto').value;
-  e.date = document.getElementById('pef-date').value.trim() || pTodayLabel();
-  if (e.allocatedTo?.billId) {
-    const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
-    const bill = period?.bills?.find(b => b.id === e.allocatedTo.billId);
-    if (bill) { bill.name = name; bill.amount = full; save(); }
-  }
-  pSave(); closeModal('modal-edit-payable'); renderPayables();
-  showToast('✓ Payable updated');
-}
-function updatePayable(id, field, val) {
-  if (!isAdmin()) return;
-  const e = (pState.entries||[]).find(x => x.id === id); if (!e) return;
-  const upAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
-  if (field === 'name') {
-    const name = val.trim(); if (!name) return;
-    e.name = name;
-    if (e[upAllocField]?.billId) {
-      const period = getPeriod(e[upAllocField].key, e[upAllocField].pi);
-      const bill = period?.bills?.find(b => b.id === e[upAllocField].billId);
-      if (bill) { bill.name = name; save(); }
-    }
-  } else if (field === 'share') {
-    const share = parseFloat(val); if (!share || share <= 0) return;
-    e.fullAmount = e.split === 'shared' ? share * 2 : share;
-    if (e[upAllocField]?.billId) {
-      const period = getPeriod(e[upAllocField].key, e[upAllocField].pi);
-      const bill = period?.bills?.find(b => b.id === e[upAllocField].billId);
-      if (bill) { bill.amount = share; save(); }
-    }
-  } else if (field === 'split') {
-    if (!['shared','mine','eric'].includes(val)) return;
-    e.split = val;
-  }
-  pSave(); renderPayables();
 }
 
 // Remove allocation from a payable (e.g. when the linked budget bill is deleted externally)
@@ -3560,43 +2696,23 @@ function openAllocateModal(payableId) {
   // Set amount in title
   const entry=(pState.entries||[]).find(x=>x.id===payableId);
   const amtEl=document.getElementById('alloc-modal-amount');
-  if(amtEl) amtEl.textContent=entry?pFmt(isEric()?pEricShare(entry):pMyShare(entry)):'';
+  if(amtEl) amtEl.textContent=entry?pFmt(pMyShare(entry)):'';
   const today = new Date(); today.setHours(0,0,0,0);
-  const currentMonthKey = mKey(today.getFullYear(), today.getMonth());
   const months = Object.keys(state.months).sort().filter(key => {
-    if (key >= currentMonthKey) return true; // always include current + future months
     const month = state.months[key];
-    // Exclude past months only if every period date has already passed
+    // Exclude month only if EVERY period is both past-dated AND fully ticked off
     return !(month.periods || []).every(p => {
       const d = parsePeriodDate(p.date);
-      return d && d < today;
+      const isPast = d && d < today;
+      const bills = p.bills || [];
+      const goals = getSavingsGoals(p);
+      const allDone = [...bills, ...goals].length > 0 && [...bills, ...goals].every(b => b.done);
+      return isPast && allDone;
     });
   });
   document.getElementById('alloc-month-list').innerHTML=months.length
-    ?months.map(key=>{
-      const[y,m]=key.split('-').map(Number);
-      // For Eric (1 period/month): show Safe to Spend inline and auto-select on click
-      if(isEric()){
-        const p=(state.months[key]?.periods||[])[0];
-        if(p){
-          const inc=getPeriodIncome(p);
-          const sav=getSavingsGoals(p).reduce((s,g)=>s+(parseFloat(g.amount)||0),0);
-          const out=p.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-          const safe=inc-sav-out;
-          const safeCol=safe<0?'#ef4444':'#059669';
-          return`<button class="move-month-btn" style="flex-direction:column;align-items:flex-start;gap:2px" onclick="allocSelectMonth('${key}')">
-            <span>${MONTHS[m-1]} ${y}</span>
-            <span style="font-size:0.72rem;color:${safeCol};font-weight:700">Safe to spend: ${pFmt(safe)}</span>
-          </button>`;
-        }
-      }
-      return`<button class="move-month-btn" onclick="allocSelectMonth('${key}')">${MONTHS[m-1]} ${y}</button>`;
-    }).join('')
+    ?months.map(key=>{const[y,m]=key.split('-').map(Number);return`<button class="move-month-btn" onclick="allocSelectMonth('${key}')">${MONTHS[m-1]} ${y}</button>`;}).join('')
     :'<p style="color:#9ca3af;font-size:0.82rem">No budget months found. Go to <strong>Monthly budget</strong> tab and create a month first, then come back to allocate.</p>';
-  const subtextEl = document.getElementById('alloc-modal-subtext');
-  if (subtextEl) subtextEl.textContent = isEric()
-    ? 'Pick a month that has a budget. This creates a bill in that period so you can tick it off there.'
-    : 'Pick a month, then a pay period. This creates a bill in that period so you can tick it off there.';
   openModal('modal-allocate');
 }
 function allocSelectMonth(key) {
@@ -3607,14 +2723,6 @@ function allocSelectMonth(key) {
   event.currentTarget.classList.add('selected');
   const month=state.months[key];
   const pl=document.getElementById('alloc-period-list');
-  // Eric has 1 period per month — skip the period picker, auto-select period 0
-  if(isEric()){
-    pl.style.display='none'; pl.innerHTML='';
-    _allocDestPi=0;
-    document.getElementById('alloc-confirm-btn').disabled=false;
-    document.getElementById('alloc-confirm-btn').style.opacity='1';
-    return;
-  }
   pl.style.display='flex';
   pl.innerHTML=`<div style="font-size:0.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;margin-bottom:4px">Select pay period</div>`+
     (month?.periods||[]).map((p,pi)=>{
@@ -3639,17 +2747,13 @@ function allocSelectPeriod(pi,el) {
 function confirmAllocate() {
   const e=(pState.entries||[]).find(x=>x.id===_allocPayableId);if(!e)return;
   const period=getPeriod(_allocDestKey,_allocDestPi);if(!period)return;
-  const cAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
-  // Remove previously linked bill for this user (re-allocation)
-  if(e[cAllocField]?.billId){
-    const old=getPeriod(e[cAllocField].key,e[cAllocField].pi);
-    if(old)old.bills=old.bills.filter(b=>b.id!==e[cAllocField].billId);
+  if(e.allocatedTo?.billId){
+    const old=getPeriod(e.allocatedTo.key,e.allocatedTo.pi);
+    if(old)old.bills=old.bills.filter(b=>b.id!==e.allocatedTo.billId);
   }
   const billId=newId();
-  const allocShare = isEric() ? pEricShare(e) : pMyShare(e);
-  const allocDone  = isEric() ? (e.ericDone||false) : (e.ellyDone||false);
-  period.bills.push({id:billId,name:e.name,amount:allocShare,payTo:e.payTo,recurring:false,done:allocDone});
-  e[cAllocField]={key:_allocDestKey,pi:_allocDestPi,billId,allocatedBy:currentUser};
+  period.bills.push({id:billId,name:e.name,amount:pMyShare(e),payTo:e.payTo,recurring:false,done:e.ellyDone||false});
+  e.allocatedTo={key:_allocDestKey,pi:_allocDestPi,billId};
   const[dy,dm]=_allocDestKey.split('-').map(Number);
   save();pSave();closeModal('modal-allocate');renderPayables();
   showToast(`✓ Allocated to ${MONTHS[dm-1]} ${dy} · P${_allocDestPi+1}`);
@@ -3758,13 +2862,13 @@ let _pMultiAllocQueue = [];
 function pCtxUnallocate() {
   pCloseCtx();
   if (!pSelectedRows.length) return;
-  const uAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
   pSelectedRows.forEach(r => {
     const e = (pState.entries||[]).find(x => x.id === r.id);
-    if (!e || !e[uAllocField]) return;
-    const period = getPeriod(e[uAllocField].key, e[uAllocField].pi);
-    if (period) { period.bills = period.bills.filter(b => b.id !== e[uAllocField].billId); save(); }
-    e[uAllocField] = null;
+    if (!e || !e.allocatedTo) return;
+    // Remove the linked bill from budget
+    const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
+    if (period) { period.bills = period.bills.filter(b => b.id !== e.allocatedTo.billId); save(); }
+    e.allocatedTo = null;
   });
   pSave(); pClearSelection(); renderPayables();
   showToast(`✓ Allocation removed`);
@@ -3774,12 +2878,11 @@ function pCtxDelete() {
   pCloseCtx();
   if (!pSelectedRows.length) return;
   if (!confirm(`Delete ${pSelectedRows.length} payable${pSelectedRows.length>1?'s':''}?`)) return;
-  const dAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
   pSelectedRows.forEach(r => {
     const e = (pState.entries||[]).find(x => x.id === r.id);
-    if (e?.[dAllocField]?.billId) {
-      const period = getPeriod(e[dAllocField].key, e[dAllocField].pi);
-      if (period) { period.bills = period.bills.filter(b => b.id !== e[dAllocField].billId); save(); }
+    if (e?.allocatedTo?.billId) {
+      const period = getPeriod(e.allocatedTo.key, e.allocatedTo.pi);
+      if (period) { period.bills = period.bills.filter(b => b.id !== e.allocatedTo.billId); save(); }
     }
   });
   const ids = new Set(pSelectedRows.map(r => r.id));
@@ -3791,7 +2894,7 @@ function pCtxDelete() {
 // ── Split filter ──
 function pSetSplitFilter(val, btn) {
   pSplitFilter = val;
-  document.querySelectorAll('#p-split-filter .p-sf-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.p-sf-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderPayables();
 }
@@ -3802,14 +2905,6 @@ function pToggleCompleted() {
   document.getElementById('p-completed-list').style.display=pCompletedOpen?'':'none';
   document.getElementById('p-completed-toggle').classList.toggle('open',pCompletedOpen);
 }
-let pEricCompletedOpen = false;
-function pToggleEricCompleted() {
-  pEricCompletedOpen = !pEricCompletedOpen;
-  const list   = document.getElementById('p-eric-completed-list');
-  const toggle = document.getElementById('p-eric-completed-toggle');
-  if (list)   list.style.display = pEricCompletedOpen ? '' : 'none';
-  if (toggle) toggle.classList.toggle('open', pEricCompletedOpen);
-}
 
 // ── Badge ──
 function updatePayablesBadge() {
@@ -3819,127 +2914,46 @@ function updatePayablesBadge() {
 }
 
 // ── Main render ──
-function pToggleAcctSection(header) {
-  const body  = header.nextElementSibling;
-  const arrow = header.querySelector('.p-comp-arrow');
-  const isOpen = body.style.display !== 'none';
-  body.style.display = isOpen ? 'none' : '';
-  arrow.classList.toggle('open', !isOpen);
-}
-
-// Renders active payables grouped by Pay To account.
-// compact=true uses the 4-item Eric column row format.
-function pRenderAccountGroups(entries, isElly, shareFn, compact) {
-  if (!entries.length) return '<div class="p-empty">All clear — nothing pending! 🎉</div>';
-  const accounts = getAccounts();
-  const groups = {};
-  accounts.forEach(a => { groups[a] = []; });
-  groups['_other'] = [];
-  entries.forEach(e => {
-    const key = accounts.includes(e.payTo) ? e.payTo : '_other';
-    groups[key].push(e);
-  });
-  return [...accounts, '_other']
-    .filter(a => groups[a].length > 0)
-    .map(a => {
-      const items = groups[a];
-      const total = items.reduce((s, e) => s + shareFn(e), 0);
-      const label = a === '_other' ? 'Other' : a;
-      const rows  = items.map(e => pRenderRow(e, isElly, shareFn(e), false, compact)).join('');
-      return `<div class="p-acct-section">
-        <div class="p-acct-header" onclick="pToggleAcctSection(this)">
-          <span class="p-comp-arrow open">›</span>
-          <span class="p-acct-name">${esc(label)}</span>
-          <span class="p-acct-stats">${items.length} item${items.length!==1?'s':''} · ${pFmt(total)}</span>
-        </div>
-        <div class="p-acct-body">${rows}</div>
-      </div>`;
-    }).join('');
-}
-
 function renderPayables() {
-  const isElly = !isEric();
-  const safeEl = id => document.getElementById(id);
+  const isElly=!isEric();
+  let entries=isElly?pEllyEntries():pEricEntries();
+  // Apply split filter (Elly only; Eric always sees shared)
+  if(isElly && pSplitFilter!=='all') entries=entries.filter(e=>e.split===pSplitFilter);
+  const isDoneFn=e=>isElly?pIsEllyDone(e):pIsEricDone(e);
+  const shareFn=e=>isElly?pMyShare(e):pEricShare(e);
+  const active=entries.filter(e=>!isDoneFn(e));
+  const done=entries.filter(e=>isDoneFn(e));
+  const total=active.reduce((s,e)=>s+shareFn(e),0);
 
-  // ── Share label (personalised per user) ──
-  const shareLabel = safeEl('p-share-label');
-  if (shareLabel) shareLabel.textContent = 'My share'; // always first-person for the logged-in user
+  const safeEl=(id)=>document.getElementById(id);
+  if(safeEl('p-owing-amount'))safeEl('p-owing-amount').textContent=pFmt(total);
+  if(safeEl('p-owing-sub'))safeEl('p-owing-sub').textContent=`${active.length} item${active.length!==1?'s':''} pending`;
 
-  // ── Populate account dropdowns ──
-  const acctOptions = getAccounts();
-  ['p-account-filter', 'p-eric-account-filter'].forEach((selId, i) => {
-    const sel = safeEl(selId); if (!sel) return;
-    const curr = i === 0 ? pAccountFilter : pEricAccountFilter;
-    sel.innerHTML = `<option value="all">All accounts</option>` +
-      acctOptions.map(a => `<option value="${esc(a)}"${a===curr?' selected':''}>${esc(a)}</option>`).join('');
-  });
-
-  // ── Mine column ──
-  let entries = isElly ? pEllyEntries() : pEricEntries();
-  // Split filter: for Eric 'mine' maps to his own items (split='eric')
-  if (pSplitFilter !== 'all') {
-    const sv = (pSplitFilter === 'mine' && !isElly) ? 'eric' : pSplitFilter;
-    entries = entries.filter(e => e.split === sv);
-  }
-  if (pAccountFilter !== 'all') entries = entries.filter(e => e.payTo === pAccountFilter);
-  const isDoneFn = e => isElly ? pIsEllyDone(e) : pIsEricDone(e);
-  const shareFn  = e => isElly ? pMyShare(e)    : pEricShare(e);
-  const active = entries.filter(e => !isDoneFn(e));
-  const done   = entries.filter(e =>  isDoneFn(e));
-  const total  = active.reduce((s, e) => s + shareFn(e), 0);
-
-  if (safeEl('p-owing-amount')) safeEl('p-owing-amount').textContent = pFmt(total);
-  if (safeEl('p-owing-sub'))    safeEl('p-owing-sub').textContent = `${active.length} item${active.length!==1?'s':''} pending`;
-  if (safeEl('p-list-title'))   safeEl('p-list-title').textContent = 'My Payables';
-  if (safeEl('p-completed-label')) safeEl('p-completed-label').textContent = `Completed (${done.length})`;
-
-  const activeList = safeEl('p-active-list');
-  if (activeList) activeList.innerHTML = pRenderAccountGroups(active, isElly, shareFn, false);
-
-  const compList = safeEl('p-completed-list');
-  if (compList) compList.innerHTML = done.length
-    ? done.map(e => pRenderRow(e, isElly, shareFn(e), true)).join('')
-    : '<div class="p-empty">Nothing completed yet.</div>';
-
-  // ── Eric's column (Elly only) ──
-  const ericRight = safeEl('p-owing-right');
-  if (ericRight) ericRight.style.display = isElly ? '' : 'none';
-
-  if (isElly) {
-    let ericAll = pEricEntries();
-    if (pEricSplitFilter !== 'all') {
-      const sv = pEricSplitFilter === 'mine' ? 'eric' : pEricSplitFilter;
-      ericAll = ericAll.filter(e => e.split === sv);
-    }
-    if (pEricAccountFilter !== 'all') ericAll = ericAll.filter(e => e.payTo === pEricAccountFilter);
-    const ericActive = ericAll.filter(e => !pIsEricDone(e));
-    const ericDone   = ericAll.filter(e =>  pIsEricDone(e));
-    const ericTotal  = ericActive.reduce((s, e) => s + pEricShare(e), 0);
-
-    if (safeEl('p-eric-owing-amt')) safeEl('p-eric-owing-amt').textContent = pFmt(ericTotal);
-    if (safeEl('p-eric-owing-sub')) safeEl('p-eric-owing-sub').textContent = `${ericActive.length} item${ericActive.length!==1?'s':''} pending`;
-    if (safeEl('p-eric-completed-label')) safeEl('p-eric-completed-label').textContent = `Completed (${ericDone.length})`;
-
-    const ericActiveList = safeEl('p-eric-active-list');
-    if (ericActiveList) ericActiveList.innerHTML =
-      ericActive.length
-        ? pRenderAccountGroups(ericActive, false, e => pEricShare(e), false)
-        : '<div class="p-empty">Eric is all clear! 🎉</div>';
-
-    const ericCompList = safeEl('p-eric-completed-list');
-    if (ericCompList) ericCompList.innerHTML = ericDone.length
-      ? ericDone.map(e => pRenderRow(e, false, pEricShare(e), true, false)).join('')
-      : '<div class="p-empty">Nothing completed yet.</div>';
-
-    // Re-apply whichever view was active before the re-render
-    pSetView(pActiveView);
-  } else {
-    // Eric's own session: his column is p-col-mine; hide the eric column
-    const ericCol = safeEl('p-col-eric');
-    if (ericCol) ericCol.style.display = 'none';
+  const ericRight=safeEl('p-owing-right');
+  if(ericRight){
+    if(isElly){
+      const ep=pEricEntries().filter(e=>!pIsEricDone(e));
+      const et=ep.reduce((s,e)=>s+pEricShare(e),0);
+      safeEl('p-eric-owing-amt').textContent=pFmt(et);
+      safeEl('p-eric-owing-sub').textContent=`${ep.length} item${ep.length!==1?'s':''} pending`;
+      ericRight.style.display='';
+    } else { ericRight.style.display='none'; }
   }
 
-  // Re-apply selection highlights after re-render (mine column only)
+  if(safeEl('p-list-title'))safeEl('p-list-title').textContent=isElly?'My Payables':'What I Owe';
+  if(safeEl('p-completed-label'))safeEl('p-completed-label').textContent=`Completed (${done.length})`;
+
+  const activeList=safeEl('p-active-list');
+  if(activeList)activeList.innerHTML=active.length
+    ?active.map(e=>pRenderRow(e,isElly,shareFn(e),false)).join('')
+    :'<div class="p-empty">All clear — nothing pending! 🎉</div>';
+
+  const compList=safeEl('p-completed-list');
+  if(compList)compList.innerHTML=done.length
+    ?done.map(e=>pRenderRow(e,isElly,shareFn(e),true)).join('')
+    :'<div class="p-empty">Nothing completed yet.</div>';
+
+  // Re-apply selection highlights after re-render
   const selIds = new Set(pSelectedRows.map(r => r.id));
   if (selIds.size) {
     document.querySelectorAll('#p-active-list .p-row, #p-completed-list .p-row').forEach(row => {
@@ -3954,72 +2968,40 @@ function renderPayables() {
   updatePayablesBadge();
 }
 
-// compact=true: 4-item row (checkbox, name, amount, payto) used for Eric's column in Elly's view.
-// No allocation badge, no action buttons, no row-click selection handler.
-function pRenderRow(e, isElly, myShare, isDone, compact=false) {
-  const forWhom = isElly ? 'elly' : 'eric';
-  const doneVal = isElly ? e.ellyDone : e.ericDone;
-  const splitClass = e.split==='mine' ? 'p-split-mine'
-                   : e.split==='eric' ? 'p-split-eric'
-                   : 'p-split-shared';
-  // compact = Elly viewing Eric's column; !compact non-owner = Eric's own session
-  const canEditRow = !compact;
-  // "Eric" label → "Mine" when Eric is viewing his own column; stays "Eric" in Elly's compact view
-  // "Solo" for non-shared items; from Eric's own session his solo items say "Solo (mine)"
-  const ericSoloLabel = isEric() ? 'Solo (mine)' : 'Solo (Eric\'s)';
-  const splitBadge = canEditRow
-    ? `<select class="p-split-select ${splitClass}" onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','split',this.value)" title="Change split">
-         <option value="shared" ${e.split==='shared'?'selected':''}>Shared</option>
-         <option value="mine"   ${e.split==='mine'?'selected':''}>Solo (mine)</option>
-         <option value="eric"   ${e.split==='eric'?'selected':''}>${ericSoloLabel}</option>
-       </select>`
-    : `<span class="p-split-badge ${splitClass}">${e.split==='shared'?'Shared':e.split==='eric'?ericSoloLabel:'Solo'}</span>`;
-  // Each user sees their own allocation field; Elly's column → allocatedTo, Eric's → ericAllocatedTo
-  const rowAllocField = isElly ? 'allocatedTo' : 'ericAllocatedTo';
-  const rowAlloc = e[rowAllocField];
-  let allocBadge = '';
-  if (!compact) {
-    if (rowAlloc) {
-      const [y,m] = rowAlloc.key.split('-').map(Number);
-      allocBadge = `<span class="p-alloc-badge linked" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Change allocation">${MONTHS[m-1].slice(0,3)} P${rowAlloc.pi+1}</span>`;
-    } else {
-      allocBadge = `<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">＋ Allocate</span>`;
-    }
+function pRenderRow(e,isElly,myShare,isDone) {
+  const forWhom=isElly?'elly':'eric';
+  const doneVal=isElly?e.ellyDone:e.ericDone;
+  const splitBadge=e.split==='mine'
+    ?'<span class="p-split-badge p-split-mine">Mine</span>'
+    :'<span class="p-split-badge p-split-shared">Shared</span>';
+  let allocBadge='';
+  if(e.allocatedTo){
+    const[y,m]=e.allocatedTo.key.split('-').map(Number);
+    allocBadge=`<span class="p-alloc-badge linked" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Change allocation">${MONTHS[m-1].slice(0,3)} P${e.allocatedTo.pi+1}</span>`;
+  } else if(isElly){
+    allocBadge=`<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">＋ Allocate</span>`;
   }
-  const actionBtns = compact ? ''
-    : `<div class="p-row-actions">
-         <button class="p-action-btn danger" onclick="event.stopPropagation();deletePayableEntry('${e.id}')" title="Delete">✕</button>
-       </div>`;
+  const actionBtns=isElly
+    ?`<div class="p-row-actions">
+        <button class="p-action-btn danger" onclick="deletePayableEntry('${e.id}')" title="Delete">✕</button>
+      </div>`
+    :'<span></span>';
   const shareVal = myShare.toFixed(2);
-  // Tooltip: "Your share" for whoever is looking at their own column; "Eric's share" for Elly viewing his column
-  const viewerName = (isElly || isEric()) ? 'Your' : "Eric's";
-  const fullTip = e.split==='shared'
-    ? `${viewerName} share — full amount is $${(e.fullAmount||0).toFixed(2)}`
-    : 'Amount';
-  const rowHandlers = compact ? ''
-    : `onclick="pHandleRowClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"
-       oncontextmenu="pHandleRowRightClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"`;
-  return `<div class="p-row${isDone?' is-done':''}"
+  return`<div class="p-row${isDone?' is-done':''}"
     data-pid="${e.id}" data-pamount="${shareVal}" data-pname="${esc(e.name)}"
-    ${rowHandlers}>
+    onclick="pHandleRowClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"
+    oncontextmenu="pHandleRowRightClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})">
     <input type="checkbox" class="p-check" ${doneVal?'checked':''} onchange="event.stopPropagation();togglePayableDone('${e.id}','${forWhom}')">
-    <div style="display:flex;align-items:center;gap:4px;min-width:0">
-      <input class="p-name-input" value="${esc(e.name)}" placeholder="Expense name"
-        onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','name',this.value)" ${compact?'readonly':''}>
-      ${splitBadge}
-    </div>
-    <input class="p-amount-input" type="number" step="0.01" value="${shareVal}" placeholder="0.00"
-      onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','share',this.value)" ${compact?'readonly':''}
-      title="${fullTip}">
+    <span class="p-row-name">${esc(e.name)} ${splitBadge}</span>
+    <span class="p-row-amount">${pFmt(myShare)}</span>
     <span class="p-row-payto">${esc(e.payTo||'')}</span>
-    ${compact ? '' : `<div class="p-row-meta">${allocBadge}</div>`}
+    <div class="p-row-meta">${allocBadge}</div>
     ${actionBtns}
   </div>`;
 }
 
 // ── Seed Elly's data (runs once if entries are empty) ──
 function pMaybeSeedElly() {
-  if (!isOwner()) return; // Only Elly should ever seed defaults
   if ((pState.entries||[]).length > 0) return; // Already seeded
   const CB = 'CB Bills', NAB = 'NAB Offset';
   const t = Date.now();
@@ -4246,7 +3228,7 @@ function openModalPayTo() {
   _selectedPayTo = null;
   document.getElementById('payto-sel-count').textContent = `${selectedRows.length} row${selectedRows.length!==1?'s':''}`;
   document.getElementById('payto-new-input').value = '';
-  const accounts = getAccounts();
+  const accounts = state.accounts || DEFAULT_ACCOUNTS;
   const grid = document.getElementById('payto-grid');
   grid.innerHTML = accounts.map(a =>
     `<div class="payto-option" onclick="selectPayToOption(this,'${esc(a)}')">${esc(a)}</div>`
@@ -4534,7 +3516,7 @@ function renderAdmin() {
 function renderAdminAccounts() {
   const container = document.getElementById('admin-accounts-list');
   if (!container) return;
-  const accounts = getAccounts();
+  const accounts = state.accounts || DEFAULT_ACCOUNTS;
   container.innerHTML = accounts.map((a, i) =>
     `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f4f8">
       <span style="flex:1;font-size:0.9rem">${esc(a)}</span>
@@ -4577,8 +3559,13 @@ function init() {
   pMaybeSeedElly();
   updatePayablesBadge();
 
-  applyAdminSettings();
-  switchTab('monthly');
+  // Eric defaults to payables tab; budget tabs may be hidden
+  if (isEric()) {
+    applyAdminSettings();
+    switchTab('payables');
+  } else {
+    switchTab('monthly');
+  }
 
   // Start Firebase listeners (if Firebase is ready, otherwise they fire after firebaseReady event)
   if (fbReady) {
@@ -4590,25 +3577,14 @@ function init() {
   }
 }
 
-// Auto-login via Firebase Auth persistent session
+// Auto-login from session storage (page refresh)
 (function() {
-  function waitForAuth() {
-    if (!window._onAuthStateChanged || !window._auth) { setTimeout(waitForAuth, 100); return; }
-    const checkingEl = document.getElementById('login-checking');
-    const btnEl      = document.getElementById('google-sign-in-btn');
-    if (checkingEl) checkingEl.style.display = 'block';
-    if (btnEl) btnEl.style.display = 'none';
-    window._onAuthStateChanged(window._auth, user => {
-      if (user) {
-        const profile = AUTHORISED_USERS[user.email];
-        if (profile) { currentUser = profile.key; showApp(); return; }
-        window._signOut(window._auth);
-      }
-      if (checkingEl) checkingEl.style.display = 'none';
-      if (btnEl) btnEl.style.display = 'flex';
-    });
+  const saved = sessionStorage.getItem('fh_user');
+  if (saved && USERS[saved]) {
+    currentUser = saved;
+    // Wait for DOM
+    document.addEventListener('DOMContentLoaded', showApp);
   }
-  document.addEventListener('DOMContentLoaded', waitForAuth);
 })();
 </script>
 </body>
