@@ -1027,6 +1027,7 @@ body {
   </button>
   <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">📊 Summary</button>
   <button class="tab-btn" id="tab-btn-insights" onclick="switchTab('insights')">💡 Insights</button>
+  <button class="tab-btn" id="tab-btn-compare" onclick="switchTab('compare')" style="display:none">⚖ Compare</button>
   <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">⚙ Admin</button>
 </div>
 </div><!-- /.sticky-header -->
@@ -1108,6 +1109,11 @@ body {
       </div>
 
     </div>
+  </div>
+
+  <!-- ── COMPARE TAB ── -->
+  <div class="tab-content" id="tab-compare">
+    <div id="compareContent" style="padding:16px 20px;max-width:960px;margin:0 auto"></div>
   </div>
 
   <!-- ── SUMMARY TAB ── -->
@@ -1612,8 +1618,9 @@ function isAdmin()  { return !!currentUser; }          // any logged-in user can
 function isEric()   { return currentUser === 'eric'; }
 
 function applyRoleUI() {
-  // Admin tab visible only to Elly
-  document.getElementById('tab-btn-admin').style.display = isOwner() ? '' : 'none';
+  // Admin + Compare tabs visible only to Elly
+  document.getElementById('tab-btn-admin').style.display   = isOwner() ? '' : 'none';
+  document.getElementById('tab-btn-compare').style.display = isOwner() ? '' : 'none';
 
   // View switcher (Elly only — Eric sees his own payables fullscreen)
   if (isEric()) {
@@ -1811,6 +1818,130 @@ function applyAdminSettings() {
   const toggle = document.getElementById('toggle-eric-budget');
   if (toggle) toggle.checked = !!adminSettings.ericCanViewBudget;
   // Eric now always has access to all budget tabs — no tab hiding needed
+}
+
+async function renderCompare() {
+  if (!isOwner()) return;
+  const container = document.getElementById('compareContent');
+  container.innerHTML = '<div style="color:#9ca3af;padding:24px 0">Loading Eric\'s data…</div>';
+
+  const ericSnap = await window._dbGet(window._dbRef(window._db, 'finance-hub/eric-budget'));
+  const ericData = ericSnap.val() || {};
+  const key = mKey(curYear, curMonth);
+  const monthName = MONTHS[curMonth] + ' ' + curYear;
+
+  const ellyPeriods = state.months[key]?.periods || [];
+  const ericPeriods = ericData.months?.[key]?.periods || [];
+  const ellyBills = ellyPeriods.flatMap(p => p.bills || []);
+  const ericBills = ericPeriods.flatMap(p => p.bills || []);
+
+  const ellyMonthlySalary = (state.settings?.salary || 0) * ellyPeriods.length;
+  const ericMonthlySalary = ericData.settings?.salary || 0;
+
+  const ellyRecurring = ellyBills.filter(b => b.recurring);
+  const ellyVariable  = ellyBills.filter(b => !b.recurring);
+  const ericRecurring = ericBills.filter(b => b.recurring);
+  const ericVariable  = ericBills.filter(b => !b.recurring);
+
+  const sum = arr => arr.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0);
+  const fmt = n => '$' + parseFloat(n || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  // Match bills by normalised name (first significant word)
+  function normName(n) { return (n || '').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim(); }
+  function firstWord(n) { return normName(n).split(' ')[0]; }
+
+  const matched = new Set(), ericMatched = new Set();
+  const sharedRows = [];
+  ellyBills.forEach(eb => {
+    const ew = firstWord(eb.name);
+    const match = ericBills.find(er => !ericMatched.has(er.id) && (
+      normName(er.name).includes(ew) || ew.includes(firstWord(er.name))
+    ));
+    if (match && ew.length > 2) {
+      matched.add(eb.id); ericMatched.add(match.id);
+      const diff = (parseFloat(match.amount) || 0) - (parseFloat(eb.amount) || 0);
+      const diffStr = diff === 0 ? '' : (diff > 0 ? `+${fmt(diff)} Eric` : `${fmt(diff)} Elly`);
+      sharedRows.push({ label: eb.name, elly: parseFloat(eb.amount) || 0, eric: parseFloat(match.amount) || 0, note: diffStr, match: diff === 0 });
+    }
+  });
+  sharedRows.sort((a, b) => b.elly - a.elly);
+
+  const ellyOnly = ellyBills.filter(b => !matched.has(b.id));
+  const ericOnly = ericBills.filter(b => !ericMatched.has(b.id));
+
+  const pillStyle = (ok) => ok
+    ? 'background:#d1fae5;color:#065f46;border-radius:4px;padding:1px 7px;font-size:0.72rem;font-weight:600'
+    : 'background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 7px;font-size:0.72rem;font-weight:600';
+
+  container.innerHTML = `
+    <h2 style="font-size:1.2rem;font-weight:700;margin:0 0 16px">${monthName} — Bills Comparison</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+      ${[
+        ['Elly total out', fmt(sum(ellyBills))],
+        ['Elly recurring', fmt(sum(ellyRecurring))],
+        ['Eric total out', fmt(sum(ericBills))],
+        ['Eric recurring', fmt(sum(ericRecurring))],
+      ].map(([l,v]) => `<div style="background:var(--vscode-editor-background,#f9fafb);border:1px solid var(--vscode-panel-border,#e5e7eb);border-radius:8px;padding:12px 14px">
+        <div style="font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">${l}</div>
+        <div style="font-size:1.1rem;font-weight:700">${v}</div>
+      </div>`).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+      ${[
+        ['Elly monthly salary (×' + ellyPeriods.length + ' periods)', fmt(ellyMonthlySalary), fmt(ellyMonthlySalary - sum(ellyBills))],
+        ['Eric monthly salary', fmt(ericMonthlySalary), fmt(ericMonthlySalary - sum(ericBills))],
+      ].map(([l,sal,left]) => `<div style="background:var(--vscode-editor-background,#f9fafb);border:1px solid var(--vscode-panel-border,#e5e7eb);border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">${l}</div>
+          <div style="font-weight:600">${sal}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:0.72rem;color:#6b7280;margin-bottom:2px">Left over</div>
+          <div style="font-weight:700;color:${parseFloat(left.replace(/[^0-9.-]/g,''))>=0?'#059669':'#ef4444'}">${left}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+
+    <h3 style="font-size:0.95rem;font-weight:700;margin:0 0 8px">Shared Bills (${sharedRows.length})</h3>
+    <div style="border:1px solid var(--vscode-panel-border,#e5e7eb);border-radius:8px;overflow:hidden;margin-bottom:20px">
+      <div style="display:grid;grid-template-columns:1fr 110px 110px 1fr;background:var(--vscode-panel-border,#f3f4f6);padding:7px 12px;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#6b7280">
+        <span>Bill</span><span style="text-align:right">Elly</span><span style="text-align:right">Eric</span><span style="padding-left:12px">Note</span>
+      </div>
+      ${sharedRows.map((r, i) => `
+        <div style="display:grid;grid-template-columns:1fr 110px 110px 1fr;padding:7px 12px;font-size:0.83rem;border-top:1px solid var(--vscode-panel-border,#e5e7eb);background:${i%2===0?'transparent':'var(--vscode-editor-background,#fafafa)'};align-items:center">
+          <span style="font-weight:500">${esc(r.label)}</span>
+          <span style="text-align:right">${fmt(r.elly)}</span>
+          <span style="text-align:right">${fmt(r.eric)}</span>
+          <span style="padding-left:12px"><span style="${pillStyle(r.match)}">${r.match ? 'Match' : r.note || 'Differs'}</span></span>
+        </div>`).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <h3 style="font-size:0.95rem;font-weight:700;margin:0 0 8px">Elly only (${ellyOnly.length})</h3>
+        <div style="border:1px solid var(--vscode-panel-border,#e5e7eb);border-radius:8px;overflow:hidden">
+          ${ellyOnly.sort((a,b)=>(b.amount||0)-(a.amount||0)).map((b,i) => `
+            <div style="display:grid;grid-template-columns:1fr auto auto;padding:6px 12px;font-size:0.82rem;border-top:${i>0?'1px solid var(--vscode-panel-border,#e5e7eb)':'none'};gap:8px;align-items:center">
+              <span>${esc(b.name)}</span>
+              <span style="font-weight:600">${fmt(b.amount)}</span>
+              <span style="${pillStyle(!b.recurring)}">${b.recurring ? 'R' : 'V'}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:0.95rem;font-weight:700;margin:0 0 8px">Eric only (${ericOnly.length})</h3>
+        <div style="border:1px solid var(--vscode-panel-border,#e5e7eb);border-radius:8px;overflow:hidden">
+          ${ericOnly.sort((a,b)=>(b.amount||0)-(a.amount||0)).map((b,i) => `
+            <div style="display:grid;grid-template-columns:1fr auto auto;padding:6px 12px;font-size:0.82rem;border-top:${i>0?'1px solid var(--vscode-panel-border,#e5e7eb)':'none'};gap:8px;align-items:center">
+              <span>${esc(b.name)}</span>
+              <span style="font-weight:600">${fmt(b.amount)}</span>
+              <span style="${pillStyle(!b.recurring)}">${b.recurring ? 'R' : 'V'}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
 }
 
 function renderAdmin() {
@@ -2095,7 +2226,7 @@ function getMonthStats(key) {
 function switchTab(tab) {
   curTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  ['monthly','summary','insights','payables','admin'].forEach(t => {
+  ['monthly','summary','insights','payables','admin','compare'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.classList.remove('active');
   });
@@ -2113,6 +2244,7 @@ function switchTab(tab) {
     if (tab === 'summary')  renderSummary();
     if (tab === 'insights') renderInsights();
     if (tab === 'payables') renderPayables();
+    if (tab === 'compare')  renderCompare();
     if (tab === 'admin')    renderAdmin();
   }
 }
