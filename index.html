@@ -3055,7 +3055,8 @@ async function renderHouseholdSummary() {
   const otherSalary = parseFloat(otherData.settings?.salary || 0);
 
   const myKeys   = Object.keys(state.months).sort();
-  const allKeys  = Array.from(new Set([...myKeys, ...Object.keys(otherMonths)])).sort();
+  // Only include months where BOTH users have data so half-data months don't skew the charts
+  const allKeys  = myKeys.filter(k => otherMonths[k]);
   const otherName = isEric() ? 'Elly' : 'Eric';
   const myName    = isEric() ? 'Eric' : 'Elly';
 
@@ -3063,7 +3064,7 @@ async function renderHouseholdSummary() {
   allKeys.forEach(key => {
     const [y,m] = key.split('-').map(Number);
     labels.push(MONTHS[m-1].slice(0,3)+' '+y);
-    const myS  = state.months[key] ? getMonthStats(key) : { totalSpend:0, totalSavings:0, totalAllowance:0, salary:0 };
+    const myS  = getMonthStats(key) || { totalSpend:0, totalSavings:0, totalAllowance:0, salary:0 };
     const otherM = otherMonths[key];
     let othSpend=0, othSav=0, othInc=0;
     if (otherM) {
@@ -3071,12 +3072,10 @@ async function renderHouseholdSummary() {
         othSpend += p.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
         const gs = p.savingsGoals?.length ? p.savingsGoals : (p.savings ? [{amount:p.savings}] : []);
         othSav   += gs.reduce((s,g)=>s+(parseFloat(g.amount)||0),0);
-        // income from settings salary split by period count
       });
+      // otherSalary is per-period; multiply by period count for correct monthly income
       const pCount = otherM.periods.length || 1;
-      othInc = otherSalary / (isEric() ? 26 : 1) * pCount; // rough per-period
-      // Better: just use otherSalary as monthly
-      othInc = otherSalary;
+      othInc = otherSalary * pCount;
     }
     const totSpend   = myS.totalSpend + othSpend;
     const totSavings = myS.totalSavings + othSav;
@@ -3089,9 +3088,9 @@ async function renderHouseholdSummary() {
     hAllowanceData.push(+(myS.totalAllowance + (othInc - othSpend - othSav)).toFixed(2));
   });
 
-  // Current month combined stats
+  // Current month combined stats — pick from intersection only
   const curKey = mKey(curYear, curMonth);
-  const dispKey = state.months[curKey] ? curKey : myKeys[myKeys.length-1] || allKeys[allKeys.length-1];
+  const dispKey = allKeys.includes(curKey) ? curKey : allKeys[allKeys.length-1] || myKeys[myKeys.length-1];
   const [dy,dm] = dispKey.split('-').map(Number);
   const dispName = MONTHS[dm-1]+' '+dy;
   const idx = allKeys.indexOf(dispKey);
@@ -3308,7 +3307,9 @@ async function renderInsights() {
   const livingBills = sharedBills.filter(b => !isExcluded(b.name));
   const livingTotal = livingBills.reduce((s, b) => s + b.me + b.them, 0);
   const mySalary = isEric() ? (state.settings?.salary||0) : (state.settings?.salary||0) * mePeriods.length;
-  const householdIncome = mySalary + otherSalary;
+  // otherSalary is stored per-period; multiply by their period count for the correct monthly total
+  const otherMonthlyIncome = (otherSalary || 0) * (otherPeriods.length || 1);
+  const householdIncome = mySalary + otherMonthlyIncome;
 
   const hInsights = [];
   const normNh = n => (n||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
@@ -3329,7 +3330,7 @@ async function renderInsights() {
   }
   if (householdIncome > 0) {
     const pct = Math.round((livingTotal / householdIncome) * 100);
-    hInsights.push({ icon: '📊', title: 'Living expenses vs income', text: `Living expenses are <strong>${pct}%</strong> of combined household income (<strong>$${householdIncome.toFixed(0)}/month</strong>).` });
+    hInsights.push({ icon: '📊', title: 'Living expenses vs income', text: `Living expenses are <strong>${pct}%</strong> of combined household income (<strong>$${householdIncome.toFixed(0)}/month</strong>). Me $${mySalary.toFixed(0)} + ${otherName} $${otherMonthlyIncome.toFixed(0)}.` });
   }
 
   // Vehicles
