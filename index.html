@@ -981,6 +981,12 @@ body {
 ════════════════════════════════════ -->
 <div id="app" style="display:none">
 
+<!-- IMPERSONATION BANNER -->
+<div id="impersonate-banner" style="display:none;background:#6366f1;color:#fff;text-align:center;padding:8px 16px;font-size:0.85rem;font-weight:600;position:sticky;top:0;z-index:1000;display:none;align-items:center;justify-content:center;gap:12px">
+  <span>🎭 Viewing as Eric — your Elly session is still active</span>
+  <button onclick="stopImpersonating()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.5);color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:0.8rem;font-weight:600">✕ Back to Elly</button>
+</div>
+
 <!-- TOP BAR -->
 <div class="sticky-header">
 <div class="topbar">
@@ -1090,6 +1096,14 @@ body {
             ⬆ Import Budget
             <input type="file" accept=".json" onchange="importBudget(event)" style="display:none">
           </label>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h2>🎭 Impersonate User</h2>
+        <div class="admin-toggle-desc" style="margin-bottom:12px;color:#6b7280">Switch your view to test the app as Eric. Your Elly login stays active — Firebase writes still work on both paths.</div>
+        <div id="impersonate-controls">
+          <button class="p-btn" style="background:#6366f1;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;border:none;cursor:pointer" onclick="impersonateEric()">👤 View as Eric</button>
         </div>
       </div>
 
@@ -1524,7 +1538,40 @@ function doGoogleLogin() {
     });
 }
 
+let _preImpersonateUser = null;
+
+function impersonateEric() {
+  if (!isOwner()) return;
+  _preImpersonateUser = currentUser;
+  currentUser = 'eric';
+  if (budgetUnsub) { budgetUnsub(); budgetUnsub = null; }
+  listenBudget();
+  applyRoleUI();
+  applyAdminSettings();
+  const banner = document.getElementById('impersonate-banner');
+  if (banner) banner.style.display = 'flex';
+  const ctrl = document.getElementById('impersonate-controls');
+  if (ctrl) ctrl.innerHTML = '<span style="color:#6b7280;font-size:0.85rem">Currently viewing as Eric. Use the banner at the top to switch back.</span>';
+  showToast('🎭 Now viewing as Eric');
+  switchTab('monthly');
+}
+
+function stopImpersonating() {
+  if (!_preImpersonateUser) return;
+  currentUser = _preImpersonateUser;
+  _preImpersonateUser = null;
+  if (typeof budgetUnsub === 'function') { budgetUnsub(); budgetUnsub = null; }
+  listenBudget();
+  applyRoleUI();
+  applyAdminSettings();
+  const banner = document.getElementById('impersonate-banner');
+  if (banner) { banner.style.display = 'none'; }
+  showToast('✅ Back to Elly view');
+  switchTab('monthly');
+}
+
 function doLogout() {
+  stopImpersonating();
   currentUser = null;
   window._signOut(window._auth);
   document.getElementById('app').style.display = 'none';
