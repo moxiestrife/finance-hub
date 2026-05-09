@@ -3100,16 +3100,18 @@ async function renderHouseholdSummary() {
   const hCash   = hCashflowData[idx] || 0;
 
   // ── Match recurring bills using same alias logic as Compare tab ──────
-  // My bills: group by name (strip trailing numbers) to handle fortnightly dupes
-  const myRecRaw = (state.months[dispKey]?.periods || []).flatMap(p => p.bills.filter(b => b.recurring));
-  const myGrouped = {};
-  myRecRaw.forEach(b => {
-    const k = (b.name || '').trim().toLowerCase().replace(/\s+\d+$/, '');
-    if (!myGrouped[k]) myGrouped[k] = { ...b, amount: 0 };
-    myGrouped[k].amount += parseFloat(b.amount) || 0;
-  });
-  const myBills  = Object.values(myGrouped);
-  const othBills = (otherMonths[dispKey]?.periods || []).flatMap(p => p.bills.filter(b => b.recurring));
+  // Group bills for both sides — strips trailing numbers so "Groceries 2" merges with "Groceries"
+  function groupRecurring(periods) {
+    const grouped = {};
+    periods.flatMap(p => p.bills.filter(b => b.recurring)).forEach(b => {
+      const k = (b.name || '').trim().toLowerCase().replace(/\s+\d+$/, '');
+      if (!grouped[k]) grouped[k] = { ...b, amount: 0 };
+      grouped[k].amount += parseFloat(b.amount) || 0;
+    });
+    return Object.values(grouped);
+  }
+  const myBills  = groupRecurring(state.months[dispKey]?.periods || []);
+  const othBills = groupRecurring(otherMonths[dispKey]?.periods || []);
 
   // Determine which side is "Elly" for alias lookup (aliases are defined Elly→Eric)
   const ellyBillsH = isEric() ? othBills : myBills;
