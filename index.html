@@ -3007,7 +3007,7 @@ function renderSummary() {
 // ─────────────────────────────────────────────
 //  INSIGHTS RENDER
 // ─────────────────────────────────────────────
-function renderInsights() {
+async function renderInsights() {
   const container=document.getElementById('insightsContent');
   const keys=Object.keys(state.months).sort();
   if(!keys.length){container.innerHTML=`<div class="no-data"><div style="font-size:3rem">💡</div><p>No data yet.</p></div>`;return;}
@@ -3044,7 +3044,86 @@ function renderInsights() {
   const ht=recurringBills.filter(b=>['mortgage','car'].some(k=>b.name.toLowerCase().includes(k)));
   const htTotal=ht.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
   if(htTotal>0) insights.push({icon:'🚗',title:'Housing & car',text:`Mortgage + Car combined = <strong>$${htTotal.toFixed(0)}/pay period</strong> — ${Math.round((htTotal/curStats.totalSpend)*100)}% of total spend.`});
-  container.innerHTML=`<div style="margin-bottom:20px"><div style="font-size:0.8rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Based on · ${displayName}</div><div style="font-size:0.85rem;color:#9ca3af">${insights.length} insights generated</div></div><div class="insights-grid">${insights.map(ins=>`<div class="insight-card"><div class="insight-icon">${ins.icon}</div><div class="insight-body"><div class="insight-title">${ins.title}</div><div class="insight-text">${ins.text}</div></div></div>`).join('')}</div>`;
+  const insightCardHTML = ins => `<div class="insight-card"><div class="insight-icon">${ins.icon}</div><div class="insight-body"><div class="insight-title">${ins.title}</div><div class="insight-text">${ins.text}</div></div></div>`;
+  const sectionLabel = (label, sub) => `<div style="margin-bottom:16px"><div style="font-size:0.8rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px">${label}</div><div style="font-size:0.82rem;color:#9ca3af">${sub}</div></div>`;
+
+  container.innerHTML =
+    sectionLabel(`My insights · ${displayName}`, `${insights.length} insights from your budget`) +
+    `<div class="insights-grid">${insights.map(insightCardHTML).join('')}</div>` +
+    `<div id="household-insights-wrap" style="margin-top:32px"><div style="font-size:0.8rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.4px">Household insights</div><div style="margin-top:6px;color:#9ca3af;font-size:0.82rem">Loading…</div></div>`;
+
+  // ── Household insights (fetch other user's budget) ──────────────
+  const otherPath = isEric() ? 'finance-hub/budget' : 'finance-hub/eric-budget';
+  const otherSnap = await window._dbGet(window._dbRef(window._db, otherPath));
+  const otherData = otherSnap.val() || {};
+  const otherMonths = otherData.months || {};
+  const otherKey = otherMonths[displayKey] ? displayKey : Object.keys(otherMonths).sort().pop();
+  const otherPeriods = otherKey ? (otherMonths[otherKey]?.periods || []) : [];
+  const otherSalary = otherData.settings?.salary || 0;
+
+  const mePeriods  = curMonthData.periods;
+  const meRecurring   = mePeriods.flatMap(p => p.bills.filter(b => b.recurring));
+  const themRecurring = otherPeriods.flatMap(p => p.bills.filter(b => b.recurring));
+
+  // Group my recurring by name (handle fortnightly duplicates)
+  const meGrouped = {};
+  meRecurring.forEach(b => {
+    const k = (b.name||'').trim().toLowerCase().replace(/\s+\d+$/,'');
+    if (!meGrouped[k]) meGrouped[k] = { ...b, amount: 0 };
+    meGrouped[k].amount += parseFloat(b.amount)||0;
+  });
+
+  // Match shared bills (same logic as Compare tab)
+  const normN = n => (n||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+  const fw    = n => normN(n).split(' ')[0];
+  const HALIASES = [
+    ['groceries','food budget'],['mortgage','nab mortgage'],
+    ['volvo insurance','car insurance'],['hp ink subscription','hp ink'],
+  ];
+  const themMatched = new Set();
+  const sharedBills = [];
+  Object.values(meGrouped).forEach(me => {
+    const en = normN(me.name), ew = fw(me.name);
+    const alias = HALIASES.find(([a]) => a === en);
+    const them = themRecurring.find(t => !themMatched.has(t.id) && (
+      normN(t.name) === en ||
+      (alias && normN(t.name).startsWith(alias[1])) ||
+      normN(t.name).startsWith(ew) ||
+      en.startsWith(fw(t.name))
+    ));
+    if (them && (alias || ew.length > 2)) {
+      themMatched.add(them.id);
+      sharedBills.push({ name: me.name, me: me.amount, them: parseFloat(them.amount)||0 });
+    }
+  });
+
+  // Exclude mortgage, loans, car finance from living expenses
+  const isExcluded = name => {
+    const n = normN(name);
+    return ['mortgage','loan','finance','novated','installment','instalment'].some(k => n.includes(k));
+  };
+  const livingBills = sharedBills.filter(b => !isExcluded(b.name));
+  const livingTotal = livingBills.reduce((s, b) => s + b.me + b.them, 0);
+  const mySalary = isEric() ? (state.settings?.salary||0) : (state.settings?.salary||0) * mePeriods.length;
+  const householdIncome = mySalary + otherSalary;
+
+  const hInsights = [];
+  if (livingTotal > 0) {
+    hInsights.push({ icon: '🏡', title: 'Total living expenses', text: `Combined shared bills (excl. mortgage & loans): <strong>$${livingTotal.toFixed(0)}/month</strong> — ${livingBills.length} bills across both budgets.` });
+  }
+  if (householdIncome > 0) {
+    const pct = Math.round((livingTotal / householdIncome) * 100);
+    hInsights.push({ icon: '📊', title: 'Living expenses vs income', text: `Living expenses are <strong>${pct}%</strong> of combined household income (<strong>$${householdIncome.toFixed(0)}/month</strong>).` });
+  }
+  const sharedTotal = sharedBills.reduce((s,b) => s+b.me+b.them, 0);
+  if (sharedTotal > 0) {
+    hInsights.push({ icon: '🤝', title: 'Total shared commitments', text: `All shared recurring bills combined: <strong>$${sharedTotal.toFixed(0)}/month</strong> across ${sharedBills.length} shared expenses.` });
+  }
+
+  const wrap = document.getElementById('household-insights-wrap');
+  if (wrap) wrap.innerHTML =
+    sectionLabel('Household insights · ' + displayName, `Combined data — ${hInsights.length} insights`) +
+    `<div class="insights-grid">${hInsights.map(insightCardHTML).join('')}</div>`;
 }
 
 // ─────────────────────────────────────────────
