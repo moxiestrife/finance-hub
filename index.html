@@ -482,6 +482,17 @@ body {
 .sum-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 16px; font-size: 0.875rem; }
 /* Savings goals section inside footer */
 .savings-section { border-top: 2px solid #e2e8f0; }
+.bill-group-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 12px 3px;
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  color: #4f46e5; border-top: 1px solid #e0e7ff; background: #f5f3ff;
+  margin-top: 4px;
+}
+.bill-group-header.variable {
+  color: #b45309; border-top-color: #fef3c7; background: #fffbeb;
+}
+.bill-group-header .bill-group-total { font-weight: 600; opacity: 0.8; }
 .savings-section-header {
   padding: 6px 12px 2px; font-size: 0.68rem; font-weight: 700;
   color: #059669; text-transform: uppercase; letter-spacing: 0.5px;
@@ -2554,17 +2565,27 @@ function buildPeriodCard(key, period, pi, canEdit) {
     <span class="${cls('done')}" onclick="cycleSort('${periodSortKey}','done')" title="Sort by done">${arrow('done')}</span>`;
   outBody.appendChild(colHeader);
 
-  const listDiv = document.createElement('div');
-  listDiv.className = 'bill-list';
-  listDiv.setAttribute('data-period', `${key}-${pi}`);
-  if (canEdit) {
-    listDiv.addEventListener('dragover', billListDragOver);
-    listDiv.addEventListener('drop', (e) => billListDrop(e, key, pi));
-  }
-
   // Apply sort — view only, doesn't change saved order
   const sortKey = sortSt ? (sortSt.dir === -1 ? `-${sortSt.col}` : sortSt.col) : 'default';
   const sortedBills = getSortedBills(period.bills, sortKey);
+
+  const recurringBills = sortedBills.filter(b => b.recurring);
+  const variableBills  = sortedBills.filter(b => !b.recurring);
+  const recurringTotal = recurringBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+  const variableTotal  = variableBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+
+  function mkListDiv() {
+    const ld = document.createElement('div');
+    ld.className = 'bill-list';
+    ld.setAttribute('data-period', `${key}-${pi}`);
+    if (canEdit) {
+      ld.addEventListener('dragover', billListDragOver);
+      ld.addEventListener('drop', (e) => billListDrop(e, key, pi));
+    }
+    return ld;
+  }
+  const recurListDiv = mkListDiv();
+  const varListDiv   = mkListDiv();
 
   sortedBills.forEach((bill, billIdx) => {
     const row = document.createElement('div');
@@ -2618,9 +2639,22 @@ function buildPeriodCard(key, period, pi, canEdit) {
       handleRowClick(e, row, key, pi, bill, billIdx, false);
     });
     row.addEventListener('contextmenu', (e) => handleRowRightClick(e, row));
-    listDiv.appendChild(row);
+    (bill.recurring ? recurListDiv : varListDiv).appendChild(row);
   });
-  outBody.appendChild(listDiv);
+
+  // Recurring group
+  const recurGroupHeader = document.createElement('div');
+  recurGroupHeader.className = 'bill-group-header';
+  recurGroupHeader.innerHTML = `<span class="bill-group-label">Recurring</span><span class="bill-group-total">$${recurringTotal.toFixed(2)}</span>`;
+  outBody.appendChild(recurGroupHeader);
+  outBody.appendChild(recurListDiv);
+
+  // Variable group
+  const varGroupHeader = document.createElement('div');
+  varGroupHeader.className = 'bill-group-header variable';
+  varGroupHeader.innerHTML = `<span class="bill-group-label">Variable</span><span class="bill-group-total">$${variableTotal.toFixed(2)}</span>`;
+  outBody.appendChild(varGroupHeader);
+  outBody.appendChild(varListDiv);
 
   if (canEdit) {
     const addDiv = document.createElement('div'); addDiv.className = 'add-row';
