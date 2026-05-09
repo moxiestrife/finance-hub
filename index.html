@@ -1868,6 +1868,7 @@ async function renderCompare() {
     ['hp ink subscription',      'hp ink'],
     ['elly personal loan share', 'personal loan share'],
     ['omm ploan',                'renovation loan'],
+    ['telstra',                  'my vodafone'],
   ];
 
   const matched = new Set(), ericMatched = new Set();
@@ -1886,7 +1887,9 @@ async function renderCompare() {
       matched.add(eb.id); ericMatched.add(match.id);
       const diff = (parseFloat(match.amount) || 0) - (parseFloat(eb.amount) || 0);
       const diffStr = diff === 0 ? '' : (diff > 0 ? `+${fmt(diff)} Eric` : `${fmt(diff)} Elly`);
-      sharedRows.push({ label: eb.name, elly: parseFloat(eb.amount) || 0, eric: parseFloat(match.amount) || 0, note: diffStr, match: diff === 0 });
+      const LABELS = { 'telstra': 'Phone bill (Telstra / Vodafone)' };
+      const label = LABELS[normName(eb.name)] || eb.name;
+      sharedRows.push({ label, elly: parseFloat(eb.amount) || 0, eric: parseFloat(match.amount) || 0, note: diffStr, match: diff === 0 });
     }
   });
   sharedRows.sort((a, b) => b.elly - a.elly);
@@ -3085,6 +3088,7 @@ async function renderInsights() {
     ['hp ink subscription',      'hp ink'],
     ['elly personal loan share', 'personal loan share'],
     ['omm ploan',                'renovation loan'],
+    ['telstra',                  'my vodafone'],
   ];
   const themMatched = new Set();
   const sharedBills = [];
