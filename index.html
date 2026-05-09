@@ -2175,10 +2175,23 @@ function handleNextMonth() {
   if (state.months[nextKey]) { curYear=ny; curMonth=nm; render(); return; }
   const cur = state.months[mKey(curYear,curMonth)];
   if (!cur) { showToast('No data in current month'); return; }
-  const newDates = nextDatesFromPrev(cur.periods, ny, nm);
   const copyBills   = bills  => (bills  ||[]).filter(b=>b.recurring).map(b=>({...b, id:newId(), done:false}));
   const copyIncome  = income => (income ||[]).filter(i=>i.recurring).map(i=>({...i, id:newId()}));
   const copySavings = p => getSavingsGoals(p).filter(g=>g.recurring).map(g=>({...g, id:newId(), done:false}));
+  // Eric: monthly pay cycle — always 16th of the new month, single period
+  if (isEric()) {
+    const p0 = cur.periods[0] || {};
+    state.months[nextKey] = { periods: [{
+      date:         `16 ${MONTHS[nm].slice(0,3)} ${ny}`,
+      savingsGoals: copySavings(p0),
+      bills:        copyBills(p0.bills || []),
+      income:       copyIncome(p0.income || [])
+    }]};
+    save(); curYear=ny; curMonth=nm;
+    showToast(`✓ ${MONTHS[nm]} ${ny} created!`);
+    render(); return;
+  }
+  const newDates = nextDatesFromPrev(cur.periods, ny, nm);
   state.months[nextKey] = {
     periods: cur.periods.map((p, pi) => ({
       date:         newDates[pi] ?? newDates[newDates.length-1],
