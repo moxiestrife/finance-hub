@@ -1863,8 +1863,11 @@ async function renderCompare() {
   const sharedRows = [];
   ellyBills.forEach(eb => {
     const ew = firstWord(eb.name);
+    const en = normName(eb.name);
     const match = ericBills.find(er => !ericMatched.has(er.id) && (
-      normName(er.name).includes(ew) || ew.includes(firstWord(er.name))
+      normName(er.name) === en ||                                    // exact match
+      normName(er.name).startsWith(ew) ||                           // Eric name starts with Elly's first word
+      en.startsWith(firstWord(er.name))                             // Elly name starts with Eric's first word
     ));
     if (match && ew.length > 2) {
       matched.add(eb.id); ericMatched.add(match.id);
