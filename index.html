@@ -1832,8 +1832,8 @@ async function renderCompare() {
 
   const ellyPeriods = state.months[key]?.periods || [];
   const ericPeriods = ericData.months?.[key]?.periods || [];
-  const ellyBills = ellyPeriods.flatMap(p => p.bills || []);
-  const ericBills = ericPeriods.flatMap(p => p.bills || []);
+  const ellyBills = ellyPeriods.flatMap(p => (p.bills || []).filter(b => b.recurring));
+  const ericBills = ericPeriods.flatMap(p => (p.bills || []).filter(b => b.recurring));
 
   const ellyMonthlySalary = (state.settings?.salary || 0) * ellyPeriods.length;
   const ericMonthlySalary = ericData.settings?.salary || 0;
@@ -1874,7 +1874,8 @@ async function renderCompare() {
     : 'background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 7px;font-size:0.72rem;font-weight:600';
 
   container.innerHTML = `
-    <h2 style="font-size:1.2rem;font-weight:700;margin:0 0 16px">${monthName} — Bills Comparison</h2>
+    <h2 style="font-size:1.2rem;font-weight:700;margin:0 0 4px">${monthName} — Recurring Bills Comparison</h2>
+    <p style="font-size:0.82rem;color:#6b7280;margin:0 0 16px">Recurring bills only. Elly's fortnightly periods combined.</p>
 
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
       ${[
