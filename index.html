@@ -3137,9 +3137,11 @@ function openAllocateModal(payableId) {
   const amtEl=document.getElementById('alloc-modal-amount');
   if(amtEl) amtEl.textContent=entry?pFmt(isEric()?pEricShare(entry):pMyShare(entry)):'';
   const today = new Date(); today.setHours(0,0,0,0);
+  const currentMonthKey = mKey(today.getFullYear(), today.getMonth());
   const months = Object.keys(state.months).sort().filter(key => {
+    if (key >= currentMonthKey) return true; // always include current + future months
     const month = state.months[key];
-    // Exclude month if every period date has already passed
+    // Exclude past months only if every period date has already passed
     return !(month.periods || []).every(p => {
       const d = parsePeriodDate(p.date);
       return d && d < today;
