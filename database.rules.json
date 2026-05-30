@@ -1,9 +1,11 @@
 {
-  "//": "Realtime Database security rules for Finance Hub.",
-  "//1": "Both Elly and Eric must be able to read/write the shared tree.",
-  "//2": "Eric's monthly bills + allocate-from-payables broke because the old rules only granted access to Elly's account.",
-  "//3": "Compare/Insights/Household views need each user to READ the other's budget, so reads are open to both authorised emails.",
-  "//4": "Deploy via Firebase Console > Realtime Database > Rules, or `firebase deploy --only database`.",
+  // Realtime Database security rules for Finance Hub.
+  // Both Elly and Eric must be able to read/write the shared tree.
+  // Eric's monthly bills + allocate-from-payables broke because the old
+  // rules only granted access to Elly's account.
+  // Compare/Insights/Household views need each user to READ the other's
+  // budget, so reads are open to both authorised emails.
+  // Deploy: firebase deploy --only database
   "rules": {
     "finance-hub": {
       ".read": "auth != null && (auth.token.email == 'ellyhizon1@gmail.com' || auth.token.email == 'ericdefelix@gmail.com')",
