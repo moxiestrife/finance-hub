@@ -993,6 +993,12 @@ body {
   <button onclick="stopImpersonating()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.5);color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:0.8rem;font-weight:600">✕ Back to Elly</button>
 </div>
 
+<!-- PERMISSION / SYNC ERROR BANNER -->
+<div id="perm-error-banner" style="display:none;background:#dc2626;color:#fff;text-align:center;padding:10px 16px;font-size:0.85rem;font-weight:600;position:sticky;top:0;z-index:1001;align-items:center;justify-content:center;gap:12px">
+  <span id="perm-error-msg">⚠️ Can't reach your data — permission denied. Your changes are saved locally only.</span>
+  <button onclick="document.getElementById('perm-error-banner').style.display='none'" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.6);color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:0.8rem;font-weight:600">Dismiss</button>
+</div>
+
 <!-- TOP BAR -->
 <div class="sticky-header">
 <div class="topbar">
@@ -1017,6 +1023,7 @@ body {
       <div class="sync-dot" id="sync-dot"></div>
       <span id="sync-label">—</span>
     </div>
+    <button class="logout-btn" onclick="runFinanceHubQA()" title="Run a self-test to confirm you can read and save your data" style="background:rgba(255,255,255,0.12)">🧪 Self-test</button>
     <div class="user-chip">
       <div class="user-avatar" id="user-avatar"></div>
       <span id="user-name-display"></span>
@@ -1672,17 +1679,40 @@ function setSyncStatus(status) {
   label.textContent = status === 'live' ? 'Live sync' : status === 'saving' ? 'Saving…' : 'Offline';
 }
 
+// Surface permission/connectivity failures instead of failing silently.
+function showPermError(context, err) {
+  const isPerm = err && (err.code === 'PERMISSION_DENIED' || /permission/i.test(err.message || '') || /permission/i.test(String(err)));
+  const banner = document.getElementById('perm-error-banner');
+  const msg    = document.getElementById('perm-error-msg');
+  if (banner && msg) {
+    msg.textContent = isPerm
+      ? `⚠️ Access denied while ${context}. This account doesn't have permission to read/write its data — ask the admin to update the database rules. Changes are kept locally for now.`
+      : `⚠️ Couldn't sync (${context}). You're offline or the database is unreachable; changes are kept locally.`;
+    banner.style.display = 'flex';
+  }
+  setSyncStatus('offline');
+  console.error(`[FinanceHub] sync error while ${context}:`, err);
+}
+function clearPermError() {
+  const banner = document.getElementById('perm-error-banner');
+  if (banner) banner.style.display = 'none';
+}
+
 function dbPath(path) { return window._dbRef(window._db, path); }
 
 function pushBudgetToFirebase() {
   if (!fbReady) return;
   setSyncStatus('saving');
-  window._dbSet(dbPath(activeBudgetPath()), state).then(() => setSyncStatus('live')).catch(() => setSyncStatus('offline'));
+  window._dbSet(dbPath(activeBudgetPath()), state)
+    .then(() => { setSyncStatus('live'); clearPermError(); })
+    .catch(err => showPermError('saving your budget', err));
 }
 function pushPayablesToFirebase() {
   if (!fbReady) return;
   setSyncStatus('saving');
-  window._dbSet(dbPath(DB_PAYABLES_PATH), pState).then(() => setSyncStatus('live')).catch(() => setSyncStatus('offline'));
+  window._dbSet(dbPath(DB_PAYABLES_PATH), pState)
+    .then(() => { setSyncStatus('live'); clearPermError(); })
+    .catch(err => showPermError('saving payables', err));
 }
 function pushAdminSettingsToFirebase() {
   if (!fbReady) return;
@@ -1718,6 +1748,10 @@ function listenBudget() {
       if (!_preImpersonateUser) pushBudgetToFirebase();
     }
     setSyncStatus('live');
+    clearPermError();
+  }, err => {
+    // Permission denied / connectivity: surface it instead of leaving an empty screen
+    showPermError('loading your monthly budget', err);
   });
 }
 function listenPayables() {
@@ -1749,6 +1783,9 @@ function listenPayables() {
       pushPayablesToFirebase();
     }
     setSyncStatus('live');
+    clearPermError();
+  }, err => {
+    showPermError('loading payables', err);
   });
 }
 
@@ -3384,6 +3421,120 @@ function showToast(msg) {
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
+
+// ─────────────────────────────────────────────
+//  SELF-TEST / QA HARNESS
+//  Verifies the logged-in user can read & write their own data and
+//  perform every core action. Non-destructive: scratch probes are
+//  written to a throwaway "_qa" path and deleted immediately.
+//  Run from the 🧪 Self-test button or `runFinanceHubQA()` in console.
+// ─────────────────────────────────────────────
+async function runFinanceHubQA() {
+  const who = isEric() ? 'Eric' : isOwner() ? 'Elly' : (currentUser || 'unknown');
+  const tests = [];
+  const add = (name, pass, detail) => tests.push({ name, pass, detail });
+
+  // 1) Authentication context
+  const authedEmail = window._auth?.currentUser?.email || null;
+  add('Signed in', !!authedEmail, authedEmail ? `as ${authedEmail} (${who})` : 'no Firebase auth user — sign in again');
+
+  // 2) Budget READ — months visible
+  const monthKeys = Object.keys(state.months || {});
+  add('Monthly budget loaded', monthKeys.length > 0,
+      monthKeys.length ? `${monthKeys.length} month(s): ${monthKeys.sort().join(', ')}` : 'no months loaded (likely a read-permission denial)');
+
+  // 3) Budget WRITE — scratch probe to the user's own budget path
+  const budgetProbe = window._dbRef(window._db, activeBudgetPath() + '/_qaProbe');
+  try {
+    const stamp = Date.now();
+    await window._dbSet(budgetProbe, { t: stamp, by: who });
+    await window._dbSet(budgetProbe, null); // clean up
+    add('Can save budget changes', true, 'write + cleanup OK — adding/paying bills will sync');
+  } catch (e) {
+    add('Can save budget changes', false, `write denied: ${e.code || e.message}. Bills, ticking & savings will NOT sync. → database rules`);
+  }
+
+  // 4) Payables READ
+  const payCount = (pState?.entries || []).length;
+  add('Payables loaded', Array.isArray(pState?.entries),
+      Array.isArray(pState?.entries) ? `${payCount} payable(s) visible` : 'payables not loaded (read-permission denial)');
+
+  // 5) Payables WRITE — scratch probe
+  const payProbe = window._dbRef(window._db, DB_PAYABLES_PATH + '/_qaProbe');
+  try {
+    const stamp = Date.now();
+    await window._dbSet(payProbe, { t: stamp, by: who });
+    await window._dbSet(payProbe, null);
+    add('Can update payables', true, 'write + cleanup OK — linking, ticking & paying payables will sync');
+  } catch (e) {
+    add('Can update payables', false, `write denied: ${e.code || e.message}. Allocating-from-payables will NOT work. → database rules`);
+  }
+
+  // 6) Household read (reads the OTHER user's budget for Compare/Insights)
+  const otherPath = isEric() ? DB_BUDGET_PATH : DB_ERIC_BUDGET_PATH;
+  try {
+    await window._dbGet(window._dbRef(window._db, otherPath));
+    add('Household data readable', true, 'can read partner budget for Summary/Insights household views');
+  } catch (e) {
+    add('Household data readable', false, `read denied: ${e.code || e.message}. Household Summary/Insights will be empty. → database rules`);
+  }
+
+  // 7) Action functions available & not owner-gated (UI capability)
+  const actionFns = ['addBill','toggleDone','updateBill','deleteBill','toggleRecurring','confirmAllocate','togglePayableDone','pCtxAllocate'];
+  const missing = actionFns.filter(fn => typeof window[fn] !== 'function');
+  add('Action handlers present', missing.length === 0,
+      missing.length ? `missing: ${missing.join(', ')}` : 'add / pay / tick / link / multi-action handlers all available');
+
+  // 8) Allocate-from-payables prerequisites
+  const hasBillTarget = monthKeys.some(k => (state.months[k].periods || []).some(p => true));
+  add('Allocate target exists', hasBillTarget && monthKeys.length > 0,
+      monthKeys.length ? 'at least one month/period available to allocate into' : 'no month to allocate into');
+
+  renderQAReport(who, authedEmail, tests);
+  return tests;
+}
+
+function renderQAReport(who, email, tests) {
+  const passCount = tests.filter(t => t.pass).length;
+  const allPass = passCount === tests.length;
+  const permFail = tests.some(t => !t.pass && /rules|denied|permission/i.test(t.detail));
+
+  let host = document.getElementById('qa-overlay');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'qa-overlay';
+    host.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px';
+    document.body.appendChild(host);
+  }
+  host.innerHTML = `
+    <div style="background:#fff;border-radius:14px;max-width:560px;width:100%;max-height:85vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,0.35)">
+      <div style="padding:18px 22px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff">
+        <div>
+          <div style="font-size:1.1rem;font-weight:700">🧪 Self-test — ${esc(who)}</div>
+          <div style="font-size:0.78rem;color:#6b7280">${esc(email || 'not signed in')} · ${passCount}/${tests.length} passed</div>
+        </div>
+        <button onclick="document.getElementById('qa-overlay').remove()" style="border:none;background:#f3f4f6;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:1rem">✕</button>
+      </div>
+      <div style="padding:14px 22px">
+        <div style="padding:10px 14px;border-radius:10px;margin-bottom:14px;font-size:0.85rem;font-weight:600;${allPass?'background:#d1fae5;color:#065f46':permFail?'background:#fee2e2;color:#991b1b':'background:#fef3c7;color:#92400e'}">
+          ${allPass ? '✅ All checks passed — full access confirmed.' : permFail ? '⛔ Permission failures detected — this is a database-rules problem, not the app. See the failing rows below.' : '⚠️ Some checks need attention.'}
+        </div>
+        ${tests.map(t => `
+          <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #f3f4f6;align-items:flex-start">
+            <span style="font-size:1rem;line-height:1.2">${t.pass ? '✅' : '❌'}</span>
+            <div>
+              <div style="font-size:0.88rem;font-weight:600;color:${t.pass?'#111827':'#b91c1c'}">${esc(t.name)}</div>
+              <div style="font-size:0.78rem;color:#6b7280">${esc(t.detail)}</div>
+            </div>
+          </div>`).join('')}
+        ${permFail ? `<div style="margin-top:14px;font-size:0.78rem;color:#6b7280;line-height:1.5">
+          <strong>Fix:</strong> update the Realtime Database rules so both <code>${esc(ELLY_EMAIL)}</code> and <code>${esc(ERIC_EMAIL)}</code> can read/write
+          <code>finance-hub</code>. The recommended rules are saved in <code>database.rules.json</code> in the repo.
+        </div>` : ''}
+      </div>
+    </div>`;
+}
+window.runFinanceHubQA = runFinanceHubQA;
 
 // ═══════════════════════════════════════════════════════════════
 //  PAYABLES TRACKER  (v2)
