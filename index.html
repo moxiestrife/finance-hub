@@ -1609,6 +1609,7 @@ function stopImpersonating() {
 function doLogout() {
   stopImpersonating();
   currentUser = null;
+  document.body.classList.remove('user-eric');
   window._signOut(window._auth);
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
@@ -1639,6 +1640,8 @@ function isAdmin()  { return !!currentUser; }          // any logged-in user can
 function isEric()   { return currentUser === 'eric'; }
 
 function applyRoleUI() {
+  document.body.classList.toggle('user-eric', isEric());
+
   // Admin + Compare tabs visible only to Elly
   document.getElementById('tab-btn-admin').style.display   = isOwner() ? '' : 'none';
   document.getElementById('tab-btn-compare').style.display = isOwner() ? '' : 'none';
