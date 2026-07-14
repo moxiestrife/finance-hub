@@ -2182,36 +2182,152 @@ function defaultDates(y, m) {
 // Parse a date string in "D Mon YYYY" format (e.g. "25 Mar 2026") reliably.
 function parsePeriodDate(str) {
   if (!str) return null;
-  const months = { Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11 };
-  const m = str.trim().match(/^(\d{1,2})\s+(\w{3})\s+(\d{4})$/);
+  const months = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
+  const m = str.trim().match(/^(\d{1,2})\s+([A-Za-z]{3})[A-Za-z]*\.?\s+(\d{4})$/);
   if (!m) return null;
-  const d = parseInt(m[1]), mon = months[m[2]], yr = parseInt(m[3]);
+  const d = parseInt(m[1], 10), mon = months[m[2].toLowerCase()], yr = parseInt(m[3], 10);
   if (mon === undefined || isNaN(d) || isNaN(yr)) return null;
   return new Date(yr, mon, d);
 }
 
-// Returns dates for a new month by chaining fortnights from the last period of the previous month.
-// e.g. prev = [11 Mar, 25 Mar] → new = [8 Apr, 22 Apr]
 // Format a Date object as "D Mon YYYY" without any timezone shifting.
 function formatPeriodDate(d) {
   const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${d.getDate()} ${mo[d.getMonth()]} ${d.getFullYear()}`;
 }
 
+// True fortnightly bills for an outlier 3rd payday (everything else on P1 is monthly).
+// Matched against Period 1 first; Period 2 used only if a name is missing (e.g. Latitude).
+function isFortnightlyOutlierBill(name) {
+  const n = (name || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const base = n.replace(/\s+\d+$/, '');
+  return (
+    /^elly personal loan/.test(base) ||
+    /^solar batter/.test(base) ||
+    /^home filtration/.test(base) ||
+    /^groceries$/.test(base) ||
+    /^latitude/.test(base)
+  );
+}
+
+function fortnightlyBillKey(name) {
+  return (name || '').toLowerCase().replace(/\s+/g, ' ').trim().replace(/\s+\d+$/, '');
+}
+
+function copyOutlierFortnightlyBills(prev) {
+  const p1Bills = (prev.periods?.[0]?.bills) || [];
+  const p2Bills = (prev.periods?.[1]?.bills) || [];
+  const picked = [];
+  const seen = new Set();
+  // Prefer P1 order; then fill gaps from P2 (Latitude often lives on P2)
+  for (const b of [...p1Bills, ...p2Bills]) {
+    if (!isFortnightlyOutlierBill(b.name)) continue;
+    const key = fortnightlyBillKey(b.name);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    picked.push({ ...b, id: newId(), done: false });
+  }
+  return picked;
+}
+
+// Chain +14 days from the last pay date of the previous month; keep every date
+// that lands in the target calendar month (so some months get 3 fortnights).
+// e.g. last = 18 Jun → [2 Jul, 16 Jul, 30 Jul]; last = 30 Jul → [13 Aug, 27 Aug]
 function nextDatesFromPrev(prevPeriods, y, m) {
   const fallback = defaultDates(y, m);
   if (!prevPeriods || !prevPeriods.length) return fallback;
-  // Anchor = last period of previous month
-  const lastPrev = prevPeriods[prevPeriods.length - 1];
+  const lastPrev = prevPeriods.reduce((best, p) => {
+    const d = parsePeriodDate(p.date);
+    if (!d) return best;
+    if (!best) return p;
+    const bestD = parsePeriodDate(best.date);
+    return (!bestD || d > bestD) ? p : best;
+  }, null);
   const anchor = parsePeriodDate(lastPrev.date);
   if (!anchor) return fallback;
-  // Build same number of periods, each 14 days apart from anchor
-  const count = prevPeriods.length;
-  return Array.from({ length: count }, (_, i) => {
-    const next = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + (i + 1) * 14);
-    return formatPeriodDate(next);
+
+  const dates = [];
+  for (let i = 1; i <= 6; i++) {
+    const next = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + i * 14);
+    if (next.getFullYear() > y || (next.getFullYear() === y && next.getMonth() > m)) break;
+    if (next.getFullYear() === y && next.getMonth() === m) {
+      dates.push(formatPeriodDate(next));
+    }
+  }
+  return dates.length ? dates : fallback;
+}
+
+// Build Elly's periods for a new month from a previous month.
+// Regular slots (0–1) copy from prior P1–P2 only — prior P3 is an outlier and is never a template.
+// Extra in-month paydays (index ≥2) get only the fortnightly outlier bill set.
+function buildEllyPeriodsFromPrev(prev, y, m) {
+  const newDates = nextDatesFromPrev(prev.periods, y, m);
+  const copyBills   = bills  => (bills  ||[]).filter(b=>b.recurring).map(b=>({...b, id:newId(), done:false}));
+  const copyIncome  = income => (income ||[]).filter(i=>i.recurring).map(i=>({...i, id:newId()}));
+  const copySavings = p => getSavingsGoals(p).filter(g=>g.recurring).map(g=>({...g, id:newId(), done:false}));
+  const regularSources = (prev.periods || []).slice(0, 2);
+
+  return newDates.map((date, pi) => {
+    if (pi < 2) {
+      const src = regularSources[pi] || regularSources[regularSources.length - 1] || {};
+      return {
+        date,
+        savingsGoals: copySavings(src),
+        bills:        copyBills(src.bills),
+        income:       copyIncome(src.income)
+      };
+    }
+    return {
+      date,
+      savingsGoals: defaultSavingsGoals(),
+      bills:        copyOutlierFortnightlyBills(prev),
+      income:       []
+    };
   });
 }
+
+// Backfill outlier fortnights on an already-saved month (e.g. July created before 3-payday support).
+// Only adds dates after the chronological last period that still fall in this month, and only when
+// at least 2 periods already exist (so we never invent a "P2" as an outlier).
+function ensureEllyInMonthFortnights(y, m) {
+  if (isEric()) return 0;
+  const key = mKey(y, m);
+  const month = state.months[key];
+  if (!month?.periods) return 0;
+  // Firebase can turn arrays into objects — normalise before length/push
+  if (!Array.isArray(month.periods)) {
+    month.periods = Object.keys(month.periods)
+      .sort((a, b) => Number(a) - Number(b))
+      .map(k => month.periods[k]);
+  }
+  if (month.periods.length < 2) return 0;
+
+  const existingTimes = new Set(
+    month.periods.map(p => parsePeriodDate(p.date)).filter(Boolean).map(d => d.getTime())
+  );
+  if (!existingTimes.size) return 0;
+  const chron = [...existingTimes].sort((a, b) => a - b);
+  let cursor = new Date(chron[chron.length - 1]);
+  let added = 0;
+
+  for (let i = 0; i < 4; i++) {
+    const next = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() + 14);
+    if (next.getFullYear() !== y || next.getMonth() !== m) break;
+    if (!existingTimes.has(next.getTime())) {
+      month.periods.push({
+        date:         formatPeriodDate(next),
+        savingsGoals: defaultSavingsGoals(),
+        bills:        copyOutlierFortnightlyBills(month),
+        income:       []
+      });
+      existingTimes.add(next.getTime());
+      added++;
+    }
+    cursor = next;
+  }
+  return added;
+}
+
 function seedBills(arr) {
   return arr.map(b => ({ id: newId(), name: b.name, amount: b.amount, payTo: b.payTo||'', recurring: b.recurring!==false, done: false }));
 }
@@ -2231,7 +2347,7 @@ function createMonth(y, m, withSeed=false) {
   const key = mKey(y, m);
   if (state.months[key]) return;
   const [d1, d2] = defaultDates(y, m);
-  // Eric has a monthly pay cycle — 1 period per month; Elly has fortnightly — 2 periods
+  // Eric: 1 monthly period; Elly blank seed: 2 fortnights (3rd payday is only via chain-from-prev)
   const ericDate = `16 ${MONTHS[m].slice(0,3)} ${y}`;
   const periods = isEric()
     ? [{ date: ericDate, savingsGoals: defaultSavingsGoals(), bills: [] }]
@@ -2262,24 +2378,26 @@ function createMonthFromLastRecurring(y, m) {
   }
 
   const prev = state.months[prevKey];
-  const newDates = nextDatesFromPrev(prev.periods, y, m);
 
-  const copyBills   = bills  => (bills  ||[]).filter(b=>b.recurring).map(b=>({...b, id:newId(), done:false}));
-  const copyIncome  = income => (income ||[]).filter(i=>i.recurring).map(i=>({...i, id:newId()}));
-  const copySavings = p => getSavingsGoals(p).filter(g=>g.recurring).map(g=>({...g, id:newId(), done:false}));
-
-  state.months[key] = {
-    periods: prev.periods.map((p, pi) => ({
-      date:         newDates[pi] ?? newDates[newDates.length - 1],
-      savingsGoals: copySavings(p),
-      bills:        copyBills(p.bills),
-      income:       copyIncome(p.income)
-    }))
-  };
+  if (isEric()) {
+    const copyBills   = bills  => (bills  ||[]).filter(b=>b.recurring).map(b=>({...b, id:newId(), done:false}));
+    const copyIncome  = income => (income ||[]).filter(i=>i.recurring).map(i=>({...i, id:newId()}));
+    const copySavings = p => getSavingsGoals(p).filter(g=>g.recurring).map(g=>({...g, id:newId(), done:false}));
+    const p0 = prev.periods[0] || {};
+    state.months[key] = { periods: [{
+      date:         `16 ${MONTHS[m].slice(0,3)} ${y}`,
+      savingsGoals: copySavings(p0),
+      bills:        copyBills(p0.bills || []),
+      income:       copyIncome(p0.income || [])
+    }]};
+  } else {
+    state.months[key] = { periods: buildEllyPeriodsFromPrev(prev, y, m) };
+  }
 
   save();
   const [py, pm] = prevKey.split('-').map(Number);
-  showToast(`✓ Created from ${MONTHS[pm-1]} ${py}'s recurring bills`);
+  const n = state.months[key].periods.length;
+  showToast(`✓ Created from ${MONTHS[pm-1]} ${py}'s recurring bills · ${n} pay period${n === 1 ? '' : 's'}`);
 }
 function esc(s) {
   return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -2398,17 +2516,12 @@ function handleNextMonth() {
     showToast(`✓ ${MONTHS[nm]} ${ny} created!`);
     render(); return;
   }
-  const newDates = nextDatesFromPrev(cur.periods, ny, nm);
-  state.months[nextKey] = {
-    periods: cur.periods.map((p, pi) => ({
-      date:         newDates[pi] ?? newDates[newDates.length-1],
-      savingsGoals: copySavings(p),
-      bills:        copyBills(p.bills),
-      income:       copyIncome(p.income)
-    }))
-  };
+  // Elly: fortnightly — include every in-month payday; P3+ is outlier (fortnightly bills only);
+  // when prior month had 3 periods, only P1–P2 are used as templates for the next month.
+  state.months[nextKey] = { periods: buildEllyPeriodsFromPrev(cur, ny, nm) };
   save(); curYear=ny; curMonth=nm;
-  showToast(`✓ ${MONTHS[nm]} ${ny} created!`);
+  const n = state.months[nextKey].periods.length;
+  showToast(`✓ ${MONTHS[nm]} ${ny} created · ${n} pay period${n === 1 ? '' : 's'}!`);
   render();
 }
 
@@ -2623,6 +2736,16 @@ function render() {
     grid.innerHTML = `<div class="empty-msg"><h3>No data for ${MONTHS[curMonth]} ${curYear}</h3><p>You can start by copying last month's pay period data.</p>${canEdit?`<button class="create-btn" onclick="createMonthFromLastRecurring(${curYear},${curMonth});render()">Create using last month's recurring bills</button>`:''}</div>`;
     document.getElementById('progressWrap').style.display='none'; return;
   }
+
+  // Existing months (e.g. July saved with 2 periods) get missing in-month fortnights appended
+  if (canEdit) {
+    const added = ensureEllyInMonthFortnights(curYear, curMonth);
+    if (added > 0) {
+      save();
+      showToast(`✓ Added ${added} pay period${added === 1 ? '' : 's'} for ${MONTHS[curMonth]}`);
+    }
+  }
+
   const allBills = monthData.periods.flatMap(p=>p.bills);
   const done=allBills.filter(b=>b.done).length, total=allBills.length;
   const pw=document.getElementById('progressWrap');
@@ -3270,7 +3393,8 @@ async function renderInsights() {
   const subBills=recurringBills.filter(b=>subKw.some(k=>b.name.toLowerCase().includes(k)));
   const subTotal=subBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
   if(subTotal>0) insights.push({icon:'📱',title:'Subscriptions',text:`<strong>$${subTotal.toFixed(2)}/pay period</strong> across ${subBills.length} subscriptions: ${subBills.map(b=>b.name).join(', ')}.`});
-  const salaryTotal=state.settings.salary*2;
+  const periodCount = curMonthData.periods.length || 2;
+  const salaryTotal = (state.settings.salary || 0) * periodCount;
   const savingsRate=salaryTotal>0?(curStats.totalSavings/salaryTotal)*100:0;
   insights.push({icon:'💰',title:'Savings rate',text:`Saving <strong>${savingsRate.toFixed(1)}%</strong> of monthly income — <strong>$${curStats.totalSavings.toFixed(0)}</strong> of <strong>$${salaryTotal.toFixed(0)}</strong>.`});
   if(yearSavings>0) insights.push({icon:'🎯',title:`${dy} savings total`,text:`You've put away <strong>$${yearSavings.toFixed(0)}</strong> across ${yearKeys.length} month${yearKeys.length!==1?'s':''} in ${dy}.`});
