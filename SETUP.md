@@ -72,6 +72,29 @@ This keeps it simple since the app already has its own PIN login.
 
 ---
 
+## Step 2f: Set up the AI Chat (optional)
+
+The Chat tab answers questions about your budget (and can search the web for things like current loan rates) using Claude. It runs through a Firebase Cloud Function so your Anthropic API key is never exposed in the browser.
+
+Requires the Firebase project to be on the **Blaze (pay-as-you-go)** plan — Cloud Functions aren't available on the free Spark plan. At normal household usage this should cost a few cents to a few dollars a year; set a spending cap on your Anthropic account as a safety net.
+
+1. Install the Firebase CLI if you don't have it: `npm install -g firebase-tools`, then `firebase login`.
+2. From the repo root: `firebase use finance-hub-27fb1` (or your project ID).
+3. Get an API key from [console.anthropic.com](https://console.anthropic.com) and store it as a Cloud Functions secret:
+   ```
+   firebase functions:secrets:set ANTHROPIC_API_KEY
+   ```
+4. Install function dependencies and deploy:
+   ```
+   cd functions && npm install && cd ..
+   firebase deploy --only functions
+   ```
+5. Reload the app — a "💬 Chat" tab appears for both Elly and Eric.
+
+The function only responds to signed-in requests from the two authorised Google accounts (checked server-side, independent of the client), and caps each account to 30 messages/day to guard against runaway cost from a bug or a spammed link. Chat history isn't saved — it resets on page reload.
+
+---
+
 ## Step 3: Deploy to GitHub Pages (free hosting)
 
 ### 3a. Create a GitHub account (if you don't have one)
