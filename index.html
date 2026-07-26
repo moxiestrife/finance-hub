@@ -45,6 +45,7 @@
   window._signOut = signOut;
   window._onAuthStateChanged = onAuthStateChanged;
   window._chatFinancesCallable = httpsCallable(fns, 'chatFinances');
+  window._executeProposedActionCallable = httpsCallable(fns, 'executeProposedAction');
   window._firebaseReady = true;
   document.dispatchEvent(new Event('firebaseReady'));
 </script>
@@ -819,6 +820,19 @@ body {
 .chat-empty { color: #94a3b8; font-size: 0.85rem; text-align: center; margin-top: 40px; }
 .chat-input-row { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid #e2e8f0; }
 .chat-input-row textarea { resize: none; }
+.chat-attach-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px; background: #f1f5f9; border: 1px solid #e2e8f0; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; }
+.chat-attach-btn:hover { background: #e2e8f0; }
+.chat-image-preview { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; margin-bottom: 8px; }
+.chat-image-preview img { height: 56px; width: 56px; object-fit: cover; border-radius: 6px; }
+.chat-image-remove { margin-left: auto; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1rem; padding: 4px 8px; }
+.chat-msg-img-tag { font-size: 0.72rem; opacity: 0.8; margin-top: 4px; }
+.chat-action-card { margin-top: 8px; padding: 10px 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; }
+.chat-action-summary { font-size: 0.85rem; color: #1a202c; margin-bottom: 8px; }
+.chat-action-buttons { display: flex; gap: 8px; }
+.chat-action-buttons .p-btn { padding: 6px 14px; font-size: 0.8rem; }
+.chat-action-pending { color: #64748b; font-style: italic; }
+.chat-action-confirmed { background: #d1fae5; border-color: #a7f3d0; color: #065f46; font-weight: 600; }
+.chat-action-cancelled { background: #f1f5f9; color: #94a3b8; }
 
 /* Payables list */
 .p-list-card {
@@ -1168,8 +1182,15 @@ body {
   <div class="tab-content" id="tab-chat">
     <div class="chat-wrap">
       <div class="chat-log" id="chatLog"></div>
+      <div class="chat-image-preview" id="chatImagePreview" style="display:none">
+        <img id="chatImagePreviewImg" alt="Attached receipt">
+        <button class="chat-image-remove" onclick="clearChatImage()" title="Remove image">✕</button>
+      </div>
       <div class="chat-input-row">
-        <textarea class="p-input" id="chatInput" rows="1" placeholder="Ask about your budget…" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChatMessage();}"></textarea>
+        <label class="chat-attach-btn" title="Attach a receipt photo">
+          📎<input type="file" accept="image/*" id="chatImageInput" style="display:none" onchange="onChatImageSelected(event)">
+        </label>
+        <textarea class="p-input" id="chatInput" rows="1" placeholder="Ask about your budget, or attach a receipt…" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChatMessage();}"></textarea>
         <button class="p-btn p-btn-primary" id="chatSendBtn" onclick="sendChatMessage()">Send</button>
       </div>
     </div>
@@ -4948,32 +4969,98 @@ function deleteAccount(idx) {
 // ═══════════════════════════════════════════════════════════════
 //  CHAT
 // ═══════════════════════════════════════════════════════════════
+let pendingChatImage = null; // {mediaType, data} — base64, no data: prefix
+
 function renderChat() {
   const log = document.getElementById('chatLog');
   if (!log) return;
   if (chatHistory.length === 0) {
-    log.innerHTML = '<div class="chat-empty">Ask about your budget — e.g. "Do we have room this month for a $500 monitor?"</div>';
+    log.innerHTML = '<div class="chat-empty">Ask about your budget — e.g. "Do we have room this month for a $500 monitor?" — or attach a receipt to log an expense.</div>';
   } else {
     log.innerHTML = chatHistory.map(chatBubbleHtml).join('');
   }
   log.scrollTop = log.scrollHeight;
 }
 
-function chatBubbleHtml(m) {
-  const cls = m.role === 'user' ? 'chat-msg-user' : (m.error ? 'chat-msg-error' : 'chat-msg-assistant');
+function chatBubbleHtml(m, idx) {
+  if (m.role === 'user') {
+    const imgTag = m.hadImage ? '<div class="chat-msg-img-tag">📎 receipt attached</div>' : '';
+    return `<div class="chat-msg chat-msg-user">${esc(m.content)}${imgTag}</div>`;
+  }
+  const cls = m.error ? 'chat-msg-error' : 'chat-msg-assistant';
   const searchTag = m.usedSearch ? '<span class="chat-msg-search-tag">🔎 searched the web</span><br>' : '';
-  return `<div class="chat-msg ${cls}">${searchTag}${esc(m.content)}</div>`;
+  const textHtml = m.content ? esc(m.content) : '';
+  let actionHtml = '';
+  if (m.proposedAction) {
+    const summary = describeProposedAction(m.proposedAction);
+    if (!m.actionStatus) {
+      actionHtml = `<div class="chat-action-card">
+        <div class="chat-action-summary">${esc(summary)}</div>
+        <div class="chat-action-buttons">
+          <button class="p-btn p-btn-primary" onclick="confirmProposedAction(${idx})">✓ Confirm</button>
+          <button class="p-btn p-btn-ghost" onclick="cancelProposedAction(${idx})">Cancel</button>
+        </div>
+      </div>`;
+    } else if (m.actionStatus === 'pending') {
+      actionHtml = `<div class="chat-action-card chat-action-pending">Saving…</div>`;
+    } else if (m.actionStatus === 'confirmed') {
+      actionHtml = `<div class="chat-action-card chat-action-confirmed">✓ ${esc(m.actionResultSummary || 'Added')}</div>`;
+    } else if (m.actionStatus === 'cancelled') {
+      actionHtml = `<div class="chat-action-card chat-action-cancelled">Cancelled</div>`;
+    }
+  }
+  return `<div class="chat-msg ${cls}">${searchTag}${textHtml}${actionHtml}</div>`;
+}
+
+function describeProposedAction(a) {
+  const p = a.params || {};
+  const amt = (parseFloat(p.amount) || 0).toFixed(2);
+  if (a.type === 'propose_payable') {
+    const splitLabel = p.split === 'shared' ? '50/50 shared' : p.split === 'eric' ? "Eric's solo" : "Elly's solo";
+    return `Add payable "${p.name || ''}" — $${amt} (${splitLabel})${p.payTo ? ' → ' + p.payTo : ''}`;
+  }
+  if (a.type === 'propose_bill') {
+    return `Add ${p.recurring ? 'recurring ' : ''}bill "${p.name || ''}" — $${amt}, starting ${p.targetMonth || '?'}${p.payTo ? ' → ' + p.payTo : ''}`;
+  }
+  if (a.type === 'propose_savings_goal') {
+    return `Add ${p.recurring ? 'recurring ' : ''}savings goal "${p.name || ''}" — $${amt}/period, starting ${p.targetMonth || '?'}`;
+  }
+  return 'Proposed action';
+}
+
+function onChatImageSelected(evt) {
+  const file = evt.target.files && evt.target.files[0];
+  if (!file) return;
+  if (file.size > 8 * 1024 * 1024) { showToast('⚠ Image too large (max 8MB)'); evt.target.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    const match = /^data:(image\/[a-zA-Z+.-]+);base64,(.*)$/.exec(dataUrl || '');
+    if (!match) { showToast('⚠ Could not read that image'); return; }
+    pendingChatImage = { mediaType: match[1], data: match[2] };
+    document.getElementById('chatImagePreviewImg').src = dataUrl;
+    document.getElementById('chatImagePreview').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+  evt.target.value = '';
+}
+
+function clearChatImage() {
+  pendingChatImage = null;
+  document.getElementById('chatImagePreview').style.display = 'none';
 }
 
 async function sendChatMessage() {
   if (chatBusy) return;
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
-  if (!text) return;
+  const image = pendingChatImage;
+  if (!text && !image) return;
   if (!window._chatFinancesCallable) { showToast('Chat is still connecting — try again in a moment'); return; }
 
-  chatHistory.push({ role: 'user', content: text });
+  chatHistory.push({ role: 'user', content: text || '(receipt image attached)', hadImage: !!image });
   input.value = '';
+  clearChatImage();
   chatBusy = true;
   document.getElementById('chatSendBtn').disabled = true;
   renderChat();
@@ -4987,10 +5074,15 @@ async function sendChatMessage() {
   log.scrollTop = log.scrollHeight;
 
   try {
-    const result = await window._chatFinancesCallable({
-      messages: chatHistory.map(m => ({ role: m.role, content: m.content })),
+    const payload = { messages: chatHistory.map(m => ({ role: m.role, content: m.content })) };
+    if (image) payload.image = image;
+    const result = await window._chatFinancesCallable(payload);
+    chatHistory.push({
+      role: 'assistant',
+      content: result.data.reply || (result.data.proposedAction ? '(proposed an action)' : ''),
+      usedSearch: result.data.usedSearch,
+      proposedAction: result.data.proposedAction || null,
     });
-    chatHistory.push({ role: 'assistant', content: result.data.reply, usedSearch: result.data.usedSearch });
   } catch (err) {
     chatHistory.push({ role: 'assistant', content: err.message || 'Something went wrong — try again.', error: true });
   } finally {
@@ -4999,6 +5091,29 @@ async function sendChatMessage() {
     renderChat();
     document.getElementById('chatInput').focus();
   }
+}
+
+async function confirmProposedAction(idx) {
+  const m = chatHistory[idx];
+  if (!m || !m.proposedAction || m.actionStatus) return;
+  m.actionStatus = 'pending';
+  renderChat();
+  try {
+    const result = await window._executeProposedActionCallable({ type: m.proposedAction.type, params: m.proposedAction.params });
+    m.actionStatus = 'confirmed';
+    m.actionResultSummary = result.data.summary;
+  } catch (err) {
+    m.actionStatus = null;
+    showToast(err.message || 'Could not complete that — try again');
+  }
+  renderChat();
+}
+
+function cancelProposedAction(idx) {
+  const m = chatHistory[idx];
+  if (!m || !m.proposedAction || m.actionStatus) return;
+  m.actionStatus = 'cancelled';
+  renderChat();
 }
 
 // ═══════════════════════════════════════════════════════════════
