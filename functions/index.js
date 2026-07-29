@@ -327,16 +327,16 @@ function monthLabel(targetMonth) {
   return `${MONTHS[m - 1]} ${y}`;
 }
 
+function monthMissingMessage(targetMonth) {
+  return `${monthLabel(targetMonth)} hasn't been created yet — open the Monthly tab and create it first so your recurring bills carry over, then ask me again.`;
+}
+
 // Firebase hands back an array for a dense period list and an object once it
 // isn't dense, so count either shape.
 function countPeriods(month) {
   const periods = month && month.periods;
   if (Array.isArray(periods)) return periods.length;
   return periods ? Object.keys(periods).length : 0;
-}
-
-function monthMissingMessage(targetMonth) {
-  return `${monthLabel(targetMonth)} hasn't been created yet — open the Monthly tab and create it first so your recurring bills carry over, then ask me again.`;
 }
 
 function validateAmount(a) {
