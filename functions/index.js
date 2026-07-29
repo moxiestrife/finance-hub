@@ -18,8 +18,12 @@ const AUTHORISED_USERS = {
 const DAILY_MESSAGE_LIMIT = 30;
 const MAX_HISTORY_MESSAGES = 20;
 const MAX_MESSAGE_LENGTH = 2000;
+// Claude accepts only these four; the client re-encodes anything else (e.g. iPhone
+// HEIC) to JPEG before upload.
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-const MAX_IMAGE_BASE64_LEN = 10_000_000; // ~7.5MB decoded
+// A callable request is capped at ~10MB total, so the base64 payload has to stay
+// comfortably under that once JSON overhead is counted.
+const MAX_IMAGE_BASE64_LEN = 5_000_000; // ~3.7MB decoded
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
@@ -27,7 +31,8 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
 const CUSTOM_TOOL_NAMES = new Set(['propose_payable', 'propose_bill', 'propose_savings_goal']);
 
 const TOOLS = [
-  { type: 'web_search_20260209', name: 'web_search' },
+  // max_uses caps what a single question can spend on search.
+  { type: 'web_search_20260209', name: 'web_search', max_uses: 5 },
   {
     name: 'propose_payable',
     description: 'Propose adding a shared household expense (a "payable") between Elly and Eric. This does not write anything by itself — the app shows the user a confirmation card and only saves it if they approve. Call this whenever the user asks to add, log, or split an expense between them, including from a receipt photo.',
@@ -117,8 +122,14 @@ exports.chatFinances = onCall({ secrets: [anthropicApiKey], region: 'asia-southe
   const rawImage = request.data && request.data.image;
   let imageBlock = null;
   if (rawImage) {
-    if (!ALLOWED_IMAGE_TYPES.includes(rawImage.mediaType) || typeof rawImage.data !== 'string' || !rawImage.data || rawImage.data.length > MAX_IMAGE_BASE64_LEN) {
-      throw new HttpsError('invalid-argument', 'Invalid image attachment.');
+    if (!ALLOWED_IMAGE_TYPES.includes(rawImage.mediaType)) {
+      throw new HttpsError('invalid-argument', "That image format isn't supported — use a JPEG, PNG, GIF or WebP.");
+    }
+    if (typeof rawImage.data !== 'string' || !rawImage.data) {
+      throw new HttpsError('invalid-argument', 'The image attachment was empty.');
+    }
+    if (rawImage.data.length > MAX_IMAGE_BASE64_LEN) {
+      throw new HttpsError('invalid-argument', 'That image is too large — try a smaller photo.');
     }
     imageBlock = { type: 'image', source: { type: 'base64', media_type: rawImage.mediaType, data: rawImage.data } };
   }
