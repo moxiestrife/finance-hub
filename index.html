@@ -5197,16 +5197,26 @@ function cancelProposedAction(idx) {
 //  INIT
 // ═══════════════════════════════════════════════════════════════
 
-// The tab bar wraps on narrow screens, so the sticky header has no fixed
-// height. Publish the measured height so full-height panes (the chat) can size
-// themselves against one source of truth.
+// The tab bar wraps on narrow screens and the banners above it come and go, so
+// the pinned top of the page has no fixed height. Publish the measured height
+// so full-height panes (the chat) size themselves off one source of truth.
+const STICKY_TOP_SELECTOR = '#impersonate-banner, #perm-error-banner, .sticky-header';
+
 function trackStickyHeaderHeight() {
-  const header = document.querySelector('.sticky-header');
-  if (!header) return;
-  const apply = () => document.documentElement.style.setProperty('--sticky-header-height', header.offsetHeight + 'px');
+  const pinned = document.querySelectorAll(STICKY_TOP_SELECTOR);
+  if (!pinned.length) return;
+  const apply = () => {
+    let total = 0;
+    pinned.forEach(el => { total += el.offsetHeight; });
+    document.documentElement.style.setProperty('--sticky-header-height', total + 'px');
+  };
   apply();
-  if (window.ResizeObserver) new ResizeObserver(apply).observe(header);
-  else window.addEventListener('resize', apply);
+  if (window.ResizeObserver) {
+    const observer = new ResizeObserver(apply);
+    pinned.forEach(el => observer.observe(el));
+  } else {
+    window.addEventListener('resize', apply);
+  }
 }
 
 function init() {
