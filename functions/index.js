@@ -1,5 +1,6 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { defineSecret } = require('firebase-functions/params');
+const logger = require('firebase-functions/logger');
 const admin = require('firebase-admin');
 const Anthropic = require('@anthropic-ai/sdk');
 
@@ -186,21 +187,35 @@ ${JSON.stringify(budgetContext)}`;
     }
   }
 
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-5',
-    max_tokens: 2048,
-    output_config: { effort: 'medium' },
-    system: systemPrompt,
-    tools: TOOLS,
-    messages: anthropicMessages,
-  });
+  let response;
+  try {
+    response = await anthropic.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 2048,
+      output_config: { effort: 'medium' },
+      system: systemPrompt,
+      tools: TOOLS,
+      messages: anthropicMessages,
+    });
+  } catch (err) {
+    // The counter is claimed up front to close a race-based bypass, so a call
+    // that never reached Claude has to hand the message back.
+    await rlRef.transaction((c) => Math.max(0, (c || 0) - 1));
+    logger.error('Anthropic request failed', err);
+    throw new HttpsError('internal', "I couldn't reach the assistant just then — try again in a moment.");
+  }
 
   if (response.stop_reason === 'refusal') {
     return { reply: "I wasn't able to answer that one — try rephrasing the question.", usedSearch: false, proposedAction: null };
   }
 
   const textParts = response.content.filter((b) => b.type === 'text').map((b) => b.text);
-  const usedSearch = response.content.some((b) => b.type === 'server_tool_use' && b.name === 'web_search');
+  // Dynamic filtering runs search from inside code execution, so its
+  // server_tool_use blocks are nested rather than top-level — the usage counter
+  // is the only reliable signal; the content scan just covers the unnested case.
+  const searchRequests = response.usage?.server_tool_use?.web_search_requests;
+  const usedSearch = (typeof searchRequests === 'number' && searchRequests > 0)
+    || response.content.some((b) => b.type === 'server_tool_use' && b.name === 'web_search');
   const toolUseBlock = response.content.find((b) => b.type === 'tool_use' && CUSTOM_TOOL_NAMES.has(b.name));
 
   if (toolUseBlock) {
