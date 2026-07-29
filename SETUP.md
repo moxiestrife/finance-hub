@@ -91,6 +91,8 @@ Requires the Firebase project to be on the **Blaze (pay-as-you-go)** plan — Cl
    ```
 5. Reload the app — a "💬 Chat" tab appears for both Elly and Eric.
 
+Receipt photos are converted to JPEG in the browser before they're uploaded, so a photo straight off an iPhone (HEIC) works fine from the phone's photo picker. On a desktop browser that can't open HEIC at all, the app says so and you'll need to convert the file to JPEG first.
+
 The function only responds to signed-in requests from the two authorised Google accounts (checked server-side, independent of the client), and caps each account to 30 messages/day to guard against runaway cost from a bug or a spammed link. Chat history isn't saved — it resets on page reload.
 
 ---
