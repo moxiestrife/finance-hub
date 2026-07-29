@@ -1,10 +1,12 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { defineSecret } = require('firebase-functions/params');
 const logger = require('firebase-functions/logger');
-const admin = require('firebase-admin');
+// firebase-admin 14 only ships the modular API — there is no admin.database().
+const { initializeApp } = require('firebase-admin/app');
+const { getDatabase } = require('firebase-admin/database');
 const Anthropic = require('@anthropic-ai/sdk');
 
-admin.initializeApp({
+initializeApp({
   databaseURL: 'https://finance-hub-27fb1-default-rtdb.asia-southeast1.firebasedatabase.app',
 });
 
@@ -135,7 +137,7 @@ exports.chatFinances = onCall({ secrets: [anthropicApiKey], region: 'asia-southe
     imageBlock = { type: 'image', source: { type: 'base64', media_type: rawImage.mediaType, data: rawImage.data } };
   }
 
-  const db = admin.database();
+  const db = getDatabase();
   const today = new Date();
   const dateKey = today.toISOString().slice(0, 10);
 
@@ -246,7 +248,7 @@ exports.executeProposedAction = onCall({ region: 'asia-southeast1' }, async (req
     throw new HttpsError('invalid-argument', 'Malformed action.');
   }
 
-  const db = admin.database();
+  const db = getDatabase();
 
   if (type === 'propose_payable') {
     const clean = validatePayableParams(params);
