@@ -257,11 +257,17 @@ exports.executeProposedAction = onCall({ region: 'asia-southeast1' }, async (req
       ellyDone: false, ellyDoneAt: null, ericDone: false, ericDoneAt: null,
       allocatedTo: null, ericAllocatedTo: null,
     };
+    // Both people edit payables live and the app writes the whole list from
+    // client state, so a read-modify-write here can drop an entry.
     const entriesRef = db.ref('finance-hub/payables/entries');
-    const snap = await entriesRef.get();
-    const entries = Array.isArray(snap.val()) ? snap.val() : [];
-    entries.unshift(entry);
-    await entriesRef.set(entries);
+    const result = await entriesRef.transaction((current) => {
+      const entries = Array.isArray(current) ? current.slice() : [];
+      entries.unshift(entry);
+      return entries;
+    });
+    if (!result.committed) {
+      throw new HttpsError('aborted', "Couldn't save that payable — the list was being edited at the same time. Try again.");
+    }
     return { ok: true, summary: `Added payable "${entry.name}" — $${entry.fullAmount.toFixed(2)}` };
   }
 
