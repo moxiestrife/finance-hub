@@ -274,19 +274,35 @@ exports.executeProposedAction = onCall({ region: 'asia-southeast1' }, async (req
   if (type === 'propose_bill' || type === 'propose_savings_goal') {
     const clean = validateLineItemParams(params, user);
     const monthRef = db.ref(`${user.budgetPath}/months/${clean.targetMonth}`);
-    const monthSnap = await monthRef.get();
-    let month = monthSnap.val();
-    if (!month) month = buildDefaultMonth(clean.targetMonth, user.key);
-    if (!Array.isArray(month.periods)) month.periods = [];
-    while (month.periods.length <= clean.period) {
-      month.periods.push({ date: '', savingsGoals: [], bills: [] });
-    }
-    const period = month.periods[clean.period];
     const listKey = type === 'propose_bill' ? 'bills' : 'savingsGoals';
-    if (!Array.isArray(period[listKey])) period[listKey] = [];
     const item = { id: genId(), name: clean.name, amount: clean.amount, payTo: clean.payTo, recurring: clean.recurring, done: false };
-    period[listKey].push(item);
-    await monthRef.set(month);
+
+    // Never create the month here. The app's own month creation seeds the
+    // default savings goal and carries over recurring bills and extra income,
+    // and it early-returns if the month already exists — so a bare month
+    // fabricated here would silently cost the user that whole carry-over.
+    if (!(await monthRef.get()).exists()) {
+      throw new HttpsError('failed-precondition', monthMissingMessage(clean.targetMonth));
+    }
+    const result = await monthRef.transaction((month) => {
+      if (!month) return undefined;
+      if (!Array.isArray(month.periods)) month.periods = [];
+      while (month.periods.length <= clean.period) {
+        month.periods.push({ date: '', savingsGoals: [], bills: [] });
+      }
+      const period = month.periods[clean.period];
+      if (!Array.isArray(period[listKey])) period[listKey] = [];
+      period[listKey].push(item);
+      return month;
+    });
+    if (!result.committed) {
+      // An abort can mean the month really went away, or just that the
+      // transaction ran against a not-yet-cached null; re-read to tell them apart.
+      if (!(await monthRef.get()).exists()) {
+        throw new HttpsError('failed-precondition', monthMissingMessage(clean.targetMonth));
+      }
+      throw new HttpsError('aborted', `Couldn't save that to ${monthLabel(clean.targetMonth)} — your budget was being edited at the same time. Try again.`);
+    }
     const label = type === 'propose_bill' ? 'bill' : 'savings goal';
     return { ok: true, summary: `Added ${clean.recurring ? 'recurring ' : ''}${label} "${item.name}" — $${item.amount.toFixed(2)} to ${clean.targetMonth}` };
   }
@@ -302,6 +318,15 @@ function genId() {
 
 function formatDateLabel(date) {
   return `${date.getDate()} ${MONTHS[date.getMonth()].slice(0, 3)} ${date.getFullYear()}`;
+}
+
+function monthLabel(targetMonth) {
+  const [y, m] = targetMonth.split('-').map(Number);
+  return `${MONTHS[m - 1]} ${y}`;
+}
+
+function monthMissingMessage(targetMonth) {
+  return `${monthLabel(targetMonth)} hasn't been created yet — open the Monthly tab and create it first so your recurring bills carry over, then ask me again.`;
 }
 
 function validateAmount(a) {
@@ -348,25 +373,4 @@ function validateLineItemParams(p, user) {
   if (!Number.isInteger(period) || period < 0) period = 0;
   if (period > maxPeriod) period = maxPeriod;
   return { name, amount, recurring, payTo, targetMonth, period };
-}
-
-function defaultDates(y, monthIdx) {
-  const daysInMonth = new Date(y, monthIdx + 1, 0).getDate();
-  const mo = MONTHS[monthIdx].slice(0, 3);
-  return [`${Math.min(11, daysInMonth)} ${mo} ${y}`, `${Math.min(25, daysInMonth)} ${mo} ${y}`];
-}
-
-function buildDefaultMonth(targetMonth, userKey) {
-  const [y, m] = targetMonth.split('-').map(Number);
-  const monthIdx = m - 1;
-  if (userKey === 'eric') {
-    return { periods: [{ date: `16 ${MONTHS[monthIdx].slice(0, 3)} ${y}`, savingsGoals: [], bills: [] }] };
-  }
-  const [d1, d2] = defaultDates(y, monthIdx);
-  return {
-    periods: [
-      { date: d1, savingsGoals: [], bills: [] },
-      { date: d2, savingsGoals: [], bills: [] },
-    ],
-  };
 }
