@@ -283,26 +283,26 @@ exports.executeProposedAction = onCall({ region: 'asia-southeast1' }, async (req
     // default savings goal and carries over recurring bills and extra income,
     // and it early-returns if the month already exists — so a bare month
     // fabricated here would silently cost the user that whole carry-over.
-    if (!(await monthRef.get()).exists()) {
+    const monthSnap = await monthRef.get();
+    if (!monthSnap.exists()) {
       throw new HttpsError('failed-precondition', monthMissingMessage(clean.targetMonth));
     }
-    const result = await monthRef.transaction((month) => {
-      if (!month) return undefined;
-      if (!Array.isArray(month.periods)) month.periods = [];
-      while (month.periods.length <= clean.period) {
-        month.periods.push({ date: '', savingsGoals: [], bills: [] });
-      }
-      const period = month.periods[clean.period];
-      if (!Array.isArray(period[listKey])) period[listKey] = [];
-      period[listKey].push(item);
-      return month;
+
+    // Pad up to the target period. Each pad is its own transaction so it only
+    // ever fills a gap — if the period already exists it aborts and leaves it.
+    for (let i = countPeriods(monthSnap.val()); i <= clean.period; i++) {
+      await monthRef.child(`periods/${i}`).transaction((current) => (current ? undefined : { date: '', savingsGoals: [], bills: [] }));
+    }
+
+    // Append to the list itself rather than rewriting the whole month, so a
+    // concurrent edit elsewhere in the month can't be clobbered.
+    const listRef = monthRef.child(`periods/${clean.period}/${listKey}`);
+    const result = await listRef.transaction((current) => {
+      const list = Array.isArray(current) ? current.slice() : [];
+      list.push(item);
+      return list;
     });
     if (!result.committed) {
-      // An abort can mean the month really went away, or just that the
-      // transaction ran against a not-yet-cached null; re-read to tell them apart.
-      if (!(await monthRef.get()).exists()) {
-        throw new HttpsError('failed-precondition', monthMissingMessage(clean.targetMonth));
-      }
       throw new HttpsError('aborted', `Couldn't save that to ${monthLabel(clean.targetMonth)} — your budget was being edited at the same time. Try again.`);
     }
     const label = type === 'propose_bill' ? 'bill' : 'savings goal';
@@ -325,6 +325,14 @@ function formatDateLabel(date) {
 function monthLabel(targetMonth) {
   const [y, m] = targetMonth.split('-').map(Number);
   return `${MONTHS[m - 1]} ${y}`;
+}
+
+// Firebase hands back an array for a dense period list and an object once it
+// isn't dense, so count either shape.
+function countPeriods(month) {
+  const periods = month && month.periods;
+  if (Array.isArray(periods)) return periods.length;
+  return periods ? Object.keys(periods).length : 0;
 }
 
 function monthMissingMessage(targetMonth) {
