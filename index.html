@@ -65,9 +65,19 @@
   --danger-light: #FEE2E2;
   --warn-light: #FEF3C7;
   --surface: #FFFFFF;
+  --surface-alt: #F8FAFC;
+  --surface-sunken: #F1F5F9;
+  --brand-col: #1E3A5F; /* topbar navy — also headings and primary buttons */
+  --text-col: #1A202C;
   --border-col: #E2E8F0;
+  --border-strong-col: #CBD5E1;
   --muted-col: #64748B;
+  --faint-col: #94A3B8;
+  --danger-dark: #B91C1C;
+  --shared-border: #A7F3D0;
+  --shared-dark: #065F46;
   --radius: 12px;
+  --main-padding-y: 20px;
   --content-max-width: 80%;
   --content-max-width-eric: 900px; /* match payables — Eric is monthly, one column */
 }
@@ -248,7 +258,7 @@ body {
 }
 
 /* ── MAIN ── */
-.main { max-width: var(--content-max-width); margin: 0 auto; padding: 20px 16px; }
+.main { max-width: var(--content-max-width); margin: 0 auto; padding: var(--main-padding-y) 16px; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
@@ -810,29 +820,32 @@ body {
 .p-split-hint { font-size: 0.78rem; color: #6b7280; margin-left: 4px; }
 
 /* Chat tab */
-.chat-wrap { max-width: 720px; margin: 0 auto; padding: 16px 20px; display: flex; flex-direction: column; height: calc(100vh - 140px); }
+/* --sticky-header-height is measured in JS: the tab bar wraps, so the header's
+   height genuinely changes with viewport width. dvh keeps mobile browser chrome
+   from pushing the input row off-screen. */
+.chat-wrap { max-width: 720px; margin: 0 auto; padding: 16px 20px; display: flex; flex-direction: column; height: calc(100dvh - var(--sticky-header-height, 96px) - (var(--main-padding-y) * 2)); }
 .chat-log { flex: 1; overflow-y: auto; padding: 4px 2px 12px; display: flex; flex-direction: column; gap: 10px; }
 .chat-msg { max-width: 82%; padding: 10px 14px; border-radius: 14px; font-size: 0.9rem; line-height: 1.45; white-space: pre-wrap; }
-.chat-msg-user { align-self: flex-end; background: #1e3a5f; color: white; border-bottom-right-radius: 4px; }
-.chat-msg-assistant { align-self: flex-start; background: white; color: #1a202c; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-bottom-left-radius: 4px; }
-.chat-msg-error { align-self: flex-start; background: #fee2e2; color: #b91c1c; border-bottom-left-radius: 4px; }
-.chat-msg-search-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #059669; background: #d1fae5; border-radius: 6px; padding: 2px 6px; margin-bottom: 6px; }
-.chat-empty { color: #94a3b8; font-size: 0.85rem; text-align: center; margin-top: 40px; }
-.chat-input-row { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid #e2e8f0; }
+.chat-msg-user { align-self: flex-end; background: var(--brand-col); color: white; border-bottom-right-radius: 4px; }
+.chat-msg-assistant { align-self: flex-start; background: var(--surface); color: var(--text-col); box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-bottom-left-radius: 4px; }
+.chat-msg-error { align-self: flex-start; background: var(--danger-light); color: var(--danger-dark); border-bottom-left-radius: 4px; }
+.chat-msg-search-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--shared); background: var(--shared-light); border-radius: 6px; padding: 2px 6px; margin-bottom: 6px; }
+.chat-empty { color: var(--faint-col); font-size: 0.85rem; text-align: center; margin-top: 40px; }
+.chat-input-row { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border-col); }
 .chat-input-row textarea { resize: none; }
-.chat-attach-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px; background: #f1f5f9; border: 1px solid #e2e8f0; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; }
-.chat-attach-btn:hover { background: #e2e8f0; }
-.chat-image-preview { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; margin-bottom: 8px; }
+.chat-attach-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px; background: var(--surface-sunken); border: 1px solid var(--border-col); cursor: pointer; font-size: 1.1rem; flex-shrink: 0; }
+.chat-attach-btn:hover { background: var(--border-col); }
+.chat-image-preview { display: flex; align-items: center; gap: 8px; padding: 8px; background: var(--surface-alt); border: 1px dashed var(--border-strong-col); border-radius: 8px; margin-bottom: 8px; }
 .chat-image-preview img { height: 56px; width: 56px; object-fit: cover; border-radius: 6px; }
-.chat-image-remove { margin-left: auto; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1rem; padding: 4px 8px; }
+.chat-image-remove { margin-left: auto; background: none; border: none; color: var(--faint-col); cursor: pointer; font-size: 1rem; padding: 4px 8px; }
 .chat-msg-img-tag { font-size: 0.72rem; opacity: 0.8; margin-top: 4px; }
-.chat-action-card { margin-top: 8px; padding: 10px 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; }
-.chat-action-summary { font-size: 0.85rem; color: #1a202c; margin-bottom: 8px; }
+.chat-action-card { margin-top: 8px; padding: 10px 12px; border-radius: 10px; background: var(--surface-alt); border: 1px solid var(--border-col); }
+.chat-action-summary { font-size: 0.85rem; color: var(--text-col); margin-bottom: 8px; }
 .chat-action-buttons { display: flex; gap: 8px; }
 .chat-action-buttons .p-btn { padding: 6px 14px; font-size: 0.8rem; }
-.chat-action-pending { color: #64748b; font-style: italic; }
-.chat-action-confirmed { background: #d1fae5; border-color: #a7f3d0; color: #065f46; font-weight: 600; }
-.chat-action-cancelled { background: #f1f5f9; color: #94a3b8; }
+.chat-action-pending { color: var(--muted-col); font-style: italic; }
+.chat-action-confirmed { background: var(--shared-light); border-color: var(--shared-border); color: var(--shared-dark); font-weight: 600; }
+.chat-action-cancelled { background: var(--surface-sunken); color: var(--faint-col); }
 
 /* Payables list */
 .p-list-card {
@@ -5183,6 +5196,19 @@ function cancelProposedAction(idx) {
 // ═══════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════
+
+// The tab bar wraps on narrow screens, so the sticky header has no fixed
+// height. Publish the measured height so full-height panes (the chat) can size
+// themselves against one source of truth.
+function trackStickyHeaderHeight() {
+  const header = document.querySelector('.sticky-header');
+  if (!header) return;
+  const apply = () => document.documentElement.style.setProperty('--sticky-header-height', header.offsetHeight + 'px');
+  apply();
+  if (window.ResizeObserver) new ResizeObserver(apply).observe(header);
+  else window.addEventListener('resize', apply);
+}
+
 function init() {
   const hadData = load();
   const now = new Date();
@@ -5195,6 +5221,7 @@ function init() {
   updatePayablesBadge();
 
   applyAdminSettings();
+  trackStickyHeaderHeight();
   switchTab('monthly');
 
   // Start Firebase listeners (if Firebase is ready, otherwise they fire after firebaseReady event)
