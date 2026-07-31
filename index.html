@@ -840,6 +840,10 @@ body {
 .chat-launcher[hidden],
 .chat-panel[hidden],
 .chat-backdrop[hidden] { display: none !important; }
+/* Never show chat on the public login screen — even if markup escapes #app. */
+body:not(.authed) .chat-launcher,
+body:not(.authed) .chat-panel,
+body:not(.authed) .chat-backdrop { display: none !important; }
 .chat-panel {
   position: fixed; right: 22px; bottom: 22px; z-index: var(--z-chat-widget);
   width: min(380px, calc(100vw - 28px));
@@ -1319,7 +1323,6 @@ body {
   <button class="tab-btn" id="tab-btn-compare" onclick="switchTab('compare')" style="display:none">⚖ Compare</button>
   <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">⚙ Admin</button>
 </div></div>
-</div>
 </div><!-- /.sticky-header -->
 
 <!-- MAIN -->
@@ -1547,7 +1550,7 @@ body {
 </div><!-- end .main -->
 
 <!-- Chat widget: bubble → compact panel → expanded with history -->
-<button class="chat-launcher" id="chatLauncher" type="button" aria-label="Open chat" title="Chat" onclick="setChatMode('panel')">
+<button class="chat-launcher" id="chatLauncher" type="button" hidden aria-label="Open chat" title="Chat" onclick="setChatMode('panel')">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 </button>
 
@@ -1971,6 +1974,7 @@ function doLogout() {
   stopImpersonating();
   currentUser = null;
   document.body.classList.remove('user-eric');
+  document.body.classList.remove('authed');
   if (chatThreadsUnsub) { chatThreadsUnsub(); chatThreadsUnsub = null; }
   chatThreads = [];
   activeChatThreadId = null;
@@ -1993,6 +1997,8 @@ function doLogout() {
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  document.body.classList.add('authed');
+  setChatMode(chatMode === 'expanded' || chatMode === 'panel' ? chatMode : 'bubble');
 
   const firebaseUser = window._auth && window._auth.currentUser;
   const profile = firebaseUser ? AUTHORISED_USERS[firebaseUser.email] : null;
@@ -5336,11 +5342,19 @@ function writeChatDraftToDom(opts) {
 
 function setChatMode(mode) {
   readChatDraftFromDom();
-  chatMode = mode;
   const launcher = document.getElementById('chatLauncher');
   const panel = document.getElementById('chatPanel');
   const backdrop = document.getElementById('chatBackdrop');
   if (!launcher || !panel || !backdrop) return;
+  // Signed-out: keep every chat surface hard-hidden (no icon, no panel).
+  if (!currentUser) {
+    chatMode = 'bubble';
+    launcher.hidden = true;
+    panel.hidden = true;
+    backdrop.hidden = true;
+    return;
+  }
+  chatMode = mode;
   launcher.hidden = mode !== 'bubble';
   panel.hidden = mode !== 'panel';
   backdrop.hidden = mode !== 'expanded';
