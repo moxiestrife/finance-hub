@@ -21,6 +21,10 @@ const AUTHORISED_USERS = {
 const DAILY_MESSAGE_LIMIT = 30;
 const MAX_HISTORY_MESSAGES = 20;
 const MAX_MESSAGE_LENGTH = 2000;
+const MAX_RESPONSE_TOKENS = 2048;
+// Payables accumulate forever, so only the recent tail goes into the prompt —
+// otherwise cost and latency grow with lifetime history.
+const MAX_PAYABLES_IN_CONTEXT = 40;
 // Claude accepts only these four; the client re-encodes anything else (e.g. iPhone
 // HEIC) to JPEG before upload.
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -30,6 +34,13 @@ const MAX_IMAGE_BASE64_LEN = 5_000_000; // ~3.7MB decoded
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
+
+const PERIOD_LABELS = ['first', 'second', 'third'];
+
+// Functions run on a UTC clock, so anything derived from the server date lands
+// a month or a day early for the first several hours of a Sydney day — which
+// would point "this month" at the wrong budget.
+const HOUSEHOLD_TIME_ZONE = 'Australia/Sydney';
 
 const CUSTOM_TOOL_NAMES = new Set(['propose_payable', 'propose_bill', 'propose_savings_goal']);
 
@@ -85,12 +96,21 @@ const TOOLS = [
   },
 ];
 
-function monthKey(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-}
-
-function nextMonthKeyFrom(date) {
-  return monthKey(new Date(date.getFullYear(), date.getMonth() + 1, 1));
+function householdCalendar(date) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: HOUSEHOLD_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(date);
+  const partValue = (type) => Number(parts.find((p) => p.type === type).value);
+  const year = partValue('year');
+  const month = partValue('month');
+  const day = partValue('day');
+  const pad = (n) => String(n).padStart(2, '0');
+  return {
+    dateKey: `${year}-${pad(month)}-${pad(day)}`,
+    monthKey: `${year}-${pad(month)}`,
+    nextMonthKey: month === 12 ? `${year + 1}-01` : `${year}-${pad(month + 1)}`,
+    dateLabel: `${day} ${MONTHS[month - 1].slice(0, 3)} ${year}`,
+  };
 }
 
 function requireAuthorisedUser(request) {
@@ -98,11 +118,37 @@ function requireAuthorisedUser(request) {
   if (!authInfo || !authInfo.token || !authInfo.token.email) {
     throw new HttpsError('unauthenticated', 'Sign in required.');
   }
-  const user = AUTHORISED_USERS[authInfo.token.email];
+  // Google always verifies. Without this, anyone who could sign up with
+  // email/password could claim one of the addresses below and be let through.
+  if (authInfo.token.email_verified !== true) {
+    throw new HttpsError('permission-denied', 'This account is not authorised for Finance Hub.');
+  }
+  const email = authInfo.token.email;
+  const user = Object.prototype.hasOwnProperty.call(AUTHORISED_USERS, email) ? AUTHORISED_USERS[email] : null;
   if (!user) {
     throw new HttpsError('permission-denied', 'This account is not authorised for Finance Hub.');
   }
   return { ...user, uid: authInfo.uid };
+}
+
+async function refundMessage(rlRef) {
+  try {
+    await rlRef.transaction((current) => Math.max(0, (current || 0) - 1));
+  } catch (err) {
+    // A failed refund must not replace the error the caller is already reporting.
+    logger.error('Failed to refund a chat message', err);
+  }
+}
+
+function recentPayables(payables) {
+  if (!payables) return null;
+  const entries = toList(payables.entries);
+  if (entries.length <= MAX_PAYABLES_IN_CONTEXT) return payables;
+  const recent = entries
+    .slice()
+    .sort((a, b) => ((b && b.createdAt) || 0) - ((a && a.createdAt) || 0))
+    .slice(0, MAX_PAYABLES_IN_CONTEXT);
+  return { ...payables, entries: recent, olderEntriesOmitted: entries.length - recent.length };
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -138,33 +184,38 @@ exports.chatFinances = onCall({ secrets: [anthropicApiKey], region: 'asia-southe
   }
 
   const db = getDatabase();
-  const today = new Date();
-  const dateKey = today.toISOString().slice(0, 10);
+  const { dateKey, monthKey: mKey, nextMonthKey: nKey } = householdCalendar(new Date());
 
-  // Per-user daily rate limit — guards against runaway cost from a single account.
+  // Per-user daily rate limit — guards against runaway cost from a single
+  // account. The message is claimed up front to close a race-based bypass, so
+  // every path out of here that didn't actually spend it has to hand it back.
   const rlRef = db.ref(`finance-hub/rate-limits/${user.uid}/${dateKey}`);
   const rlResult = await rlRef.transaction((current) => (current || 0) + 1);
-  if (rlResult.committed && rlResult.snapshot.val() > DAILY_MESSAGE_LIMIT) {
+  if (!rlResult.committed) {
+    throw new HttpsError('unavailable', "Couldn't start that message — try again in a moment.");
+  }
+  if (rlResult.snapshot.val() > DAILY_MESSAGE_LIMIT) {
+    await refundMessage(rlRef);
     throw new HttpsError('resource-exhausted', "You've hit today's chat limit. Try again tomorrow.");
   }
 
-  const mKey = monthKey(today);
-  const nKey = nextMonthKeyFrom(today);
-  const [ellySnap, ericSnap, payablesSnap] = await Promise.all([
-    db.ref(`finance-hub/budget/months/${mKey}`).get(),
-    db.ref(`finance-hub/eric-budget/months/${mKey}`).get(),
-    db.ref('finance-hub/payables').get(),
-  ]);
+  let response;
+  try {
+    const [ellySnap, ericSnap, payablesSnap] = await Promise.all([
+      db.ref(`finance-hub/budget/months/${mKey}`).get(),
+      db.ref(`finance-hub/eric-budget/months/${mKey}`).get(),
+      db.ref('finance-hub/payables').get(),
+    ]);
 
-  const budgetContext = {
-    currentMonth: mKey,
-    askingUser: user.key,
-    ellyBudgetThisMonth: ellySnap.val() || null,
-    ericBudgetThisMonth: ericSnap.val() || null,
-    payables: payablesSnap.val() || null,
-  };
+    const budgetContext = {
+      currentMonth: mKey,
+      askingUser: user.key,
+      ellyBudgetThisMonth: ellySnap.val() || null,
+      ericBudgetThisMonth: ericSnap.val() || null,
+      payables: recentPayables(payablesSnap.val()),
+    };
 
-  const systemPrompt = `You are a household finance assistant for Elly and Eric, embedded in their private budgeting app "Finance Hub". You are currently answering ${user.key === 'elly' ? 'Elly' : 'Eric'}.
+    const systemPrompt = `You are a household finance assistant for Elly and Eric, embedded in their private budgeting app "Finance Hub". You are currently answering ${user.key === 'elly' ? 'Elly' : 'Eric'}.
 
 Today's date: ${dateKey}. currentMonthKey: ${mKey}. nextMonthKey: ${nKey}. Use these to resolve relative months like "this month" or "starting next month" into a concrete "YYYY-MM" value for tool calls — don't do the arithmetic yourself from guesswork.
 
@@ -179,31 +230,28 @@ Keep answers concise and conversational — this is a chat, not a report.
 Budget data (JSON):
 ${JSON.stringify(budgetContext)}`;
 
-  const anthropic = new Anthropic({ apiKey: anthropicApiKey.value() });
+    const anthropic = new Anthropic({ apiKey: anthropicApiKey.value() });
 
-  const anthropicMessages = trimmedHistory.map((m) => ({ role: m.role, content: m.content }));
-  if (imageBlock && anthropicMessages.length > 0) {
-    const last = anthropicMessages[anthropicMessages.length - 1];
-    if (last.role === 'user') {
-      last.content = [imageBlock, { type: 'text', text: last.content }];
+    const anthropicMessages = trimmedHistory.map((m) => ({ role: m.role, content: m.content }));
+    if (imageBlock && anthropicMessages.length > 0) {
+      const last = anthropicMessages[anthropicMessages.length - 1];
+      if (last.role === 'user') {
+        last.content = [imageBlock, { type: 'text', text: last.content }];
+      }
     }
-  }
 
-  let response;
-  try {
     response = await anthropic.messages.create({
       model: 'claude-sonnet-5',
-      max_tokens: 2048,
+      max_tokens: MAX_RESPONSE_TOKENS,
       output_config: { effort: 'medium' },
       system: systemPrompt,
       tools: TOOLS,
       messages: anthropicMessages,
     });
   } catch (err) {
-    // The counter is claimed up front to close a race-based bypass, so a call
-    // that never reached Claude has to hand the message back.
-    await rlRef.transaction((c) => Math.max(0, (c || 0) - 1));
-    logger.error('Anthropic request failed', err);
+    await refundMessage(rlRef);
+    if (err instanceof HttpsError) throw err;
+    logger.error('Chat request failed', err);
     throw new HttpsError('internal', "I couldn't reach the assistant just then — try again in a moment.");
   }
 
@@ -219,6 +267,20 @@ ${JSON.stringify(budgetContext)}`;
   const usedSearch = (typeof searchRequests === 'number' && searchRequests > 0)
     || response.content.some((b) => b.type === 'server_tool_use' && b.name === 'web_search');
   const toolUseBlock = response.content.find((b) => b.type === 'tool_use' && CUSTOM_TOOL_NAMES.has(b.name));
+
+  // Running out of tokens can stop a turn mid tool_use, leaving the proposal's
+  // params half-written. Asking again beats asking someone to approve an amount
+  // Claude never finished, so the card is withheld.
+  if (response.stop_reason === 'max_tokens') {
+    const partial = textParts.join('\n\n').trim();
+    return {
+      reply: partial
+        ? `${partial}\n\n(I ran out of room mid-answer — ask me to carry on, or narrow the question.)`
+        : 'That answer got too long for one reply — try narrowing the question.',
+      usedSearch,
+      proposedAction: null,
+    };
+  }
 
   if (toolUseBlock) {
     return {
@@ -254,7 +316,7 @@ exports.executeProposedAction = onCall({ region: 'asia-southeast1' }, async (req
     const clean = validatePayableParams(params);
     const entry = {
       id: genId(), name: clean.name, fullAmount: clean.amount, split: clean.split,
-      payTo: clean.payTo, date: clean.date || formatDateLabel(new Date()),
+      payTo: clean.payTo, date: clean.date || householdCalendar(new Date()).dateLabel,
       createdAt: Date.now(), createdBy: user.key,
       ellyDone: false, ellyDoneAt: null, ericDone: false, ericDoneAt: null,
       allocatedTo: null, ericAllocatedTo: null,
@@ -263,7 +325,7 @@ exports.executeProposedAction = onCall({ region: 'asia-southeast1' }, async (req
     // client state, so a read-modify-write here can drop an entry.
     const entriesRef = db.ref('finance-hub/payables/entries');
     const result = await entriesRef.transaction((current) => {
-      const entries = Array.isArray(current) ? current.slice() : [];
+      const entries = toList(current);
       entries.unshift(entry);
       return entries;
     });
@@ -288,17 +350,19 @@ exports.executeProposedAction = onCall({ region: 'asia-southeast1' }, async (req
       throw new HttpsError('failed-precondition', monthMissingMessage(clean.targetMonth));
     }
 
-    // Pad up to the target period. Each pad is its own transaction so it only
-    // ever fills a gap — if the period already exists it aborts and leaves it.
-    for (let i = countPeriods(monthSnap.val()); i <= clean.period; i++) {
-      await monthRef.child(`periods/${i}`).transaction((current) => (current ? undefined : { date: '', savingsGoals: [], bills: [] }));
+    // Don't create the pay period either. Firebase stores an empty array as
+    // nothing, so a padded period arrives with no bills or savingsGoals key and
+    // every unguarded period.bills read in the Monthly, Summary and Insights
+    // tabs throws — which reads to the user as the chat having eaten the month.
+    if (!hasPeriod(monthSnap.val(), clean.period)) {
+      throw new HttpsError('failed-precondition', periodMissingMessage(clean.targetMonth, clean.period));
     }
 
     // Append to the list itself rather than rewriting the whole month, so a
     // concurrent edit elsewhere in the month can't be clobbered.
     const listRef = monthRef.child(`periods/${clean.period}/${listKey}`);
     const result = await listRef.transaction((current) => {
-      const list = Array.isArray(current) ? current.slice() : [];
+      const list = toList(current);
       list.push(item);
       return list;
     });
@@ -318,10 +382,6 @@ function genId() {
   return 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
-function formatDateLabel(date) {
-  return `${date.getDate()} ${MONTHS[date.getMonth()].slice(0, 3)} ${date.getFullYear()}`;
-}
-
 function monthLabel(targetMonth) {
   const [y, m] = targetMonth.split('-').map(Number);
   return `${MONTHS[m - 1]} ${y}`;
@@ -331,12 +391,25 @@ function monthMissingMessage(targetMonth) {
   return `${monthLabel(targetMonth)} hasn't been created yet — open the Monthly tab and create it first so your recurring bills carry over, then ask me again.`;
 }
 
-// Firebase hands back an array for a dense period list and an object once it
-// isn't dense, so count either shape.
-function countPeriods(month) {
+function periodMissingMessage(targetMonth, period) {
+  const which = PERIOD_LABELS[period] || `number ${period + 1}`;
+  return `Your ${monthLabel(targetMonth)} budget doesn't have a ${which} pay period yet — add it in the Monthly tab first, then ask me again.`;
+}
+
+// Firebase hands back an array for a dense list and an object once it isn't, so
+// every read of a stored list has to cope with both shapes.
+function hasPeriod(month, index) {
   const periods = month && month.periods;
-  if (Array.isArray(periods)) return periods.length;
-  return periods ? Object.keys(periods).length : 0;
+  if (!periods) return false;
+  return Array.isArray(periods) ? !!periods[index] : !!periods[String(index)];
+}
+
+// Coercing an object-shaped list to [] would atomically destroy every entry in
+// it, so preserve the contents the way the client does when it reads them.
+function toList(current) {
+  if (Array.isArray(current)) return current.slice();
+  if (current && typeof current === 'object') return Object.values(current);
+  return [];
 }
 
 function validateAmount(a) {
