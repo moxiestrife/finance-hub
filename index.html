@@ -2044,6 +2044,16 @@ function chatThreadsPath() {
   return uid ? `chats/${uid}/threads` : null;
 }
 
+// Localhost shares the same Firebase project as prod — never persist or load
+// cloud chat history from a local test host, or test threads pollute production.
+function isLocalChatHost() {
+  const h = (location.hostname || '').toLowerCase();
+  return h === 'localhost' || h === '127.0.0.1' || h === '[::1]' || h === '::1';
+}
+function chatCloudSyncEnabled() {
+  return !isLocalChatHost();
+}
+
 // Returns the Firebase path and localStorage key for the active user's budget
 function activeBudgetPath()     { return isEric() ? DB_ERIC_BUDGET_PATH : DB_BUDGET_PATH; }
 function activeBudgetLocalKey() { return isEric() ? 'ericBudgetV1' : 'budgetPlannerV2'; }
@@ -5878,7 +5888,7 @@ async function cancelProposedAction(idx) {
 
 function persistChatThread(thread) {
   const path = chatThreadsPath();
-  if (!path || !thread || !fbReady || !window._dbSet) return Promise.resolve();
+  if (!chatCloudSyncEnabled() || !path || !thread || !fbReady || !window._dbSet) return Promise.resolve();
   // Don't persist receipt image bytes — only the hadImage flag travels with the message.
   // Never persist mid-flight confirm state as "pending" across reloads.
   const clean = {
@@ -5932,7 +5942,14 @@ function listenChatThreads() {
   if (!fbReady || !window._dbOnValue) return;
   const path = chatThreadsPath();
   if (!path) return;
-  if (chatThreadsUnsub) chatThreadsUnsub();
+  if (chatThreadsUnsub) { chatThreadsUnsub(); chatThreadsUnsub = null; }
+  // Local dev: keep chats in memory only — do not pull or push cloud history.
+  if (!chatCloudSyncEnabled()) {
+    chatThreadsLoaded = true;
+    renderChatHistoryList();
+    if (chatMode !== 'bubble') renderChatMessages();
+    return;
+  }
   chatThreadsUnsub = window._dbOnValue(dbPath(path), snap => {
     const val = snap.val();
     const remoteList = val
