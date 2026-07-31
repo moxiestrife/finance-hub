@@ -1347,15 +1347,17 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   .chat-panel {
     right: 8px;
     left: 8px;
+    top: calc(8px + env(safe-area-inset-top, 0px));
     bottom: calc(8px + env(safe-area-inset-bottom, 0px));
     width: auto;
-    height: calc(100dvh - 16px - env(safe-area-inset-bottom, 0px));
+    height: auto;
     max-height: none;
   }
-  .chat-backdrop { padding: 0; }
+  .chat-backdrop { padding: 0; padding-top: env(safe-area-inset-top, 0px); }
   .chat-expanded {
     width: 100vw;
     height: 100dvh;
+    height: 100svh;
     border-radius: 0;
   }
   .chat-expanded .chat-msg { max-width: 88%; }
