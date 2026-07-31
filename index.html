@@ -1978,6 +1978,7 @@ function doLogout() {
   clearChatImage();
   writeChatDraftToDom({ force: true });
   setChatBusy(false);
+  rememberActiveChatThreadId(null); // next sign-in starts a fresh chat
   setChatMode('bubble');
   window._signOut(window._auth);
   document.getElementById('app').style.display = 'none';
@@ -5408,12 +5409,31 @@ function syncChatHistoryToggleUi() {
   btn.title = open ? 'Hide history' : 'Show history';
 }
 
+const CHAT_ACTIVE_SESSION_KEY = 'fhActiveChatThreadId';
+
+function rememberActiveChatThreadId(id) {
+  try {
+    if (id) sessionStorage.setItem(CHAT_ACTIVE_SESSION_KEY, id);
+    else sessionStorage.removeItem(CHAT_ACTIVE_SESSION_KEY);
+  } catch (_) { /* private mode / blocked storage */ }
+}
+
+function recalledActiveChatThreadId() {
+  try { return sessionStorage.getItem(CHAT_ACTIVE_SESSION_KEY); }
+  catch (_) { return null; }
+}
+
 function ensureActiveChatThread() {
-  if (activeChatThread()) return;
-  if (chatThreads.length) {
-    activeChatThreadId = chatThreads[0].id;
+  if (activeChatThread()) {
+    rememberActiveChatThreadId(activeChatThreadId);
     return;
   }
+  const recalled = recalledActiveChatThreadId();
+  if (recalled && chatThreads.some(t => t.id === recalled)) {
+    activeChatThreadId = recalled;
+    return;
+  }
+  // No chat for this browser session — start fresh (don't reopen the latest history item).
   startNewChatThread({ selectOnly: true });
 }
 
@@ -5428,23 +5448,29 @@ function startNewChatThread(opts) {
   };
   chatThreads.unshift(thread);
   activeChatThreadId = thread.id;
+  rememberActiveChatThreadId(thread.id);
   chatDraftText = '';
   writeChatDraftToDom({ force: true });
   clearChatImage();
   if (!opts || !opts.selectOnly) persistActiveChatThread();
+  else if (chatCloudSyncEnabled()) persistActiveChatThread();
   renderChatHistoryList();
   renderChatMessages();
-  if (chatMode === 'bubble') setChatMode('panel');
-  else {
-    const inputId = chatMode === 'expanded' ? 'chatExpandedInput' : 'chatPanelInput';
-    const input = document.getElementById(inputId);
-    if (input) setTimeout(() => input.focus(), 50);
+  // Only open the panel when the user explicitly starts a new chat.
+  if (!opts || !opts.selectOnly) {
+    if (chatMode === 'bubble') setChatMode('panel');
+    else {
+      const inputId = chatMode === 'expanded' ? 'chatExpandedInput' : 'chatPanelInput';
+      const input = document.getElementById(inputId);
+      if (input) setTimeout(() => input.focus(), 50);
+    }
   }
 }
 
 function selectChatThread(id) {
   if (!chatThreads.some(t => t.id === id)) return;
   activeChatThreadId = id;
+  rememberActiveChatThreadId(id);
   document.getElementById('chatHistoryPane')?.classList.remove('mobile-open');
   syncChatHistoryToggleUi();
   renderChatHistoryList();
@@ -5940,6 +5966,7 @@ function listenChatThreads() {
   // Local dev: keep chats in memory only — do not pull or push cloud history.
   if (!chatCloudSyncEnabled()) {
     chatThreadsLoaded = true;
+    ensureActiveChatThread();
     renderChatHistoryList();
     if (chatMode !== 'bubble') renderChatMessages();
     return;
@@ -5958,8 +5985,15 @@ function listenChatThreads() {
     merged.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
     chatThreads = merged;
     chatThreadsLoaded = true;
-    if (!activeChatThreadId || !chatThreads.some(t => t.id === activeChatThreadId)) {
-      activeChatThreadId = chatThreads[0]?.id || null;
+    const recalled = recalledActiveChatThreadId();
+    if (activeChatThreadId && chatThreads.some(t => t.id === activeChatThreadId)) {
+      rememberActiveChatThreadId(activeChatThreadId);
+    } else if (recalled && chatThreads.some(t => t.id === recalled)) {
+      activeChatThreadId = recalled;
+    } else {
+      // Sign-in / new browser session: open a blank chat instead of the last history thread.
+      startNewChatThread({ selectOnly: true });
+      return;
     }
     renderChatHistoryList();
     if (chatMode !== 'bubble') {
