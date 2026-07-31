@@ -1023,16 +1023,11 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 }
 .chat-expanded.history-collapsed .chat-history { display: none; }
 .chat-history-head {
-  padding: 14px 14px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 14px 14px 10px;
 }
 .chat-history-head h3 {
   font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.04em; color: var(--muted-col);
-}
-.chat-new-btn {
-  border: none; background: var(--brand-col); color: white;
-  border-radius: 6px; padding: 5px 10px; font-size: 0.75rem; font-weight: 600;
-  cursor: pointer; font-family: inherit; flex-shrink: 0;
 }
 .chat-header-new {
   border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12);
@@ -1604,7 +1599,6 @@ body:not(.authed) .chat-backdrop { display: none !important; }
       <aside class="chat-history" id="chatHistoryPane">
         <div class="chat-history-head">
           <h3>History</h3>
-          <button class="chat-new-btn" type="button" onclick="startNewChatThread()">+ New</button>
         </div>
         <div class="chat-history-search">
           <input type="search" id="chatHistorySearch" placeholder="Search chats…" autocomplete="off" oninput="renderChatHistoryList()">

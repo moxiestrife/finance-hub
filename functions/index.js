@@ -355,17 +355,30 @@ exports.chatFinances = onCall({
   let usedSearch = false;
   try {
     logger.info('chatFinances: loading budget context', { user: user.key, month: mKey });
-    const [ellySnap, ericSnap, payablesSnap, ellyMonthsSnap, ericMonthsSnap] = await Promise.all([
+    const [ellySnap, ericSnap, payablesSnap, ellyMonthsSnap, ericMonthsSnap, ellySettingsSnap, ericSettingsSnap] = await Promise.all([
       db.ref(`finance-hub/budget/months/${mKey}`).get(),
       db.ref(`finance-hub/eric-budget/months/${mKey}`).get(),
       db.ref('finance-hub/payables').get(),
       db.ref('finance-hub/budget/months').get(),
       db.ref('finance-hub/eric-budget/months').get(),
+      db.ref('finance-hub/budget/settings').get(),
+      db.ref('finance-hub/eric-budget/settings').get(),
     ]);
 
     const allPayableEntries = toList(payablesSnap.val() && payablesSnap.val().entries);
     const ellyMonths = ellyMonthsSnap.val() || {};
     const ericMonths = ericMonthsSnap.val() || {};
+    const ellyMonth = ellySnap.val();
+    const ericMonth = ericSnap.val();
+    const ellySettings = ellySettingsSnap.val() || {};
+    const ericSettings = ericSettingsSnap.val() || {};
+    const ellyPeriodCount = Math.max(toList(ellyMonth && ellyMonth.periods).length, 1);
+    const ellyFortnightlySalary = Number(ellySettings.salary) || 0;
+    const ericMonthlySalary = Number(ericSettings.salary) || 0;
+    const periodExtraIncome = (month) => toList(month && month.periods).reduce((sum, p) => {
+      const extras = toList(p && p.income).reduce((s, i) => s + (Number(i && i.amount) || 0), 0);
+      return sum + extras;
+    }, 0);
 
     const budgetContext = {
       currentMonth: mKey,
@@ -374,8 +387,26 @@ exports.chatFinances = onCall({
         elly: Object.keys(ellyMonths).sort(),
         eric: Object.keys(ericMonths).sort(),
       },
-      ellyBudgetThisMonth: ellySnap.val() || null,
-      ericBudgetThisMonth: ericSnap.val() || null,
+      // Salaries live under budget/settings — not inside each month document.
+      income: {
+        elly: {
+          fortnightlySalary: roundMoney(ellyFortnightlySalary),
+          payPeriodsThisMonth: ellyPeriodCount,
+          salaryThisMonth: roundMoney(ellyFortnightlySalary * ellyPeriodCount),
+          extraIncomeThisMonth: roundMoney(periodExtraIncome(ellyMonth)),
+          note: 'settings.salary is Elly\'s fortnightly take-home. salaryThisMonth = fortnightly × pay periods in this calendar month.',
+        },
+        eric: {
+          monthlySalary: roundMoney(ericMonthlySalary),
+          extraIncomeThisMonth: roundMoney(periodExtraIncome(ericMonth)),
+          note: 'settings.salary is Eric\'s monthly take-home.',
+        },
+        householdSalaryThisMonth: roundMoney(
+          (ellyFortnightlySalary * ellyPeriodCount) + ericMonthlySalary
+        ),
+      },
+      ellyBudgetThisMonth: ellyMonth || null,
+      ericBudgetThisMonth: ericMonth || null,
       payables: buildPayablesContext(payablesSnap.val()),
     };
 
@@ -408,6 +439,8 @@ exports.chatFinances = onCall({
 Today's date: ${dateKey}. currentMonthKey: ${mKey}. nextMonthKey: ${nKey}. Use these to resolve relative months like "this month" or "starting next month" into a concrete "YYYY-MM" value for tool calls — don't do the arithmetic yourself from guesswork.
 
 Use the JSON budget data below to answer questions about their income, bills, savings, and spending. Amounts are in AUD. Periods are fortnightly pay cycles unless noted otherwise (Eric's budget has a single monthly period, index 0). "bills" are recurring or one-off expenses; "savingsGoals" are money set aside toward goals.
+
+Income (critical for affordability): use income.elly / income.eric / income.householdSalaryThisMonth from the JSON. Do not say salaries are missing when those fields are present. Elly's settings salary is fortnightly; Eric's is monthly. Add extraIncomeThisMonth when relevant. Headroom ≈ household (or personal) income minus committed bills/savings for the month.
 
 Payables (critical):
 - payables.summary.owing.elly / .eric match the Payables tab "I owe" totals (each person's share of open items). Always use those for "how much do I/we owe" — never invent an amount from a partial list.
