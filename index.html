@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>💰 Finance Hub — Elly & Eric</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
@@ -1170,12 +1170,6 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
 .p-empty { text-align: center; padding: 28px 20px; color: #9ca3af; font-size: 0.875rem; }
 
-@media (max-width: 600px) {
-  .p-form-grid { grid-template-columns: 1fr 1fr; }
-  .p-col-mine .p-list-col-header, .p-col-mine .p-row { grid-template-columns: 24px 1fr 80px 90px 22px; }
-  .p-col-mine .p-list-col-header span:nth-child(4), .p-col-mine .p-row .p-row-meta { display: none; }
-}
-
 /* ── Payables: single-column layout with view switcher ── */
 .p-cols { display: block; }
 .p-col  { width: 100%; }
@@ -1207,6 +1201,180 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 /* ── Account grouping sections ───────────────────── */
 .p-acct-section { border-bottom: 1px solid #f0f4f8; }
 .p-acct-section:last-child { border-bottom: none; }
+/* ═══════════════════════════════════════
+   MOBILE (phones / narrow tablets)
+═══════════════════════════════════════ */
+@media (max-width: 720px) {
+  :root {
+    --content-max-width: 100%;
+    --main-padding-y: 12px;
+  }
+
+  body { overflow-x: hidden; }
+
+  .login-box {
+    padding: 28px 20px;
+    margin: 0 16px;
+    width: auto;
+    max-width: 420px;
+  }
+
+  .desktop-only { display: none !important; }
+
+  .main {
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Topbar: title + actions on row 1, month centered on row 2 */
+  .topbar { padding: 10px 0 8px; }
+  .topbar .header-inner {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding: 0 10px;
+  }
+  .topbar h1 {
+    font-size: 1rem;
+    flex: 1 1 auto;
+  }
+  .topbar-right {
+    flex: 0 0 auto;
+    gap: 6px;
+  }
+  #user-name-display { display: none; }
+  .user-chip { padding: 4px 6px; gap: 0; }
+  #sync-label { display: none; }
+  #monthNavWrap {
+    flex: 1 1 100%;
+    order: 3;
+    justify-content: center !important;
+  }
+  .month-label {
+    min-width: 0;
+    font-size: 0.92rem;
+    padding: 3px 8px;
+  }
+
+  /* Tabs scroll sideways instead of wrapping into a tall stack */
+  .tab-bar { flex-wrap: nowrap; overflow: hidden; }
+  .tab-bar .header-inner {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 0 !important;
+    padding: 0 4px !important;
+    max-width: none;
+    scrollbar-width: none;
+  }
+  .tab-bar .header-inner::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 10px 12px;
+    font-size: 0.78rem;
+  }
+
+  .periods-grid { grid-template-columns: 1fr; }
+
+  /* Monthly bill rows → stacked cards (no horizontal squeeze) */
+  .bill-list-header { display: none; }
+  .bill-row {
+    grid-template-columns: 28px 22px minmax(0, 1fr) 84px;
+    grid-template-rows: auto auto auto;
+    column-gap: 8px;
+    row-gap: 4px;
+    padding: 10px 8px;
+  }
+  .bill-row > :nth-child(1) { grid-column: 1; grid-row: 1 / span 3; align-self: start; padding-top: 4px; }
+  .bill-row > :nth-child(2) { grid-column: 2; grid-row: 1 / span 3; align-self: start; padding-top: 6px; }
+  .bill-row > :nth-child(3) { grid-column: 3; grid-row: 1; min-width: 0; }
+  .bill-row > :nth-child(4) { grid-column: 4; grid-row: 1; }
+  .bill-row > :nth-child(5) { grid-column: 3 / span 2; grid-row: 2; }
+  .bill-row > :nth-child(6) { grid-column: 3; grid-row: 3; justify-self: start; }
+  .bill-row > :nth-child(7) { grid-column: 4; grid-row: 3; justify-self: end; }
+  .del-btn { opacity: 0.55; }
+  .recur-btn { opacity: 0.45; }
+  .recur-btn.on { opacity: 1; }
+
+  .saving-row {
+    grid-template-columns: 22px minmax(0, 1fr) 84px;
+    grid-template-rows: auto auto;
+    gap: 4px 8px;
+    padding: 8px;
+  }
+  .saving-row > :nth-child(1) { grid-column: 1; grid-row: 1 / span 2; align-self: start; }
+  .saving-row > :nth-child(2) { grid-column: 2; grid-row: 1; min-width: 0; }
+  .saving-row > :nth-child(3) { grid-column: 3; grid-row: 1; }
+  .saving-row > :nth-child(4) { grid-column: 2 / span 2; grid-row: 2; }
+  .saving-row > :nth-child(5) { grid-column: 3; grid-row: 2; justify-self: end; }
+
+  /* Payables rows + add form */
+  .p-form-grid { grid-template-columns: 1fr !important; }
+  .p-list-col-header { display: none; }
+  .p-row,
+  .p-col-mine .p-row,
+  .p-col-eric .p-row {
+    grid-template-columns: 28px minmax(0, 1fr) 88px !important;
+    grid-template-rows: auto auto auto;
+    gap: 4px 8px;
+    padding: 10px 12px;
+  }
+  .p-row > :nth-child(1) { grid-column: 1; grid-row: 1 / span 3; align-self: start; }
+  .p-row > :nth-child(2) { grid-column: 2; grid-row: 1; min-width: 0; }
+  .p-row > :nth-child(3) { grid-column: 3; grid-row: 1; }
+  .p-row > :nth-child(4) { grid-column: 2 / span 2; grid-row: 2; }
+  .p-row > :nth-child(5) { grid-column: 2; grid-row: 3; }
+  .p-row > :nth-child(6) { grid-column: 3; grid-row: 3; justify-self: end; }
+  .p-action-btn { opacity: 0.7; }
+  .p-row-meta { display: flex !important; }
+  .p-owing-card {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+  .p-owing-left .p-owing-amount { font-size: 1.8rem; }
+  .p-owing-right { text-align: left !important; width: 100%; }
+
+  /* Chat: edge-to-edge panel, clear space above launcher */
+  .chat-launcher {
+    right: calc(14px + env(safe-area-inset-right, 0px));
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+  .chat-panel {
+    right: 8px;
+    left: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    height: calc(100dvh - 16px - env(safe-area-inset-bottom, 0px));
+    max-height: none;
+  }
+  .chat-backdrop { padding: 0; }
+  .chat-expanded {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+  }
+  .chat-expanded .chat-msg { max-width: 88%; }
+
+  .expenses-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #calc-panel {
+    width: min(320px, calc(100vw - 16px));
+    right: 8px;
+  }
+
+  .sel-badge {
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 .p-acct-header {
   display: flex; align-items: center; gap: 8px;
   padding: 9px 14px; cursor: pointer;
@@ -1296,7 +1464,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
       <div class="sync-dot" id="sync-dot"></div>
       <span id="sync-label">—</span>
     </div>
-    <button class="logout-btn" onclick="runFinanceHubQA()" title="Run a self-test to confirm you can read and save your data" style="background:rgba(255,255,255,0.12)">🧪 Self-test</button>
+    <button class="logout-btn desktop-only" onclick="runFinanceHubQA()" title="Run a self-test to confirm you can read and save your data" style="background:rgba(255,255,255,0.12)">🧪 Self-test</button>
     <div class="user-chip">
       <div class="user-avatar" id="user-avatar"></div>
       <span id="user-name-display"></span>
