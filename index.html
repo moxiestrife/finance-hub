@@ -5033,12 +5033,28 @@ function describeProposedAction(a) {
     return `Add payable "${p.name || ''}" — $${amt} (${splitLabel})${p.payTo ? ' → ' + p.payTo : ''}`;
   }
   if (a.type === 'propose_bill') {
-    return `Add ${p.recurring ? 'recurring ' : ''}bill "${p.name || ''}" — $${amt}, starting ${p.targetMonth || '?'}${p.payTo ? ' → ' + p.payTo : ''}`;
+    return `Add ${p.recurring ? 'recurring ' : ''}bill "${p.name || ''}" — $${amt}, starting ${proposedMonthLabel(p.targetMonth)}${proposedPeriodLabel(p.period)}${p.payTo ? ' → ' + p.payTo : ''}`;
   }
   if (a.type === 'propose_savings_goal') {
-    return `Add ${p.recurring ? 'recurring ' : ''}savings goal "${p.name || ''}" — $${amt}/period, starting ${p.targetMonth || '?'}`;
+    return `Add ${p.recurring ? 'recurring ' : ''}savings goal "${p.name || ''}" — $${amt}/period, starting ${proposedMonthLabel(p.targetMonth)}${proposedPeriodLabel(p.period)}`;
   }
   return 'Proposed action';
+}
+
+function proposedMonthLabel(targetMonth) {
+  const match = /^(\d{4})-(\d{2})$/.exec(targetMonth || '');
+  if (!match) return targetMonth || '?';
+  return `${MONTHS[Number(match[2]) - 1]} ${match[1]}`;
+}
+
+// Mirrors the clamp in validateLineItemParams: the card has to name the period
+// the server will actually write to, not the one that was asked for. Eric's
+// budget has a single period, so there's nothing to disambiguate.
+function proposedPeriodLabel(rawPeriod) {
+  if (isEric()) return '';
+  const parsed = parseInt(rawPeriod, 10);
+  const period = Number.isInteger(parsed) ? Math.min(1, Math.max(0, parsed)) : 0;
+  return period === 1 ? ', second fortnight' : ', first fortnight';
 }
 
 // Claude only accepts jpeg/png/gif/webp and iPhones shoot HEIC, so every photo
