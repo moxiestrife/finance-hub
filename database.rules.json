@@ -5,6 +5,8 @@
   // rules only granted access to Elly's account.
   // Compare/Insights/Household views need each user to READ the other's
   // budget, so reads are open to both authorised emails.
+  // Chat threads live under /chats/{uid} so the finance-hub .read rule
+  // cannot expose one person's history to the other.
   // Deploy: firebase deploy --only database
   "rules": {
     "finance-hub": {
@@ -20,6 +22,12 @@
       },
       "admin-settings": {
         ".write": "auth != null && auth.token.email == 'ellyhizon1@gmail.com'"
+      }
+    },
+    "chats": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid && auth.token.email_verified == true && (auth.token.email == 'ellyhizon1@gmail.com' || auth.token.email == 'ericdefelix@gmail.com')",
+        ".write": "auth != null && auth.uid == $uid && auth.token.email_verified == true && (auth.token.email == 'ellyhizon1@gmail.com' || auth.token.email == 'ericdefelix@gmail.com')"
       }
     }
   }

@@ -74,7 +74,7 @@ This keeps it simple since the app already has its own PIN login.
 
 ## Step 2f: Set up the AI Chat (optional)
 
-The Chat tab answers questions about your budget (and can search the web for things like current loan rates) using Claude. It runs through a Firebase Cloud Function so your Anthropic API key is never exposed in the browser.
+The corner chat widget answers questions about your budget (and can search the web for things like current loan rates) using Claude. It runs through a Firebase Cloud Function so your Anthropic API key is never exposed in the browser.
 
 Requires the Firebase project to be on the **Blaze (pay-as-you-go)** plan — Cloud Functions aren't available on the free Spark plan. At normal household usage this should cost a few cents to a few dollars a year; set a spending cap on your Anthropic account as a safety net.
 
@@ -89,11 +89,15 @@ Requires the Firebase project to be on the **Blaze (pay-as-you-go)** plan — Cl
    cd functions && npm install && cd ..
    firebase deploy --only functions
    ```
-5. Reload the app — a "💬 Chat" tab appears for both Elly and Eric.
+5. Deploy database rules too (chat history is stored per user under `/chats/{uid}`):
+   ```
+   firebase deploy --only database,functions
+   ```
+6. Reload the app — a chat bubble appears in the lower-right for both Elly and Eric.
 
 Receipt photos are converted to JPEG in the browser before they're uploaded, so a photo straight off an iPhone (HEIC) works fine from the phone's photo picker. On a desktop browser that can't open HEIC at all, the app says so and you'll need to convert the file to JPEG first.
 
-The function only responds to signed-in requests from the two authorised Google accounts (checked server-side, independent of the client), and caps each account to 30 messages/day to guard against runaway cost from a bug or a spammed link. Chat history isn't saved — it resets on page reload.
+The function only responds to signed-in requests from the two authorised Google accounts (checked server-side, independent of the client), and caps each account to 30 messages/day to guard against runaway cost from a bug or a spammed link. Chat threads are saved per Google account and can be reopened from the expanded chat's History panel.
 
 ---
 

@@ -78,6 +78,13 @@
   --shared-dark: #065F46;
   --radius: 12px;
   --main-padding-y: 20px;
+  --brand-deep: #162d4a;
+  --z-chat-widget: 1200;
+  --z-chat-overlay: 1300;
+  --shadow-chat-panel: 0 12px 40px rgba(15, 30, 49, 0.22);
+  --shadow-chat-bubble: 0 8px 24px rgba(15, 30, 49, 0.28);
+  --chat-input-height: 36px;
+  --chat-input-height-active: 76px; /* ~3 lines */
   --content-max-width: 80%;
   --content-max-width-eric: 900px; /* match payables — Eric is monthly, one column */
 }
@@ -819,26 +826,164 @@ body {
 .p-btn-danger:hover { background: #fecaca; }
 .p-split-hint { font-size: 0.78rem; color: #6b7280; margin-left: 4px; }
 
-/* Chat tab */
-/* --sticky-header-height is measured in JS: the tab bar wraps, so the header's
-   height genuinely changes with viewport width. dvh keeps mobile browser chrome
-   from pushing the input row off-screen. */
-.chat-wrap { max-width: 720px; margin: 0 auto; padding: 16px 20px; display: flex; flex-direction: column; height: calc(100dvh - var(--sticky-header-height, 96px) - (var(--main-padding-y) * 2)); }
-.chat-log { flex: 1; overflow-y: auto; padding: 4px 2px 12px; display: flex; flex-direction: column; gap: 10px; }
-.chat-msg { max-width: 82%; padding: 10px 14px; border-radius: 14px; font-size: 0.9rem; line-height: 1.45; white-space: pre-wrap; }
-.chat-msg-user { align-self: flex-end; background: var(--brand-col); color: white; border-bottom-right-radius: 4px; }
-.chat-msg-assistant { align-self: flex-start; background: var(--surface); color: var(--text-col); box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-bottom-left-radius: 4px; }
-.chat-msg-error { align-self: flex-start; background: var(--danger-light); color: var(--danger-dark); border-bottom-left-radius: 4px; }
-.chat-msg-search-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--shared); background: var(--shared-light); border-radius: 6px; padding: 2px 6px; margin-bottom: 6px; }
-.chat-empty { color: var(--faint-col); font-size: 0.85rem; text-align: center; margin-top: 40px; }
-.chat-input-row { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border-col); }
-.chat-input-row textarea { resize: none; }
-.chat-attach-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px; background: var(--surface-sunken); border: 1px solid var(--border-col); cursor: pointer; font-size: 1.1rem; flex-shrink: 0; }
-.chat-attach-btn:hover { background: var(--border-col); }
-.chat-image-preview { display: flex; align-items: center; gap: 8px; padding: 8px; background: var(--surface-alt); border: 1px dashed var(--border-strong-col); border-radius: 8px; margin-bottom: 8px; }
-.chat-image-preview img { height: 56px; width: 56px; object-fit: cover; border-radius: 6px; }
-.chat-image-remove { margin-left: auto; background: none; border: none; color: var(--faint-col); cursor: pointer; font-size: 1rem; padding: 4px 8px; }
+/* Chat widget (corner bubble → panel → expanded) */
+.chat-launcher {
+  position: fixed; right: 22px; bottom: 22px; z-index: var(--z-chat-widget);
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--brand-col); color: white; border: none;
+  box-shadow: var(--shadow-chat-bubble); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.chat-launcher:hover { background: var(--brand-deep); transform: scale(1.05); }
+.chat-launcher svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chat-launcher[hidden],
+.chat-panel[hidden],
+.chat-backdrop[hidden] { display: none !important; }
+.chat-panel {
+  position: fixed; right: 22px; bottom: 22px; z-index: var(--z-chat-widget);
+  width: min(380px, calc(100vw - 28px));
+  height: min(560px, calc(100dvh - 40px));
+  background: var(--surface); border-radius: 16px;
+  box-shadow: var(--shadow-chat-panel); border: 1px solid var(--border-col);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: chat-panel-in 0.18s ease;
+}
+@keyframes chat-panel-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.chat-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; background: var(--brand-col); color: white; flex-shrink: 0;
+}
+.chat-header-title { flex: 1; min-width: 0; }
+.chat-header-title strong { display: block; font-size: 0.95rem; font-weight: 700; }
+.chat-header-title span { display: block; font-size: 0.72rem; opacity: 0.75; margin-top: 1px; }
+.chat-header-actions { display: flex; gap: 4px; }
+.chat-icon-btn {
+  width: 32px; height: 32px; border: none; border-radius: 8px;
+  background: rgba(255,255,255,0.12); color: white; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem; line-height: 1; font-family: inherit;
+}
+.chat-icon-btn:hover { background: rgba(255,255,255,0.22); }
+.chat-icon-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chat-body { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+.chat-log {
+  flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+  background: var(--surface-alt);
+}
+.chat-msg {
+  max-width: 88%; padding: 10px 12px; border-radius: 14px;
+  font-size: 0.88rem; line-height: 1.45;
+}
+.chat-msg-user {
+  align-self: flex-end; background: var(--brand-col); color: white;
+  border-bottom-right-radius: 4px; white-space: pre-wrap;
+}
+.chat-msg-assistant {
+  align-self: flex-start; background: var(--surface); color: var(--text-col);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--border-col);
+  border-bottom-left-radius: 4px; max-width: 94%;
+}
+.chat-msg-error {
+  align-self: flex-start; background: var(--danger-light); color: var(--danger-dark);
+  border-bottom-left-radius: 4px; white-space: pre-wrap;
+}
+.chat-md-p { margin: 0 0 0.55em; white-space: pre-wrap; }
+.chat-md-p:last-child { margin-bottom: 0; }
+.chat-md-ul { margin: 0.25em 0 0.65em; padding-left: 1.25em; }
+.chat-md-ul:last-child { margin-bottom: 0; }
+.chat-md-li { margin: 0.2em 0; }
+.chat-md-table-wrap {
+  overflow-x: auto; margin: 0.45em 0 0.7em;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border-col); border-radius: 8px;
+  background: var(--surface-alt);
+}
+.chat-md-table-wrap:last-child { margin-bottom: 0; }
+.chat-md-table {
+  width: 100%; border-collapse: collapse; font-size: 0.8rem;
+  min-width: 200px; white-space: nowrap;
+}
+.chat-md-table th,
+.chat-md-table td {
+  padding: 6px 10px; text-align: left;
+  border-bottom: 1px solid var(--border-col);
+}
+.chat-md-table th {
+  font-weight: 700; color: var(--muted-col); font-size: 0.72rem;
+  text-transform: uppercase; letter-spacing: 0.02em;
+  background: var(--surface-sunken);
+}
+.chat-md-table tr:last-child td { border-bottom: none; }
+.chat-md-table td:last-child,
+.chat-md-table th:last-child { text-align: right; }
+.chat-md-strong { font-weight: 700; }
+.chat-msg-search-tag {
+  display: inline-block; font-size: 0.68rem; font-weight: 700;
+  color: var(--shared); background: var(--shared-light);
+  border-radius: 6px; padding: 2px 6px; margin-bottom: 6px;
+}
 .chat-msg-img-tag { font-size: 0.72rem; opacity: 0.8; margin-top: 4px; }
+.chat-empty {
+  margin: auto; text-align: center; color: var(--faint-col);
+  font-size: 0.85rem; padding: 24px 16px; max-width: 260px; line-height: 1.45;
+}
+.chat-thinking {
+  align-self: flex-start; background: var(--surface); color: var(--muted-col);
+  border: 1px solid var(--border-col); box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-radius: 14px; border-bottom-left-radius: 4px;
+  padding: 12px 16px; display: flex; align-items: center; gap: 8px;
+  font-size: 0.82rem;
+}
+.chat-thinking-dots { display: flex; gap: 4px; align-items: center; }
+.chat-thinking-dots span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--muted-col);
+  animation: thinking-bounce 1.2s ease-in-out infinite;
+}
+.chat-thinking-dots span:nth-child(2) { animation-delay: 0.15s; }
+.chat-thinking-dots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes thinking-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+.chat-composer { border-top: 1px solid var(--border-col); padding: 10px 12px; background: var(--surface); flex-shrink: 0; }
+.chat-composer-row { display: flex; gap: 8px; align-items: flex-end; }
+.chat-attach {
+  width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border-col);
+  background: var(--surface-sunken); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem;
+}
+.chat-attach:hover { background: var(--border-col); }
+.chat-composer textarea {
+  flex: 1; resize: none; border: 1px solid var(--border-col); border-radius: 8px;
+  padding: 8px 10px; font: inherit; font-size: 0.88rem; line-height: 1.4;
+  height: var(--chat-input-height); min-height: var(--chat-input-height);
+  max-height: var(--chat-input-height-active);
+  color: var(--text-col); background: var(--surface);
+  transition: height 0.15s ease, min-height 0.15s ease;
+  overflow-y: auto;
+}
+.chat-composer textarea:focus {
+  outline: 2px solid rgba(30,58,95,0.25); border-color: var(--brand-col);
+  height: var(--chat-input-height-active); min-height: var(--chat-input-height-active);
+}
+.chat-send {
+  background: var(--brand-col); color: white; border: none; border-radius: 8px;
+  padding: 0 14px; height: 36px; font-weight: 600; font-size: 0.85rem;
+  cursor: pointer; font-family: inherit;
+}
+.chat-send:hover { background: var(--brand-deep); }
+.chat-send:disabled { opacity: 0.55; cursor: default; }
+.chat-image-preview {
+  display: none; align-items: center; gap: 8px; padding: 8px; margin-bottom: 8px;
+  background: var(--surface-alt); border: 1px dashed var(--border-strong-col); border-radius: 8px;
+}
+.chat-image-preview.is-visible { display: flex; }
+.chat-image-preview img { height: 48px; width: 48px; object-fit: cover; border-radius: 6px; }
+.chat-image-remove { margin-left: auto; background: none; border: none; color: var(--faint-col); cursor: pointer; font-size: 1rem; padding: 4px 8px; }
 .chat-action-card { margin-top: 8px; padding: 10px 12px; border-radius: 10px; background: var(--surface-alt); border: 1px solid var(--border-col); }
 .chat-action-summary { font-size: 0.85rem; color: var(--text-col); margin-bottom: 8px; }
 .chat-action-buttons { display: flex; gap: 8px; }
@@ -846,6 +991,87 @@ body {
 .chat-action-pending { color: var(--muted-col); font-style: italic; }
 .chat-action-confirmed { background: var(--shared-light); border-color: var(--shared-border); color: var(--shared-dark); font-weight: 600; }
 .chat-action-cancelled { background: var(--surface-sunken); color: var(--faint-col); }
+.chat-backdrop {
+  position: fixed; inset: 0; z-index: var(--z-chat-overlay);
+  background: rgba(15, 30, 49, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 3vh 3vw; animation: chat-fade-in 0.15s ease;
+}
+@keyframes chat-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.chat-expanded {
+  position: relative;
+  width: min(1100px, 92vw); height: min(820px, 88dvh);
+  background: var(--surface); border-radius: 16px;
+  box-shadow: var(--shadow-chat-panel); border: 1px solid var(--border-col);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: chat-expand-in 0.2s ease;
+}
+@keyframes chat-expand-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+.chat-expanded .chat-header { padding: 14px 16px; flex-shrink: 0; }
+.chat-history-toggle { flex-shrink: 0; }
+.chat-expanded-body { position: relative; flex: 1; min-height: 0; display: flex; }
+.chat-history {
+  width: 260px; flex-shrink: 0; border-right: 1px solid var(--border-col);
+  background: var(--surface-alt); display: flex; flex-direction: column; min-height: 0;
+}
+.chat-expanded.history-collapsed .chat-history { display: none; }
+.chat-history-head {
+  padding: 14px 14px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.chat-history-head h3 {
+  font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--muted-col);
+}
+.chat-new-btn {
+  border: none; background: var(--brand-col); color: white;
+  border-radius: 6px; padding: 5px 10px; font-size: 0.75rem; font-weight: 600;
+  cursor: pointer; font-family: inherit; flex-shrink: 0;
+}
+.chat-header-new {
+  border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12);
+  color: white; border-radius: 6px; padding: 5px 10px;
+  font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  flex-shrink: 0; white-space: nowrap; line-height: 1.2;
+}
+.chat-header-new:hover { background: rgba(255,255,255,0.22); }
+.chat-history-search { padding: 0 8px 8px; border-bottom: 1px solid var(--border-col); }
+.chat-history-search input {
+  width: 100%; border: 1px solid var(--border-col); border-radius: 8px;
+  padding: 7px 10px; font: inherit; font-size: 0.8rem; color: var(--text-col); background: var(--surface);
+}
+.chat-history-search input:focus { outline: 2px solid rgba(30,58,95,0.25); border-color: var(--brand-col); }
+.chat-history-list { flex: 1; overflow-y: auto; padding: 8px; }
+.chat-history-empty { padding: 16px 10px; text-align: center; font-size: 0.78rem; color: var(--faint-col); line-height: 1.4; }
+.chat-thread {
+  width: 100%; text-align: left; border: 1px solid transparent;
+  background: transparent; border-radius: 8px; padding: 8px 10px;
+  cursor: pointer; font-family: inherit; margin-bottom: 2px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.chat-thread:hover { background: var(--surface); border-color: var(--border-col); }
+.chat-thread.active { background: var(--surface); border-color: var(--border-strong-col); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.chat-thread-title {
+  font-size: 0.84rem; font-weight: 600; color: var(--text-col);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chat-thread-date { font-size: 0.68rem; color: var(--faint-col); }
+.chat-expanded-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chat-expanded .chat-log { padding: 18px 22px; }
+.chat-expanded .chat-msg { max-width: 72%; font-size: 0.92rem; }
+.chat-expanded .chat-composer { padding: 12px 16px; }
+@media (max-width: 720px) {
+  .chat-history { width: 200px; }
+  .chat-expanded { width: 96vw; height: 92dvh; }
+}
+@media (max-width: 560px) {
+  .chat-history { display: none; }
+  .chat-history.mobile-open {
+    display: flex; position: absolute; inset: 0; width: 100%; z-index: 2;
+  }
+}
 
 /* Payables list */
 .p-list-card {
@@ -1090,7 +1316,6 @@ body {
   </button>
   <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">📊 Summary</button>
   <button class="tab-btn" id="tab-btn-insights" onclick="switchTab('insights')">💡 Insights</button>
-  <button class="tab-btn" id="tab-btn-chat" onclick="switchTab('chat')">💬 Chat</button>
   <button class="tab-btn" id="tab-btn-compare" onclick="switchTab('compare')" style="display:none">⚖ Compare</button>
   <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">⚙ Admin</button>
 </div></div>
@@ -1189,24 +1414,6 @@ body {
   <!-- ── INSIGHTS TAB ── -->
   <div class="tab-content" id="tab-insights">
     <div id="insightsContent"></div>
-  </div>
-
-  <!-- ── CHAT TAB ── -->
-  <div class="tab-content" id="tab-chat">
-    <div class="chat-wrap">
-      <div class="chat-log" id="chatLog"></div>
-      <div class="chat-image-preview" id="chatImagePreview" style="display:none">
-        <img id="chatImagePreviewImg" alt="Attached receipt">
-        <button class="chat-image-remove" onclick="clearChatImage()" title="Remove image">✕</button>
-      </div>
-      <div class="chat-input-row">
-        <label class="chat-attach-btn" title="Attach a receipt photo">
-          📎<input type="file" accept="image/*" id="chatImageInput" style="display:none" onchange="onChatImageSelected(event)">
-        </label>
-        <textarea class="p-input" id="chatInput" rows="1" placeholder="Ask about your budget, or attach a receipt…" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChatMessage();}"></textarea>
-        <button class="p-btn p-btn-primary" id="chatSendBtn" onclick="sendChatMessage()">Send</button>
-      </div>
-    </div>
   </div>
 
   <!-- ── PAYABLES TAB ── -->
@@ -1338,6 +1545,88 @@ body {
   </div><!-- end tab-payables -->
 
 </div><!-- end .main -->
+
+<!-- Chat widget: bubble → compact panel → expanded with history -->
+<button class="chat-launcher" id="chatLauncher" type="button" aria-label="Open chat" title="Chat" onclick="setChatMode('panel')">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>
+
+<div class="chat-panel" id="chatPanel" hidden>
+  <div class="chat-header">
+    <div class="chat-header-title">
+      <strong>Finance assistant</strong>
+      <span>Ask about budgets, bills, receipts</span>
+    </div>
+    <div class="chat-header-actions">
+      <button class="chat-header-new" type="button" title="Start a new chat" onclick="startNewChatThread()">+ New</button>
+      <button class="chat-icon-btn" type="button" title="Expand" aria-label="Expand chat" onclick="setChatMode('expanded')">
+        <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+      <button class="chat-icon-btn" type="button" title="Minimize" aria-label="Minimize chat" onclick="setChatMode('bubble')">−</button>
+    </div>
+  </div>
+  <div class="chat-body">
+    <div class="chat-log" id="chatPanelLog"></div>
+  </div>
+  <div class="chat-composer">
+    <div class="chat-image-preview" id="chatPanelImagePreview">
+      <img id="chatPanelImagePreviewImg" alt="Attached receipt">
+      <button class="chat-image-remove" type="button" onclick="clearChatImage()" title="Remove image">✕</button>
+    </div>
+    <div class="chat-composer-row">
+      <button class="chat-attach" type="button" title="Attach a receipt photo" onclick="document.getElementById('chatImageInput').click()">📎</button>
+      <textarea id="chatPanelInput" rows="1" placeholder="Ask about your budget…" oninput="chatDraftText=this.value" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChatMessage('panel');}"></textarea>
+      <button class="chat-send" id="chatPanelSendBtn" type="button" onclick="sendChatMessage('panel')">Send</button>
+    </div>
+  </div>
+</div>
+
+<div class="chat-backdrop" id="chatBackdrop" hidden onclick="if(event.target===this)setChatMode('panel')">
+  <div class="chat-expanded" role="dialog" aria-modal="true" aria-label="Finance assistant">
+    <div class="chat-header">
+      <button class="chat-icon-btn chat-history-toggle" id="chatHistoryToggleBtn" type="button" title="Hide history" aria-label="Toggle history" aria-controls="chatHistoryPane" aria-expanded="true" onclick="toggleChatHistory()">☰</button>
+      <div class="chat-header-title">
+        <strong>Finance assistant</strong>
+        <span>Ask about budgets, bills, receipts</span>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-header-new" type="button" title="Start a new chat" onclick="startNewChatThread()">+ New</button>
+        <button class="chat-icon-btn" type="button" title="Back to corner chat" aria-label="Collapse to corner" onclick="setChatMode('panel')">
+          <svg viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </button>
+        <button class="chat-icon-btn" type="button" title="Minimize" aria-label="Minimize" onclick="setChatMode('bubble')">−</button>
+      </div>
+    </div>
+    <div class="chat-expanded-body">
+      <aside class="chat-history" id="chatHistoryPane">
+        <div class="chat-history-head">
+          <h3>History</h3>
+          <button class="chat-new-btn" type="button" onclick="startNewChatThread()">+ New</button>
+        </div>
+        <div class="chat-history-search">
+          <input type="search" id="chatHistorySearch" placeholder="Search chats…" autocomplete="off" oninput="renderChatHistoryList()">
+        </div>
+        <div class="chat-history-list" id="chatHistoryList"></div>
+      </aside>
+      <div class="chat-expanded-main">
+        <div class="chat-log" id="chatExpandedLog"></div>
+        <div class="chat-composer">
+          <div class="chat-image-preview" id="chatExpandedImagePreview">
+            <img id="chatExpandedImagePreviewImg" alt="Attached receipt">
+            <button class="chat-image-remove" type="button" onclick="clearChatImage()" title="Remove image">✕</button>
+          </div>
+          <div class="chat-composer-row">
+            <button class="chat-attach" type="button" title="Attach a receipt photo" onclick="document.getElementById('chatImageInput').click()">📎</button>
+            <textarea id="chatExpandedInput" rows="1" placeholder="Ask about your budget, or attach a receipt…" oninput="chatDraftText=this.value" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChatMessage('expanded');}"></textarea>
+            <button class="chat-send" id="chatExpandedSendBtn" type="button" onclick="sendChatMessage('expanded')">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<input type="file" accept="image/*" id="chatImageInput" style="display:none" onchange="onChatImageSelected(event)">
+
 </div><!-- end #app -->
 
 <div id="toast"></div>
@@ -1619,10 +1908,20 @@ function doGoogleLogin() {
       showApp();
     })
     .catch(err => {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        errEl.textContent = 'Sign-in failed. Please try again.';
-        errEl.style.display = 'block';
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+        btn.disabled = false;
+        return;
       }
+      console.error('Google sign-in failed', err);
+      if (err.code === 'auth/unauthorized-domain') {
+        const host = location.hostname;
+        errEl.textContent = host === '127.0.0.1'
+          ? 'This address (127.0.0.1) is not authorised for Google sign-in. Open http://localhost:' + (location.port || '80') + '/ instead.'
+          : 'This domain is not authorised for Google sign-in. Add "' + host + '" under Firebase Authentication → Settings → Authorised domains.';
+      } else {
+        errEl.textContent = 'Sign-in failed' + (err.code ? ' (' + err.code + ')' : '') + '. Please try again.';
+      }
+      errEl.style.display = 'block';
       btn.disabled = false;
     });
 }
@@ -1672,6 +1971,16 @@ function doLogout() {
   stopImpersonating();
   currentUser = null;
   document.body.classList.remove('user-eric');
+  if (chatThreadsUnsub) { chatThreadsUnsub(); chatThreadsUnsub = null; }
+  chatThreads = [];
+  activeChatThreadId = null;
+  chatThreadsLoaded = false;
+  chatDirtyThreadIds = new Set();
+  chatDraftText = '';
+  clearChatImage();
+  writeChatDraftToDom({ force: true });
+  setChatBusy(false);
+  setChatMode('bubble');
   window._signOut(window._auth);
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
@@ -1723,6 +2032,11 @@ const DB_BUDGET_PATH       = 'finance-hub/budget';
 const DB_ERIC_BUDGET_PATH  = 'finance-hub/eric-budget'; // Eric's private budget ledger
 const DB_PAYABLES_PATH     = 'finance-hub/payables';
 const DB_SETTINGS_PATH     = 'finance-hub/admin-settings';
+// Outside finance-hub so parent .read rules can't expose one person's chats to the other.
+function chatThreadsPath() {
+  const uid = window._auth?.currentUser?.uid;
+  return uid ? `chats/${uid}/threads` : null;
+}
 
 // Returns the Firebase path and localStorage key for the active user's budget
 function activeBudgetPath()     { return isEric() ? DB_ERIC_BUDGET_PATH : DB_BUDGET_PATH; }
@@ -1913,7 +2227,7 @@ document.addEventListener('firebaseReady', () => {
 
   // If a session is already active, start listening
   if (currentUser) {
-    listenBudget(); listenPayables(); listenAdminSettings();
+    listenBudget(); listenPayables(); listenAdminSettings(); listenChatThreads();
   }
 });
 
@@ -2141,8 +2455,16 @@ function getAccounts() { return (state.accounts || DEFAULT_ACCOUNTS).slice().sor
 let state = { settings: { salary: 4524.58 }, months: {}, accounts: [...DEFAULT_ACCOUNTS] };
 let curYear, curMonth;
 let curTab = 'monthly';
-let chatHistory = []; // session-only, not persisted: [{role: 'user'|'assistant', content: string}]
 let chatBusy = false;
+let chatMode = 'bubble'; // bubble | panel | expanded
+let chatThreads = [];    // [{id, title, createdAt, updatedAt, messages:[]}]
+let activeChatThreadId = null;
+let chatThreadsUnsub = null;
+let chatThreadsLoaded = false;
+// Threads currently being mutated locally — listener snapshots must merge into
+// these objects instead of replacing them, or an in-flight reply/confirm is lost.
+let chatDirtyThreadIds = new Set();
+let chatDraftText = ''; // shared across panel + expanded composers
 let idSeq = Date.now();
 let chartInstances = {};
 
@@ -2491,7 +2813,7 @@ function getMonthStats(key) {
 function switchTab(tab) {
   curTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  ['monthly','summary','insights','payables','admin','compare','chat'].forEach(t => {
+  ['monthly','summary','insights','payables','admin','compare'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.classList.remove('active');
   });
@@ -2511,7 +2833,6 @@ function switchTab(tab) {
     if (tab === 'payables') renderPayables();
     if (tab === 'compare')  renderCompare();
     if (tab === 'admin')    renderAdmin();
-    if (tab === 'chat')     renderChat();
   }
 }
 
@@ -4980,19 +5301,250 @@ function deleteAccount(idx) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  CHAT
+//  CHAT WIDGET
 // ═══════════════════════════════════════════════════════════════
 let pendingChatImage = null; // {mediaType, data} — base64, no data: prefix
+let pendingChatImageDataUrl = null;
 
-function renderChat() {
-  const log = document.getElementById('chatLog');
-  if (!log) return;
-  if (chatHistory.length === 0) {
-    log.innerHTML = '<div class="chat-empty">Ask about your budget — e.g. "Do we have room this month for a $500 monitor?" — or attach a receipt to log an expense.</div>';
-  } else {
-    log.innerHTML = chatHistory.map(chatBubbleHtml).join('');
+function activeChatThread() {
+  return chatThreads.find(t => t.id === activeChatThreadId) || null;
+}
+
+function activeChatMessages() {
+  const t = activeChatThread();
+  return t && Array.isArray(t.messages) ? t.messages : [];
+}
+
+function readChatDraftFromDom() {
+  const panel = document.getElementById('chatPanelInput');
+  const expanded = document.getElementById('chatExpandedInput');
+  if (chatMode === 'expanded' && expanded) chatDraftText = expanded.value;
+  else if (panel) chatDraftText = panel.value;
+}
+
+function writeChatDraftToDom(opts) {
+  const force = !!(opts && opts.force);
+  for (const id of ['chatPanelInput', 'chatExpandedInput']) {
+    const el = document.getElementById(id);
+    if (!el || el.value === chatDraftText) continue;
+    // Don't rewrite the focused field while typing — that resets the caret.
+    // force:true is for send/logout clears, which must empty the active box too.
+    if (!force && el === document.activeElement) continue;
+    el.value = chatDraftText;
   }
-  log.scrollTop = log.scrollHeight;
+}
+
+function setChatMode(mode) {
+  readChatDraftFromDom();
+  chatMode = mode;
+  const launcher = document.getElementById('chatLauncher');
+  const panel = document.getElementById('chatPanel');
+  const backdrop = document.getElementById('chatBackdrop');
+  if (!launcher || !panel || !backdrop) return;
+  launcher.hidden = mode !== 'bubble';
+  panel.hidden = mode !== 'panel';
+  backdrop.hidden = mode !== 'expanded';
+  if (mode !== 'bubble') {
+    ensureActiveChatThread();
+    writeChatDraftToDom();
+    renderChatMessages();
+    if (mode === 'expanded') renderChatHistoryList();
+  }
+  if (mode === 'panel') {
+    const input = document.getElementById('chatPanelInput');
+    if (input) setTimeout(() => input.focus(), 50);
+  } else if (mode === 'expanded') {
+    // Desktop: history open by default. Mobile: closed overlay until toggled.
+    const expanded = document.querySelector('.chat-expanded');
+    const pane = document.getElementById('chatHistoryPane');
+    expanded?.classList.remove('history-collapsed');
+    pane?.classList.remove('mobile-open');
+    syncChatHistoryToggleUi();
+    const input = document.getElementById('chatExpandedInput');
+    if (input) setTimeout(() => input.focus(), 50);
+  }
+}
+
+function isChatHistoryMobile() {
+  return window.matchMedia('(max-width: 560px)').matches;
+}
+
+function toggleChatHistory() {
+  const expanded = document.querySelector('.chat-expanded');
+  const pane = document.getElementById('chatHistoryPane');
+  if (!expanded || !pane) return;
+  if (isChatHistoryMobile()) pane.classList.toggle('mobile-open');
+  else expanded.classList.toggle('history-collapsed');
+  syncChatHistoryToggleUi();
+}
+
+function syncChatHistoryToggleUi() {
+  const btn = document.getElementById('chatHistoryToggleBtn');
+  const expanded = document.querySelector('.chat-expanded');
+  const pane = document.getElementById('chatHistoryPane');
+  if (!btn || !expanded || !pane) return;
+  const open = isChatHistoryMobile()
+    ? pane.classList.contains('mobile-open')
+    : !expanded.classList.contains('history-collapsed');
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  btn.title = open ? 'Hide history' : 'Show history';
+}
+
+function ensureActiveChatThread() {
+  if (activeChatThread()) return;
+  if (chatThreads.length) {
+    activeChatThreadId = chatThreads[0].id;
+    return;
+  }
+  startNewChatThread({ selectOnly: true });
+}
+
+function startNewChatThread(opts) {
+  const now = Date.now();
+  const thread = {
+    id: 'c' + now.toString(36) + Math.random().toString(36).slice(2, 7),
+    title: 'New chat',
+    createdAt: now,
+    updatedAt: now,
+    messages: [],
+  };
+  chatThreads.unshift(thread);
+  activeChatThreadId = thread.id;
+  chatDraftText = '';
+  writeChatDraftToDom({ force: true });
+  clearChatImage();
+  if (!opts || !opts.selectOnly) persistActiveChatThread();
+  renderChatHistoryList();
+  renderChatMessages();
+  if (chatMode === 'bubble') setChatMode('panel');
+  else {
+    const inputId = chatMode === 'expanded' ? 'chatExpandedInput' : 'chatPanelInput';
+    const input = document.getElementById(inputId);
+    if (input) setTimeout(() => input.focus(), 50);
+  }
+}
+
+function selectChatThread(id) {
+  if (!chatThreads.some(t => t.id === id)) return;
+  activeChatThreadId = id;
+  document.getElementById('chatHistoryPane')?.classList.remove('mobile-open');
+  syncChatHistoryToggleUi();
+  renderChatHistoryList();
+  renderChatMessages();
+}
+
+function formatChatThreadDate(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+  const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  if (sameDay) return 'Today · ' + time;
+  if (d.toDateString() === yesterday.toDateString()) return 'Yesterday · ' + time;
+  return d.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ' · ' + time;
+}
+
+function formatChatInline(s) {
+  // Escape first, then apply a tiny safe subset (**bold** only).
+  return esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong class="chat-md-strong">$1</strong>');
+}
+
+function chatMarkdownSplitRow(line) {
+  const trimmed = line.trim().replace(/^\|/, '').replace(/\|$/, '');
+  return trimmed.split('|').map(c => c.trim());
+}
+
+function chatMarkdownIsDivider(line) {
+  if (!line || !line.includes('|')) return false;
+  const cells = chatMarkdownSplitRow(line);
+  return cells.length > 0 && cells.every(c => /^:?-{3,}:?$/.test(c));
+}
+
+function formatChatMarkdown(raw) {
+  const lines = String(raw || '').replace(/\r\n/g, '\n').split('\n');
+  const out = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (!line.trim()) { i++; continue; }
+
+    // Markdown table: header | … then |---| then rows
+    if (line.includes('|') && i + 1 < lines.length && chatMarkdownIsDivider(lines[i + 1])) {
+      const headers = chatMarkdownSplitRow(line);
+      i += 2;
+      const rows = [];
+      while (i < lines.length && lines[i].includes('|') && lines[i].trim()) {
+        if (chatMarkdownIsDivider(lines[i])) { i++; continue; }
+        rows.push(chatMarkdownSplitRow(lines[i]));
+        i++;
+      }
+      const th = headers.map(h => `<th>${formatChatInline(h)}</th>`).join('');
+      const tr = rows.map(r => {
+        const cells = headers.map((_, idx) => `<td>${formatChatInline(r[idx] || '')}</td>`).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+      out.push(`<div class="chat-md-table-wrap"><table class="chat-md-table"><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>`);
+      continue;
+    }
+
+    // Bullet list (- or *)
+    if (/^\s*[-*]\s+/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^\s*[-*]\s+/, ''));
+        i++;
+      }
+      out.push(`<ul class="chat-md-ul">${items.map(t => `<li class="chat-md-li">${formatChatInline(t)}</li>`).join('')}</ul>`);
+      continue;
+    }
+
+    // Paragraph until blank / table / list
+    const para = [];
+    while (i < lines.length && lines[i].trim()) {
+      if (lines[i].includes('|') && i + 1 < lines.length && chatMarkdownIsDivider(lines[i + 1])) break;
+      if (/^\s*[-*]\s+/.test(lines[i])) break;
+      para.push(lines[i]);
+      i++;
+    }
+    out.push(`<p class="chat-md-p">${formatChatInline(para.join('\n'))}</p>`);
+  }
+  return out.join('') || `<p class="chat-md-p"></p>`;
+}
+
+function renderChatHistoryList() {
+  const list = document.getElementById('chatHistoryList');
+  if (!list) return;
+  const q = (document.getElementById('chatHistorySearch')?.value || '').trim().toLowerCase();
+  const filtered = q
+    ? chatThreads.filter(t => (t.title || '').toLowerCase().includes(q))
+    : chatThreads;
+  if (!filtered.length) {
+    list.innerHTML = q
+      ? `<div class="chat-history-empty">No chats match “${esc(q)}”</div>`
+      : `<div class="chat-history-empty">No chats yet. Ask something to start.</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(t => `
+    <button class="chat-thread ${t.id === activeChatThreadId ? 'active' : ''}" type="button" onclick="selectChatThread('${t.id}')">
+      <span class="chat-thread-title">${esc(t.title || 'New chat')}</span>
+      <span class="chat-thread-date">${esc(formatChatThreadDate(t.updatedAt))}</span>
+    </button>
+  `).join('');
+}
+
+function renderChatMessages() {
+  const msgs = activeChatMessages();
+  const html = msgs.length
+    ? msgs.map(chatBubbleHtml).join('')
+    : `<div class="chat-empty">Ask about your budget, e.g. "Do we have room this month for a $500 monitor?", or attach a receipt to log an expense.</div>`;
+  for (const id of ['chatPanelLog', 'chatExpandedLog']) {
+    const log = document.getElementById(id);
+    if (!log) continue;
+    log.innerHTML = html;
+    log.scrollTop = log.scrollHeight;
+  }
+  syncChatImagePreview();
 }
 
 function chatBubbleHtml(m, idx) {
@@ -5002,7 +5554,9 @@ function chatBubbleHtml(m, idx) {
   }
   const cls = m.error ? 'chat-msg-error' : 'chat-msg-assistant';
   const searchTag = m.usedSearch ? '<span class="chat-msg-search-tag">🔎 searched the web</span><br>' : '';
-  const textHtml = m.content ? esc(m.content) : '';
+  const textHtml = m.content
+    ? (m.error ? esc(m.content) : formatChatMarkdown(m.content))
+    : '';
   let actionHtml = '';
   if (m.proposedAction) {
     const summary = describeProposedAction(m.proposedAction);
@@ -5030,13 +5584,13 @@ function describeProposedAction(a) {
   const amt = (parseFloat(p.amount) || 0).toFixed(2);
   if (a.type === 'propose_payable') {
     const splitLabel = p.split === 'shared' ? '50/50 shared' : p.split === 'eric' ? "Eric's solo" : "Elly's solo";
-    return `Add payable "${p.name || ''}" — $${amt} (${splitLabel})${p.payTo ? ' → ' + p.payTo : ''}`;
+    return `Add payable "${p.name || ''}" - $${amt} (${splitLabel})${p.payTo ? ' → ' + p.payTo : ''}`;
   }
   if (a.type === 'propose_bill') {
-    return `Add ${p.recurring ? 'recurring ' : ''}bill "${p.name || ''}" — $${amt}, starting ${proposedMonthLabel(p.targetMonth)}${proposedPeriodLabel(p.period)}${p.payTo ? ' → ' + p.payTo : ''}`;
+    return `Add ${p.recurring ? 'recurring ' : ''}bill "${p.name || ''}" - $${amt}, starting ${proposedMonthLabel(p.targetMonth)}${proposedPeriodLabel(p.period)}${p.payTo ? ' → ' + p.payTo : ''}`;
   }
   if (a.type === 'propose_savings_goal') {
-    return `Add ${p.recurring ? 'recurring ' : ''}savings goal "${p.name || ''}" — $${amt}/period, starting ${proposedMonthLabel(p.targetMonth)}${proposedPeriodLabel(p.period)}`;
+    return `Add ${p.recurring ? 'recurring ' : ''}savings goal "${p.name || ''}" - $${amt}/period, starting ${proposedMonthLabel(p.targetMonth)}${proposedPeriodLabel(p.period)}`;
   }
   return 'Proposed action';
 }
@@ -5057,11 +5611,8 @@ function proposedPeriodLabel(rawPeriod) {
   return period === 1 ? ', second fortnight' : ', first fortnight';
 }
 
-// Claude only accepts jpeg/png/gif/webp and iPhones shoot HEIC, so every photo
-// is re-encoded to JPEG in the browser — that fixes the format and the payload
-// size in one pass. Steps are tried in order until the base64 fits the cap.
-const CHAT_IMAGE_MAX_FILE_BYTES = 30 * 1024 * 1024; // cheap guard before we try to decode
-const CHAT_IMAGE_MAX_BASE64_LEN = 5000000;          // mirrors MAX_IMAGE_BASE64_LEN in functions/index.js
+const CHAT_IMAGE_MAX_FILE_BYTES = 30 * 1024 * 1024;
+const CHAT_IMAGE_MAX_BASE64_LEN = 5000000; // mirrors MAX_IMAGE_BASE64_LEN in functions/index.js
 const CHAT_IMAGE_ENCODE_STEPS = [
   { maxEdge: 1600, quality: 0.85 },
   { maxEdge: 1280, quality: 0.8 },
@@ -5079,7 +5630,6 @@ async function onChatImageSelected(evt) {
   try {
     source = await decodeImageFile(file);
   } catch (err) {
-    // Desktop browsers offer HEIC in the picker but can't decode it.
     showToast("⚠ Can't read that image format — convert it to JPEG and try again");
     return;
   }
@@ -5089,15 +5639,12 @@ async function onChatImageSelected(evt) {
   if (!encoded) { showToast('⚠ That photo is too detailed to send — try a tighter crop'); return; }
 
   pendingChatImage = { mediaType: 'image/jpeg', data: encoded.data };
-  document.getElementById('chatImagePreviewImg').src = encoded.dataUrl;
-  document.getElementById('chatImagePreview').style.display = 'flex';
+  pendingChatImageDataUrl = encoded.dataUrl;
+  syncChatImagePreview();
 }
 
-// Resolves to an ImageBitmap or <img> the canvas can draw; rejects if the
-// browser can't decode the format at all.
 function decodeImageFile(file) {
   if (window.createImageBitmap) {
-    // 'from-image' honours EXIF rotation — iPhone receipts are usually rotated.
     return createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => decodeImageFileViaElement(file));
   }
   return decodeImageFileViaElement(file);
@@ -5113,8 +5660,6 @@ function decodeImageFileViaElement(file) {
   });
 }
 
-// Returns {dataUrl, data} for the first step that fits under the server's cap,
-// or null if even the smallest one doesn't.
 function encodeChatImageToJpeg(source) {
   for (const step of CHAT_IMAGE_ENCODE_STEPS) {
     const dataUrl = drawImageToJpegDataUrl(source, step.maxEdge, step.quality);
@@ -5132,108 +5677,280 @@ function drawImageToJpegDataUrl(source, maxEdge, quality) {
   canvas.width  = Math.max(1, Math.round(srcW * scale));
   canvas.height = Math.max(1, Math.round(srcH * scale));
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#fff'; // JPEG has no alpha; without this, transparency turns black
+  ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL('image/jpeg', quality);
 }
 
-function clearChatImage() {
-  pendingChatImage = null;
-  document.getElementById('chatImagePreview').style.display = 'none';
+function syncChatImagePreview() {
+  const pairs = [
+    ['chatPanelImagePreview', 'chatPanelImagePreviewImg'],
+    ['chatExpandedImagePreview', 'chatExpandedImagePreviewImg'],
+  ];
+  for (const [wrapId, imgId] of pairs) {
+    const wrap = document.getElementById(wrapId);
+    const img = document.getElementById(imgId);
+    if (!wrap || !img) continue;
+    if (pendingChatImage && pendingChatImageDataUrl) {
+      img.src = pendingChatImageDataUrl;
+      wrap.classList.add('is-visible');
+    } else {
+      wrap.classList.remove('is-visible');
+      img.removeAttribute('src');
+    }
+  }
 }
 
-async function sendChatMessage() {
+function clearChatImage() {
+  pendingChatImage = null;
+  pendingChatImageDataUrl = null;
+  syncChatImagePreview();
+}
+
+function setChatBusy(busy) {
+  chatBusy = busy;
+  for (const id of ['chatPanelSendBtn', 'chatExpandedSendBtn']) {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = busy;
+  }
+}
+
+function showChatThinking() {
+  const html = `<div class="chat-thinking" aria-live="polite"><div class="chat-thinking-dots" aria-hidden="true"><span></span><span></span><span></span></div>Thinking</div>`;
+  for (const id of ['chatPanelLog', 'chatExpandedLog']) {
+    const log = document.getElementById(id);
+    if (!log) continue;
+    log.insertAdjacentHTML('beforeend', html);
+    log.scrollTop = log.scrollHeight;
+  }
+}
+
+function titleFromChatText(text) {
+  const clean = (text || '').replace(/\s+/g, ' ').trim();
+  if (!clean) return 'New chat';
+  return clean.length > 40 ? clean.slice(0, 40) + '…' : clean;
+}
+
+async function sendChatMessage(source) {
   if (chatBusy) return;
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
+  ensureActiveChatThread();
+  const inputId = source === 'expanded' ? 'chatExpandedInput' : 'chatPanelInput';
+  const input = document.getElementById(inputId);
+  const text = (input?.value || '').trim();
   const image = pendingChatImage;
   if (!text && !image) return;
   if (!window._chatFinancesCallable) { showToast('Chat is still connecting — try again in a moment'); return; }
 
-  chatHistory.push({ role: 'user', content: text || '(receipt image attached)', hadImage: !!image });
-  input.value = '';
-  clearChatImage();
-  chatBusy = true;
-  document.getElementById('chatSendBtn').disabled = true;
-  renderChat();
+  let thread = activeChatThread();
+  if (!thread) return;
+  if (!Array.isArray(thread.messages)) thread.messages = [];
+  const threadId = thread.id;
+  chatDirtyThreadIds.add(threadId);
 
-  const log = document.getElementById('chatLog');
-  const thinkingEl = document.createElement('div');
-  thinkingEl.className = 'chat-msg chat-msg-assistant';
-  thinkingEl.id = 'chatThinking';
-  thinkingEl.textContent = 'Thinking…';
-  log.appendChild(thinkingEl);
-  log.scrollTop = log.scrollHeight;
+  thread.messages.push({ role: 'user', content: text || '(receipt image attached)', hadImage: !!image });
+  if (thread.title === 'New chat') thread.title = titleFromChatText(text || 'Receipt');
+  thread.updatedAt = Date.now();
+  chatDraftText = '';
+  writeChatDraftToDom({ force: true });
+  clearChatImage();
+  setChatBusy(true);
+  renderChatHistoryList();
+  renderChatMessages();
+  showChatThinking();
 
   try {
-    const payload = { messages: chatHistory.map(m => ({ role: m.role, content: m.content })) };
+    await persistChatThread(thread);
+    const payload = {
+      messages: thread.messages
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .slice(-20)
+        .map(m => ({ role: m.role, content: m.content })),
+    };
     if (image) payload.image = image;
     const result = await window._chatFinancesCallable(payload);
-    chatHistory.push({
+    // Re-resolve after await — dirty merge keeps this thread object's identity.
+    thread = chatThreads.find(t => t.id === threadId) || thread;
+    if (!Array.isArray(thread.messages)) thread.messages = [];
+    thread.messages.push({
       role: 'assistant',
       content: result.data.reply || (result.data.proposedAction ? '(proposed an action)' : ''),
-      usedSearch: result.data.usedSearch,
+      usedSearch: !!result.data.usedSearch,
       proposedAction: result.data.proposedAction || null,
     });
   } catch (err) {
-    chatHistory.push({ role: 'assistant', content: err.message || 'Something went wrong — try again.', error: true });
+    thread = chatThreads.find(t => t.id === threadId) || thread;
+    if (!Array.isArray(thread.messages)) thread.messages = [];
+    const last = thread.messages[thread.messages.length - 1];
+    if (!last || last.role !== 'assistant') {
+      thread.messages.push({ role: 'assistant', content: err.message || 'Something went wrong — try again.', error: true });
+    }
   } finally {
-    chatBusy = false;
-    document.getElementById('chatSendBtn').disabled = false;
-    renderChat();
-    document.getElementById('chatInput').focus();
+    thread = chatThreads.find(t => t.id === threadId) || thread;
+    thread.updatedAt = Date.now();
+    setChatBusy(false);
+    renderChatHistoryList();
+    renderChatMessages();
+    try {
+      await persistChatThread(thread);
+      chatDirtyThreadIds.delete(threadId);
+    } catch (err) {
+      // Keep dirty so a listener snapshot cannot wipe the unsaved reply.
+      showToast('Reply received, but saving the chat failed — keep this tab open');
+      console.warn('Could not save chat thread', err);
+    }
+    const focusEl = document.getElementById(inputId);
+    if (focusEl) focusEl.focus();
   }
 }
 
 async function confirmProposedAction(idx) {
-  const m = chatHistory[idx];
-  if (!m || !m.proposedAction || m.actionStatus) return;
+  const threadId = activeChatThreadId;
+  let thread = activeChatThread();
+  const m = thread && Array.isArray(thread.messages) ? thread.messages[idx] : null;
+  if (!thread || !m || !m.proposedAction || m.actionStatus) return;
+  chatDirtyThreadIds.add(threadId);
   m.actionStatus = 'pending';
-  renderChat();
+  renderChatMessages();
   try {
     const result = await window._executeProposedActionCallable({ type: m.proposedAction.type, params: m.proposedAction.params });
-    m.actionStatus = 'confirmed';
-    m.actionResultSummary = result.data.summary;
+    thread = chatThreads.find(t => t.id === threadId) || thread;
+    const fresh = thread.messages[idx];
+    if (fresh && fresh.proposedAction) {
+      fresh.actionStatus = 'confirmed';
+      fresh.actionResultSummary = result.data.summary;
+    }
   } catch (err) {
-    m.actionStatus = null;
+    thread = chatThreads.find(t => t.id === threadId) || thread;
+    const fresh = thread.messages && thread.messages[idx];
+    if (fresh) fresh.actionStatus = null;
     showToast(err.message || 'Could not complete that — try again');
+  } finally {
+    thread = chatThreads.find(t => t.id === threadId) || thread;
+    if (thread) {
+      thread.updatedAt = Date.now();
+      renderChatMessages();
+      try {
+        await persistChatThread(thread);
+        chatDirtyThreadIds.delete(threadId);
+      } catch (err) {
+        // Keep dirty so a resync cannot resurrect a Confirm card after a successful write.
+        showToast('Saved in this tab, but sync failed — keep this tab open');
+        console.warn('Could not save chat thread', err);
+      }
+    } else {
+      chatDirtyThreadIds.delete(threadId);
+    }
   }
-  renderChat();
 }
 
-function cancelProposedAction(idx) {
-  const m = chatHistory[idx];
-  if (!m || !m.proposedAction || m.actionStatus) return;
+async function cancelProposedAction(idx) {
+  const threadId = activeChatThreadId;
+  let thread = activeChatThread();
+  const m = thread && Array.isArray(thread.messages) ? thread.messages[idx] : null;
+  if (!thread || !m || !m.proposedAction || m.actionStatus) return;
+  chatDirtyThreadIds.add(threadId);
   m.actionStatus = 'cancelled';
-  renderChat();
+  thread.updatedAt = Date.now();
+  renderChatMessages();
+  try {
+    await persistChatThread(thread);
+    chatDirtyThreadIds.delete(threadId);
+  } catch (err) {
+    console.warn('Could not save chat thread', err);
+    showToast('Could not save chat history. Your cancel is still on screen — try again shortly.', true);
+  }
+}
+
+function persistChatThread(thread) {
+  const path = chatThreadsPath();
+  if (!path || !thread || !fbReady || !window._dbSet) return Promise.resolve();
+  // Don't persist receipt image bytes — only the hadImage flag travels with the message.
+  // Never persist mid-flight confirm state as "pending" across reloads.
+  const clean = {
+    id: thread.id,
+    title: thread.title || 'New chat',
+    createdAt: thread.createdAt || Date.now(),
+    updatedAt: thread.updatedAt || Date.now(),
+    messages: (thread.messages || []).map(m => {
+      const actionStatus = m.actionStatus === 'pending' ? null : m.actionStatus;
+      return {
+        role: m.role,
+        content: m.content || '',
+        ...(m.hadImage ? { hadImage: true } : {}),
+        ...(m.usedSearch ? { usedSearch: true } : {}),
+        ...(m.error ? { error: true } : {}),
+        ...(m.proposedAction ? { proposedAction: m.proposedAction } : {}),
+        ...(actionStatus ? { actionStatus } : {}),
+        ...(m.actionResultSummary && actionStatus === 'confirmed' ? { actionResultSummary: m.actionResultSummary } : {}),
+      };
+    }),
+  };
+  return window._dbSet(dbPath(`${path}/${thread.id}`), clean);
+}
+
+function persistActiveChatThread() {
+  return persistChatThread(activeChatThread());
+}
+
+function mergeChatThreadFromRemote(remote, local) {
+  // Keep the local object identity and in-memory messages when this thread is
+  // dirty (send/confirm in flight). Still take newer remote title if set.
+  if (!local) {
+    if (!Array.isArray(remote.messages)) remote.messages = remote.messages ? Object.values(remote.messages) : [];
+    return remote;
+  }
+  if (chatDirtyThreadIds.has(local.id)) {
+    if (remote.title && remote.title !== 'New chat') local.title = remote.title;
+    local.updatedAt = Math.max(local.updatedAt || 0, remote.updatedAt || 0);
+    return local;
+  }
+  local.title = remote.title || local.title;
+  local.createdAt = remote.createdAt || local.createdAt;
+  local.updatedAt = remote.updatedAt || local.updatedAt;
+  local.messages = Array.isArray(remote.messages)
+    ? remote.messages
+    : (remote.messages ? Object.values(remote.messages) : []);
+  return local;
+}
+
+function listenChatThreads() {
+  if (!fbReady || !window._dbOnValue) return;
+  const path = chatThreadsPath();
+  if (!path) return;
+  if (chatThreadsUnsub) chatThreadsUnsub();
+  chatThreadsUnsub = window._dbOnValue(dbPath(path), snap => {
+    const val = snap.val();
+    const remoteList = val
+      ? (Array.isArray(val) ? val.filter(Boolean) : Object.values(val)).filter(t => t && t.id)
+      : [];
+    const byId = new Map(chatThreads.map(t => [t.id, t]));
+    const merged = remoteList.map(remote => mergeChatThreadFromRemote(remote, byId.get(remote.id)));
+    // Keep dirty local-only threads that haven't hit the server yet.
+    for (const local of chatThreads) {
+      if (chatDirtyThreadIds.has(local.id) && !merged.some(t => t.id === local.id)) merged.push(local);
+    }
+    merged.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    chatThreads = merged;
+    chatThreadsLoaded = true;
+    if (!activeChatThreadId || !chatThreads.some(t => t.id === activeChatThreadId)) {
+      activeChatThreadId = chatThreads[0]?.id || null;
+    }
+    renderChatHistoryList();
+    if (chatMode !== 'bubble') {
+      if (!chatBusy) renderChatMessages();
+      else {
+        // Keep thinking indicator: re-paint messages then re-append thinking.
+        renderChatMessages();
+        showChatThinking();
+      }
+    }
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════
-
-// The tab bar wraps on narrow screens and the banners above it come and go, so
-// the pinned top of the page has no fixed height. Publish the measured height
-// so full-height panes (the chat) size themselves off one source of truth.
-const STICKY_TOP_SELECTOR = '#impersonate-banner, #perm-error-banner, .sticky-header';
-
-function trackStickyHeaderHeight() {
-  const pinned = document.querySelectorAll(STICKY_TOP_SELECTOR);
-  if (!pinned.length) return;
-  const apply = () => {
-    let total = 0;
-    pinned.forEach(el => { total += el.offsetHeight; });
-    document.documentElement.style.setProperty('--sticky-header-height', total + 'px');
-  };
-  apply();
-  if (window.ResizeObserver) {
-    const observer = new ResizeObserver(apply);
-    pinned.forEach(el => observer.observe(el));
-  } else {
-    window.addEventListener('resize', apply);
-  }
-}
 
 function init() {
   const hadData = load();
@@ -5247,15 +5964,15 @@ function init() {
   updatePayablesBadge();
 
   applyAdminSettings();
-  trackStickyHeaderHeight();
   switchTab('monthly');
+  setChatMode('bubble');
 
   // Start Firebase listeners (if Firebase is ready, otherwise they fire after firebaseReady event)
   if (fbReady) {
-    listenBudget(); listenPayables(); listenAdminSettings();
+    listenBudget(); listenPayables(); listenAdminSettings(); listenChatThreads();
   } else {
     document.addEventListener('firebaseReady', () => {
-      listenBudget(); listenPayables(); listenAdminSettings();
+      listenBudget(); listenPayables(); listenAdminSettings(); listenChatThreads();
     }, { once: true });
   }
 }

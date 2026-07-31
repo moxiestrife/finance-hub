@@ -22,9 +22,11 @@ const DAILY_MESSAGE_LIMIT = 30;
 const MAX_HISTORY_MESSAGES = 20;
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_RESPONSE_TOKENS = 2048;
-// Payables accumulate forever, so only the recent tail goes into the prompt —
-// otherwise cost and latency grow with lifetime history.
-const MAX_PAYABLES_IN_CONTEXT = 40;
+// Settled history stays out of the default prompt; open rows + owing totals stay in.
+const MAX_RECENT_PAYABLES_IN_CONTEXT = 40;
+const MAX_OPEN_PAYABLES_IN_CONTEXT = 150;
+const MAX_SEARCH_RESULTS = 50;
+const MAX_LOOKUP_ROUNDS = 3;
 // Claude accepts only these four; the client re-encodes anything else (e.g. iPhone
 // HEIC) to JPEG before upload.
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -42,11 +44,37 @@ const PERIOD_LABELS = ['first', 'second', 'third'];
 // would point "this month" at the wrong budget.
 const HOUSEHOLD_TIME_ZONE = 'Australia/Sydney';
 
-const CUSTOM_TOOL_NAMES = new Set(['propose_payable', 'propose_bill', 'propose_savings_goal']);
+const PROPOSE_TOOL_NAMES = new Set(['propose_payable', 'propose_bill', 'propose_savings_goal']);
+const LOOKUP_TOOL_NAMES = new Set(['search_payables', 'get_budget_month']);
 
 const TOOLS = [
-  // max_uses caps what a single question can spend on search.
-  { type: 'web_search_20260209', name: 'web_search', max_uses: 5 },
+  // Direct search only — the default dynamic-filtering path spins up code
+  // execution and can push a cold start past the function timeout.
+  { type: 'web_search_20260209', name: 'web_search', max_uses: 3, allowed_callers: ['direct'] },
+  {
+    name: 'search_payables',
+    description: 'Search ALL payables (including settled and older than the recent list) by name substring. Use for questions like "how much did we pay for Limey Counselling" or any named expense that may not appear in openPayables/recentEntries.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Case-insensitive name substring, e.g. "Limey"' },
+        limit: { type: 'integer', description: 'Max matches to return (default 20, max 50)' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'get_budget_month',
+    description: 'Load one month of budget detail for Elly and/or Eric. Use when the user asks about a month other than currentMonthKey. Month must already exist (see availableMonths).',
+    input_schema: {
+      type: 'object',
+      properties: {
+        month: { type: 'string', description: 'YYYY-MM' },
+        whose: { type: 'string', enum: ['elly', 'eric', 'both'], description: 'Whose budget to load. Default both.' },
+      },
+      required: ['month'],
+    },
+  },
   {
     name: 'propose_payable',
     description: 'Propose adding a shared household expense (a "payable") between Elly and Eric. This does not write anything by itself — the app shows the user a confirmation card and only saves it if they approve. Call this whenever the user asks to add, log, or split an expense between them, including from a receipt photo.',
@@ -140,21 +168,145 @@ async function refundMessage(rlRef) {
   }
 }
 
-function recentPayables(payables) {
+function roundMoney(n) {
+  return Math.round((Number(n) || 0) * 100) / 100;
+}
+
+// Mirrors pMyShare / pEricShare / pIsEllyDone / pIsEricDone in index.html.
+function ellyShare(e) {
+  const full = Number(e && e.fullAmount) || 0;
+  if (!e || e.split === 'eric') return 0;
+  return e.split === 'shared' ? full / 2 : full;
+}
+function ericShare(e) {
+  const full = Number(e && e.fullAmount) || 0;
+  if (!e || e.split === 'mine') return 0;
+  return e.split === 'shared' ? full / 2 : full;
+}
+function ellyOpen(e) {
+  return !!(e && e.split !== 'eric' && !e.ellyDone);
+}
+function ericOpen(e) {
+  return !!(e && e.split !== 'mine' && !e.ericDone);
+}
+
+function compactPayable(e) {
+  return {
+    name: (e && e.name) || '',
+    date: (e && e.date) || '',
+    split: (e && e.split) || '',
+    fullAmount: roundMoney(e && e.fullAmount),
+    ellyShare: roundMoney(ellyShare(e)),
+    ericShare: roundMoney(ericShare(e)),
+    ellyStatus: !e || e.split === 'eric' ? 'n/a' : (e.ellyDone ? 'settled' : 'open'),
+    ericStatus: !e || e.split === 'mine' ? 'n/a' : (e.ericDone ? 'settled' : 'open'),
+    payTo: (e && e.payTo) || '',
+  };
+}
+
+function owingFor(entries, whose) {
+  let pendingCount = 0;
+  let amountOwed = 0;
+  for (const e of entries) {
+    if (!e) continue;
+    if (whose === 'elly') {
+      if (!ellyOpen(e)) continue;
+      pendingCount += 1;
+      amountOwed += ellyShare(e);
+    } else {
+      if (!ericOpen(e)) continue;
+      pendingCount += 1;
+      amountOwed += ericShare(e);
+    }
+  }
+  return { pendingCount, amountOwed: roundMoney(amountOwed) };
+}
+
+function bucketFullAmounts(entries) {
+  const out = { count: 0, sumFullAmount: 0 };
+  for (const e of entries) {
+    if (!e) continue;
+    out.count += 1;
+    out.sumFullAmount += Number(e.fullAmount) || 0;
+  }
+  out.sumFullAmount = roundMoney(out.sumFullAmount);
+  return out;
+}
+
+// Owing totals match the Payables tab "I owe" cards (share-based, not fullAmount).
+function summarisePayables(entries) {
+  const bySplit = { shared: [], mine: [], eric: [], other: [] };
+  for (const e of entries) {
+    if (!e) continue;
+    const key = Object.prototype.hasOwnProperty.call(bySplit, e.split) ? e.split : 'other';
+    bySplit[key].push(e);
+  }
+  return {
+    totalCount: entries.length,
+    all: bucketFullAmounts(entries),
+    bySplit: {
+      shared: bucketFullAmounts(bySplit.shared),
+      mine: bucketFullAmounts(bySplit.mine),
+      eric: bucketFullAmounts(bySplit.eric),
+      ...(bySplit.other.length ? { other: bucketFullAmounts(bySplit.other) } : {}),
+    },
+    owing: {
+      elly: owingFor(entries, 'elly'),
+      eric: owingFor(entries, 'eric'),
+      note: 'amountOwed is each person\'s share of open items — same as the Payables tab. Shared items count half; solo items count in full for that person only.',
+    },
+  };
+}
+
+function buildPayablesContext(payables) {
   if (!payables) return null;
   const entries = toList(payables.entries);
-  if (entries.length <= MAX_PAYABLES_IN_CONTEXT) return payables;
-  const recent = entries
+  const summary = summarisePayables(entries);
+  const openAll = entries
+    .filter((e) => ellyOpen(e) || ericOpen(e))
+    .sort((a, b) => ((b && b.createdAt) || 0) - ((a && a.createdAt) || 0));
+  const openPayables = openAll.slice(0, MAX_OPEN_PAYABLES_IN_CONTEXT).map(compactPayable);
+  const recentEntries = entries
     .slice()
     .sort((a, b) => ((b && b.createdAt) || 0) - ((a && a.createdAt) || 0))
-    .slice(0, MAX_PAYABLES_IN_CONTEXT);
-  return { ...payables, entries: recent, olderEntriesOmitted: entries.length - recent.length };
+    .slice(0, MAX_RECENT_PAYABLES_IN_CONTEXT)
+    .map(compactPayable);
+  return {
+    summary,
+    openPayables,
+    openPayablesOmitted: Math.max(0, openAll.length - openPayables.length),
+    recentEntries,
+    recentEntriesOmitted: Math.max(0, entries.length - recentEntries.length),
+    note: 'Use summary.owing for "how much do I/we owe" — it matches the Payables tab. openPayables lists open rows with each person\'s share. For a named older/settled expense, call search_payables.',
+  };
+}
+
+function searchPayablesEntries(entries, query, limit) {
+  const q = String(query || '').trim().toLowerCase();
+  if (!q) return { matches: [], totalMatches: 0 };
+  const capped = Math.min(Math.max(parseInt(limit, 10) || 20, 1), MAX_SEARCH_RESULTS);
+  const hits = entries.filter((e) => e && String(e.name || '').toLowerCase().includes(q));
+  return {
+    query: q,
+    totalMatches: hits.length,
+    matches: hits
+      .slice()
+      .sort((a, b) => ((b && b.createdAt) || 0) - ((a && a.createdAt) || 0))
+      .slice(0, capped)
+      .map(compactPayable),
+    omitted: Math.max(0, hits.length - capped),
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════
 //  chatFinances — read-only Q&A + proposes writes (never executes them)
 // ═══════════════════════════════════════════════════════════════
-exports.chatFinances = onCall({ secrets: [anthropicApiKey], region: 'asia-southeast1' }, async (request) => {
+exports.chatFinances = onCall({
+  secrets: [anthropicApiKey],
+  region: 'asia-southeast1',
+  timeoutSeconds: 120,
+  memory: '512MiB',
+}, async (request) => {
   const user = requireAuthorisedUser(request);
 
   const messages = Array.isArray(request.data && request.data.messages) ? request.data.messages : null;
@@ -200,39 +352,97 @@ exports.chatFinances = onCall({ secrets: [anthropicApiKey], region: 'asia-southe
   }
 
   let response;
+  let usedSearch = false;
   try {
-    const [ellySnap, ericSnap, payablesSnap] = await Promise.all([
+    logger.info('chatFinances: loading budget context', { user: user.key, month: mKey });
+    const [ellySnap, ericSnap, payablesSnap, ellyMonthsSnap, ericMonthsSnap] = await Promise.all([
       db.ref(`finance-hub/budget/months/${mKey}`).get(),
       db.ref(`finance-hub/eric-budget/months/${mKey}`).get(),
       db.ref('finance-hub/payables').get(),
+      db.ref('finance-hub/budget/months').get(),
+      db.ref('finance-hub/eric-budget/months').get(),
     ]);
+
+    const allPayableEntries = toList(payablesSnap.val() && payablesSnap.val().entries);
+    const ellyMonths = ellyMonthsSnap.val() || {};
+    const ericMonths = ericMonthsSnap.val() || {};
 
     const budgetContext = {
       currentMonth: mKey,
       askingUser: user.key,
+      availableMonths: {
+        elly: Object.keys(ellyMonths).sort(),
+        eric: Object.keys(ericMonths).sort(),
+      },
       ellyBudgetThisMonth: ellySnap.val() || null,
       ericBudgetThisMonth: ericSnap.val() || null,
-      payables: recentPayables(payablesSnap.val()),
+      payables: buildPayablesContext(payablesSnap.val()),
     };
 
-    const systemPrompt = `You are a household finance assistant for Elly and Eric, embedded in their private budgeting app "Finance Hub". You are currently answering ${user.key === 'elly' ? 'Elly' : 'Eric'}.
+    const runLookupTool = (name, input) => {
+      if (name === 'search_payables') {
+        return searchPayablesEntries(allPayableEntries, input && input.query, input && input.limit);
+      }
+      if (name === 'get_budget_month') {
+        const month = String((input && input.month) || '').trim();
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
+          return { error: 'month must be YYYY-MM' };
+        }
+        const whose = (input && input.whose) || 'both';
+        const out = { month };
+        if (whose === 'elly' || whose === 'both') {
+          out.elly = Object.prototype.hasOwnProperty.call(ellyMonths, month) ? ellyMonths[month] : null;
+          if (out.elly === null) out.ellyMissing = true;
+        }
+        if (whose === 'eric' || whose === 'both') {
+          out.eric = Object.prototype.hasOwnProperty.call(ericMonths, month) ? ericMonths[month] : null;
+          if (out.eric === null) out.ericMissing = true;
+        }
+        return out;
+      }
+      return { error: 'Unknown lookup tool' };
+    };
+
+    const instructions = `You are a household finance assistant for Elly and Eric, embedded in their private budgeting app "Finance Hub". You are currently answering ${user.key === 'elly' ? 'Elly' : 'Eric'}.
 
 Today's date: ${dateKey}. currentMonthKey: ${mKey}. nextMonthKey: ${nKey}. Use these to resolve relative months like "this month" or "starting next month" into a concrete "YYYY-MM" value for tool calls — don't do the arithmetic yourself from guesswork.
 
 Use the JSON budget data below to answer questions about their income, bills, savings, and spending. Amounts are in AUD. Periods are fortnightly pay cycles unless noted otherwise (Eric's budget has a single monthly period, index 0). "bills" are recurring or one-off expenses; "savingsGoals" are money set aside toward goals.
 
+Payables (critical):
+- payables.summary.owing.elly / .eric match the Payables tab "I owe" totals (each person's share of open items). Always use those for "how much do I/we owe" — never invent an amount from a partial list.
+- Shared = half each; Elly solo (split mine) counts only for Elly; Eric solo counts only for Eric.
+- openPayables has open rows with ellyShare/ericShare. recentEntries is a recent sample. Settled/older named items: call search_payables.
+- Other months: call get_budget_month with YYYY-MM from availableMonths.
+
 When asked about affordability (e.g. "can we afford X"), do the arithmetic explicitly using the numbers provided — income minus committed bills/savings minus existing spend — and show your reasoning briefly. For questions involving loans, interest rates, or current market conditions, use web search to find up-to-date figures and say what you found and its source; state any assumptions clearly.
 
 You can propose changes with the propose_payable, propose_bill, and propose_savings_goal tools whenever the user asks to add, log, split, or set up an expense, bill, or savings goal — including from a receipt photo they attach. These tools never write anything directly: the app always shows the user a confirmation card and only saves it if they approve. So call the tool confidently rather than just describing what you would do — the confirmation step is the safety net, not you. If a receipt image is attached, read the merchant, amount, and date from it before proposing, and mention what you read.
 
-Keep answers concise and conversational — this is a chat, not a report.
+Keep answers concise and conversational; this is a chat, not a report. Do not use em dashes (—) in your replies; use commas, periods, or hyphens instead.
 
-Budget data (JSON):
-${JSON.stringify(budgetContext)}`;
+Formatting (the app renders Markdown bullets and tables — use them):
+- For 2+ items that have amounts, shares, halves, or status, you MUST use a Markdown pipe table, not a dashed list. Example:
+| Item | Amount | Status |
+| --- | --- | --- |
+| Monster Truck tickets | $167 | Open |
+- Separate each person or section with a short **bold** heading, then its own table.
+- Use "- " bullet lists only for simple single-column points (no amounts/columns).
+- Keep tables compact; money as $X or $X.XX. Say "open" / "settled" — never dump raw fields like ericDone or ellyDone.`;
+
+    const systemBlocks = [
+      { type: 'text', text: instructions },
+      {
+        type: 'text',
+        text: `Budget data (JSON):\n${JSON.stringify(budgetContext)}`,
+        // Cache multi-turn chat within ~5 minutes so repeat questions don't re-bill the full context.
+        cache_control: { type: 'ephemeral' },
+      },
+    ];
 
     const anthropic = new Anthropic({ apiKey: anthropicApiKey.value() });
 
-    const anthropicMessages = trimmedHistory.map((m) => ({ role: m.role, content: m.content }));
+    let anthropicMessages = trimmedHistory.map((m) => ({ role: m.role, content: m.content }));
     if (imageBlock && anthropicMessages.length > 0) {
       const last = anthropicMessages[anthropicMessages.length - 1];
       if (last.role === 'user') {
@@ -240,14 +450,49 @@ ${JSON.stringify(budgetContext)}`;
       }
     }
 
-    response = await anthropic.messages.create({
-      model: 'claude-sonnet-5',
-      max_tokens: MAX_RESPONSE_TOKENS,
-      output_config: { effort: 'medium' },
-      system: systemPrompt,
-      tools: TOOLS,
-      messages: anthropicMessages,
-    });
+    for (let round = 0; round < MAX_LOOKUP_ROUNDS; round++) {
+      logger.info('chatFinances: calling Anthropic', {
+        history: anthropicMessages.length, hasImage: !!imageBlock, round,
+      });
+      response = await anthropic.messages.create({
+        model: 'claude-sonnet-5',
+        max_tokens: MAX_RESPONSE_TOKENS,
+        output_config: { effort: 'low' },
+        system: systemBlocks,
+        tools: TOOLS,
+        messages: anthropicMessages,
+      });
+      const searchRequests = response.usage?.server_tool_use?.web_search_requests;
+      if ((typeof searchRequests === 'number' && searchRequests > 0)
+        || response.content.some((b) => b.type === 'server_tool_use' && b.name === 'web_search')) {
+        usedSearch = true;
+      }
+      logger.info('chatFinances: Anthropic returned', {
+        stopReason: response.stop_reason,
+        round,
+        searchRequests: searchRequests || 0,
+      });
+
+      const lookupUses = response.content.filter((b) => b.type === 'tool_use' && LOOKUP_TOOL_NAMES.has(b.name));
+      const proposeUses = response.content.filter((b) => b.type === 'tool_use' && PROPOSE_TOOL_NAMES.has(b.name));
+      // Never continue the loop if a propose tool is present — the API requires a
+      // tool_result for every tool_use, and proposes are handled by the client confirm card.
+      if (proposeUses.length || !lookupUses.length) break;
+      if (round === MAX_LOOKUP_ROUNDS - 1) break;
+
+      anthropicMessages = [
+        ...anthropicMessages,
+        { role: 'assistant', content: response.content },
+        {
+          role: 'user',
+          content: lookupUses.map((tu) => ({
+            type: 'tool_result',
+            tool_use_id: tu.id,
+            content: JSON.stringify(runLookupTool(tu.name, tu.input || {})),
+          })),
+        },
+      ];
+    }
   } catch (err) {
     await refundMessage(rlRef);
     if (err instanceof HttpsError) throw err;
@@ -260,13 +505,7 @@ ${JSON.stringify(budgetContext)}`;
   }
 
   const textParts = response.content.filter((b) => b.type === 'text').map((b) => b.text);
-  // Dynamic filtering runs search from inside code execution, so its
-  // server_tool_use blocks are nested rather than top-level — the usage counter
-  // is the only reliable signal; the content scan just covers the unnested case.
-  const searchRequests = response.usage?.server_tool_use?.web_search_requests;
-  const usedSearch = (typeof searchRequests === 'number' && searchRequests > 0)
-    || response.content.some((b) => b.type === 'server_tool_use' && b.name === 'web_search');
-  const toolUseBlock = response.content.find((b) => b.type === 'tool_use' && CUSTOM_TOOL_NAMES.has(b.name));
+  const proposeBlock = response.content.find((b) => b.type === 'tool_use' && PROPOSE_TOOL_NAMES.has(b.name));
 
   // Running out of tokens can stop a turn mid tool_use, leaving the proposal's
   // params half-written. Asking again beats asking someone to approve an amount
@@ -282,11 +521,21 @@ ${JSON.stringify(budgetContext)}`;
     };
   }
 
-  if (toolUseBlock) {
+  if (proposeBlock) {
     return {
       reply: textParts.join('\n\n').trim(),
       usedSearch,
-      proposedAction: { type: toolUseBlock.name, params: toolUseBlock.input },
+      proposedAction: { type: proposeBlock.name, params: proposeBlock.input },
+    };
+  }
+
+  // Stray lookup tool_use with no final text (hit round cap) — don't surface a blank card.
+  if (response.content.some((b) => b.type === 'tool_use' && LOOKUP_TOOL_NAMES.has(b.name))) {
+    return {
+      reply: textParts.join('\n\n').trim()
+        || "I looked that up but ran out of steps — try asking again with a slightly narrower question.",
+      usedSearch,
+      proposedAction: null,
     };
   }
 

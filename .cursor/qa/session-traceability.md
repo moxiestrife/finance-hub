@@ -4,9 +4,21 @@
 
 ## Task summary
 
-Code-review remediation on the AI Chat branch: correct web-search detection, stop failed API calls consuming the daily quota, make both chat-initiated writes atomic, refuse to fabricate months, and normalise receipt photos to JPEG in the browser. Chat CSS moved onto shared tokens and the chat pane now sizes off a measured sticky-header height.
+Code-review remediation on the AI Chat branch, then product UX: replace the Chat tab with a corner chat widget (bubble → compact panel → expanded overlay with History + search) and persist threads per Google account under `/chats/{uid}`.
 
 **Second pass (after Rose run 2 returned FAIL):** stop creating pay periods, preserve object-shaped lists on write, move all server date arithmetic onto the household's Sydney clock, and close a set of smaller gaps Rose surfaced (quota refunds on database failure, verified-email requirement, truncated-response handling, payables context growth, pay period shown on the confirm card).
+
+**Widget pass:** Chat tab removed; floating launcher; expanded modal with history sidebar/search; bouncing-dots thinking state; threads saved in RTDB with uid-scoped rules outside `finance-hub` so household `.read` cannot leak chats.
+
+**Persistence harden:** `chatDirtyThreadIds` + merge-from-remote so in-flight replies/confirms are not orphaned by `onValue`; shared draft across panel/expanded; dirty cleared only after successful persist; toast on send/confirm/cancel persist failure.
+
+**Cost/UX tweak (Tier 1):** `chatFinances` effort `medium` → `low` (deployed); composer textarea expands to ~3 lines on focus, collapses when idle.
+
+**Payables context (Tier 1):** `payables.summary` lifetime totals always injected; detail list still capped at 40.
+
+**Chat formatting (Tier 2):** assistant bubbles render bullets + markdown tables; system prompt asks for tables on multi-column amounts and bullets instead of dashed prose.
+
+**Chat data access (Tier 2):** owing summary matches Payables tab (share-based); all open payables injected; `search_payables` + `get_budget_month` lookup tools with server tool loop; prompt cache on budget JSON block.
 
 ## Work type
 
@@ -49,6 +61,24 @@ Code-review remediation on the AI Chat branch: correct web-search detection, sto
 - [x] AC-17 (M7): only the `MAX_PAYABLES_IN_CONTEXT` most recent payables go into the prompt, with a count of what was omitted. The whole tree was being sent on every message and grows forever.
 - [x] AC-18 (M3): the confirm card names the pay period it will write to, applying the same clamp as the server, and shows the month as "August 2026" rather than `2026-08`.
 
+### Widget + persistence
+
+- [x] AC-19: Chat tab gone; corner bubble → compact panel → expanded ~¾ overlay with History (title + date), search, New.
+- [x] AC-20: Threads at `chats/{uid}/threads/{threadId}`; rules require auth uid match + allowlisted verified email.
+- [x] AC-21: While a thread is dirty (in-flight send/confirm/cancel), remote snapshots merge without replacing local message identity.
+- [x] AC-22: Failed persist keeps dirty + toast; busy always clears via try/finally around send (incl. pre-API persist).
+- [x] AC-F1: Assistant `- item` lines render as bullet lists.
+- [x] AC-F2: Markdown pipe tables render in a scrollable `.chat-md-table-wrap`.
+- [x] AC-F3: Model text is escaped before bold/table markup (no HTML injection).
+- [x] AC-F4: User bubbles stay plain escaped + pre-wrap.
+- [x] AC-F5: Confirm/cancel action cards still append after assistant text.
+- [x] AC-D1: Elly owing = share of open non-eric items (shared half, mine full) — matches Payables tab.
+- [x] AC-D2: Eric owing = share of open non-mine items — matches Payables tab.
+- [x] AC-D3: `search_payables` finds named items across all history (e.g. Limey).
+- [x] AC-D4: Propose tools still return `proposedAction` for client confirm (not executed in chatFinances).
+- [x] AC-D5: Lookup tool_use never becomes a write card; propose+lookup same turn exits loop safely.
+- [x] AC-D6: `get_budget_month` never fabricates months.
+
 ## Functional requirements
 
 - Rate-limit counter is still claimed *before* the API call (race-bypass protection) and only refunded on failure.
@@ -67,7 +97,7 @@ Code-review remediation on the AI Chat branch: correct web-search detection, sto
 
 ## Architecture / governance notes
 
-Single-file app (`index.html`) plus `functions/index.js`. No auth, rules, or schema change: `AUTHORISED_USERS`, the auth model and `database.rules.json` were left untouched. Function dependencies are pinned and `functions/package-lock.json` is now committed so a deploy installs the reviewed versions.
+Single-file app (`index.html`) plus `functions/index.js`. Chat threads live under `/chats/{uid}` (outside household `finance-hub`). `database.rules.json` updated for uid-scoped chat access. Function dependencies pinned; lockfile committed.
 
 ## Human review context
 
@@ -134,6 +164,9 @@ No Firebase project credentials and no Anthropic API key in this environment, an
 |-------|-----|---------|-------|
 | Rose | 1 | PASS WITH NOTES | Emulator + stub-API + headless-browser checks all pass. Two extra defects found and fixed during verification: `admin.database()` gone in firebase-admin 14, and the sticky banner pushing the chat input off-screen |
 | Rose | 2 | FAIL | Static review only — no shell in that environment, so run 1's execution evidence is unreproduced. 3 High: object-shaped lists silently discarded on write (H1), padded periods missing their `bills` key and breaking three tabs (H2), atomicity claim overstated (H3). Plus 9 Medium, incl. UTC vs Sydney dates and no `email_verified` check |
-| Rose | 3 | pending | H1, H2, M1–M3, M5–M7 fixed; H3 and M4/M8 restated as known limitations |
+| Rose | 3 | PASS WITH NOTES → remediations | Functions remediations; later widget work supersedes tab layout |
+| Rose | 4 | FAIL | Widget persist race: onValue replaced dirty threads mid-request |
+| Rose | 5 | FAIL | Pre-API persist outside try; dirty cleared even when persist failed |
+| Rose | 6 | PASS WITH NOTES | Busy + dirty-on-fail fixed; cancel toast added after notes |
 | Senior Reviewer | n/a | | Tier 2 |
 | Judge | | | |
