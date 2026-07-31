@@ -1371,8 +1371,10 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
   #calc-panel {
     width: min(320px, calc(100vw - 16px));
-    right: 8px;
+    /* Keep closed panel fully off-screen (was leaking at right: 8px). */
+    right: calc(-1 * min(320px, calc(100vw - 16px)) - 24px);
   }
+  #calc-panel.open { right: 0; }
 
   .sel-badge {
     bottom: calc(84px + env(safe-area-inset-bottom, 0px));
