@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finance Hub — Chat widget mockup</title>
+<style>
+:root {
+  --brand-col: #1E3A5F;
+  --brand-deep: #162d4a;
+  --text-col: #1A202C;
+  --surface: #FFFFFF;
+  --surface-alt: #F8FAFC;
+  --surface-sunken: #F1F5F9;
+  --border-col: #E2E8F0;
+  --border-strong-col: #CBD5E1;
+  --muted-col: #64748B;
+  --faint-col: #94A3B8;
+  --shared: #059669;
+  --shared-light: #D1FAE5;
+  --radius: 12px;
+  --shadow-panel: 0 12px 40px rgba(15, 30, 49, 0.22);
+  --shadow-bubble: 0 8px 24px rgba(15, 30, 49, 0.28);
+  --z-widget: 1200;
+  --z-overlay: 1300;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: #f0f2f5;
+  color: var(--text-col);
+  min-height: 100vh;
+}
+
+/* ── Fake Finance Hub chrome (backdrop only) ── */
+.fake-topbar {
+  background: var(--brand-col); color: white;
+  padding: 13px 20px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.fake-topbar h1 { font-size: 1.15rem; font-weight: 700; }
+.fake-tabs {
+  background: var(--brand-deep); display: flex; gap: 0; flex-wrap: wrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.fake-tab {
+  background: none; border: none; color: rgba(255,255,255,0.55);
+  padding: 10px 18px; font-size: 0.85rem; font-weight: 500;
+  border-bottom: 3px solid transparent; font-family: inherit;
+}
+.fake-tab.active { color: white; border-bottom-color: #60a5fa; }
+.fake-main { max-width: 80%; margin: 0 auto; padding: 20px 16px; }
+.fake-card {
+  background: white; border-radius: var(--radius); border: 1px solid var(--border-col);
+  padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.fake-card h2 { font-size: 1rem; margin-bottom: 8px; }
+.fake-card p { font-size: 0.88rem; color: var(--muted-col); line-height: 1.45; }
+.fake-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;
+}
+.fake-chip {
+  background: var(--surface-alt); border: 1px solid var(--border-col);
+  border-radius: 8px; padding: 12px 14px; font-size: 0.85rem;
+}
+.fake-chip strong { display: block; font-size: 1.15rem; margin-top: 4px; color: var(--brand-col); }
+
+.mock-banner {
+  position: sticky; top: 0; z-index: 50;
+  background: #FEF3C7; color: #92400E;
+  text-align: center; padding: 8px 16px; font-size: 0.82rem; font-weight: 600;
+  border-bottom: 1px solid #FCD34D;
+}
+
+/* ── Launcher bubble ── */
+.chat-launcher {
+  position: fixed; right: 22px; bottom: 22px; z-index: var(--z-widget);
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--brand-col); color: white; border: none;
+  box-shadow: var(--shadow-bubble); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.chat-launcher:hover { background: var(--brand-deep); transform: scale(1.05); }
+.chat-launcher svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chat-launcher[hidden],
+.chat-panel[hidden],
+.chat-backdrop[hidden],
+.chat-expanded[hidden] { display: none !important; }
+.chat-badge {
+  position: absolute; top: -2px; right: -2px;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  background: #ef4444; color: white; border-radius: 999px;
+  font-size: 0.68rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #f0f2f5;
+}
+
+/* ── Compact panel (from bubble) ── */
+.chat-panel {
+  position: fixed; right: 22px; bottom: 22px; z-index: var(--z-widget);
+  width: min(380px, calc(100vw - 28px));
+  height: min(560px, calc(100dvh - 40px));
+  background: var(--surface); border-radius: 16px;
+  box-shadow: var(--shadow-panel); border: 1px solid var(--border-col);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: panel-in 0.18s ease;
+}
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.chat-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; background: var(--brand-col); color: white; flex-shrink: 0;
+}
+.chat-header-title { flex: 1; min-width: 0; }
+.chat-header-title strong { display: block; font-size: 0.95rem; font-weight: 700; }
+.chat-header-title span { display: block; font-size: 0.72rem; opacity: 0.75; margin-top: 1px; }
+.chat-header-actions { display: flex; gap: 4px; }
+.chat-icon-btn {
+  width: 32px; height: 32px; border: none; border-radius: 8px;
+  background: rgba(255,255,255,0.12); color: white; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem; line-height: 1; font-family: inherit;
+}
+.chat-icon-btn:hover { background: rgba(255,255,255,0.22); }
+.chat-icon-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.chat-body { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+.chat-log {
+  flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+  background: var(--surface-alt);
+}
+.chat-msg {
+  max-width: 88%; padding: 10px 12px; border-radius: 14px;
+  font-size: 0.88rem; line-height: 1.45; white-space: pre-wrap;
+}
+.chat-msg-user {
+  align-self: flex-end; background: var(--brand-col); color: white;
+  border-bottom-right-radius: 4px;
+}
+.chat-msg-assistant {
+  align-self: flex-start; background: var(--surface); color: var(--text-col);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--border-col);
+  border-bottom-left-radius: 4px;
+}
+.chat-msg-meta { font-size: 0.68rem; color: var(--faint-col); margin-top: 4px; }
+.chat-search-tag {
+  display: inline-block; font-size: 0.68rem; font-weight: 700;
+  color: var(--shared); background: var(--shared-light);
+  border-radius: 6px; padding: 2px 6px; margin-bottom: 6px;
+}
+.chat-empty {
+  margin: auto; text-align: center; color: var(--faint-col);
+  font-size: 0.85rem; padding: 24px 16px; max-width: 260px; line-height: 1.45;
+}
+.chat-thinking {
+  align-self: flex-start; background: var(--surface); color: var(--muted-col);
+  border: 1px solid var(--border-col); box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-radius: 14px; border-bottom-left-radius: 4px;
+  padding: 12px 16px; display: flex; align-items: center; gap: 8px;
+  font-size: 0.82rem;
+}
+.chat-thinking-dots { display: flex; gap: 4px; align-items: center; }
+.chat-thinking-dots span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--muted-col);
+  animation: thinking-bounce 1.2s ease-in-out infinite;
+}
+.chat-thinking-dots span:nth-child(2) { animation-delay: 0.15s; }
+.chat-thinking-dots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes thinking-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.chat-composer {
+  border-top: 1px solid var(--border-col); padding: 10px 12px;
+  background: var(--surface); flex-shrink: 0;
+}
+.chat-composer-row { display: flex; gap: 8px; align-items: flex-end; }
+.chat-attach {
+  width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border-col);
+  background: var(--surface-sunken); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  font-size: 1rem;
+}
+.chat-composer textarea {
+  flex: 1; resize: none; border: 1px solid var(--border-col); border-radius: 8px;
+  padding: 8px 10px; font: inherit; font-size: 0.88rem; min-height: 36px; max-height: 96px;
+  color: var(--text-col); background: var(--surface);
+}
+.chat-composer textarea:focus { outline: 2px solid rgba(30,58,95,0.25); border-color: var(--brand-col); }
+.chat-send {
+  background: var(--brand-col); color: white; border: none; border-radius: 8px;
+  padding: 0 14px; height: 36px; font-weight: 600; font-size: 0.85rem;
+  cursor: pointer; font-family: inherit;
+}
+.chat-send:hover { background: var(--brand-deep); }
+
+/* ── Expanded overlay (~3/4 page) ── */
+.chat-backdrop {
+  position: fixed; inset: 0; z-index: var(--z-overlay);
+  background: rgba(15, 30, 49, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 3vh 3vw;
+  animation: fade-in 0.15s ease;
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.chat-expanded {
+  width: min(1100px, 92vw);
+  height: min(820px, 88dvh);
+  background: var(--surface); border-radius: 16px;
+  box-shadow: var(--shadow-panel); border: 1px solid var(--border-col);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: expand-in 0.2s ease;
+}
+@keyframes expand-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+.chat-expanded .chat-header { padding: 14px 16px; }
+.chat-expanded-body { flex: 1; min-height: 0; display: flex; }
+
+/* History sidebar — only in expanded */
+.chat-history {
+  width: 260px; flex-shrink: 0;
+  border-right: 1px solid var(--border-col);
+  background: var(--surface-alt);
+  display: flex; flex-direction: column; min-height: 0;
+}
+.chat-history-head {
+  padding: 14px 14px 10px; display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
+.chat-history-head h3 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-col); }
+.chat-new-btn {
+  border: none; background: var(--brand-col); color: white;
+  border-radius: 6px; padding: 5px 10px; font-size: 0.75rem; font-weight: 600;
+  cursor: pointer; font-family: inherit; flex-shrink: 0;
+}
+.chat-history-search {
+  padding: 0 8px 8px; border-bottom: 1px solid var(--border-col);
+}
+.chat-history-search input {
+  width: 100%; border: 1px solid var(--border-col); border-radius: 8px;
+  padding: 7px 10px; font: inherit; font-size: 0.8rem; color: var(--text-col);
+  background: var(--surface);
+}
+.chat-history-search input:focus { outline: 2px solid rgba(30,58,95,0.25); border-color: var(--brand-col); }
+.chat-history-search input::placeholder { color: var(--faint-col); }
+.chat-history-list { flex: 1; overflow-y: auto; padding: 8px; }
+.chat-history-empty {
+  padding: 16px 10px; text-align: center; font-size: 0.78rem; color: var(--faint-col); line-height: 1.4;
+}
+.chat-thread {
+  width: 100%; text-align: left; border: 1px solid transparent;
+  background: transparent; border-radius: 8px; padding: 8px 10px;
+  cursor: pointer; font-family: inherit; margin-bottom: 2px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.chat-thread:hover { background: var(--surface); border-color: var(--border-col); }
+.chat-thread.active { background: var(--surface); border-color: var(--border-strong-col); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.chat-thread-title {
+  font-size: 0.84rem; font-weight: 600; color: var(--text-col);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chat-thread-date { font-size: 0.68rem; color: var(--faint-col); }
+
+.chat-expanded-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chat-expanded .chat-log { padding: 18px 22px; }
+.chat-expanded .chat-msg { max-width: 72%; font-size: 0.92rem; }
+.chat-expanded .chat-composer { padding: 12px 16px; }
+
+@media (max-width: 720px) {
+  .fake-main { max-width: 100%; }
+  .fake-row { grid-template-columns: 1fr; }
+  .chat-history { width: 200px; }
+  .chat-expanded { width: 96vw; height: 92dvh; }
+}
+@media (max-width: 560px) {
+  .chat-history { display: none; }
+  .chat-history.mobile-open { display: flex; position: absolute; inset: 52px 0 0 0; width: 100%; z-index: 2; }
+}
+</style>
+</head>
+<body>
+
+<div class="mock-banner">MOCKUP ONLY — click the bubble → expand → history. Not wired to Firebase yet.</div>
+
+<div class="fake-topbar"><h1>🏠 Finance Hub</h1></div>
+<div class="fake-tabs">
+  <button class="fake-tab active">📅 Monthly</button>
+  <button class="fake-tab">📊 Summary</button>
+  <button class="fake-tab">💡 Insights</button>
+  <button class="fake-tab">💰 Payables</button>
+</div>
+
+<div class="fake-main">
+  <div class="fake-card">
+    <h2>August 2026 · Period 1</h2>
+    <p>Backdrop only — this is what stays visible behind the expanded chat. The old Chat tab is gone; the assistant lives in the corner widget.</p>
+    <div class="fake-row">
+      <div class="fake-chip">Safe to spend<strong>$842.10</strong></div>
+      <div class="fake-chip">Bills remaining<strong>$4,681.40</strong></div>
+    </div>
+  </div>
+  <div class="fake-card">
+    <h2>Mortgage</h2>
+    <p>$3,134.00 → NAB Offset · recurring</p>
+  </div>
+  <div class="fake-card">
+    <h2>Groceries</h2>
+    <p>$625.00 → CB Groceries · recurring</p>
+  </div>
+  <div class="fake-card">
+    <h2>Cursor</h2>
+    <p>$33.00 → CB Bills · recurring</p>
+  </div>
+</div>
+
+<!-- Launcher -->
+<button class="chat-launcher" id="launcher" aria-label="Open chat" title="Chat">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="chat-badge" id="launcherBadge">2</span>
+</button>
+
+<!-- Compact panel -->
+<div class="chat-panel" id="panel" hidden>
+  <div class="chat-header">
+    <div class="chat-header-title">
+      <strong>Finance assistant</strong>
+      <span>Ask about budgets, bills, receipts</span>
+    </div>
+    <div class="chat-header-actions">
+      <button class="chat-icon-btn" id="expandBtn" title="Expand" aria-label="Expand chat">
+        <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+      <button class="chat-icon-btn" id="minimizeBtn" title="Minimize" aria-label="Minimize chat">−</button>
+    </div>
+  </div>
+  <div class="chat-body">
+    <div class="chat-log" id="panelLog"></div>
+  </div>
+  <div class="chat-composer">
+    <div class="chat-composer-row">
+      <button class="chat-attach" title="Attach receipt" type="button">📎</button>
+      <textarea rows="1" placeholder="Ask about your budget…" id="panelInput"></textarea>
+      <button class="chat-send" type="button">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Expanded overlay -->
+<div class="chat-backdrop" id="backdrop" hidden>
+  <div class="chat-expanded" role="dialog" aria-modal="true" aria-label="Finance assistant expanded">
+    <div class="chat-header">
+      <div class="chat-header-title">
+        <strong>Finance assistant</strong>
+        <span id="expandedSubtitle">Ask about budgets, bills, receipts</span>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-icon-btn" id="historyToggle" title="Chat history" aria-label="Toggle history">☰</button>
+        <button class="chat-icon-btn" id="collapseBtn" title="Back to corner chat" aria-label="Collapse to corner">
+          <svg viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </button>
+        <button class="chat-icon-btn" id="closeExpandedBtn" title="Minimize" aria-label="Minimize">−</button>
+      </div>
+    </div>
+    <div class="chat-expanded-body">
+      <aside class="chat-history" id="historyPane">
+        <div class="chat-history-head">
+          <h3>History</h3>
+          <button class="chat-new-btn" id="newChatBtn" type="button">+ New</button>
+        </div>
+        <div class="chat-history-search">
+          <input type="search" id="historySearch" placeholder="Search chats…" autocomplete="off">
+        </div>
+        <div class="chat-history-list" id="historyList"></div>
+      </aside>
+      <div class="chat-expanded-main">
+        <div class="chat-log" id="expandedLog"></div>
+        <div class="chat-composer">
+          <div class="chat-composer-row">
+            <button class="chat-attach" title="Attach receipt" type="button">📎</button>
+            <textarea rows="1" placeholder="Ask about your budget, or attach a receipt…" id="expandedInput"></textarea>
+            <button class="chat-send" type="button">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const THREADS = [
+  {
+    id: 't1',
+    title: 'Home loan rates',
+    preview: 'Variable rates are around 5.7–6.1%…',
+    date: 'Today · 11:28 pm',
+    messages: [
+      { role: 'user', content: 'What are variable home loan rates right now?' },
+      { role: 'assistant', content: 'Variable owner-occupier rates are roughly 5.7–6.1% depending on lender and LVR. Lowest advertised packages are sitting near the mid-5s if you have a strong deposit.', usedSearch: true },
+    ],
+  },
+  {
+    id: 't2',
+    title: 'Can we afford a monitor?',
+    preview: 'After this fortnight’s bills you have…',
+    date: 'Yesterday',
+    messages: [
+      { role: 'user', content: 'Do we have room this month for a $500 monitor?' },
+      { role: 'assistant', content: 'After this fortnight’s remaining bills and savings, safe-to-spend is about $842. A $500 monitor fits, but it would use most of the buffer before the next pay.' },
+    ],
+  },
+  {
+    id: 't3',
+    title: 'Energy bill receipt',
+    preview: 'Add payable “Energy Australia” — $224.50…',
+    date: '28 Jul',
+    messages: [
+      { role: 'user', content: '(receipt image attached)', hadImage: true },
+      { role: 'assistant', content: 'I read Energy Australia · $224.50 · 25 Jul. Want me to log that as a shared payable?' },
+    ],
+  },
+  {
+    id: 't4',
+    title: 'Netflix recurring?',
+    preview: 'Added recurring bill “Netflix”…',
+    date: '20 Jul',
+    messages: [
+      { role: 'user', content: 'Add Netflix $15.99 recurring to my second fortnight' },
+      { role: 'assistant', content: 'Ready when you are — confirm to add a recurring bill “Netflix” for $15.99 to the second fortnight starting August 2026.' },
+    ],
+  },
+];
+
+let activeId = 't1';
+let mode = 'bubble'; // bubble | panel | expanded
+
+const launcher = document.getElementById('launcher');
+const panel = document.getElementById('panel');
+const backdrop = document.getElementById('backdrop');
+const panelLog = document.getElementById('panelLog');
+const expandedLog = document.getElementById('expandedLog');
+const historyList = document.getElementById('historyList');
+const historyPane = document.getElementById('historyPane');
+
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function msgHtml(m) {
+  if (m.role === 'user') {
+    const img = m.hadImage ? '<div class="chat-msg-meta">📎 receipt attached</div>' : '';
+    return `<div class="chat-msg chat-msg-user">${esc(m.content)}${img}</div>`;
+  }
+  const tag = m.usedSearch ? '<span class="chat-search-tag">🔎 searched the web</span><br>' : '';
+  return `<div class="chat-msg chat-msg-assistant">${tag}${esc(m.content)}</div>`;
+}
+
+function activeThread() {
+  return THREADS.find(t => t.id === activeId) || THREADS[0];
+}
+
+function renderMessages() {
+  const t = activeThread();
+  const html = t.messages.map(msgHtml).join('') || '<div class="chat-empty">Ask about your budget — e.g. “Do we have room for a $500 monitor?”</div>';
+  panelLog.innerHTML = html;
+  expandedLog.innerHTML = html;
+  panelLog.scrollTop = panelLog.scrollHeight;
+  expandedLog.scrollTop = expandedLog.scrollHeight;
+}
+
+function renderHistory() {
+  const q = (document.getElementById('historySearch')?.value || '').trim().toLowerCase();
+  const filtered = q
+    ? THREADS.filter(t => t.title.toLowerCase().includes(q))
+    : THREADS;
+  if (!filtered.length) {
+    historyList.innerHTML = `<div class="chat-history-empty">No chats match “${esc(q)}”</div>`;
+    return;
+  }
+  historyList.innerHTML = filtered.map(t => `
+    <button class="chat-thread ${t.id === activeId ? 'active' : ''}" data-id="${t.id}" type="button">
+      <span class="chat-thread-title">${esc(t.title)}</span>
+      <span class="chat-thread-date">${esc(t.date)}</span>
+    </button>
+  `).join('');
+}
+
+function setMode(next) {
+  mode = next;
+  launcher.hidden = next !== 'bubble';
+  panel.hidden = next !== 'panel';
+  backdrop.hidden = next !== 'expanded';
+  if (next === 'bubble') document.getElementById('launcherBadge').hidden = false;
+  if (next !== 'bubble') document.getElementById('launcherBadge').hidden = true;
+}
+
+launcher.addEventListener('click', () => { setMode('panel'); renderMessages(); });
+document.getElementById('minimizeBtn').addEventListener('click', () => setMode('bubble'));
+document.getElementById('expandBtn').addEventListener('click', () => {
+  setMode('expanded');
+  renderHistory();
+  renderMessages();
+});
+document.getElementById('collapseBtn').addEventListener('click', () => setMode('panel'));
+document.getElementById('closeExpandedBtn').addEventListener('click', () => setMode('bubble'));
+backdrop.addEventListener('click', (e) => {
+  if (e.target === backdrop) setMode('panel');
+});
+document.getElementById('historyToggle').addEventListener('click', () => {
+  historyPane.classList.toggle('mobile-open');
+});
+historyList.addEventListener('click', (e) => {
+  const btn = e.target.closest('.chat-thread');
+  if (!btn) return;
+  activeId = btn.dataset.id;
+  renderHistory();
+  renderMessages();
+  historyPane.classList.remove('mobile-open');
+});
+document.getElementById('historySearch').addEventListener('input', () => renderHistory());
+document.getElementById('newChatBtn').addEventListener('click', () => {
+  const id = 't' + Date.now();
+  THREADS.unshift({
+    id,
+    title: 'New chat',
+    preview: 'Ask anything about your budget…',
+    date: 'Just now',
+    messages: [],
+  });
+  activeId = id;
+  renderHistory();
+  renderMessages();
+});
+
+function thinkingHtml() {
+  return `<div class="chat-thinking" id="chatThinking">
+    <div class="chat-thinking-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+    Thinking
+  </div>`;
+}
+
+// Demo send — local only. Shows the bouncing-dots state so a long wait still
+// reads as "working", not hung.
+async function sendFrom(inputEl) {
+  const text = inputEl.value.trim();
+  if (!text) return;
+  const t = activeThread();
+  t.messages.push({ role: 'user', content: text });
+  if (t.title === 'New chat') t.title = text.slice(0, 36) + (text.length > 36 ? '…' : '');
+  t.preview = text;
+  t.date = 'Just now';
+  inputEl.value = '';
+  renderHistory();
+  renderMessages();
+  panelLog.insertAdjacentHTML('beforeend', thinkingHtml());
+  expandedLog.insertAdjacentHTML('beforeend', thinkingHtml());
+  panelLog.scrollTop = panelLog.scrollHeight;
+  expandedLog.scrollTop = expandedLog.scrollHeight;
+
+  await new Promise(r => setTimeout(r, 1400));
+  t.messages.push({
+    role: 'assistant',
+    content: '(Mock reply) In the real app this would call the Cloud Function and could propose a bill or payable for you to confirm.',
+  });
+  renderHistory();
+  renderMessages();
+}
+document.querySelector('#panel .chat-send').addEventListener('click', () => sendFrom(document.getElementById('panelInput')));
+document.querySelector('#backdrop .chat-send').addEventListener('click', () => sendFrom(document.getElementById('expandedInput')));
+document.getElementById('panelInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFrom(e.target); }
+});
+document.getElementById('expandedInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFrom(e.target); }
+});
+
+renderMessages();
+setMode('bubble');
+</script>
+</body>
+</html>

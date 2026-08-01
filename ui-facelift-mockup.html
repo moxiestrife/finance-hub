@@ -1,0 +1,2484 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-palette="dusk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pensive — UI facelift mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,0..1,0" rel="stylesheet">
+<style>
+/*
+  Palette templates — switch via data-palette on <html>
+  ocean   = current (blue + teal) — kept for compare
+  graphite = ink + copper, neutral gray surfaces (no blue haze / no green)
+  slate    = cool stone + rust accents
+  dusk     = charcoal + muted gold
+*/
+
+/* ── Ocean (current) ── */
+html[data-palette="ocean"][data-theme="light"] {
+  --primary: #255a8c;
+  --on-primary: #ffffff;
+  --primary-container: #d3e4ff;
+  --on-primary-container: #001c38;
+  --secondary: #0f6b58;
+  --on-secondary: #ffffff;
+  --secondary-container: #a3f2d9;
+  --on-secondary-container: #002117;
+  --tertiary: #8b4f00;
+  --tertiary-container: #ffdcb8;
+  --surface: #f7f9fc;
+  --surface-dim: #d8dbe0;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f1f4f9;
+  --surface-container: #ebeef3;
+  --surface-container-high: #e5e8ed;
+  --surface-container-highest: #dfe3e8;
+  --on-surface: #191c1e;
+  --on-surface-variant: #42474e;
+  --outline: #72777f;
+  --outline-variant: #c2c7cf;
+  --error: #ba1a1a;
+  --shadow: rgba(25, 28, 30, 0.12);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #d3e4ff 0%, transparent 70%);
+  --nav-indicator: #d3e4ff;
+  --hero-safe: #0f6b58;
+  --hero-in: #255a8c;
+  --hero-out: #b45309;
+}
+html[data-palette="ocean"][data-theme="dark"] {
+  --primary: #a2c9ff;
+  --on-primary: #00315c;
+  --primary-container: #004884;
+  --on-primary-container: #d3e4ff;
+  --secondary: #87d6be;
+  --on-secondary: #00382b;
+  --secondary-container: #005140;
+  --on-secondary-container: #a3f2d9;
+  --tertiary: #ffb95f;
+  --tertiary-container: #633f00;
+  --surface: #111416;
+  --surface-dim: #111416;
+  --surface-container-lowest: #0c0e10;
+  --surface-container-low: #191c1e;
+  --surface-container: #1d2022;
+  --surface-container-high: #282a2c;
+  --surface-container-highest: #333537;
+  --on-surface: #e1e2e5;
+  --on-surface-variant: #c2c7cf;
+  --outline: #8c9199;
+  --outline-variant: #42474e;
+  --error: #ffb4ab;
+  --shadow: rgba(0, 0, 0, 0.45);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #1a3a5c 0%, transparent 70%);
+  --nav-indicator: #004884;
+  --hero-safe: #87d6be;
+  --hero-in: #a2c9ff;
+  --hero-out: #ffb95f;
+}
+
+/* ── Graphite — ink + copper, no teal, no blue haze ── */
+html[data-palette="graphite"][data-theme="light"] {
+  --primary: #2a2a2e;
+  --on-primary: #ffffff;
+  --primary-container: #e6e6e9;
+  --on-primary-container: #1a1a1d;
+  --secondary: #6e5a48;
+  --on-secondary: #ffffff;
+  --secondary-container: #f0e8df;
+  --on-secondary-container: #2a2118;
+  --tertiary: #a65d1f;
+  --tertiary-container: #f6e3cf;
+  --surface: #f5f5f6;
+  --surface-dim: #d4d4d8;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #eeeeef;
+  --surface-container: #e8e8ea;
+  --surface-container-high: #e1e1e4;
+  --surface-container-highest: #d9d9dd;
+  --on-surface: #1c1c1f;
+  --on-surface-variant: #4a4a50;
+  --outline: #75757c;
+  --outline-variant: #c6c6cc;
+  --error: #b42318;
+  --shadow: rgba(28, 28, 31, 0.12);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #e6e6e9 0%, transparent 70%);
+  --nav-indicator: #e6e6e9;
+  --hero-safe: #2a2a2e;
+  --hero-in: #5c6570;
+  --hero-out: #a65d1f;
+}
+html[data-palette="graphite"][data-theme="dark"] {
+  --primary: #e4e4e7;
+  --on-primary: #1c1c1f;
+  --primary-container: #3f3f46;
+  --on-primary-container: #f4f4f5;
+  --secondary: #d2b48c;
+  --on-secondary: #2a2118;
+  --secondary-container: #4a3c2e;
+  --on-secondary-container: #f0e8df;
+  --tertiary: #e0a06a;
+  --tertiary-container: #5c3410;
+  --surface: #121214;
+  --surface-dim: #121214;
+  --surface-container-lowest: #0c0c0e;
+  --surface-container-low: #1a1a1d;
+  --surface-container: #202024;
+  --surface-container-high: #2a2a2e;
+  --surface-container-highest: #35353a;
+  --on-surface: #e8e8ea;
+  --on-surface-variant: #c0c0c6;
+  --outline: #909098;
+  --outline-variant: #45454c;
+  --error: #ffb4ab;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #2a2a2e 0%, transparent 70%);
+  --nav-indicator: #3f3f46;
+  --hero-safe: #e4e4e7;
+  --hero-in: #a8b0ba;
+  --hero-out: #e0a06a;
+}
+
+/* ── Slate — cool stone + rust, soft gray wash ── */
+html[data-palette="slate"][data-theme="light"] {
+  --primary: #334155;
+  --on-primary: #ffffff;
+  --primary-container: #e2e8f0;
+  --on-primary-container: #0f172a;
+  --secondary: #57534e;
+  --on-secondary: #ffffff;
+  --secondary-container: #e7e5e4;
+  --on-secondary-container: #1c1917;
+  --tertiary: #c2410c;
+  --tertiary-container: #ffedd5;
+  --surface: #f4f4f5;
+  --surface-dim: #d4d4d8;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #eeeef0;
+  --surface-container: #e4e4e7;
+  --surface-container-high: #dcdce0;
+  --surface-container-highest: #d4d4d8;
+  --on-surface: #18181b;
+  --on-surface-variant: #52525b;
+  --outline: #71717a;
+  --outline-variant: #c4c4cc;
+  --error: #b91c1c;
+  --shadow: rgba(24, 24, 27, 0.12);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #e4e4e7 0%, transparent 70%);
+  --nav-indicator: #e2e8f0;
+  --hero-safe: #0f172a;
+  --hero-in: #475569;
+  --hero-out: #c2410c;
+}
+html[data-palette="slate"][data-theme="dark"] {
+  --primary: #cbd5e1;
+  --on-primary: #0f172a;
+  --primary-container: #334155;
+  --on-primary-container: #e2e8f0;
+  --secondary: #a8a29e;
+  --on-secondary: #1c1917;
+  --secondary-container: #44403c;
+  --on-secondary-container: #e7e5e4;
+  --tertiary: #fdba74;
+  --tertiary-container: #7c2d12;
+  --surface: #101012;
+  --surface-dim: #101012;
+  --surface-container-lowest: #0a0a0b;
+  --surface-container-low: #18181b;
+  --surface-container: #1f1f23;
+  --surface-container-high: #27272a;
+  --surface-container-highest: #3f3f46;
+  --on-surface: #e4e4e7;
+  --on-surface-variant: #a1a1aa;
+  --outline: #8b8b96;
+  --outline-variant: #3f3f46;
+  --error: #fca5a5;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #27272a 0%, transparent 70%);
+  --nav-indicator: #334155;
+  --hero-safe: #e2e8f0;
+  --hero-in: #94a3b8;
+  --hero-out: #fdba74;
+}
+
+/* ── Dusk — charcoal + muted gold ── */
+html[data-palette="dusk"][data-theme="light"] {
+  --primary: #3a332e;
+  --on-primary: #ffffff;
+  --primary-container: #ebe6e2;
+  --on-primary-container: #241f1b;
+  --secondary: #7a6848;
+  --on-secondary: #ffffff;
+  --secondary-container: #efe6d4;
+  --on-secondary-container: #2a2316;
+  --tertiary: #9a4d2e;
+  --tertiary-container: #f5dfd4;
+  --surface: #f6f5f4;
+  --surface-dim: #d6d3d1;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #efeeec;
+  --surface-container: #e8e6e3;
+  --surface-container-high: #e0ddd9;
+  --surface-container-highest: #d8d4cf;
+  --on-surface: #1c1917;
+  --on-surface-variant: #57534e;
+  --outline: #78716c;
+  --outline-variant: #c8c2ba;
+  --error: #b42318;
+  --shadow: rgba(28, 25, 23, 0.12);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #ebe6e2 0%, transparent 70%);
+  --nav-indicator: #ebe6e2;
+  --hero-safe: #3a332e;
+  --hero-in: #7a6848;
+  --hero-out: #9a4d2e;
+}
+html[data-palette="dusk"][data-theme="dark"] {
+  --primary: #e7e0d9;
+  --on-primary: #241f1b;
+  --primary-container: #4a423c;
+  --on-primary-container: #f4efe9;
+  --secondary: #d4c19a;
+  --on-secondary: #2a2316;
+  --secondary-container: #4a4030;
+  --on-secondary-container: #efe6d4;
+  --tertiary: #e0a090;
+  --tertiary-container: #5c2e1e;
+  --surface: #141210;
+  --surface-dim: #141210;
+  --surface-container-lowest: #0d0c0b;
+  --surface-container-low: #1c1917;
+  --surface-container: #221f1c;
+  --surface-container-high: #2c2824;
+  --surface-container-highest: #3a332e;
+  --on-surface: #e7e5e4;
+  --on-surface-variant: #a8a29e;
+  --outline: #928c85;
+  --outline-variant: #44403c;
+  --error: #ffb4ab;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #2c2824 0%, transparent 70%);
+  --nav-indicator: #4a423c;
+  --hero-safe: #e7e0d9;
+  --hero-in: #d4c19a;
+  --hero-out: #e0a090;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Google Sans", Roboto, system-ui, sans-serif;
+  background: #5c6470;
+  color: var(--on-surface);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 48px;
+}
+
+.page-intro {
+  max-width: 1200px;
+  width: 100%;
+  color: #f4f6f8;
+  margin-bottom: 20px;
+}
+.page-intro h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.page-intro p {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  opacity: 0.85;
+  max-width: 52ch;
+}
+.page-intro .meta {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  opacity: 0.65;
+}
+
+.stage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1280px;
+}
+.device-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.device-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 248, 0.7);
+  padding-left: 4px;
+}
+
+.phone {
+  width: min(390px, 100%);
+  height: min(760px, 90dvh);
+  background: var(--surface);
+  border-radius: 28px;
+  box-shadow: 0 24px 64px var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Desktop browser window */
+.desktop {
+  width: min(860px, 100%);
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px var(--shadow);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  min-height: min(640px, 85dvh);
+}
+.browser-chrome {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #2a2f36;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.browser-dots {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.browser-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #5c6470;
+}
+.browser-dots span:nth-child(1) { background: #ff5f57; }
+.browser-dots span:nth-child(2) { background: #febc2e; }
+.browser-dots span:nth-child(3) { background: #28c840; }
+.browser-url {
+  flex: 1;
+  min-width: 0;
+  background: #1a1e23;
+  color: rgba(244, 246, 248, 0.75);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.desktop-shell {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  flex: 1;
+  min-height: 0;
+  background: var(--hero-glow), var(--surface);
+}
+.side-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 10px;
+  border-right: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
+  background: var(--surface-container-low);
+}
+.rail-item {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--on-surface-variant);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  border-radius: 14px;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+.rail-item .ico {
+  width: 52px;
+  height: 32px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+}
+.rail-item.active {
+  color: var(--on-primary-container);
+}
+.rail-item.active .ico {
+  background: var(--nav-indicator);
+}
+.rail-item.active .material-symbols-outlined {
+  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+}
+.rail-item:hover:not(.active) {
+  background: var(--surface-container-high);
+}
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+  user-select: none;
+}
+.icon-btn .material-symbols-outlined {
+  font-size: 22px;
+}
+.desktop-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.desktop-main .app-bar {
+  padding: 14px 28px 8px;
+}
+.desktop-main .hero-fan {
+  padding: 18px 28px 14px;
+}
+.hero-fan-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.hero-metric {
+  text-align: left;
+  min-width: 0;
+  padding: 4px 0 2px;
+}
+.hero-metric + .hero-metric {
+  border-left: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
+  padding-left: 16px;
+}
+.hero-metric .hero-label {
+  margin-bottom: 6px;
+}
+.hero-metric .hero-figure {
+  display: block;
+  font-size: clamp(1.85rem, 2.8vw, 2.35rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--metric-accent, var(--primary));
+}
+.hero-metric .hero-chip {
+  display: block;
+  margin-top: 8px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--on-surface-variant);
+  font-size: 0.74rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.hero-metric[data-metric="safe"] { --metric-accent: var(--hero-safe); }
+.hero-metric[data-metric="in"] { --metric-accent: var(--hero-in); }
+.hero-metric[data-metric="out"] { --metric-accent: var(--hero-out); }
+.desktop-main .home-body {
+  padding: 4px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.phone .home-body {
+  padding: 4px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.phone .app-page[data-page="home"],
+.desktop-main .app-page[data-page="home"] {
+  overflow: auto;
+}
+
+/* Scope switcher */
+.scope-switch {
+  display: none;
+  align-items: center;
+  height: 40px;
+  gap: 8px;
+  flex-shrink: 0;
+  background: none;
+  padding: 0;
+}
+.scope-switch.is-visible {
+  display: inline-flex;
+}
+.scope-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+.scope-label.is-active {
+  color: var(--on-surface);
+}
+.scope-toggle {
+  position: relative;
+  width: 36px;
+  height: 22px;
+  border: none;
+  border-radius: 999px;
+  padding: 0;
+  background: var(--surface-container-highest);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+.scope-toggle[aria-checked="true"] {
+  background: var(--primary);
+}
+.scope-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface-container-lowest);
+  box-shadow: 0 1px 3px var(--shadow);
+  transition: transform 0.2s ease;
+}
+.scope-toggle[aria-checked="true"] .scope-toggle-thumb {
+  transform: translateX(14px);
+}
+.phone .scope-switch {
+  gap: 6px;
+}
+.phone .scope-label {
+  font-size: 0.68rem;
+}
+
+.fortnight-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.phone .fortnight-row {
+  grid-template-columns: 1fr;
+}
+.desktop-main .cat-card {
+  min-height: 88px;
+}
+
+/* Recurring lists (bills + expenses) */
+.recurring-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+.phone .recurring-row {
+  grid-template-columns: 1fr;
+}
+.bills-card {
+  padding: 14px 10px 6px;
+}
+.bills-card .panel-card-head {
+  padding: 0 6px;
+  margin-bottom: 4px;
+}
+.bill-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
+}
+.bill-row:last-child { border-bottom: none; }
+.bill-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+.bill-meta {
+  font-size: 0.72rem;
+  color: var(--on-surface-variant);
+  margin-top: 2px;
+}
+.bill-amount {
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--on-surface);
+  white-space: nowrap;
+}
+
+/* Categories + chart */
+.insights-split {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 12px;
+  align-items: stretch;
+}
+.phone .insights-split {
+  grid-template-columns: 1fr;
+}
+.panel-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.panel-card-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+.cat-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-container-high);
+  overflow: hidden;
+}
+.cat-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--secondary);
+}
+.pie-layout {
+  display: flex;
+  justify-content: center;
+  padding: 2px 4px 0;
+}
+.pie-radar {
+  position: relative;
+  width: 260px;
+  height: 248px;
+}
+.pie-svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 158px;
+  height: 158px;
+  transform: translate(-50%, -50%);
+  display: block;
+}
+.pie-slice-0 { fill: var(--primary); }
+.pie-slice-1 { fill: var(--secondary); }
+.pie-slice-2 { fill: var(--tertiary); }
+.pie-slice-3 { fill: color-mix(in srgb, var(--primary) 55%, var(--outline)); }
+.pie-slice-4 { fill: color-mix(in srgb, var(--secondary) 45%, var(--tertiary)); }
+.pie-callout {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.pie-callout .material-symbols-outlined {
+  font-size: 16px;
+  color: var(--on-surface-variant);
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--surface-container-high);
+  display: grid;
+  place-items: center;
+}
+.pie-callout-amt {
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--on-surface);
+  white-space: nowrap;
+  background: var(--surface-container-lowest);
+  padding: 1px 5px;
+  border-radius: 6px;
+}
+html[data-theme="dark"] .pie-callout-amt {
+  background: var(--surface-container-high);
+}
+
+.chart-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.chart-tab {
+  border: none;
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.chart-tab[aria-pressed="true"] {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+.chart-svg {
+  width: 100%;
+  height: 168px;
+  display: block;
+}
+.chart-grid {
+  stroke: color-mix(in srgb, var(--outline-variant) 55%, transparent);
+  stroke-width: 1;
+}
+.chart-area {
+  fill: color-mix(in srgb, var(--secondary) 22%, transparent);
+}
+.chart-line {
+  fill: none;
+  stroke: var(--secondary);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.chart-line.is-safe { stroke: var(--hero-safe); }
+.chart-line.is-cash { stroke: var(--primary); }
+.chart-area.is-safe { fill: color-mix(in srgb, var(--hero-safe) 18%, transparent); }
+.chart-area.is-cash { fill: color-mix(in srgb, var(--primary) 18%, transparent); }
+.chart-point {
+  fill: var(--surface-container-lowest);
+  stroke: var(--secondary);
+  stroke-width: 2;
+}
+.chart-point.is-safe { stroke: var(--hero-safe); }
+.chart-point.is-cash { stroke: var(--primary); }
+.chart-axis {
+  font-size: 9px;
+  fill: var(--on-surface-variant);
+  font-family: "Google Sans", Roboto, system-ui, sans-serif;
+}
+
+.phone-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--hero-glow), var(--surface);
+  padding: 0 0 76px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top app bar */
+.app-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 4px;
+  flex-shrink: 0;
+  z-index: 2;
+  background: transparent;
+}
+.phone .app-bar {
+  gap: 6px;
+}
+.app-bar .brand {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--on-surface);
+  line-height: 1;
+}
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  line-height: 0;
+}
+.brand-mark svg {
+  width: 34px;
+  height: 34px;
+  display: block;
+  overflow: visible;
+}
+.brand-mark .accent { fill: var(--secondary); }
+.brand-mark .ink { fill: currentColor; }
+.brand-mark .stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.brand-mark .stroke-accent {
+  fill: none;
+  stroke: var(--secondary);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.brand-mark .coin-line {
+  fill: none;
+  stroke: var(--surface-container-lowest);
+  stroke-width: 1.45;
+  opacity: 1;
+}
+.brand-mark .coin-rim {
+  fill: none;
+  stroke: var(--surface-container-lowest);
+  stroke-width: 1.25;
+  opacity: 0.95;
+}
+.brand-mark .coin-seam {
+  fill: none;
+  stroke: var(--surface-container-lowest);
+  stroke-width: 1.1;
+  opacity: 0.55;
+}
+.brand-mark .coin-p,
+.brand-mark .coin-p-sm {
+  fill: var(--surface-container-lowest);
+  font-family: "Google Sans", Roboto, system-ui, sans-serif;
+  font-weight: 700;
+}
+.brand-mark .coin-p { font-size: 11px; }
+.brand-mark .coin-p-sm { font-size: 5.5px; font-weight: 700; }
+.brand-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+.brand[data-logo="wordmark"] .brand-mark { display: none; }
+.brand[data-logo="wordmark"] .brand-text {
+  font-size: 1.02rem;
+  letter-spacing: -0.03em;
+}
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  font-family: inherit;
+}
+.icon-btn:hover { background: var(--surface-container-high); }
+.icon-btn.filled {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+/* In-app pages */
+.app-pages {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.app-page {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.app-page[data-active] {
+  display: flex;
+}
+.page-stub {
+  padding: 28px 20px;
+  text-align: center;
+  margin: auto 0;
+}
+.page-stub .material-symbols-outlined {
+  font-size: 36px;
+  color: var(--on-surface-variant);
+  margin-bottom: 10px;
+}
+.page-stub h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin-bottom: 6px;
+}
+.page-stub p {
+  font-size: 0.82rem;
+  color: var(--on-surface-variant);
+  line-height: 1.45;
+  max-width: 28ch;
+  margin: 0 auto;
+}
+
+/* Settings page */
+.settings-stack {
+  padding: 8px 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.desktop-main .settings-stack {
+  padding: 8px 28px 28px;
+  max-width: 480px;
+}
+.settings-card {
+  background: var(--surface-container-lowest);
+  border-radius: 18px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+}
+html[data-theme="dark"] .settings-card {
+  background: var(--surface-container-low);
+  border-color: transparent;
+}
+.settings-card-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+  margin-bottom: 10px;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.settings-row-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+.settings-row-hint {
+  font-size: 0.75rem;
+  color: var(--on-surface-variant);
+  margin-top: 2px;
+}
+.theme-segment {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface-container-high);
+  gap: 2px;
+  flex-shrink: 0;
+}
+.theme-segment button {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.theme-segment button .material-symbols-outlined {
+  font-size: 16px;
+}
+.theme-segment button[aria-pressed="true"] {
+  background: var(--surface-container-lowest);
+  color: var(--on-surface);
+  box-shadow: 0 1px 3px var(--shadow);
+}
+html[data-theme="dark"] .theme-segment button[aria-pressed="true"] {
+  background: var(--surface-container-highest);
+}
+
+/* Hero — switchable metric (Betashares-style) */
+.hero {
+  text-align: center;
+  padding: 14px 20px 22px;
+  flex-shrink: 0;
+  touch-action: pan-y;
+  user-select: none;
+}
+.hero-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+  margin-bottom: 6px;
+  transition: color 0.2s ease;
+}
+.hero-figure-btn {
+  display: inline-block;
+  border: none;
+  background: none;
+  padding: 0 0 6px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--hero-accent, var(--primary));
+  border-bottom: 2px dotted color-mix(in srgb, var(--hero-accent, var(--primary)) 75%, transparent);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.hero-figure {
+  font-size: clamp(2.15rem, 9vw, 2.55rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 12px;
+}
+.hero-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--hero-accent, var(--primary)) 28%, transparent);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.hero-dot[aria-current="true"] {
+  background: var(--hero-accent, var(--primary));
+  transform: scale(1.15);
+}
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+.hero[data-metric="safe"] { --hero-accent: var(--hero-safe); }
+.hero[data-metric="in"] { --hero-accent: var(--hero-in); }
+.hero[data-metric="out"] { --hero-accent: var(--hero-out); }
+
+/* Cards */
+.stack {
+  padding: 4px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  justify-content: flex-start;
+}
+.card {
+  background: var(--surface-container-lowest);
+  border-radius: 18px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+}
+html[data-theme="dark"] .card {
+  background: var(--surface-container-low);
+  border-color: transparent;
+}
+.card-amount {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 4px 0;
+}
+.section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+.section-meta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
+
+.cat-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 10px 12px;
+  cursor: pointer;
+}
+.cat-card:hover { filter: brightness(1.02); }
+.cat-chevron {
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+  margin-top: 2px;
+}
+.cat-chevron .material-symbols-outlined {
+  font-size: 18px;
+}
+.cat-card-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cat-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cat-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--tertiary);
+}
+html[data-theme="dark"] .cat-name { color: var(--tertiary); }
+.cat-hint {
+  font-size: 0.75rem;
+  color: var(--on-surface-variant);
+  margin-top: 2px;
+}
+.cat-card .cat-bar-track {
+  width: 100%;
+}
+
+/* Bottom nav — M3 */
+.bottom-nav {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  height: 64px;
+  background: var(--surface-container-lowest);
+  border-radius: 28px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  box-shadow: 0 8px 28px var(--shadow);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 40%, transparent);
+  z-index: 3;
+}
+html[data-theme="dark"] .bottom-nav {
+  background: var(--surface-container-high);
+  border-color: transparent;
+}
+.nav-item {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--on-surface-variant);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+.nav-item .ico {
+  width: 56px;
+  height: 32px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+}
+.nav-item.active { color: var(--on-primary-container); }
+.nav-item.active .ico { background: var(--nav-indicator); }
+.nav-item.active .material-symbols-outlined {
+  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+}
+
+.controls {
+  width: 100%;
+  max-width: 1280px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+.controls-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 248, 0.55);
+  width: 100%;
+  text-align: center;
+}
+.pill {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #e8eaed;
+  color: #202124;
+}
+.pill.primary,
+.pill[aria-pressed="true"] {
+  background: #255a8c;
+  color: white;
+}
+.pill.palette-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.pill-swatches {
+  display: inline-flex;
+  gap: 3px;
+}
+.pill-swatches i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: block;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+.notes {
+  max-width: 1200px;
+  width: 100%;
+  margin-top: 28px;
+  color: #e8eaed;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.notes h2 {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+.notes ul { padding-left: 1.2em; }
+.notes li { margin: 4px 0; opacity: 0.88; }
+.badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #34a853;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+/* Palette board — live token swatches */
+.palette {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 28px;
+  padding: 20px 22px 22px;
+  border-radius: 16px;
+  background: #2a2f36;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f4f6f8;
+}
+.palette-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.palette-head h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.palette-head .meta {
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+.palette-group + .palette-group {
+  margin-top: 18px;
+}
+.palette-group-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 248, 0.55);
+  margin-bottom: 8px;
+}
+.swatch-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 10px;
+}
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.swatch-chip {
+  height: 52px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+.swatch-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 52px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.swatch-pair > span { display: block; height: 100%; }
+.swatch-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.swatch-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.swatch-hex {
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+/* Logo exploration board */
+.logo-board {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 28px;
+  padding: 20px 22px 22px;
+  border-radius: 16px;
+  background: #2a2f36;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f4f6f8;
+}
+.logo-board-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.logo-board-head h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.logo-board-head .meta {
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+.logo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.logo-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1a1e23;
+  border-radius: 14px;
+  padding: 14px 12px 12px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.logo-card:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+.logo-card[aria-pressed="true"] {
+  border-color: #d4c19a;
+  box-shadow: 0 0 0 1px #d4c19a;
+}
+.logo-card-preview {
+  height: 72px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 10px;
+  background: #f6f5f4;
+  color: #3a332e;
+}
+.logo-card-preview.svg-wrap svg {
+  width: 48px;
+  height: 48px;
+}
+.logo-card-preview .accent { fill: #7a6848; }
+.logo-card-preview .ink { fill: currentColor; }
+.logo-card-preview .stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.logo-card-preview .stroke-accent {
+  fill: none;
+  stroke: #7a6848;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.logo-card-preview .coin-line {
+  fill: none;
+  stroke: #f6f5f4;
+  stroke-width: 1.45;
+  opacity: 1;
+}
+.logo-card-preview .coin-rim {
+  fill: none;
+  stroke: #f6f5f4;
+  stroke-width: 1.25;
+  opacity: 0.95;
+}
+.logo-card-preview .coin-seam {
+  fill: none;
+  stroke: #f6f5f4;
+  stroke-width: 1.1;
+  opacity: 0.55;
+}
+.logo-card-preview .coin-p,
+.logo-card-preview .coin-p-sm {
+  fill: #f6f5f4;
+  font-family: "Google Sans", Roboto, system-ui, sans-serif;
+  font-weight: 700;
+}
+.logo-card-preview .coin-p { font-size: 11px; }
+.logo-card-preview .coin-p-sm { font-size: 5.5px; }
+.logo-card-preview.wordmark-preview {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
+}
+.logo-card-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.logo-card-desc {
+  font-size: 0.72rem;
+  opacity: 0.65;
+  line-height: 1.35;
+}
+</style>
+</head>
+<body>
+  <div class="page-intro">
+    <div class="badge">Mockup only — not live app</div>
+    <h1>Pensive — phone + desktop facelift</h1>
+    <p>
+      Dusk look + logo explorations you can click into the app bars.
+      Page shells: Home / Monthly / Payables / Chat + Settings. Theme lives in Settings.
+    </p>
+    <p class="meta">Nav / logo / theme sync across frames. File: <code>ui-facelift-mockup.html</code>.</p>
+  </div>
+
+  <div class="stage">
+    <div class="device-col">
+      <div class="device-label">Desktop · ~860</div>
+      <div class="desktop" id="desktop">
+        <div class="browser-chrome" aria-hidden="true">
+          <div class="browser-dots"><span></span><span></span><span></span></div>
+          <div class="browser-url" data-browser-url>pensive · Home</div>
+        </div>
+        <div class="desktop-shell">
+          <nav class="side-rail" aria-label="Primary">
+            <button class="rail-item active" type="button" data-nav="home"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">home</span></span>Home</button>
+            <button class="rail-item" type="button" data-nav="monthly"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span></span>Monthly</button>
+            <button class="rail-item" type="button" data-nav="payables"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">sync_alt</span></span>Payables</button>
+            <button class="rail-item" type="button" data-nav="chat"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span></span>Chat</button>
+          </nav>
+          <div class="desktop-main">
+            <header class="app-bar">
+              <div class="brand" data-app-brand data-logo="stacked-pence">
+                <span class="brand-mark" data-brand-mark aria-hidden="true"></span>
+                <span class="brand-text" data-app-title>Pensive</span>
+              </div>
+              <div class="scope-switch is-visible" role="group" aria-label="View scope">
+                <span class="scope-label is-active" data-scope-label="me">Just me</span>
+                <button class="scope-toggle" type="button" role="switch" data-scope-toggle aria-checked="false" aria-label="Switch between Just me and Household">
+                  <span class="scope-toggle-thumb" aria-hidden="true"></span>
+                </button>
+                <span class="scope-label" data-scope-label="household">Household</span>
+              </div>
+              <button class="icon-btn filled" type="button" data-nav="settings" title="Settings" aria-label="Open settings">
+                <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+              </button>
+            </header>
+
+            <div class="app-pages">
+              <div class="app-page" data-page="home" data-active>
+                <section class="hero-fan" aria-label="Period totals">
+                  <div class="hero-fan-row">
+                    <div class="hero-metric" data-metric="safe">
+                      <div class="hero-label">Safe to spend</div>
+                      <div class="hero-figure">$1,248</div>
+                      <div class="hero-chip">After bills &amp; savings this fortnight</div>
+                    </div>
+                    <div class="hero-metric" data-metric="in">
+                      <div class="hero-label">Money in</div>
+                      <div class="hero-figure">$4,525</div>
+                      <div class="hero-chip">Salary this fortnight</div>
+                    </div>
+                    <div class="hero-metric" data-metric="out">
+                      <div class="hero-label">Money out</div>
+                      <div class="hero-figure">$3,277</div>
+                      <div class="hero-chip">Bills + savings this fortnight</div>
+                    </div>
+                  </div>
+                </section>
+                <div class="home-body" data-home-insights></div>
+              </div>
+
+              <div class="app-page" data-page="monthly">
+                <div class="page-stub">
+                  <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                  <h2>Monthly</h2>
+                  <p>Period bills &amp; savings will land here once we settle the look.</p>
+                </div>
+              </div>
+              <div class="app-page" data-page="payables">
+                <div class="page-stub">
+                  <span class="material-symbols-outlined" aria-hidden="true">sync_alt</span>
+                  <h2>Payables</h2>
+                  <p>Shared owing / ledger content — placeholder for now.</p>
+                </div>
+              </div>
+              <div class="app-page" data-page="chat">
+                <div class="page-stub">
+                  <span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span>
+                  <h2>Chat</h2>
+                  <p>Assistant shell — placeholder for now.</p>
+                </div>
+              </div>
+              <div class="app-page" data-page="settings">
+                <div class="settings-stack">
+                  <div class="settings-card">
+                    <div class="settings-card-title">Appearance</div>
+                    <div class="settings-row">
+                      <div>
+                        <div class="settings-row-label">Theme</div>
+                        <div class="settings-row-hint">Light or dark across the app</div>
+                      </div>
+                      <div class="theme-segment" role="group" aria-label="Theme">
+                        <button type="button" data-theme-set="light" aria-pressed="true">
+                          <span class="material-symbols-outlined" aria-hidden="true">light_mode</span> Light
+                        </button>
+                        <button type="button" data-theme-set="dark" aria-pressed="false">
+                          <span class="material-symbols-outlined" aria-hidden="true">dark_mode</span> Dark
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="settings-card">
+                    <div class="settings-card-title">Coming soon</div>
+                    <div class="settings-row-hint">Accounts, salary defaults, and household options will sit here.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-col">
+      <div class="device-label">Phone · 390</div>
+      <div class="phone" id="phone">
+        <div class="phone-scroll">
+          <header class="app-bar">
+            <div class="brand" data-app-brand data-logo="stacked-pence">
+              <span class="brand-mark" data-brand-mark aria-hidden="true"></span>
+              <span class="brand-text" data-app-title>Pensive</span>
+            </div>
+            <div class="scope-switch is-visible" role="group" aria-label="View scope">
+              <span class="scope-label is-active" data-scope-label="me">Just me</span>
+              <button class="scope-toggle" type="button" role="switch" data-scope-toggle aria-checked="false" aria-label="Switch between Just me and Household">
+                <span class="scope-toggle-thumb" aria-hidden="true"></span>
+              </button>
+              <span class="scope-label" data-scope-label="household">Household</span>
+            </div>
+            <button class="icon-btn filled" type="button" data-nav="settings" title="Settings" aria-label="Open settings">
+              <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+            </button>
+          </header>
+
+          <div class="app-pages">
+            <div class="app-page" data-page="home" data-active>
+              <section class="hero hero-carousel" data-metric="safe" aria-roledescription="carousel">
+                <div class="hero-label">Safe to spend</div>
+                <button class="hero-figure-btn" type="button" aria-label="Switch hero metric">
+                  <span class="hero-figure">$1,248</span>
+                </button>
+                <div class="hero-dots" role="tablist" aria-label="Hero metrics">
+                  <button class="hero-dot" type="button" role="tab" data-idx="0" aria-current="true" aria-label="Safe to spend"></button>
+                  <button class="hero-dot" type="button" role="tab" data-idx="1" aria-label="Money in"></button>
+                  <button class="hero-dot" type="button" role="tab" data-idx="2" aria-label="Money out"></button>
+                </div>
+                <div class="hero-chip">After bills &amp; savings this fortnight</div>
+              </section>
+              <div class="home-body" data-home-insights></div>
+            </div>
+
+            <div class="app-page" data-page="monthly">
+              <div class="page-stub">
+                <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                <h2>Monthly</h2>
+                <p>Period bills &amp; savings will land here once we settle the look.</p>
+              </div>
+            </div>
+            <div class="app-page" data-page="payables">
+              <div class="page-stub">
+                <span class="material-symbols-outlined" aria-hidden="true">sync_alt</span>
+                <h2>Payables</h2>
+                <p>Shared owing / ledger content — placeholder for now.</p>
+              </div>
+            </div>
+            <div class="app-page" data-page="chat">
+              <div class="page-stub">
+                <span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span>
+                <h2>Chat</h2>
+                <p>Assistant shell — placeholder for now.</p>
+              </div>
+            </div>
+            <div class="app-page" data-page="settings">
+              <div class="settings-stack">
+                <div class="settings-card">
+                  <div class="settings-card-title">Appearance</div>
+                  <div class="settings-row">
+                    <div>
+                      <div class="settings-row-label">Theme</div>
+                      <div class="settings-row-hint">Light or dark across the app</div>
+                    </div>
+                    <div class="theme-segment" role="group" aria-label="Theme">
+                      <button type="button" data-theme-set="light" aria-pressed="true">
+                        <span class="material-symbols-outlined" aria-hidden="true">light_mode</span> Light
+                      </button>
+                      <button type="button" data-theme-set="dark" aria-pressed="false">
+                        <span class="material-symbols-outlined" aria-hidden="true">dark_mode</span> Dark
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="settings-card">
+                  <div class="settings-card-title">Coming soon</div>
+                  <div class="settings-row-hint">Accounts, salary defaults, and household options will sit here.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="bottom-nav" aria-label="Primary">
+          <button class="nav-item active" type="button" data-nav="home"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">home</span></span>Home</button>
+          <button class="nav-item" type="button" data-nav="monthly"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span></span>Monthly</button>
+          <button class="nav-item" type="button" data-nav="payables"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">sync_alt</span></span>Payables</button>
+          <button class="nav-item" type="button" data-nav="chat"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span></span>Chat</button>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <section class="logo-board" aria-label="Logo explorations">
+    <div class="logo-board-head">
+      <h2>Logo explorations</h2>
+      <div class="meta" id="logoMeta">Pensive marks — click to preview in both app bars</div>
+    </div>
+    <div class="logo-grid" id="logoGrid"></div>
+  </section>
+
+  <div class="controls">
+    <div class="controls-label">Designer — palette template</div>
+    <div class="controls-row" id="palettePicker" role="group" aria-label="Palette template">
+      <button class="pill palette-pill" type="button" data-palette="ocean" aria-pressed="false" title="Blue + teal">
+        <span class="pill-swatches" aria-hidden="true"><i style="background:#255a8c"></i><i style="background:#0f6b58"></i><i style="background:#d3e4ff"></i></span>
+        Ocean
+      </button>
+      <button class="pill palette-pill" type="button" data-palette="graphite" aria-pressed="false" title="Ink + copper, neutral gray">
+        <span class="pill-swatches" aria-hidden="true"><i style="background:#2a2a2e"></i><i style="background:#a65d1f"></i><i style="background:#e6e6e9"></i></span>
+        Graphite
+      </button>
+      <button class="pill palette-pill" type="button" data-palette="slate" aria-pressed="false" title="Cool stone + rust">
+        <span class="pill-swatches" aria-hidden="true"><i style="background:#334155"></i><i style="background:#c2410c"></i><i style="background:#e4e4e7"></i></span>
+        Slate
+      </button>
+      <button class="pill palette-pill" type="button" data-palette="dusk" aria-pressed="true" title="Charcoal + muted gold">
+        <span class="pill-swatches" aria-hidden="true"><i style="background:#3a332e"></i><i style="background:#7a6848"></i><i style="background:#ebe6e2"></i></span>
+        Dusk
+      </button>
+    </div>
+  </div>
+
+  <section class="palette" id="palette" aria-label="Colour palette">
+    <div class="palette-head">
+      <h2>Colour template — live swatches</h2>
+      <div class="meta" id="paletteThemeMeta">Ocean · light</div>
+    </div>
+
+    <div class="palette-group">
+      <div class="palette-group-label">Brand</div>
+      <div class="swatch-row" data-swatch-group="brand"></div>
+    </div>
+    <div class="palette-group">
+      <div class="palette-group-label">Surfaces</div>
+      <div class="swatch-row" data-swatch-group="surfaces"></div>
+    </div>
+    <div class="palette-group">
+      <div class="palette-group-label">Text &amp; line</div>
+      <div class="swatch-row" data-swatch-group="text"></div>
+    </div>
+    <div class="palette-group">
+      <div class="palette-group-label">Hero accents (safe / in / out)</div>
+      <div class="swatch-row" data-swatch-group="hero"></div>
+    </div>
+  </section>
+
+  <div class="notes">
+    <h2>Design notes for review</h2>
+    <ul>
+      <li><strong>Logo</strong>: Pensive marks — P in coin, thoughtful P, leaning stack, seed penny, wordmark.</li>
+      <li><strong>Pages</strong>: Home / Monthly / Payables / Chat + Settings (gear). Monthly–Chat are stubs until content pass.</li>
+      <li><strong>Theme</strong>: Light/Dark only in Settings → Appearance.</li>
+      <li><strong>Palette</strong>: Dusk default; designer picker is for exploration only.</li>
+      <li><strong>Hero</strong>: desktop fans Safe to spend / Money in / Money out; phone keeps swipe + dots.</li>
+      <li><strong>Home insights</strong>: Just me / Household switcher, fortnight cards with progress bars, top recurring bills + expenses (split), categories + trend chart.</li>
+      <li><strong>IA</strong>: Home = overview. Chat in primary nav.</li>
+      <li>Production app is untouched — this is exploration only.</li>
+    </ul>
+  </div>
+
+<script>
+  const root = document.documentElement;
+
+  const LOGOS = [
+    {
+      id: 'p-coin',
+      name: 'P in coin',
+      desc: 'Penny + P — classic seal, gold rim.',
+      svg:
+        '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          '<circle class="stroke" cx="16" cy="16" r="11"/>' +
+          '<circle class="stroke-accent" cx="16" cy="16" r="8.6"/>' +
+          '<path class="ink" d="M13.2 9.4h5.1c2.6 0 4.3 1.5 4.3 3.7 0 1.9-1.2 3.2-3.1 3.6l3.6 5.9h-3.5l-3.2-5.4h-1.1V22.6h-3.1V9.4zm3.1 2.5v3.4h1.7c1.1 0 1.8-.6 1.8-1.7s-.7-1.7-1.8-1.7H16.3z"/>' +
+        '</svg>',
+    },
+    {
+      id: 'pensive-p',
+      name: 'Thoughtful P',
+      desc: 'Lettermark with a quiet pause mark — think before you spend.',
+      svg:
+        '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          '<path class="ink" d="M9.5 6.5h7.2c3.8 0 6.3 2.3 6.3 5.7 0 3.3-2.5 5.6-6.3 5.6H12.8v7.7H9.5V6.5zm3.3 3v5.3h3.6c1.9 0 3.1-1 3.1-2.65S18.3 9.5 16.4 9.5h-3.6z"/>' +
+          '<circle class="accent" cx="24.2" cy="23.4" r="2.1"/>' +
+        '</svg>',
+    },
+    {
+      id: 'stacked-pence',
+      name: 'Leaning stack',
+      desc: 'Solid ellipse stack + front P coin — no P on the top coin.',
+      svg:
+        '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          // nudge up so mark optically centres with the wordmark
+          '<g transform="translate(0 -2.2)">' +
+            '<path class="ink" d="M14.6 21.8v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>' +
+            '<ellipse class="ink" cx="21" cy="24.5" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="ink" cx="21" cy="21.8" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="coin-seam" cx="21" cy="21.8" rx="6" ry="1.65"/>' +
+            '<path class="ink" d="M14.6 17.2v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>' +
+            '<ellipse class="ink" cx="21" cy="19.9" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="ink" cx="21" cy="17.2" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="coin-seam" cx="21" cy="17.2" rx="6" ry="1.65"/>' +
+            '<path class="ink" d="M14.6 12.6v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>' +
+            '<ellipse class="ink" cx="21" cy="15.3" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="ink" cx="21" cy="12.6" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="coin-seam" cx="21" cy="12.6" rx="6" ry="1.65"/>' +
+            '<g transform="rotate(-22 10.5 18.5)">' +
+              '<circle class="ink" cx="10.5" cy="18.5" r="8.4"/>' +
+              '<circle class="coin-rim" cx="10.5" cy="18.5" r="7"/>' +
+              '<text class="coin-p" x="10.5" y="21.7" text-anchor="middle">P</text>' +
+            '</g>' +
+          '</g>' +
+        '</svg>',
+    },
+    {
+      id: 'seed-penny',
+      name: 'Seed penny',
+      desc: 'Coin base + soft sprout — grow what you keep.',
+      svg:
+        '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          '<circle class="stroke" cx="16" cy="20.5" r="7.2"/>' +
+          '<circle class="accent" cx="16" cy="20.5" r="2"/>' +
+          '<path class="stroke-accent" d="M16 13.5V7.8"/>' +
+          '<path class="ink" d="M16 10.2c-2.4-1.8-5.2-1.5-5.8.4-.5 1.6 1.2 3.2 4.2 3.8 0-1.6.5-3 1.6-4.2z"/>' +
+          '<path class="ink" d="M16 10.2c2.4-1.8 5.2-1.5 5.8.4.5 1.6-1.2 3.2-4.2 3.8 0-1.6-.5-3-1.6-4.2z"/>' +
+        '</svg>',
+    },
+    {
+      id: 'wordmark',
+      name: 'Wordmark only',
+      desc: 'Just Pensive — no mark, elegant type in the bar.',
+      svg: '',
+      wordmark: true,
+    },
+  ];
+
+  const TOKEN_GROUPS = {
+    brand: [
+      { token: '--primary', label: 'primary' },
+      { token: '--primary-container', label: 'primary-container', on: '--on-primary-container' },
+      { token: '--secondary', label: 'secondary' },
+      { token: '--secondary-container', label: 'secondary-container', on: '--on-secondary-container' },
+      { token: '--tertiary', label: 'tertiary' },
+      { token: '--tertiary-container', label: 'tertiary-container' },
+      { token: '--error', label: 'error' },
+      { token: '--nav-indicator', label: 'nav-indicator' },
+    ],
+    surfaces: [
+      { token: '--surface', label: 'surface' },
+      { token: '--surface-container-lowest', label: 'container-lowest' },
+      { token: '--surface-container-low', label: 'container-low' },
+      { token: '--surface-container', label: 'container' },
+      { token: '--surface-container-high', label: 'container-high' },
+      { token: '--surface-container-highest', label: 'container-highest' },
+      { token: '--surface-dim', label: 'surface-dim' },
+    ],
+    text: [
+      { token: '--on-surface', label: 'on-surface' },
+      { token: '--on-surface-variant', label: 'on-surface-variant' },
+      { token: '--outline', label: 'outline' },
+      { token: '--outline-variant', label: 'outline-variant' },
+    ],
+    hero: [
+      { token: '--hero-safe', label: 'safe to spend' },
+      { token: '--hero-in', label: 'money in' },
+      { token: '--hero-out', label: 'money out' },
+    ],
+  };
+
+  const PALETTE_LABELS = {
+    ocean: 'Ocean — blue + teal (current)',
+    graphite: 'Graphite — ink + copper',
+    slate: 'Slate — stone + rust',
+    dusk: 'Dusk — charcoal + gold',
+  };
+
+  function cssColorToHex(value) {
+    if (!value) return '—';
+    const v = value.trim();
+    if (v.startsWith('#')) {
+      if (v.length === 4) {
+        return ('#' + [...v.slice(1)].map((c) => c + c).join('')).toLowerCase();
+      }
+      return v.slice(0, 7).toLowerCase();
+    }
+    const m = v.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+    if (!m) return v;
+    const hex = [m[1], m[2], m[3]].map((n) => {
+      const x = Math.round(Number(n)).toString(16).padStart(2, '0');
+      return x;
+    }).join('');
+    return '#' + hex;
+  }
+
+  function buildPalette() {
+    Object.entries(TOKEN_GROUPS).forEach(([group, items]) => {
+      const row = document.querySelector(`[data-swatch-group="${group}"]`);
+      if (!row) return;
+      row.innerHTML = '';
+      items.forEach((item) => {
+        const el = document.createElement('div');
+        el.className = 'swatch';
+        el.dataset.token = item.token;
+        if (item.fixedLight) {
+          el.dataset.fixedLight = item.fixedLight;
+          el.dataset.fixedDark = item.fixedDark;
+        }
+        if (item.on) {
+          el.innerHTML =
+            '<div class="swatch-pair">' +
+              '<span class="swatch-bg"></span>' +
+              '<span class="swatch-on"></span>' +
+            '</div>' +
+            '<div class="swatch-meta">' +
+              '<span class="swatch-name"></span>' +
+              '<span class="swatch-hex"></span>' +
+            '</div>';
+          el.querySelector('.swatch-name').textContent = item.label;
+          el.dataset.on = item.on;
+        } else {
+          el.innerHTML =
+            '<div class="swatch-chip swatch-bg"></div>' +
+            '<div class="swatch-meta">' +
+              '<span class="swatch-name"></span>' +
+              '<span class="swatch-hex"></span>' +
+            '</div>';
+          el.querySelector('.swatch-name').textContent = item.label;
+        }
+        row.appendChild(el);
+      });
+    });
+  }
+
+  function refreshPalette() {
+    const theme = root.getAttribute('data-theme') || 'light';
+    const palette = root.getAttribute('data-palette') || 'ocean';
+    const styles = getComputedStyle(root);
+    document.getElementById('paletteThemeMeta').textContent =
+      (PALETTE_LABELS[palette] || palette) + ' · ' + theme;
+
+    document.querySelectorAll('.swatch').forEach((el) => {
+      const color = styles.getPropertyValue(el.dataset.token).trim();
+      const bg = el.querySelector('.swatch-bg');
+      if (bg) bg.style.background = color;
+      const hexEl = el.querySelector('.swatch-hex');
+      if (el.dataset.on) {
+        const onColor = styles.getPropertyValue(el.dataset.on).trim();
+        const on = el.querySelector('.swatch-on');
+        if (on) on.style.background = onColor;
+        hexEl.textContent = cssColorToHex(color) + ' / ' + cssColorToHex(onColor);
+      } else {
+        hexEl.textContent = cssColorToHex(color);
+      }
+    });
+  }
+
+  buildPalette();
+  refreshPalette();
+
+  function buildLogoBoard() {
+    const grid = document.getElementById('logoGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    LOGOS.forEach((logo) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'logo-card';
+      btn.dataset.logo = logo.id;
+      btn.setAttribute('aria-pressed', 'false');
+      const previewClass = logo.wordmark ? 'logo-card-preview wordmark-preview' : 'logo-card-preview svg-wrap';
+      const previewInner = logo.wordmark ? 'Pensive' : logo.svg;
+      btn.innerHTML =
+        '<div class="' + previewClass + '">' + previewInner + '</div>' +
+        '<div class="logo-card-name"></div>' +
+        '<div class="logo-card-desc"></div>';
+      btn.querySelector('.logo-card-name').textContent = logo.name;
+      btn.querySelector('.logo-card-desc').textContent = logo.desc;
+      btn.addEventListener('click', () => setLogo(logo.id));
+      grid.appendChild(btn);
+    });
+  }
+
+  function setLogo(id) {
+    const logo = LOGOS.find((l) => l.id === id) || LOGOS[0];
+    document.querySelectorAll('[data-app-brand]').forEach((brand) => {
+      brand.dataset.logo = logo.id;
+      const mark = brand.querySelector('[data-brand-mark]');
+      if (!mark) return;
+      mark.innerHTML = logo.wordmark ? '' : logo.svg;
+    });
+    document.querySelectorAll('#logoGrid .logo-card').forEach((card) => {
+      card.setAttribute('aria-pressed', card.dataset.logo === logo.id ? 'true' : 'false');
+    });
+    const meta = document.getElementById('logoMeta');
+    if (meta) meta.textContent = 'Selected: ' + logo.name + ' · previews in both app bars';
+  }
+
+  buildLogoBoard();
+  setLogo('stacked-pence');
+
+  const PAGE_TITLES = {
+    home: 'Pensive',
+    monthly: 'Monthly',
+    payables: 'Payables',
+    chat: 'Chat',
+    settings: 'Settings',
+  };
+  const PRIMARY_PAGES = new Set(['home', 'monthly', 'payables', 'chat']);
+  let currentPage = 'home';
+
+  function setTheme(mode) {
+    root.setAttribute('data-theme', mode);
+    document.querySelectorAll('[data-theme-set]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', btn.dataset.themeSet === mode ? 'true' : 'false');
+    });
+    refreshPalette();
+  }
+
+  function setPalette(name) {
+    root.setAttribute('data-palette', name);
+    document.querySelectorAll('#palettePicker [data-palette]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', btn.dataset.palette === name ? 'true' : 'false');
+    });
+    refreshPalette();
+  }
+
+  function setPage(name) {
+    if (!PAGE_TITLES[name]) return;
+    currentPage = name;
+    document.querySelectorAll('.app-page').forEach((page) => {
+      if (page.dataset.page === name) page.setAttribute('data-active', '');
+      else page.removeAttribute('data-active');
+    });
+    document.querySelectorAll('[data-app-title]').forEach((el) => {
+      el.textContent = PAGE_TITLES[name];
+    });
+    document.querySelectorAll('[data-browser-url]').forEach((el) => {
+      el.textContent = 'pensive · ' + PAGE_TITLES[name];
+    });
+    document.querySelectorAll('[data-nav]').forEach((btn) => {
+      const target = btn.dataset.nav;
+      const isPrimary = btn.classList.contains('nav-item') || btn.classList.contains('rail-item');
+      if (isPrimary) {
+        btn.classList.toggle('active', PRIMARY_PAGES.has(name) && target === name);
+      }
+      if (target === 'settings') {
+        btn.classList.toggle('filled', name === 'settings');
+      }
+    });
+    document.querySelectorAll('.scope-switch').forEach((el) => {
+      el.classList.toggle('is-visible', name === 'home');
+    });
+  }
+
+  document.querySelectorAll('[data-theme-set]').forEach((btn) => {
+    btn.addEventListener('click', () => setTheme(btn.dataset.themeSet));
+  });
+  document.querySelectorAll('#palettePicker [data-palette]').forEach((btn) => {
+    btn.addEventListener('click', () => setPalette(btn.dataset.palette));
+  });
+  document.querySelectorAll('[data-nav]').forEach((btn) => {
+    btn.addEventListener('click', () => setPage(btn.dataset.nav));
+  });
+
+  const SCOPE = {
+    me: {
+      cards: [
+        { name: 'Housing & bills', hint: '4 of 14 settled this fortnight', amount: '$3,134', pct: 29 },
+        { name: 'Payables', hint: '3 of 8 settled in total', amount: '$2,559', pct: 38 },
+      ],
+      // Bills = fixed obligations (debt, utilities, insurance, housing).
+      // Expenses = lifestyle / discretionary / groceries / subs.
+      bills: [
+        { name: 'Mortgage', amount: '$3,134' },
+        { name: 'Car installment', amount: '$930' },
+        { name: 'Bupa Health', amount: '$197' },
+        { name: 'Telstra', amount: '$188' },
+        { name: 'Personal loan share', amount: '$170' },
+      ],
+      expenses: [
+        { name: 'Groceries', amount: '$625' },
+        { name: 'ChatGPT', amount: '$30' },
+        { name: 'Clip Studio', amount: '$19' },
+        { name: 'Netflix', amount: '$15' },
+        { name: 'Disney+', amount: '$11' },
+      ],
+      categories: [
+        { name: 'Housing', value: 3134, amount: '$3,134', icon: 'home' },
+        { name: 'Food', value: 625, amount: '$625', icon: 'restaurant' },
+        { name: 'Transport', value: 480, amount: '$480', icon: 'directions_car' },
+        { name: 'Health', value: 197, amount: '$197', icon: 'health_and_safety' },
+        { name: 'Subs', value: 95, amount: '$95', icon: 'subscriptions' },
+      ],
+      charts: {
+        expenses: [42, 48, 45, 52, 49, 58, 55],
+        safe: [38, 36, 40, 34, 32, 30, 28],
+        cashflow: [20, 35, 22, 40, 28, 45, 38],
+      },
+    },
+    household: {
+      cards: [
+        { name: 'Housing & bills', hint: '9 of 22 settled this fortnight', amount: '$6,268', pct: 41 },
+        { name: 'Shared payables', hint: 'Household · 5 of 12 settled in total', amount: '$2,559', pct: 42 },
+      ],
+      bills: [
+        { name: 'Mortgage', amount: '$3,134' },
+        { name: 'Car installment', amount: '$930' },
+        { name: 'Personal loan share', amount: '$339' },
+        { name: 'Bupa Health', amount: '$197' },
+        { name: 'Telstra', amount: '$188' },
+      ],
+      expenses: [
+        { name: 'Groceries', amount: '$625' },
+        { name: 'ChatGPT', amount: '$30' },
+        { name: 'Clip Studio', amount: '$19' },
+        { name: 'Netflix', amount: '$15' },
+        { name: 'Disney+', amount: '$11' },
+      ],
+      categories: [
+        { name: 'Housing', value: 6268, amount: '$6,268', icon: 'home' },
+        { name: 'Transport', value: 1410, amount: '$1,410', icon: 'directions_car' },
+        { name: 'Food', value: 980, amount: '$980', icon: 'restaurant' },
+        { name: 'Health', value: 394, amount: '$394', icon: 'health_and_safety' },
+        { name: 'Subs', value: 210, amount: '$210', icon: 'subscriptions' },
+      ],
+      charts: {
+        expenses: [50, 54, 52, 60, 58, 64, 62],
+        safe: [44, 42, 46, 40, 38, 36, 34],
+        cashflow: [28, 40, 30, 48, 36, 52, 44],
+      },
+    },
+  };
+
+  const CHART_META = {
+    expenses: { label: 'Expenses trend', cls: '' },
+    safe: { label: 'Safe to spend trend', cls: 'is-safe' },
+    cashflow: { label: 'Cashflow', cls: 'is-cash' },
+  };
+
+  let currentScope = 'me';
+  let currentChart = 'expenses';
+
+  function renderPieChart(categories) {
+    const total = categories.reduce((sum, c) => sum + c.value, 0) || 1;
+    const cx = 60;
+    const cy = 60;
+    const r = 50;
+    const radarCx = 130;
+    const radarCy = 124;
+    const labelR = 108;
+    let angle = -Math.PI / 2;
+    const slices = categories.map((c, i) => {
+      const slice = (c.value / total) * Math.PI * 2;
+      const start = angle;
+      const mid = start + slice / 2;
+      angle += slice;
+      const x1 = cx + r * Math.cos(start);
+      const y1 = cy + r * Math.sin(start);
+      const x2 = cx + r * Math.cos(angle);
+      const y2 = cy + r * Math.sin(angle);
+      const large = slice > Math.PI ? 1 : 0;
+      const d = 'M ' + cx + ' ' + cy +
+        ' L ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
+        ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2) + ' Z';
+      const left = radarCx + Math.cos(mid) * labelR;
+      const top = radarCy + Math.sin(mid) * labelR;
+      return {
+        d,
+        cls: 'pie-slice-' + i,
+        name: c.name,
+        amount: c.amount,
+        icon: c.icon || 'circle',
+        left,
+        top,
+      };
+    });
+    const paths = slices.map((s) =>
+      '<path class="' + s.cls + '" d="' + s.d + '"><title>' + s.name + ' ' + s.amount + '</title></path>'
+    ).join('');
+    const callouts = slices.map((s) =>
+      '<div class="pie-callout" style="left:' + s.left.toFixed(1) + 'px;top:' + s.top.toFixed(1) + 'px" title="' + s.name + '">' +
+        '<span class="material-symbols-outlined" aria-hidden="true">' + s.icon + '</span>' +
+        '<span class="pie-callout-amt">' + s.amount + '</span>' +
+      '</div>'
+    ).join('');
+    return (
+      '<div class="pie-layout">' +
+        '<div class="pie-radar">' +
+          '<svg class="pie-svg" viewBox="0 0 120 120" role="img" aria-label="Expense categories pie chart">' +
+            paths +
+          '</svg>' +
+          callouts +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function chartPaths(values) {
+    const w = 320;
+    const h = 140;
+    const padX = 28;
+    const padY = 16;
+    const innerW = w - padX * 2;
+    const innerH = h - padY * 2;
+    const min = Math.min(...values) - 4;
+    const max = Math.max(...values) + 4;
+    const pts = values.map((v, i) => {
+      const x = padX + (innerW * i) / (values.length - 1);
+      const y = padY + innerH * (1 - (v - min) / (max - min));
+      return [x, y];
+    });
+    const line = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const area = line + ' L' + pts[pts.length - 1][0].toFixed(1) + ' ' + (padY + innerH) +
+      ' L' + pts[0][0].toFixed(1) + ' ' + (padY + innerH) + ' Z';
+    return { line, area, pts, w, h, padX, padY, innerH };
+  }
+
+  function renderChartSvg(values, cls) {
+    const { line, area, pts, w, h, padX, padY, innerH } = chartPaths(values);
+    const labels = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'];
+    const grid = [0.25, 0.5, 0.75].map((t) => {
+      const y = padY + innerH * t;
+      return '<line class="chart-grid" x1="' + padX + '" y1="' + y + '" x2="' + (w - padX) + '" y2="' + y + '"/>';
+    }).join('');
+    const points = pts.map((p) =>
+      '<circle class="chart-point ' + cls + '" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.2"/>'
+    ).join('');
+    const axis = pts.map((p, i) =>
+      '<text class="chart-axis" x="' + p[0].toFixed(1) + '" y="' + (h - 4) + '" text-anchor="middle">' + labels[i] + '</text>'
+    ).join('');
+    return (
+      '<svg class="chart-svg" viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="Trend chart">' +
+        grid +
+        '<path class="chart-area ' + cls + '" d="' + area + '"/>' +
+        '<path class="chart-line ' + cls + '" d="' + line + '"/>' +
+        points +
+        axis +
+      '</svg>'
+    );
+  }
+
+  function homeInsightsHtml(scopeKey) {
+    const d = SCOPE[scopeKey];
+    const cards = d.cards.map((c) =>
+      '<article class="card cat-card">' +
+        '<div class="cat-chevron"><span class="material-symbols-outlined" aria-hidden="true">expand_more</span></div>' +
+        '<div class="cat-card-body">' +
+          '<div class="cat-card-top">' +
+            '<div><div class="cat-name">' + c.name + '</div><div class="cat-hint">' + c.hint + '</div></div>' +
+            '<div class="card-amount">' + c.amount + '</div>' +
+          '</div>' +
+          '<div class="cat-bar-track" aria-hidden="true">' +
+            '<div class="cat-bar-fill" style="width:' + c.pct + '%"></div>' +
+          '</div>' +
+        '</div>' +
+      '</article>'
+    ).join('');
+    const listRows = (items) => items.map((b) =>
+      '<div class="bill-row">' +
+        '<div class="bill-name">' + b.name + '</div>' +
+        '<div class="bill-amount">' + b.amount + '</div>' +
+      '</div>'
+    ).join('');
+    const chartCls = CHART_META[currentChart].cls;
+    return (
+      '<div class="fortnight-row">' +
+        cards +
+      '</div>' +
+      '<div class="insights-split">' +
+        '<article class="card">' +
+          '<div class="panel-card-head"><div class="panel-card-title">Top expense categories</div></div>' +
+          renderPieChart(d.categories) +
+        '</article>' +
+        '<article class="card">' +
+          '<div class="panel-card-head"><div class="panel-card-title">Trends</div></div>' +
+          '<div class="chart-tabs" role="tablist" aria-label="Chart type">' +
+            '<button class="chart-tab" type="button" data-chart="expenses" aria-pressed="' + (currentChart === 'expenses') + '">Expenses</button>' +
+            '<button class="chart-tab" type="button" data-chart="safe" aria-pressed="' + (currentChart === 'safe') + '">Safe to spend</button>' +
+            '<button class="chart-tab" type="button" data-chart="cashflow" aria-pressed="' + (currentChart === 'cashflow') + '">Cashflow</button>' +
+          '</div>' +
+          '<div data-chart-mount>' + renderChartSvg(d.charts[currentChart], chartCls) + '</div>' +
+        '</article>' +
+      '</div>' +
+      '<div class="recurring-row">' +
+        '<article class="card bills-card">' +
+          '<div class="panel-card-head"><div class="panel-card-title">Top recurring bills</div></div>' +
+          listRows(d.bills) +
+        '</article>' +
+        '<article class="card bills-card">' +
+          '<div class="panel-card-head"><div class="panel-card-title">Top recurring expenses</div></div>' +
+          listRows(d.expenses) +
+        '</article>' +
+      '</div>'
+    );
+  }
+
+  function wireHomeInsights(rootEl) {
+    rootEl.querySelectorAll('[data-chart]').forEach((btn) => {
+      btn.addEventListener('click', () => setChart(btn.dataset.chart));
+    });
+  }
+
+  function syncScopeToggle() {
+    const isHousehold = currentScope === 'household';
+    document.querySelectorAll('[data-scope-toggle]').forEach((btn) => {
+      btn.setAttribute('aria-checked', isHousehold ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-scope-label]').forEach((el) => {
+      el.classList.toggle('is-active', el.dataset.scopeLabel === currentScope);
+    });
+  }
+
+  function renderHomeInsights() {
+    const html = homeInsightsHtml(currentScope);
+    document.querySelectorAll('[data-home-insights]').forEach((el) => {
+      el.innerHTML = html;
+      wireHomeInsights(el);
+    });
+    syncScopeToggle();
+  }
+
+  function setScope(scope) {
+    currentScope = scope;
+    renderHomeInsights();
+  }
+
+  document.querySelectorAll('[data-scope-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setScope(currentScope === 'me' ? 'household' : 'me');
+    });
+  });
+  document.querySelectorAll('[data-scope-label]').forEach((el) => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => setScope(el.dataset.scopeLabel));
+  });
+
+  function setChart(chart) {
+    currentChart = chart;
+    const d = SCOPE[currentScope];
+    const cls = CHART_META[chart].cls;
+    document.querySelectorAll('[data-home-insights]').forEach((rootEl) => {
+      rootEl.querySelectorAll('[data-chart]').forEach((btn) => {
+        btn.setAttribute('aria-pressed', btn.dataset.chart === chart ? 'true' : 'false');
+      });
+      const mount = rootEl.querySelector('[data-chart-mount]');
+      if (mount) mount.innerHTML = renderChartSvg(d.charts[chart], cls);
+    });
+  }
+
+  renderHomeInsights();
+  setPage('home');
+  setTheme(root.getAttribute('data-theme') || 'light');
+
+  const metrics = [
+    {
+      id: 'safe',
+      label: 'Safe to spend',
+      value: '$1,248',
+      chip: 'After bills & savings this fortnight',
+    },
+    {
+      id: 'in',
+      label: 'Money in',
+      value: '$4,525',
+      chip: 'Salary this fortnight',
+    },
+    {
+      id: 'out',
+      label: 'Money out',
+      value: '$3,277',
+      chip: 'Bills + savings this fortnight',
+    },
+  ];
+
+  // Compact/phone only — desktop fans all three metrics out.
+  const heroes = [...document.querySelectorAll('.hero-carousel')];
+  let metricIndex = 0;
+
+  function setMetric(i) {
+    metricIndex = (i + metrics.length) % metrics.length;
+    const m = metrics[metricIndex];
+    heroes.forEach((hero) => {
+      hero.dataset.metric = m.id;
+      hero.querySelector('.hero-label').textContent = m.label;
+      hero.querySelector('.hero-figure').textContent = m.value;
+      hero.querySelector('.hero-chip').textContent = m.chip;
+      const btn = hero.querySelector('.hero-figure-btn');
+      btn.setAttribute('aria-label', m.label + '. Tap to switch metric');
+      hero.querySelectorAll('.hero-dot').forEach((d, idx) => {
+        if (idx === metricIndex) d.setAttribute('aria-current', 'true');
+        else d.removeAttribute('aria-current');
+      });
+    });
+  }
+
+  heroes.forEach((hero) => {
+    hero.querySelector('.hero-figure-btn').addEventListener('click', () => setMetric(metricIndex + 1));
+    hero.querySelectorAll('.hero-dot').forEach((d) => {
+      d.addEventListener('click', () => setMetric(Number(d.dataset.idx)));
+    });
+
+    let touchX = null;
+    hero.addEventListener('touchstart', (e) => {
+      touchX = e.changedTouches[0].clientX;
+    }, { passive: true });
+    hero.addEventListener('touchend', (e) => {
+      if (touchX == null) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      touchX = null;
+      if (Math.abs(dx) < 40) return;
+      setMetric(metricIndex + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  });
+
+  setMetric(0);
+</script>
+</body>
+</html>

@@ -170,3 +170,29 @@ No Firebase project credentials and no Anthropic API key in this environment, an
 | Rose | 6 | PASS WITH NOTES | Busy + dirty-on-fail fixed; cancel toast added after notes |
 | Senior Reviewer | n/a | | Tier 2 |
 | Judge | | | |
+
+---
+
+## Facelift mockup pass (exploration only — `ui-facelift-mockup.html`)
+
+**Tier:** 2 — new Home hero UX pattern (mockup; production `index.html` untouched)
+
+**User intent:** Reflect real concepts — Safe to spend as hero; Betashares-style dotted underline + coloured value + pagination dots; tap/swipe to Money in / Money out; smaller hero number; remove estimated income green cell; THIS FORTNIGHT opposite side shows “N items left to pay”; remove “This fortnight · Elly”, put dots there instead.
+
+**Acceptance criteria**
+- [x] AC-M1: Hero default = Safe to spend; value smaller than previous mockup figure.
+- [x] AC-M2: Value has coloured dotted underline; accent colour + dots change per metric (safe / in / out).
+- [x] AC-M3: Tap value or swipe cycles metrics; dots are tappable and mark active view.
+- [x] AC-M4: Estimated income green card removed.
+- [x] AC-M5: Section head = “This fortnight” + dynamic “N items left to pay” (mock `periodItems.unpaid`).
+- [x] AC-M6: Subtitle “This fortnight · Elly” removed; dots sit under the figure.
+
+**Files touched:** `ui-facelift-mockup.html`, `.cursor/qa/session-traceability.md`
+
+**Regression risks:** Mock-only — no production path. Swipe uses touch events only (desktop = click). Items-left count is static mock until wired to real unticked bills.
+
+| Agent | Run | Verdict | Notes |
+|-------|-----|---------|-------|
+| Rose | facelift-1 | PASS WITH NOTES | AC-M1–M6 met; notes on stale copy / mock coherence / dot hit targets — copy + housing hint tidied after |
+
+**Desktop compare pass:** mockup shows Desktop (~860, left rail, 3-col cards) + Phone (390) side by side; hero/theme sync across frames.
