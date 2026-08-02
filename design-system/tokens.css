@@ -328,22 +328,21 @@ html[data-palette="azulejo"][data-theme="light"] {
   --on-secondary-container: #3d2e00;
   --tertiary: #0f766e;
   --tertiary-container: #ccfbf1;
-  /* Warm parchment surfaces so the saffron haze can dissolve into the page */
-  --surface: #f7efd4;
-  --surface-dim: #d9cdaa;
-  --surface-container-lowest: #fff8e8;
-  --surface-container-low: #f2e8c9;
-  --surface-container: #e9dcb6;
-  --surface-container-high: #e0d0a6;
-  --surface-container-highest: #d5c394;
-  --on-surface: #1f1a12;
-  --on-surface-variant: #5a5346;
-  --outline: #7a7262;
-  --outline-variant: #cfc5b0;
+  /* Quiet warm-neutral surfaces — saffron stays in accents, not the page wash */
+  --surface: #f8f7f4;
+  --surface-dim: #dcd9d2;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f2f0eb;
+  --surface-container: #ebe8e1;
+  --surface-container-high: #e4e0d8;
+  --surface-container-highest: #dbd7cd;
+  --on-surface: #1a1c1e;
+  --on-surface-variant: #4a4e54;
+  --outline: #74787f;
+  --outline-variant: #c6c7c9;
   --error: #b42318;
-  --shadow: rgba(31, 26, 18, 0.12);
-  /* Peak stays near the parchment chroma; mid-stop = surface for a soft dissolve */
-  --hero-glow: radial-gradient(ellipse 100% 75% at 50% -10%, #f0d27a 0%, #f7efd4 48%, transparent 76%);
+  --shadow: rgba(26, 28, 30, 0.12);
+  --hero-glow: linear-gradient(transparent, transparent);
   --nav-indicator: #d6e6fa;
   --hero-safe: #0f766e;
   --hero-in: #1a56a0;
@@ -360,21 +359,21 @@ html[data-palette="azulejo"][data-theme="dark"] {
   --on-secondary-container: #ffe7a3;
   --tertiary: #5eead4;
   --tertiary-container: #115e59;
-  /* Warm ink surfaces (amber undertone) so gold haze blends */
-  --surface: #1a150c;
-  --surface-dim: #1a150c;
-  --surface-container-lowest: #100d08;
-  --surface-container-low: #221c11;
-  --surface-container: #2b2416;
-  --surface-container-high: #352d1c;
-  --surface-container-highest: #423722;
-  --on-surface: #f3ecdf;
-  --on-surface-variant: #b8ae98;
-  --outline: #8f8570;
-  --outline-variant: #40392a;
+  /* Quiet warm-neutral ink — no amber page wash */
+  --surface: #12141a;
+  --surface-dim: #12141a;
+  --surface-container-lowest: #0c0e12;
+  --surface-container-low: #191c22;
+  --surface-container: #1f232b;
+  --surface-container-high: #2a2e37;
+  --surface-container-highest: #363b45;
+  --on-surface: #e8e9ed;
+  --on-surface-variant: #a8adb8;
+  --outline: #858a96;
+  --outline-variant: #3a3f4a;
   --error: #ffb4ab;
   --shadow: rgba(0, 0, 0, 0.55);
-  --hero-glow: radial-gradient(ellipse 100% 75% at 50% -10%, #3f3010 0%, #1a150c 48%, transparent 76%);
+  --hero-glow: linear-gradient(transparent, transparent);
   --nav-indicator: #1a56a0;
   --hero-safe: #5eead4;
   --hero-in: #9ec5ff;
