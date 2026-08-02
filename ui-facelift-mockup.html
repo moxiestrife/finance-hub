@@ -1464,16 +1464,40 @@ body {
   }
 
   let ctxOpenedAt = 0;
-  function openCtx(x, y) {
+  function openCtx(x, y, anchorEl) {
     const menu = ensureCtxMenu();
     menu.classList.add('is-open');
+    // Measure real size (was using a tall 280px guess that pinned menus to the viewport bottom)
+    menu.style.left = '0px';
+    menu.style.top = '0px';
     const pad = 8;
-    const w = 220;
-    const h = 280;
-    const left = Math.min(x, window.innerWidth - w - pad);
-    const top = Math.min(y, window.innerHeight - h - pad);
-    menu.style.left = Math.max(pad, left) + 'px';
-    menu.style.top = Math.max(pad, top) + 'px';
+    const mw = menu.offsetWidth || 220;
+    const mh = menu.offsetHeight || 240;
+    const anchor = anchorEl && anchorEl.getBoundingClientRect
+      ? anchorEl.getBoundingClientRect()
+      : null;
+
+    let left;
+    let top;
+    if (anchor) {
+      // Prefer just under the ⋯, right-aligned to the button
+      left = anchor.right - mw;
+      top = anchor.bottom + 4;
+      if (top + mh > window.innerHeight - pad) {
+        top = anchor.top - mh - 4; // flip above
+      }
+      if (left + mw > window.innerWidth - pad) left = window.innerWidth - mw - pad;
+      if (left < pad) left = pad;
+      if (top < pad) top = pad;
+    } else {
+      left = Math.min(Math.max(pad, x), window.innerWidth - mw - pad);
+      top = y + 4;
+      if (top + mh > window.innerHeight - pad) top = y - mh - 4;
+      if (top < pad) top = pad;
+    }
+
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
     // Ignore the opening gesture so the same click/contextmenu doesn't dismiss immediately
     ctxOpenedAt = Date.now();
   }
@@ -1522,9 +1546,12 @@ body {
       renderMonthly();
       showToast('Calc panel open');
     } else if (action === 'more') {
-      const badge = document.querySelector('[data-action-dock]');
-      const rect = badge ? badge.getBoundingClientRect() : { left: 40, bottom: 80 };
-      openCtx(rect.left + 20, (rect.top || 80) - 8);
+      const selId = [...monthlySelected][0];
+      const anchor = selId
+        ? document.querySelector('[data-ledger-id="' + selId + '"] [data-row-more]')
+        : document.querySelector('[data-action-dock]');
+      const rect = anchor ? anchor.getBoundingClientRect() : { left: 40, top: 80, right: 68, bottom: 108 };
+      openCtx(rect.left, rect.bottom, anchor);
     }
   }
 
@@ -1806,12 +1833,14 @@ body {
         e.stopPropagation();
         const id = row.dataset.ledgerId;
         if (id.indexOf('-salary') !== -1) return;
+        const moreBtn = row.querySelector('[data-row-more]');
         if (!monthlySelected.has(id)) {
           monthlySelected.clear();
           monthlySelected.add(id);
           renderMonthly();
         }
-        openCtx(e.clientX, e.clientY);
+        const anchor = document.querySelector('[data-ledger-id="' + id + '"] [data-row-more]') || moreBtn;
+        openCtx(e.clientX, e.clientY, anchor);
       });
       row.addEventListener('dragstart', (e) => {
         row.classList.add('dragging');
@@ -1841,7 +1870,10 @@ body {
       btn.addEventListener('click', () => showToast(btn.dataset.demoToast));
     });
     rootEl.querySelectorAll('[data-ctx-quick]').forEach((btn) => {
-      btn.addEventListener('click', () => runCtx(btn.dataset.ctxQuick));
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        runCtx(btn.dataset.ctxQuick);
+      });
     });
     rootEl.querySelectorAll('[data-clear-sel]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -1874,6 +1906,8 @@ body {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const id = btn.closest('[data-ledger-id]').dataset.ledgerId;
+        const cx = e.clientX;
+        const cy = e.clientY;
         // ⋯ always opens the action menu once the row is focused
         if (!monthlySelected.has(id)) {
           monthlySelected.clear();
@@ -1882,7 +1916,8 @@ body {
         monthlyExpanded.add(id);
         monthlyLastClicked = id;
         renderMonthly();
-        openCtx(e.clientX, e.clientY);
+        const anchor = document.querySelector('[data-ledger-id="' + id + '"] [data-row-more]');
+        openCtx(cx, cy, anchor);
       });
       btn.addEventListener('contextmenu', (e) => {
         e.preventDefault();
@@ -1893,7 +1928,8 @@ body {
           monthlySelected.add(id);
           renderMonthly();
         }
-        openCtx(e.clientX, e.clientY);
+        const anchor = document.querySelector('[data-ledger-id="' + id + '"] [data-row-more]') || btn;
+        openCtx(e.clientX, e.clientY, anchor);
       });
     });
 
@@ -1914,7 +1950,8 @@ body {
             renderMonthly();
           }
           const t = e.touches[0] || e.changedTouches[0];
-          openCtx(t.clientX, t.clientY);
+          const anchor = document.querySelector('[data-ledger-id="' + id + '"] [data-row-more]');
+          openCtx(t.clientX, t.clientY, anchor);
           showToast('Actions');
         }, 480);
       }, { passive: true });
