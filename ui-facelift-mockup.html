@@ -711,7 +711,7 @@ body {
       <li><strong>Palette</strong>: Dusk default; designer picker is for exploration only.</li>
       <li><strong>Hero</strong>: desktop fans Safe to spend / Money in / Money out; phone keeps swipe + dots. Copy uses “this fortnight” (Elly).</li>
       <li><strong>Home</strong>: scope switcher; fortnight cards; categories + trends; recurring bills + expenses split.</li>
-      <li><strong>Monthly</strong>: full capability surface — month picker, Money In/Out collapse, recurring/variable groups, savings, live safe-to-spend, multi-select + badge, right-click ctx menu, calc panel, drag affordance (demo toasts for modals).</li>
+      <li><strong>Monthly v2</strong>: progressive rows (check·name·amount; pay-to/♻/drag on select), phone period tabs, action dock (Done/Move/Pay to/More), long-press menu, auto-open Money In when overspent.</li>
       <li><strong>Payables</strong>: owing hero; Mine/Eric + All/Shared/Solo chips; open list + completed disclosure.</li>
       <li><strong>IA</strong>: Home = overview. Scope switch is Home-only.</li>
       <li>Production app is untouched — this is exploration only.</li>
@@ -1315,9 +1315,11 @@ body {
   let monthCursor = { year: 2026, month: 7 }; // Aug 2026
   let monthPickerOpen = false;
   let monthlySelected = new Set(); // bill ids
+  let monthlyExpanded = new Set(); // row ids with ⋯ open
   let monthlyLastClicked = null;
   let calcVisible = false;
   let calcOp = 'sum';
+  let focusedPeriodId = 'p1'; // phone period focus
 
   const MONTHLY = {
     salary: 4524.58,
@@ -1512,30 +1514,47 @@ body {
       calcOp = 'sum';
       renderMonthly();
       showToast('Calc panel open');
+    } else if (action === 'more') {
+      const badge = document.querySelector('[data-action-dock]');
+      const rect = badge ? badge.getBoundingClientRect() : { left: 40, bottom: 80 };
+      openCtx(rect.left + 20, (rect.top || 80) - 8);
     }
   }
 
   function ledgerRowHtml(row, opts) {
     opts = opts || {};
     const selected = monthlySelected.has(row.id);
+    const expanded = monthlyExpanded.has(row.id) || selected;
     const cls = [
       'ledger-row',
       row.paid ? 'is-paid' : '',
       selected ? 'is-selected' : '',
+      expanded ? 'is-expanded' : '',
       opts.salary ? 'ledger-salary' : '',
     ].filter(Boolean).join(' ');
+    const canDrag = opts.draggable !== false && !opts.salary;
     return (
-      '<div class="' + cls + '" data-ledger-id="' + row.id + '" draggable="' + (opts.draggable !== false ? 'true' : 'false') + '">' +
-        '<div class="ledger-handle" title="Drag to reorder / move period" aria-hidden="true">⋮⋮</div>' +
+      '<div class="' + cls + '" data-ledger-id="' + row.id + '" draggable="' + canDrag + '">' +
         '<div class="bill-check" data-toggle-paid aria-hidden="true">' +
           (row.paid ? '<span class="material-symbols-outlined">check</span>' : '') +
         '</div>' +
-        '<div class="ledger-name">' + row.name + '</div>' +
+        '<div class="ledger-main">' +
+          '<div class="ledger-name">' + row.name + '</div>' +
+        '</div>' +
         '<div class="ledger-amt">' + moneyExact(row.amount) + '</div>' +
-        '<div class="ledger-payto">' + (row.payTo || '—') + '</div>' +
-        '<button class="ledger-recur' + (row.recurring ? ' is-on' : '') + '" type="button" data-toggle-recur title="Recurring" aria-pressed="' + !!row.recurring + '">' +
-          '<span class="material-symbols-outlined" aria-hidden="true">autorenew</span>' +
-        '</button>' +
+        (opts.salary
+          ? '<span></span>'
+          : '<button class="ledger-more" type="button" data-row-more aria-label="More actions" title="More">' +
+              '<span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>' +
+            '</button>') +
+        '<div class="ledger-detail">' +
+          (canDrag ? '<div class="ledger-handle" title="Drag to reorder / move" aria-hidden="true">⋮⋮</div>' : '') +
+          '<span class="ledger-chip">' + (row.payTo || 'No account') + '</span>' +
+          (row.recurring ? '<span class="ledger-chip is-recur">Recurring</span>' : '<span class="ledger-chip">This period</span>') +
+          '<button class="ledger-recur' + (row.recurring ? ' is-on' : '') + '" type="button" data-toggle-recur title="Toggle recurring" aria-pressed="' + !!row.recurring + '">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">autorenew</span>' +
+          '</button>' +
+        '</div>' +
       '</div>'
     );
   }
@@ -1546,6 +1565,7 @@ body {
     const savTotal = periodSavingsTotal(p);
     const outTotal = billsTotal + savTotal;
     const safe = periodSafe(p);
+    const moneyInOpen = p.moneyInOpen || safe < 0;
     const recurring = p.bills.filter((b) => b.recurring);
     const variable = p.bills.filter((b) => !b.recurring);
     const recSum = recurring.reduce((s, b) => s + b.amount, 0);
@@ -1557,9 +1577,10 @@ body {
 
     const billRows = (list) => list.map((b) => ledgerRowHtml(b)).join('');
     const savRows = p.savings.map((s) => ledgerRowHtml(s)).join('');
+    const focused = p.id === focusedPeriodId ? ' is-focused' : '';
 
     return (
-      '<article class="card period-card" data-period="' + p.id + '">' +
+      '<article class="card period-card' + focused + '" data-period="' + p.id + '">' +
         '<div class="period-card-head">' +
           '<div class="period-card-head-main">' +
             '<div class="period-card-kicker">Pay period ' + p.n + '</div>' +
@@ -1571,24 +1592,27 @@ body {
               '<div class="period-safe-chip-value">' + money(safe) + '</div>' +
             '</div>' +
             '<div class="period-card-actions">' +
-              '<button class="icon-btn" type="button" data-demo-toast="Edit date (prompt in production)" title="Edit date" aria-label="Edit date">' +
+              '<button class="icon-btn" type="button" data-demo-toast="Edit date…" title="Edit date" aria-label="Edit date">' +
                 '<span class="material-symbols-outlined" aria-hidden="true">edit_calendar</span>' +
               '</button>' +
-              '<button class="icon-btn" type="button" data-demo-toast="Delete period (confirm in production)" title="Delete period" aria-label="Delete period">' +
+              '<button class="icon-btn" type="button" data-demo-toast="Delete period…" title="Delete period" aria-label="Delete period">' +
                 '<span class="material-symbols-outlined" aria-hidden="true">delete</span>' +
               '</button>' +
             '</div>' +
           '</div>' +
         '</div>' +
+        (safe < 0
+          ? '<div class="period-safe-hint">Over by ' + money(Math.abs(safe)) + ' — Money in is open so you can check salary</div>'
+          : '') +
 
-        '<button class="section-toggle is-in" type="button" data-section-toggle="in" aria-expanded="' + p.moneyInOpen + '">' +
+        '<button class="section-toggle is-in" type="button" data-section-toggle="in" aria-expanded="' + moneyInOpen + '">' +
           '<span class="section-toggle-left">' +
             '<span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>' +
             '<span class="section-toggle-label">Money in</span>' +
           '</span>' +
           '<span class="section-toggle-amt">' + moneyExact(income) + '</span>' +
         '</button>' +
-        '<div class="section-body" data-section="in"' + (p.moneyInOpen ? '' : ' hidden') + '>' +
+        '<div class="section-body" data-section="in"' + (moneyInOpen ? '' : ' hidden') + '>' +
           incomeRows +
           '<button class="ledger-add" type="button" data-demo-toast="Add income line">' +
             '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add income' +
@@ -1603,13 +1627,6 @@ body {
           '<span class="section-toggle-amt">' + money(outTotal) + '</span>' +
         '</button>' +
         '<div class="section-body" data-section="out"' + (p.moneyOutOpen ? '' : ' hidden') + '>' +
-          '<div class="sort-head" aria-hidden="true">' +
-            '<span></span><span></span>' +
-            '<button class="sort-col" type="button" data-demo-toast="Sort by name">Expense</button>' +
-            '<button class="sort-col is-amt" type="button" data-demo-toast="Sort by amount">Amt</button>' +
-            '<button class="sort-col" type="button" data-demo-toast="Sort by pay to">Pay to</button>' +
-            '<span></span>' +
-          '</div>' +
           '<div class="group-head is-recurring"><span class="group-head-label">Recurring</span><span class="group-head-amt">' + money(recSum) + '</span></div>' +
           '<div class="bill-list" data-bill-list="' + p.id + '-rec">' + billRows(recurring) + '</div>' +
           '<div class="group-head is-variable"><span class="group-head-label">Variable</span><span class="group-head-amt">' + money(varSum) + '</span></div>' +
@@ -1667,9 +1684,19 @@ body {
     const prog = monthProgress();
     const selCount = monthlySelected.size;
     const calc = calcResult();
+    const tabs = MONTHLY.periods.map((p) => {
+      const safe = periodSafe(p);
+      return (
+        '<button class="period-tab" type="button" data-focus-period="' + p.id + '" aria-pressed="' + (focusedPeriodId === p.id) + '">' +
+          'P' + p.n + ' · ' + p.date.replace(' 2026', '') +
+          '<span class="period-tab-safe' + (safe < 0 ? ' is-neg' : '') + '">' + money(safe) + '</span>' +
+        '</button>'
+      );
+    }).join('');
     return (
+      '<div class="period-tabs" role="tablist" aria-label="Pay period">' + tabs + '</div>' +
       '<div class="monthly-toolbar">' +
-        '<div class="monthly-legend">♻ recurring · copies next month &nbsp;|&nbsp; ✓ paid this period</div>' +
+        '<div class="monthly-legend">Select a row for pay-to, recurring, drag · multi-select with Ctrl/Shift</div>' +
         '<div class="monthly-progress">' +
           '<span class="monthly-progress-label">' + prog.paid + ' / ' + prog.total + ' paid</span>' +
           '<div class="cat-bar-track" aria-hidden="true"><div class="cat-bar-fill" style="width:' + prog.pct + '%"></div></div>' +
@@ -1689,15 +1716,16 @@ body {
           ).join('') +
         '</div>' +
       '</div>' +
-      '<div class="sel-badge' + (selCount ? ' is-visible' : '') + '" data-sel-badge>' +
-        '<div class="sel-badge-meta">' +
-          '<div>' + selCount + ' selected · Sum ' + moneyExact(selectedSum()) + '</div>' +
-          '<div class="sel-badge-hint">Right-click for options · Shift/Ctrl multi-select</div>' +
+      '<div class="action-dock' + (selCount ? ' is-visible' : '') + '" data-action-dock>' +
+        '<div>' +
+          '<div class="action-dock-meta">' + selCount + ' selected · ' + moneyExact(selectedSum()) + '</div>' +
+          '<div class="action-dock-hint">Long-press or ⋯ for more · Ctrl/Shift to multi-select</div>' +
         '</div>' +
-        '<div class="sel-badge-actions">' +
-          '<button type="button" data-ctx-quick="calc">Calc</button>' +
-          '<button type="button" data-ctx-quick="done">Done</button>' +
-          '<button type="button" data-clear-sel>Clear</button>' +
+        '<div class="action-dock-actions">' +
+          '<button type="button" data-ctx-quick="done"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Done</button>' +
+          '<button type="button" data-ctx-quick="move"><span class="material-symbols-outlined" aria-hidden="true">drive_file_move</span>Move</button>' +
+          '<button type="button" data-ctx-quick="payto"><span class="material-symbols-outlined" aria-hidden="true">account_balance</span>Pay to</button>' +
+          '<button type="button" data-ctx-quick="more"><span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>More</button>' +
         '</div>' +
       '</div>'
     );
@@ -1825,6 +1853,58 @@ body {
         calcOp = btn.dataset.calcOp;
         renderMonthly();
       });
+    });
+
+    rootEl.querySelectorAll('[data-focus-period]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        focusedPeriodId = btn.dataset.focusPeriod;
+        renderMonthly();
+      });
+    });
+
+    rootEl.querySelectorAll('[data-row-more]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.closest('[data-ledger-id]').dataset.ledgerId;
+        if (monthlyExpanded.has(id) && monthlySelected.has(id)) {
+          openCtx(e.clientX, e.clientY);
+          return;
+        }
+        if (!monthlySelected.has(id)) {
+          monthlySelected.clear();
+          monthlySelected.add(id);
+        }
+        if (monthlyExpanded.has(id)) monthlyExpanded.delete(id);
+        else monthlyExpanded.add(id);
+        monthlyLastClicked = id;
+        renderMonthly();
+      });
+    });
+
+    // Long-press → context menu (touch / phone)
+    rootEl.querySelectorAll('[data-ledger-id]').forEach((row) => {
+      let pressTimer = null;
+      const clearPress = () => {
+        if (pressTimer) clearTimeout(pressTimer);
+        pressTimer = null;
+      };
+      row.addEventListener('touchstart', (e) => {
+        const id = row.dataset.ledgerId;
+        if (id.indexOf('-salary') !== -1) return;
+        pressTimer = setTimeout(() => {
+          if (!monthlySelected.has(id)) {
+            monthlySelected.clear();
+            monthlySelected.add(id);
+            renderMonthly();
+          }
+          const t = e.touches[0] || e.changedTouches[0];
+          openCtx(t.clientX, t.clientY);
+          showToast('Actions');
+        }, 480);
+      }, { passive: true });
+      row.addEventListener('touchend', clearPress, { passive: true });
+      row.addEventListener('touchmove', clearPress, { passive: true });
+      row.addEventListener('touchcancel', clearPress, { passive: true });
     });
   }
 
