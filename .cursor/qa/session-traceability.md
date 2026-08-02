@@ -33,6 +33,7 @@ Pensive UI facelift mockup: extract a reusable design system (`design-system/tok
 - [x] AC-6: Scope switch visible on Home only; month nav visible on Monthly only.
 - [x] AC-7: Production `index.html` unchanged.
 - [x] AC-8: Monthly capability surface — Money In/Out, groups, savings, select/ctx/calc/drag demos.
+- [x] AC-9: Monthly v2 progressive disclosure — compact rows, period tabs, action dock, long-press.
 
 ## Known limitations
 
