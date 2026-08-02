@@ -12,14 +12,14 @@ Reusable tokens and UI components for the Finance Hub / Pensive facelift.
 ## Usage
 
 ```html
-<html lang="en" data-theme="light" data-palette="ocean">
+<html lang="en" data-theme="light" data-palette="graphite">
 <head>
   <link href="design-system/tokens.css" rel="stylesheet">
   <link href="design-system/components.css" rel="stylesheet">
 </head>
 ```
 
-Default palette is **ocean**. Switch with `data-palette`: `ocean` | `azulejo` | `graphite` | `slate` | `dusk`. Theme: `light` | `dark`. Users pick these in Settings → Appearance.
+Default palette is **graphite**. Switch with `data-palette`: `ocean` | `azulejo` | `graphite` | `slate` | `dusk`. Theme: `light` | `dark`. Users pick these in Settings → Appearance. Default: graphite.
 
 ## Token groups
 
