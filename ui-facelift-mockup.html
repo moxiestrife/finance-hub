@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-palette="dusk">
+<html lang="en" data-theme="light" data-palette="ocean">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -534,6 +534,39 @@ body {
                         </button>
                       </div>
                     </div>
+                    <div class="settings-row settings-row-stack">
+                      <div>
+                        <div class="settings-row-label">Colour palette</div>
+                        <div class="settings-row-hint">Ocean is the default — pick any look you like</div>
+                      </div>
+                      <div class="palette-options" role="group" aria-label="Colour palette" data-palette-options>
+                        <button type="button" class="palette-option" data-palette-set="ocean" aria-pressed="true">
+                          <span class="palette-option-swatches" aria-hidden="true"><i style="background:#255a8c"></i><i style="background:#0f6b58"></i><i style="background:#d3e4ff"></i></span>
+                          <span class="palette-option-name">Ocean</span>
+                          <span class="palette-option-hint">Blue + teal</span>
+                        </button>
+                        <button type="button" class="palette-option" data-palette-set="azulejo" aria-pressed="false">
+                          <span class="palette-option-swatches" aria-hidden="true"><i style="background:#1a56a0"></i><i style="background:#c9920a"></i><i style="background:#0f766e"></i></span>
+                          <span class="palette-option-name">Azulejo</span>
+                          <span class="palette-option-hint">Cobalt + saffron</span>
+                        </button>
+                        <button type="button" class="palette-option" data-palette-set="dusk" aria-pressed="false">
+                          <span class="palette-option-swatches" aria-hidden="true"><i style="background:#3a332e"></i><i style="background:#7a6848"></i><i style="background:#ebe6e2"></i></span>
+                          <span class="palette-option-name">Dusk</span>
+                          <span class="palette-option-hint">Charcoal + gold</span>
+                        </button>
+                        <button type="button" class="palette-option" data-palette-set="graphite" aria-pressed="false">
+                          <span class="palette-option-swatches" aria-hidden="true"><i style="background:#2a2a2e"></i><i style="background:#a65d1f"></i><i style="background:#e6e6e9"></i></span>
+                          <span class="palette-option-name">Graphite</span>
+                          <span class="palette-option-hint">Ink + copper</span>
+                        </button>
+                        <button type="button" class="palette-option" data-palette-set="slate" aria-pressed="false">
+                          <span class="palette-option-swatches" aria-hidden="true"><i style="background:#334155"></i><i style="background:#c2410c"></i><i style="background:#e4e4e7"></i></span>
+                          <span class="palette-option-name">Slate</span>
+                          <span class="palette-option-hint">Stone + rust</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <div class="settings-card">
                     <div class="settings-card-title">Coming soon</div>
@@ -627,6 +660,39 @@ body {
                       </button>
                     </div>
                   </div>
+                  <div class="settings-row settings-row-stack">
+                    <div>
+                      <div class="settings-row-label">Colour palette</div>
+                      <div class="settings-row-hint">Ocean is the default — pick any look you like</div>
+                    </div>
+                    <div class="palette-options" role="group" aria-label="Colour palette" data-palette-options>
+                      <button type="button" class="palette-option" data-palette-set="ocean" aria-pressed="true">
+                        <span class="palette-option-swatches" aria-hidden="true"><i style="background:#255a8c"></i><i style="background:#0f6b58"></i><i style="background:#d3e4ff"></i></span>
+                        <span class="palette-option-name">Ocean</span>
+                        <span class="palette-option-hint">Blue + teal</span>
+                      </button>
+                      <button type="button" class="palette-option" data-palette-set="azulejo" aria-pressed="false">
+                        <span class="palette-option-swatches" aria-hidden="true"><i style="background:#1a56a0"></i><i style="background:#c9920a"></i><i style="background:#0f766e"></i></span>
+                        <span class="palette-option-name">Azulejo</span>
+                        <span class="palette-option-hint">Cobalt + saffron</span>
+                      </button>
+                      <button type="button" class="palette-option" data-palette-set="dusk" aria-pressed="false">
+                        <span class="palette-option-swatches" aria-hidden="true"><i style="background:#3a332e"></i><i style="background:#7a6848"></i><i style="background:#ebe6e2"></i></span>
+                        <span class="palette-option-name">Dusk</span>
+                        <span class="palette-option-hint">Charcoal + gold</span>
+                      </button>
+                      <button type="button" class="palette-option" data-palette-set="graphite" aria-pressed="false">
+                        <span class="palette-option-swatches" aria-hidden="true"><i style="background:#2a2a2e"></i><i style="background:#a65d1f"></i><i style="background:#e6e6e9"></i></span>
+                        <span class="palette-option-name">Graphite</span>
+                        <span class="palette-option-hint">Ink + copper</span>
+                      </button>
+                      <button type="button" class="palette-option" data-palette-set="slate" aria-pressed="false">
+                        <span class="palette-option-swatches" aria-hidden="true"><i style="background:#334155"></i><i style="background:#c2410c"></i><i style="background:#e4e4e7"></i></span>
+                        <span class="palette-option-name">Slate</span>
+                        <span class="palette-option-hint">Stone + rust</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <div class="settings-card">
                   <div class="settings-card-title">Coming soon</div>
@@ -658,9 +724,13 @@ body {
   <div class="controls">
     <div class="controls-label">Designer — palette template</div>
     <div class="controls-row" id="palettePicker" role="group" aria-label="Palette template">
-      <button class="pill palette-pill" type="button" data-palette="ocean" aria-pressed="false" title="Blue + teal">
+      <button class="pill palette-pill" type="button" data-palette="ocean" aria-pressed="true" title="Blue + teal">
         <span class="pill-swatches" aria-hidden="true"><i style="background:#255a8c"></i><i style="background:#0f6b58"></i><i style="background:#d3e4ff"></i></span>
         Ocean
+      </button>
+      <button class="pill palette-pill" type="button" data-palette="azulejo" aria-pressed="false" title="Cobalt + saffron">
+        <span class="pill-swatches" aria-hidden="true"><i style="background:#1a56a0"></i><i style="background:#c9920a"></i><i style="background:#0f766e"></i></span>
+        Azulejo
       </button>
       <button class="pill palette-pill" type="button" data-palette="graphite" aria-pressed="false" title="Ink + copper, neutral gray">
         <span class="pill-swatches" aria-hidden="true"><i style="background:#2a2a2e"></i><i style="background:#a65d1f"></i><i style="background:#e6e6e9"></i></span>
@@ -670,7 +740,7 @@ body {
         <span class="pill-swatches" aria-hidden="true"><i style="background:#334155"></i><i style="background:#c2410c"></i><i style="background:#e4e4e7"></i></span>
         Slate
       </button>
-      <button class="pill palette-pill" type="button" data-palette="dusk" aria-pressed="true" title="Charcoal + muted gold">
+      <button class="pill palette-pill" type="button" data-palette="dusk" aria-pressed="false" title="Charcoal + muted gold">
         <span class="pill-swatches" aria-hidden="true"><i style="background:#3a332e"></i><i style="background:#7a6848"></i><i style="background:#ebe6e2"></i></span>
         Dusk
       </button>
@@ -707,8 +777,7 @@ body {
       <li><strong>Logo</strong>: Pensive marks — P in coin, thoughtful P, leaning stack, seed penny, wordmark.</li>
       <li><strong>Design system</strong>: reusable tokens + components in <code>design-system/</code> (palettes, spacing, cards, heroes, lists, chip tabs, period cards).</li>
       <li><strong>Pages</strong>: Home / Monthly / Payables mocked; Chat still a stub. Settings holds theme.</li>
-      <li><strong>Theme</strong>: Light/Dark only in Settings → Appearance.</li>
-      <li><strong>Palette</strong>: Dusk default; designer picker is for exploration only.</li>
+      <li><strong>Appearance</strong>: Theme (Light/Dark) + colour palette in Settings. <strong>Ocean</strong> is default; also Graphite, Slate, Dusk, and fun <strong>Azulejo</strong> (cobalt + saffron).</li>
       <li><strong>Hero</strong>: desktop fans Safe to spend / Money in / Money out; phone keeps swipe + dots. Copy uses “this fortnight” (Elly).</li>
       <li><strong>Home</strong>: scope switcher; fortnight cards; categories + trends; recurring bills + expenses split.</li>
       <li><strong>Monthly v2</strong>: progressive rows (check·name·amount; pay-to/♻/drag on select), phone period tabs, action dock (Done/Move/Pay to/More), long-press menu, auto-open Money In when overspent.</li>
@@ -967,8 +1036,13 @@ body {
   const PRIMARY_PAGES = new Set(['home', 'monthly', 'payables', 'chat']);
   let currentPage = 'home';
 
+  const PALETTES = new Set(['ocean', 'azulejo', 'dusk', 'graphite', 'slate']);
+  const THEMES = new Set(['light', 'dark']);
+
   function setTheme(mode) {
+    if (!THEMES.has(mode)) mode = 'light';
     root.setAttribute('data-theme', mode);
+    try { localStorage.setItem('fh-theme', mode); } catch (_) {}
     document.querySelectorAll('[data-theme-set]').forEach((btn) => {
       btn.setAttribute('aria-pressed', btn.dataset.themeSet === mode ? 'true' : 'false');
     });
@@ -976,9 +1050,14 @@ body {
   }
 
   function setPalette(name) {
+    if (!PALETTES.has(name)) name = 'ocean';
     root.setAttribute('data-palette', name);
+    try { localStorage.setItem('fh-palette', name); } catch (_) {}
     document.querySelectorAll('#palettePicker [data-palette]').forEach((btn) => {
       btn.setAttribute('aria-pressed', btn.dataset.palette === name ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-palette-set]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', btn.dataset.paletteSet === name ? 'true' : 'false');
     });
     refreshPalette();
   }
@@ -1020,6 +1099,18 @@ body {
   document.querySelectorAll('#palettePicker [data-palette]').forEach((btn) => {
     btn.addEventListener('click', () => setPalette(btn.dataset.palette));
   });
+  document.querySelectorAll('[data-palette-set]').forEach((btn) => {
+    btn.addEventListener('click', () => setPalette(btn.dataset.paletteSet));
+  });
+  try {
+    const savedTheme = localStorage.getItem('fh-theme');
+    const savedPalette = localStorage.getItem('fh-palette');
+    if (savedTheme) setTheme(savedTheme);
+    if (savedPalette) setPalette(savedPalette);
+    else setPalette('ocean');
+  } catch (_) {
+    setPalette('ocean');
+  }
   document.querySelectorAll('[data-nav]').forEach((btn) => {
     btn.addEventListener('click', () => setPage(btn.dataset.nav));
   });

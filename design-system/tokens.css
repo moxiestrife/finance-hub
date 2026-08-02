@@ -315,3 +315,65 @@ html[data-palette="dusk"][data-theme="dark"] {
   --hero-in: #d4c19a;
   --hero-out: #e0a090;
 }
+
+/* ── Azulejo — Moroccan / Spanish tile: cobalt + saffron ── */
+html[data-palette="azulejo"][data-theme="light"] {
+  --primary: #1a56a0;
+  --on-primary: #ffffff;
+  --primary-container: #d6e6fa;
+  --on-primary-container: #062748;
+  --secondary: #c9920a;
+  --on-secondary: #1a1400;
+  --secondary-container: #ffe7a3;
+  --on-secondary-container: #3d2e00;
+  --tertiary: #0f766e;
+  --tertiary-container: #ccfbf1;
+  --surface: #f7f8fb;
+  --surface-dim: #d5dae3;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #eef2f8;
+  --surface-container: #e6ebf3;
+  --surface-container-high: #dde4ef;
+  --surface-container-highest: #d2dbe9;
+  --on-surface: #142033;
+  --on-surface-variant: #4a5568;
+  --outline: #6b7a90;
+  --outline-variant: #c2cddc;
+  --error: #b42318;
+  --shadow: rgba(20, 32, 51, 0.14);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #d6e6fa 0%, transparent 70%);
+  --nav-indicator: #d6e6fa;
+  --hero-safe: #0f766e;
+  --hero-in: #1a56a0;
+  --hero-out: #c9920a;
+}
+html[data-palette="azulejo"][data-theme="dark"] {
+  --primary: #9ec5ff;
+  --on-primary: #062748;
+  --primary-container: #1a56a0;
+  --on-primary-container: #d6e6fa;
+  --secondary: #ffd666;
+  --on-secondary: #3d2e00;
+  --secondary-container: #8a6700;
+  --on-secondary-container: #ffe7a3;
+  --tertiary: #5eead4;
+  --tertiary-container: #115e59;
+  --surface: #0e141c;
+  --surface-dim: #0e141c;
+  --surface-container-lowest: #090d12;
+  --surface-container-low: #161d28;
+  --surface-container: #1c2430;
+  --surface-container-high: #262f3e;
+  --surface-container-highest: #333e50;
+  --on-surface: #e8eef7;
+  --on-surface-variant: #a8b4c6;
+  --outline: #8492a8;
+  --outline-variant: #3a4556;
+  --error: #ffb4ab;
+  --shadow: rgba(0, 0, 0, 0.55);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #1a56a0 0%, transparent 70%);
+  --nav-indicator: #1a56a0;
+  --hero-safe: #5eead4;
+  --hero-in: #9ec5ff;
+  --hero-out: #ffd666;
+}
