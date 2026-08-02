@@ -341,7 +341,7 @@ html[data-palette="azulejo"][data-theme="light"] {
   --outline-variant: #c2cddc;
   --error: #b42318;
   --shadow: rgba(20, 32, 51, 0.14);
-  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #d6e6fa 0%, transparent 70%);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #ffe7a3 0%, transparent 70%);
   --nav-indicator: #d6e6fa;
   --hero-safe: #0f766e;
   --hero-in: #1a56a0;
@@ -371,7 +371,7 @@ html[data-palette="azulejo"][data-theme="dark"] {
   --outline-variant: #3a4556;
   --error: #ffb4ab;
   --shadow: rgba(0, 0, 0, 0.55);
-  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #1a56a0 0%, transparent 70%);
+  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #8a6700 0%, transparent 70%);
   --nav-indicator: #1a56a0;
   --hero-safe: #5eead4;
   --hero-in: #9ec5ff;
