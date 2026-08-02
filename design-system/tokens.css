@@ -329,20 +329,21 @@ html[data-palette="azulejo"][data-theme="light"] {
   --tertiary: #0f766e;
   --tertiary-container: #ccfbf1;
   /* Warm parchment surfaces so the saffron haze can dissolve into the page */
-  --surface: #faf6eb;
-  --surface-dim: #ddd4bf;
-  --surface-container-lowest: #fffdf7;
-  --surface-container-low: #f4efe2;
-  --surface-container: #ece5d4;
-  --surface-container-high: #e4dcc8;
-  --surface-container-highest: #dbd1ba;
+  --surface: #f7efd4;
+  --surface-dim: #d9cdaa;
+  --surface-container-lowest: #fff8e8;
+  --surface-container-low: #f2e8c9;
+  --surface-container: #e9dcb6;
+  --surface-container-high: #e0d0a6;
+  --surface-container-highest: #d5c394;
   --on-surface: #1f1a12;
   --on-surface-variant: #5a5346;
   --outline: #7a7262;
   --outline-variant: #cfc5b0;
   --error: #b42318;
   --shadow: rgba(31, 26, 18, 0.12);
-  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #ffe29a 0%, transparent 72%);
+  /* Peak stays near the parchment chroma; mid-stop = surface for a soft dissolve */
+  --hero-glow: radial-gradient(ellipse 100% 75% at 50% -10%, #f0d27a 0%, #f7efd4 48%, transparent 76%);
   --nav-indicator: #d6e6fa;
   --hero-safe: #0f766e;
   --hero-in: #1a56a0;
@@ -360,20 +361,20 @@ html[data-palette="azulejo"][data-theme="dark"] {
   --tertiary: #5eead4;
   --tertiary-container: #115e59;
   /* Warm ink surfaces (amber undertone) so gold haze blends */
-  --surface: #14110c;
-  --surface-dim: #14110c;
-  --surface-container-lowest: #0c0a07;
-  --surface-container-low: #1c1811;
-  --surface-container: #242016;
-  --surface-container-high: #2e291d;
-  --surface-container-highest: #3a3425;
+  --surface: #1a150c;
+  --surface-dim: #1a150c;
+  --surface-container-lowest: #100d08;
+  --surface-container-low: #221c11;
+  --surface-container: #2b2416;
+  --surface-container-high: #352d1c;
+  --surface-container-highest: #423722;
   --on-surface: #f3ecdf;
   --on-surface-variant: #b8ae98;
   --outline: #8f8570;
   --outline-variant: #40392a;
   --error: #ffb4ab;
   --shadow: rgba(0, 0, 0, 0.55);
-  --hero-glow: radial-gradient(ellipse 80% 55% at 50% 0%, #6b5210 0%, transparent 72%);
+  --hero-glow: radial-gradient(ellipse 100% 75% at 50% -10%, #3f3010 0%, #1a150c 48%, transparent 76%);
   --nav-indicator: #1a56a0;
   --hero-safe: #5eead4;
   --hero-in: #9ec5ff;
