@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-palette="graphite">
+<html lang="en" data-theme="light" data-palette="graphite" data-role="owner">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -429,8 +429,8 @@ body {
     <div class="badge">Mockup only — not live app</div>
     <h1>Pensive — phone + desktop facelift</h1>
     <p>
-      Dusk look with a reusable <code>design-system/</code> (tokens + components).
-      Home, Monthly, and Payables are composed; Chat is still a stub. Theme lives in Settings.
+      Graphite-first look with a reusable <code>design-system/</code> (tokens + components).
+      Home folds in summary/insights, while Monthly, Payables, Chat, and Settings now model production capability surfaces.
     </p>
     <p class="meta">Nav / logo / theme sync across frames. Open <code>ui-facelift-mockup.html</code>.</p>
   </div>
@@ -510,69 +510,10 @@ body {
                 <div data-payables-root></div>
               </div>
               <div class="app-page" data-page="chat">
-                <div class="page-stub">
-                  <span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span>
-                  <h2>Chat</h2>
-                  <p>Assistant shell — placeholder for now.</p>
-                </div>
+                <div data-chat-root></div>
               </div>
               <div class="app-page" data-page="settings">
-                <div class="settings-stack">
-                  <div class="settings-card">
-                    <div class="settings-card-title">Appearance</div>
-                    <div class="settings-row">
-                      <div>
-                        <div class="settings-row-label">Theme</div>
-                        <div class="settings-row-hint">Light or dark across the app</div>
-                      </div>
-                      <div class="theme-segment" role="group" aria-label="Theme">
-                        <button type="button" data-theme-set="light" aria-pressed="true">
-                          <span class="material-symbols-outlined" aria-hidden="true">light_mode</span> Light
-                        </button>
-                        <button type="button" data-theme-set="dark" aria-pressed="false">
-                          <span class="material-symbols-outlined" aria-hidden="true">dark_mode</span> Dark
-                        </button>
-                      </div>
-                    </div>
-                    <div class="settings-row settings-row-stack">
-                      <div>
-                        <div class="settings-row-label">Colour palette</div>
-                        <div class="settings-row-hint">Graphite is the default — pick any look you like</div>
-                      </div>
-                      <div class="palette-options" role="group" aria-label="Colour palette" data-palette-options>
-                        <button type="button" class="palette-option" data-palette-set="ocean" aria-pressed="false">
-                          <span class="palette-option-swatches" aria-hidden="true"><i style="background:#255a8c"></i><i style="background:#0f6b58"></i><i style="background:#d3e4ff"></i></span>
-                          <span class="palette-option-name">Ocean</span>
-                          <span class="palette-option-hint">Blue + teal</span>
-                        </button>
-                        <button type="button" class="palette-option" data-palette-set="azulejo" aria-pressed="false">
-                          <span class="palette-option-swatches" aria-hidden="true"><i style="background:#1a56a0"></i><i style="background:#c9920a"></i><i style="background:#0f766e"></i></span>
-                          <span class="palette-option-name">Azulejo</span>
-                          <span class="palette-option-hint">Cobalt + saffron</span>
-                        </button>
-                        <button type="button" class="palette-option" data-palette-set="dusk" aria-pressed="false">
-                          <span class="palette-option-swatches" aria-hidden="true"><i style="background:#3a332e"></i><i style="background:#7a6848"></i><i style="background:#ebe6e2"></i></span>
-                          <span class="palette-option-name">Dusk</span>
-                          <span class="palette-option-hint">Charcoal + gold</span>
-                        </button>
-                        <button type="button" class="palette-option" data-palette-set="graphite" aria-pressed="true">
-                          <span class="palette-option-swatches" aria-hidden="true"><i style="background:#2a2a2e"></i><i style="background:#a65d1f"></i><i style="background:#e6e6e9"></i></span>
-                          <span class="palette-option-name">Graphite</span>
-                          <span class="palette-option-hint">Ink + copper</span>
-                        </button>
-                        <button type="button" class="palette-option" data-palette-set="slate" aria-pressed="false">
-                          <span class="palette-option-swatches" aria-hidden="true"><i style="background:#334155"></i><i style="background:#c2410c"></i><i style="background:#e4e4e7"></i></span>
-                          <span class="palette-option-name">Slate</span>
-                          <span class="palette-option-hint">Stone + rust</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="settings-card">
-                    <div class="settings-card-title">Coming soon</div>
-                    <div class="settings-row-hint">Accounts, salary defaults, and household options will sit here.</div>
-                  </div>
-                </div>
+                <div data-settings-root></div>
               </div>
             </div>
           </div>
@@ -636,69 +577,10 @@ body {
               <div data-payables-root></div>
             </div>
             <div class="app-page" data-page="chat">
-              <div class="page-stub">
-                <span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span>
-                <h2>Chat</h2>
-                <p>Assistant shell — placeholder for now.</p>
-              </div>
+              <div data-chat-root></div>
             </div>
             <div class="app-page" data-page="settings">
-              <div class="settings-stack">
-                <div class="settings-card">
-                  <div class="settings-card-title">Appearance</div>
-                  <div class="settings-row">
-                    <div>
-                      <div class="settings-row-label">Theme</div>
-                      <div class="settings-row-hint">Light or dark across the app</div>
-                    </div>
-                    <div class="theme-segment" role="group" aria-label="Theme">
-                      <button type="button" data-theme-set="light" aria-pressed="true">
-                        <span class="material-symbols-outlined" aria-hidden="true">light_mode</span> Light
-                      </button>
-                      <button type="button" data-theme-set="dark" aria-pressed="false">
-                        <span class="material-symbols-outlined" aria-hidden="true">dark_mode</span> Dark
-                      </button>
-                    </div>
-                  </div>
-                  <div class="settings-row settings-row-stack">
-                    <div>
-                      <div class="settings-row-label">Colour palette</div>
-                      <div class="settings-row-hint">Graphite is the default — pick any look you like</div>
-                    </div>
-                    <div class="palette-options" role="group" aria-label="Colour palette" data-palette-options>
-                      <button type="button" class="palette-option" data-palette-set="ocean" aria-pressed="false">
-                        <span class="palette-option-swatches" aria-hidden="true"><i style="background:#255a8c"></i><i style="background:#0f6b58"></i><i style="background:#d3e4ff"></i></span>
-                        <span class="palette-option-name">Ocean</span>
-                        <span class="palette-option-hint">Blue + teal</span>
-                      </button>
-                      <button type="button" class="palette-option" data-palette-set="azulejo" aria-pressed="false">
-                        <span class="palette-option-swatches" aria-hidden="true"><i style="background:#1a56a0"></i><i style="background:#c9920a"></i><i style="background:#0f766e"></i></span>
-                        <span class="palette-option-name">Azulejo</span>
-                        <span class="palette-option-hint">Cobalt + saffron</span>
-                      </button>
-                      <button type="button" class="palette-option" data-palette-set="dusk" aria-pressed="false">
-                        <span class="palette-option-swatches" aria-hidden="true"><i style="background:#3a332e"></i><i style="background:#7a6848"></i><i style="background:#ebe6e2"></i></span>
-                        <span class="palette-option-name">Dusk</span>
-                        <span class="palette-option-hint">Charcoal + gold</span>
-                      </button>
-                      <button type="button" class="palette-option" data-palette-set="graphite" aria-pressed="true">
-                        <span class="palette-option-swatches" aria-hidden="true"><i style="background:#2a2a2e"></i><i style="background:#a65d1f"></i><i style="background:#e6e6e9"></i></span>
-                        <span class="palette-option-name">Graphite</span>
-                        <span class="palette-option-hint">Ink + copper</span>
-                      </button>
-                      <button type="button" class="palette-option" data-palette-set="slate" aria-pressed="false">
-                        <span class="palette-option-swatches" aria-hidden="true"><i style="background:#334155"></i><i style="background:#c2410c"></i><i style="background:#e4e4e7"></i></span>
-                        <span class="palette-option-name">Slate</span>
-                        <span class="palette-option-hint">Stone + rust</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="settings-card">
-                  <div class="settings-card-title">Coming soon</div>
-                  <div class="settings-row-hint">Accounts, salary defaults, and household options will sit here.</div>
-                </div>
-              </div>
+              <div data-settings-root></div>
             </div>
           </div>
         </div>
@@ -745,6 +627,11 @@ body {
         Dusk
       </button>
     </div>
+    <div class="controls-label">Designer — view as</div>
+    <div class="controls-row" id="rolePicker" role="group" aria-label="View as">
+      <button class="pill" type="button" data-role-set="owner" aria-pressed="true">Elly (owner)</button>
+      <button class="pill" type="button" data-role-set="member" aria-pressed="false">Eric (member)</button>
+    </div>
   </div>
 
   <section class="palette" id="palette" aria-label="Colour palette">
@@ -776,12 +663,14 @@ body {
     <ul>
       <li><strong>Logo</strong>: Pensive marks — P in coin, thoughtful P, leaning stack, seed penny, wordmark.</li>
       <li><strong>Design system</strong>: reusable tokens + components in <code>design-system/</code> (palettes, spacing, cards, heroes, lists, chip tabs, period cards).</li>
-      <li><strong>Pages</strong>: Home / Monthly / Payables mocked; Chat still a stub. Settings holds theme.</li>
-      <li><strong>Appearance</strong>: Theme (Light/Dark) + colour palette in Settings. <strong>Graphite</strong> is default; also Graphite, Slate, Dusk, and fun <strong>Azulejo</strong> (cobalt + saffron).</li>
+      <li><strong>Pages</strong>: Home / Monthly / Payables / Chat / Settings are mocked. No Compare page; summary and insights stay folded into Home.</li>
+      <li><strong>Appearance</strong>: Settings opens as a hub; Appearance is a drill-in for Theme (Light/Dark) + palettes. <strong>Graphite</strong> remains default; Ocean, Azulejo, Dusk, Graphite, and Slate are selectable.</li>
       <li><strong>Hero</strong>: desktop fans Safe to spend / Money in / Money out; phone keeps swipe + dots. Copy uses “this fortnight” (Elly).</li>
       <li><strong>Home</strong>: scope switcher; fortnight cards; categories + trends; recurring bills + expenses split.</li>
       <li><strong>Monthly v2</strong>: progressive rows (check·name·amount; pay-to/♻/drag on select), phone period tabs, action dock (Done/Move/Pay to/More), long-press menu, auto-open Money In when overspent.</li>
-      <li><strong>Payables</strong>: owing hero; Mine/Eric + All/Shared/Solo chips; open list + completed disclosure.</li>
+      <li><strong>Payables</strong>: owing hero, Mine/Eric owner switch, account filter, All/Shared/Solo chips, account-grouped open sections, add form, allocation modal, and completed disclosure.</li>
+      <li><strong>Chat</strong>: full nav page inspired by production expanded mode — searchable history, new chat, receipt attach, composer, thinking state, and proposed-action confirm cards.</li>
+      <li><strong>Settings</strong>: Salary and Pay To accounts are grouped in the hub. Admin actions are marked owner-only via <code>html[data-role="owner"]</code> so the Elly/Eric demo toggle can hide them.</li>
       <li><strong>IA</strong>: Home = overview. Scope switch is Home-only.</li>
       <li>Production app is untouched — this is exploration only.</li>
     </ul>
@@ -1038,6 +927,13 @@ body {
 
   const PALETTES = new Set(['ocean', 'azulejo', 'dusk', 'graphite', 'slate']);
   const THEMES = new Set(['light', 'dark']);
+  const PALETTE_CHOICES = [
+    { id: 'ocean', name: 'Ocean', hint: 'Blue + teal', swatches: ['#255a8c', '#0f6b58', '#d3e4ff'] },
+    { id: 'azulejo', name: 'Azulejo', hint: 'Cobalt + saffron', swatches: ['#1a56a0', '#c9920a', '#0f766e'] },
+    { id: 'dusk', name: 'Dusk', hint: 'Charcoal + gold', swatches: ['#3a332e', '#7a6848', '#ebe6e2'] },
+    { id: 'graphite', name: 'Graphite', hint: 'Ink + copper', swatches: ['#2a2a2e', '#a65d1f', '#e6e6e9'] },
+    { id: 'slate', name: 'Slate', hint: 'Stone + rust', swatches: ['#334155', '#c2410c', '#e4e4e7'] },
+  ];
 
   function setTheme(mode) {
     if (!THEMES.has(mode)) mode = 'light';
@@ -1050,7 +946,7 @@ body {
   }
 
   function setPalette(name) {
-    if (!PALETTES.has(name)) name = 'ocean';
+    if (!PALETTES.has(name)) name = 'graphite';
     root.setAttribute('data-palette', name);
     try { localStorage.setItem('fh-palette', name); } catch (_) {}
     document.querySelectorAll('#palettePicker [data-palette]').forEach((btn) => {
@@ -2115,119 +2011,440 @@ body {
     closeCtx();
   });
 
-  /* ── Payables ── */
-  let payablesView = 'mine'; // mine | eric
-  let payablesFilter = 'all'; // all | shared | solo
+  /* ── Shared mock helpers ── */
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 
-  const PAYABLES = {
-    mine: {
-      oweLabel: 'You owe',
-      oweAmount: '$2,559',
-      oweChip: '3 of 8 open',
-      ericAmount: '$1,120',
-      ericChip: '2 items',
-      open: [
-        { name: 'Energy bill', meta: 'Shared · NAB Offset', amount: '$186', split: 'shared' },
-        { name: 'Council rates share', meta: 'Shared · JA Bills', amount: '$240', split: 'shared' },
-        { name: 'Vet visit', meta: 'Solo · NAB Elly', amount: '$320', split: 'solo' },
-        { name: 'Bunnings run', meta: 'Shared · Latitude', amount: '$94', split: 'shared' },
-        { name: 'Pharmacy', meta: 'Solo · NAB Elly', amount: '$48', split: 'solo' },
-      ],
-      completed: [
-        { name: 'Internet top-up', meta: 'Shared · settled', amount: '$65' },
-        { name: 'Uber One annual', meta: 'Solo · settled', amount: '$60' },
-      ],
-    },
-    eric: {
-      oweLabel: 'Eric owes',
-      oweAmount: '$1,120',
-      oweChip: '2 of 5 open',
-      ericAmount: '$2,559',
-      ericChip: 'Your open',
-      open: [
-        { name: 'Car service', meta: 'His · NAB Offset', amount: '$410', split: 'solo' },
-        { name: 'Energy bill', meta: 'Shared · NAB Offset', amount: '$186', split: 'shared' },
-        { name: 'Council rates share', meta: 'Shared · JA Bills', amount: '$240', split: 'shared' },
-      ],
-      completed: [
-        { name: 'Fuel reimbursement', meta: 'His · settled', amount: '$80' },
-      ],
-    },
-  };
+  function syncRoleControls() {
+    const role = root.getAttribute('data-role') || 'owner';
+    document.querySelectorAll('[data-role-set]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', btn.dataset.roleSet === role ? 'true' : 'false');
+    });
+  }
 
-  function payablesHtml() {
-    const d = PAYABLES[payablesView];
-    const open = d.open.filter((row) => payablesFilter === 'all' || row.split === payablesFilter);
-    const openRows = open.map((b) =>
-      '<div class="bill-row has-check">' +
-        '<div class="bill-check" aria-hidden="true"></div>' +
-        '<div><div class="bill-name">' + b.name + '</div><div class="bill-meta">' + b.meta + '</div></div>' +
-        '<div class="bill-amount">' + b.amount + '</div>' +
-      '</div>'
-    ).join('');
-    const doneRows = d.completed.map((b) =>
-      '<div class="bill-row has-check is-paid">' +
-        '<div class="bill-check" aria-hidden="true"><span class="material-symbols-outlined">check</span></div>' +
-        '<div><div class="bill-name">' + b.name + '</div><div class="bill-meta">' + b.meta + '</div></div>' +
-        '<div class="bill-amount">' + b.amount + '</div>' +
-      '</div>'
-    ).join('');
+  function setRole(role) {
+    if (role !== 'owner' && role !== 'member') role = 'owner';
+    root.setAttribute('data-role', role);
+    if (role === 'member') payablesView = 'eric';
+    else payablesView = 'mine';
+    syncRoleControls();
+    renderSettings();
+    renderPayables();
+    showToast(role === 'owner' ? 'Viewing as Elly' : 'Viewing as Eric');
+  }
+
+  document.querySelectorAll('[data-role-set]').forEach((btn) => {
+    btn.addEventListener('click', () => setRole(btn.dataset.roleSet));
+  });
+
+  /* ── Settings hub + drill-in ── */
+  let settingsPanel = 'hub';
+  let settingsSalary = 4524.58;
+  let ericCanViewBudget = true;
+  let payToAccounts = [
+    { id: 'acct-ja', name: 'JA Bills', hint: 'Shared bills and subscriptions' },
+    { id: 'acct-offset', name: 'NAB Offset', hint: 'Mortgage + household buffer' },
+    { id: 'acct-latitude', name: 'Latitude', hint: 'Credit card repayments' },
+  ];
+
+  function paletteOptionHtml(palette) {
+    const pressed = root.getAttribute('data-palette') === palette.id;
     return (
-      '<section class="hero-fan owing-fan" aria-label="Owing totals">' +
-        '<div class="hero-fan-row">' +
-          '<div class="hero-metric" data-metric="owe">' +
-            '<div class="hero-label">' + d.oweLabel + '</div>' +
-            '<div class="hero-figure">' + d.oweAmount + '</div>' +
-            '<div class="hero-chip">' + d.oweChip + '</div>' +
+      '<button type="button" class="palette-option" data-palette-set="' + palette.id + '" aria-pressed="' + pressed + '">' +
+        '<span class="palette-option-swatches" aria-hidden="true">' +
+          palette.swatches.map((color) => '<i style="background:' + color + '"></i>').join('') +
+        '</span>' +
+        '<span class="palette-option-name">' + palette.name + '</span>' +
+        '<span class="palette-option-hint">' + palette.hint + '</span>' +
+      '</button>'
+    );
+  }
+
+  function settingsHubHtml() {
+    const accountRows = payToAccounts.map((account) =>
+      '<div class="settings-account-row" data-account-id="' + account.id + '">' +
+        '<div><div class="settings-row-label">' + escapeHtml(account.name) + '</div><div class="settings-row-hint">' + escapeHtml(account.hint) + '</div></div>' +
+        '<button class="icon-btn icon-btn-sm" type="button" data-delete-account="' + account.id + '" aria-label="Delete ' + escapeHtml(account.name) + '">' +
+          '<span class="material-symbols-outlined" aria-hidden="true">delete</span>' +
+        '</button>' +
+      '</div>'
+    ).join('');
+    const roleLabel = (root.getAttribute('data-role') || 'owner') === 'owner' ? 'Elly owner view' : 'Eric member view';
+    return (
+      '<div class="settings-stack settings-hub">' +
+        '<article class="settings-card">' +
+          '<div class="settings-card-title">Personalisation</div>' +
+          '<button class="settings-link-row" type="button" data-settings-panel="appearance">' +
+            '<span class="settings-link-icon material-symbols-outlined" aria-hidden="true">palette</span>' +
+            '<span><span class="settings-row-label">Appearance</span><span class="settings-row-hint">Theme and colour palette</span></span>' +
+            '<span class="settings-link-chevron material-symbols-outlined" aria-hidden="true">chevron_right</span>' +
+          '</button>' +
+        '</article>' +
+        '<article class="settings-card">' +
+          '<div class="settings-card-title">Money defaults</div>' +
+          '<label class="settings-field">' +
+            '<span><span class="settings-row-label">Salary</span><span class="settings-row-hint">Default fortnightly salary used by Monthly</span></span>' +
+            '<span class="field-with-prefix"><span>$</span><input type="number" min="0" step="0.01" data-salary-input value="' + settingsSalary + '"></span>' +
+          '</label>' +
+          '<div class="settings-actions"><button class="text-btn" type="button" data-save-salary>Save salary</button></div>' +
+        '</article>' +
+        '<article class="settings-card">' +
+          '<div class="settings-card-title">Pay To accounts</div>' +
+          '<div class="settings-account-list">' + (accountRows || '<div class="settings-row-hint">No accounts yet.</div>') + '</div>' +
+          '<div class="settings-inline-form">' +
+            '<input type="text" data-account-name placeholder="Account name">' +
+            '<button class="text-btn" type="button" data-add-account>Add</button>' +
           '</div>' +
-          '<div class="hero-metric" data-metric="eric">' +
-            '<div class="hero-label">' + (payablesView === 'mine' ? 'Eric owes' : 'You owe') + '</div>' +
-            '<div class="hero-figure">' + d.ericAmount + '</div>' +
-            '<div class="hero-chip">' + d.ericChip + '</div>' +
+        '</article>' +
+        '<article class="settings-card settings-admin-card" data-owner-only>' +
+          '<div class="settings-card-title">Admin</div>' +
+          '<div class="settings-row">' +
+            '<div><div class="settings-row-label">Eric can view budget</div><div class="settings-row-hint">Owner-only household access toggle</div></div>' +
+            '<button class="mini-switch" type="button" role="switch" data-toggle-eric-budget aria-checked="' + ericCanViewBudget + '"><span></span></button>' +
           '</div>' +
-        '</div>' +
-      '</section>' +
-      '<section class="hero owing-hero" aria-label="Owing">' +
-        '<div class="hero-label">' + d.oweLabel + '</div>' +
-        '<div class="hero-figure">' + d.oweAmount + '</div>' +
-        '<div class="hero-chip">' + d.oweChip + '</div>' +
-      '</section>' +
-      '<div class="page-body">' +
-        '<div class="chip-tabs-row">' +
-          '<div class="chip-tabs" role="tablist" aria-label="Payables view">' +
-            '<button class="chip-tab" type="button" data-pay-view="mine" aria-pressed="' + (payablesView === 'mine') + '">Mine</button>' +
-            '<button class="chip-tab" type="button" data-pay-view="eric" aria-pressed="' + (payablesView === 'eric') + '">Eric</button>' +
+          '<div class="settings-row">' +
+            '<div><div class="settings-row-label">Impersonate</div><div class="settings-row-hint">Current demo role: ' + roleLabel + '</div></div>' +
+            '<button class="text-btn" type="button" data-impersonate-eric>View as Eric</button>' +
           '</div>' +
-        '</div>' +
-        '<article class="card bills-card">' +
-          '<div class="panel-card-head">' +
-            '<div class="panel-card-title">Open payables</div>' +
-            '<div class="list-card-actions">' +
-              '<div class="chip-tabs" role="tablist" aria-label="Split filter">' +
-                '<button class="chip-tab" type="button" data-pay-filter="all" aria-pressed="' + (payablesFilter === 'all') + '">All</button>' +
-                '<button class="chip-tab" type="button" data-pay-filter="shared" aria-pressed="' + (payablesFilter === 'shared') + '">Shared</button>' +
-                '<button class="chip-tab" type="button" data-pay-filter="solo" aria-pressed="' + (payablesFilter === 'solo') + '">Solo</button>' +
-              '</div>' +
-              '<button class="icon-btn filled" type="button" aria-label="Add payable" title="Add">' +
-                '<span class="material-symbols-outlined" aria-hidden="true">add</span>' +
-              '</button>' +
-            '</div>' +
+          '<div class="settings-action-grid">' +
+            '<button class="text-btn" type="button" data-settings-toast="Exported budget JSON (mock)">Export JSON</button>' +
+            '<button class="text-btn" type="button" data-settings-toast="Import picker would open (mock)">Import JSON</button>' +
           '</div>' +
-          (openRows || '<div class="payables-empty">No open items for this filter</div>') +
-          '<div class="completed-toggle" data-completed-toggle aria-expanded="false">' +
-            '<span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>' +
-            '<span>Completed · ' + d.completed.length + '</span>' +
-          '</div>' +
-          '<div class="completed-list" data-completed-list hidden>' + doneRows + '</div>' +
         '</article>' +
       '</div>'
     );
+  }
+
+  function settingsAppearanceHtml() {
+    const theme = root.getAttribute('data-theme') || 'light';
+    return (
+      '<div class="settings-stack settings-drill">' +
+        '<button class="settings-back" type="button" data-settings-panel="hub">' +
+          '<span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Settings' +
+        '</button>' +
+        '<article class="settings-card">' +
+          '<div class="settings-card-title">Appearance</div>' +
+          '<div class="settings-row">' +
+            '<div><div class="settings-row-label">Theme</div><div class="settings-row-hint">Light or dark across the app</div></div>' +
+            '<div class="theme-segment" role="group" aria-label="Theme">' +
+              '<button type="button" data-theme-set="light" aria-pressed="' + (theme === 'light') + '">' +
+                '<span class="material-symbols-outlined" aria-hidden="true">light_mode</span> Light' +
+              '</button>' +
+              '<button type="button" data-theme-set="dark" aria-pressed="' + (theme === 'dark') + '">' +
+                '<span class="material-symbols-outlined" aria-hidden="true">dark_mode</span> Dark' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="settings-row settings-row-stack">' +
+            '<div><div class="settings-row-label">Colour palette</div><div class="settings-row-hint">Graphite is the default — pick any look you like</div></div>' +
+            '<div class="palette-options" role="group" aria-label="Colour palette" data-palette-options>' +
+              PALETTE_CHOICES.map(paletteOptionHtml).join('') +
+            '</div>' +
+          '</div>' +
+        '</article>' +
+      '</div>'
+    );
+  }
+
+  function settingsHtml() {
+    return settingsPanel === 'appearance' ? settingsAppearanceHtml() : settingsHubHtml();
+  }
+
+  function wireSettings(rootEl) {
+    rootEl.querySelectorAll('[data-settings-panel]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        settingsPanel = btn.dataset.settingsPanel;
+        renderSettings();
+      });
+    });
+    rootEl.querySelectorAll('[data-theme-set]').forEach((btn) => {
+      btn.addEventListener('click', () => setTheme(btn.dataset.themeSet));
+    });
+    rootEl.querySelectorAll('[data-palette-set]').forEach((btn) => {
+      btn.addEventListener('click', () => setPalette(btn.dataset.paletteSet));
+    });
+    rootEl.querySelectorAll('[data-save-salary]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const input = btn.closest('[data-settings-root]').querySelector('[data-salary-input]');
+        settingsSalary = Number(input.value || settingsSalary);
+        showToast('Salary saved: ' + moneyExact(settingsSalary));
+      });
+    });
+    rootEl.querySelectorAll('[data-delete-account]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payToAccounts = payToAccounts.filter((account) => account.id !== btn.dataset.deleteAccount);
+        showToast('Pay To account removed');
+        renderSettings();
+      });
+    });
+    rootEl.querySelectorAll('[data-add-account]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const input = btn.closest('[data-settings-root]').querySelector('[data-account-name]');
+        const name = input.value.trim() || 'New account';
+        payToAccounts.push({ id: 'acct-' + Date.now(), name, hint: 'Added in mock settings' });
+        showToast('Pay To account added');
+        renderSettings();
+      });
+    });
+    rootEl.querySelectorAll('[data-toggle-eric-budget]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        ericCanViewBudget = !ericCanViewBudget;
+        showToast(ericCanViewBudget ? 'Eric budget access on' : 'Eric budget access off');
+        renderSettings();
+      });
+    });
+    rootEl.querySelectorAll('[data-impersonate-eric]').forEach((btn) => {
+      btn.addEventListener('click', () => setRole('member'));
+    });
+    rootEl.querySelectorAll('[data-settings-toast]').forEach((btn) => {
+      btn.addEventListener('click', () => showToast(btn.dataset.settingsToast));
+    });
+  }
+
+  function renderSettings() {
+    const html = settingsHtml();
+    document.querySelectorAll('[data-settings-root]').forEach((el) => {
+      el.innerHTML = html;
+      wireSettings(el);
+    });
+    syncRoleControls();
+  }
+
+  /* ── Payables ── */
+  let payablesView = 'mine'; // mine | eric
+  let payablesFilter = 'all'; // all | shared | solo
+  let payablesAccount = 'all';
+  let payablesAddOpen = false;
+  let payablesCompletedOpen = false;
+  let payablesAllocateId = null;
+  let payablesAllocateDraft = { month: 'Aug 2026', period: 'P1' };
+  let payablesCollapsed = new Set();
+  let payablesRows = [
+    { id: 'pay-1', owner: 'mine', name: 'Energy bill', total: 372, share: 186, split: 'shared', payTo: 'NAB Offset', date: '8 Aug', allocated: null, done: false },
+    { id: 'pay-2', owner: 'mine', name: 'Council rates share', total: 480, share: 240, split: 'shared', payTo: 'JA Bills', date: '12 Aug', allocated: { month: 'Aug 2026', period: 'P1' }, done: false },
+    { id: 'pay-3', owner: 'mine', name: 'Vet visit', total: 320, share: 320, split: 'solo', payTo: 'NAB Elly', date: '14 Aug', allocated: null, done: false },
+    { id: 'pay-4', owner: 'mine', name: 'Bunnings run', total: 188, share: 94, split: 'shared', payTo: 'Latitude', date: '18 Aug', allocated: null, done: false },
+    { id: 'pay-5', owner: 'mine', name: 'Pharmacy', total: 48, share: 48, split: 'solo', payTo: 'NAB Elly', date: '21 Aug', allocated: null, done: false },
+    { id: 'pay-6', owner: 'mine', name: 'Internet top-up', total: 130, share: 65, split: 'shared', payTo: 'JA Bills', date: '2 Aug', allocated: { month: 'Aug 2026', period: 'P1' }, done: true },
+    { id: 'pay-7', owner: 'mine', name: 'Uber One annual', total: 60, share: 60, split: 'solo', payTo: 'NAB Elly', date: '28 Jul', allocated: { month: 'Jul 2026', period: 'P2' }, done: true },
+    { id: 'pay-8', owner: 'eric', name: 'Car service', total: 410, share: 410, split: 'solo', payTo: 'NAB Offset', date: '9 Aug', allocated: null, done: false },
+    { id: 'pay-9', owner: 'eric', name: 'Energy bill', total: 372, share: 186, split: 'shared', payTo: 'NAB Offset', date: '8 Aug', allocated: null, done: false },
+    { id: 'pay-10', owner: 'eric', name: 'Council rates share', total: 480, share: 240, split: 'shared', payTo: 'JA Bills', date: '12 Aug', allocated: { month: 'Aug 2026', period: 'P1' }, done: false },
+    { id: 'pay-11', owner: 'eric', name: 'Fuel reimbursement', total: 80, share: 80, split: 'solo', payTo: 'NAB Eric', date: '29 Jul', allocated: { month: 'Jul 2026', period: 'P2' }, done: true },
+  ];
+
+  function payableOwnerRows(owner) {
+    return payablesRows.filter((row) => row.owner === owner);
+  }
+
+  function payableOpenRows(owner) {
+    return payableOwnerRows(owner).filter((row) => !row.done);
+  }
+
+  function payableVisibleOpenRows() {
+    return payableOpenRows(payablesView).filter((row) =>
+      (payablesFilter === 'all' || row.split === payablesFilter) &&
+      (payablesAccount === 'all' || row.payTo === payablesAccount)
+    );
+  }
+
+  function payableTotal(rows) {
+    return rows.reduce((sum, row) => sum + row.share, 0);
+  }
+
+  function payableAccounts(owner) {
+    return [...new Set(payableOpenRows(owner).map((row) => row.payTo))].sort();
+  }
+
+  function splitLabel(row) {
+    if (row.split === 'shared') return 'Shared';
+    return row.owner === 'mine' ? 'Solo' : 'Eric';
+  }
+
+  function splitSelectHtml(row) {
+    return (
+      '<select class="payable-split-select is-' + row.split + '" data-pay-split="' + row.id + '" aria-label="Split for ' + escapeHtml(row.name) + '">' +
+        '<option value="shared"' + (row.split === 'shared' ? ' selected' : '') + '>Shared</option>' +
+        '<option value="solo"' + (row.split === 'solo' ? ' selected' : '') + '>' + (row.owner === 'mine' ? 'Solo' : 'Eric') + '</option>' +
+      '</select>'
+    );
+  }
+
+  function payableRowHtml(row) {
+    const allocated = row.allocated
+      ? '<button class="payable-alloc-badge is-linked" type="button" data-open-allocate="' + row.id + '">' + row.allocated.month + ' · ' + row.allocated.period + '</button>'
+      : '<button class="payable-allocate-link" type="button" data-open-allocate="' + row.id + '">Allocate</button>';
+    return (
+      '<div class="payable-row' + (row.done ? ' is-paid' : '') + '" data-payable-id="' + row.id + '">' +
+        '<button class="bill-check" type="button" data-pay-done="' + row.id + '" aria-label="Toggle ' + escapeHtml(row.name) + '">' +
+          (row.done ? '<span class="material-symbols-outlined" aria-hidden="true">check</span>' : '') +
+        '</button>' +
+        '<div class="payable-name-cell">' +
+          '<div class="bill-name">' + escapeHtml(row.name) + '</div>' +
+          '<div class="bill-meta">' + escapeHtml(row.date) + ' · total ' + moneyExact(row.total) + '</div>' +
+        '</div>' +
+        '<div class="payable-split-cell">' + (row.done ? '<span class="payable-split-badge is-' + row.split + '">' + splitLabel(row) + '</span>' : splitSelectHtml(row)) + '</div>' +
+        '<div class="payable-share-cell">' + moneyExact(row.share) + '</div>' +
+        '<div class="payable-payto-cell">' + escapeHtml(row.payTo) + '</div>' +
+        '<div class="payable-alloc-cell">' + allocated + '</div>' +
+        '<button class="ledger-more" type="button" data-delete-payable="' + row.id + '" aria-label="Delete ' + escapeHtml(row.name) + '">' +
+          '<span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>' +
+        '</button>' +
+      '</div>'
+    );
+  }
+
+  function payableSectionHtml(account, rows) {
+    const collapsed = payablesCollapsed.has(account);
+    return (
+      '<section class="payable-account-section">' +
+        '<button class="payable-account-head" type="button" data-pay-collapse="' + escapeHtml(account) + '" aria-expanded="' + (!collapsed) + '">' +
+          '<span class="section-toggle-left"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span><span class="section-toggle-label">' + escapeHtml(account) + '</span></span>' +
+          '<span class="section-toggle-amt">' + rows.length + ' · ' + moneyExact(payableTotal(rows)) + '</span>' +
+        '</button>' +
+        '<div class="payable-account-body"' + (collapsed ? ' hidden' : '') + '>' + rows.map(payableRowHtml).join('') + '</div>' +
+      '</section>'
+    );
+  }
+
+  function payablesAddFormHtml() {
+    if (!payablesAddOpen) return '';
+    return (
+      '<article class="card payable-add-card">' +
+        '<div class="panel-card-head"><div class="panel-card-title">Add payable</div></div>' +
+        '<div class="payable-form-grid">' +
+          '<label class="settings-field"><span>Name</span><input type="text" data-add-payable-name value="Receipt from Bunnings"></label>' +
+          '<label class="settings-field"><span>Amount</span><input type="number" min="0" step="0.01" data-add-payable-amount value="188"></label>' +
+          '<label class="settings-field"><span>Split</span><select data-add-payable-split><option value="shared">Shared</option><option value="solo">Solo</option></select></label>' +
+          '<label class="settings-field"><span>Pay to</span><select data-add-payable-payto>' +
+            ['JA Bills', 'NAB Offset', 'Latitude', 'NAB Elly'].map((account) => '<option>' + account + '</option>').join('') +
+          '</select></label>' +
+          '<label class="settings-field"><span>Date</span><input type="text" data-add-payable-date value="24 Aug"></label>' +
+        '</div>' +
+        '<div class="payable-form-actions">' +
+          '<button class="text-btn" type="button" data-save-payable>Save payable</button>' +
+          '<button class="text-btn subtle" type="button" data-toggle-add-payable>Cancel</button>' +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  function payablesAllocateModalHtml() {
+    const row = payablesRows.find((item) => item.id === payablesAllocateId);
+    if (!row) return '';
+    return (
+      '<div class="mock-modal-backdrop" role="dialog" aria-modal="true" aria-label="Allocate payable">' +
+        '<div class="mock-modal">' +
+          '<div class="mock-modal-head">' +
+            '<div><div class="settings-card-title">Allocate payable</div><h3>' + escapeHtml(row.name) + '</h3></div>' +
+            '<button class="icon-btn icon-btn-sm" type="button" data-close-allocate aria-label="Close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>' +
+          '</div>' +
+          '<div class="payable-form-grid">' +
+            '<label class="settings-field"><span>Month</span><select data-alloc-month><option>Aug 2026</option><option>Sep 2026</option><option>Jul 2026</option></select></label>' +
+            '<label class="settings-field"><span>Period</span><select data-alloc-period><option>P1</option><option>P2</option></select></label>' +
+          '</div>' +
+          '<div class="safe-hint"><span class="material-symbols-outlined" aria-hidden="true">savings</span>Safe to spend after allocation: $1,154</div>' +
+          '<div class="payable-form-actions">' +
+            '<button class="text-btn" type="button" data-confirm-allocate="' + row.id + '">Confirm allocation</button>' +
+            '<button class="text-btn subtle" type="button" data-close-allocate>Cancel</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function payablesHtml() {
+    const ownerOpen = payableOpenRows(payablesView);
+    const otherOwner = payablesView === 'mine' ? 'eric' : 'mine';
+    const otherOpen = payableOpenRows(otherOwner);
+    const completed = payableOwnerRows(payablesView).filter((row) => row.done);
+    const accounts = payableAccounts(payablesView);
+    if (payablesAccount !== 'all' && !accounts.includes(payablesAccount)) payablesAccount = 'all';
+    const visibleOpen = payableVisibleOpenRows();
+    const accountOptions = '<option value="all">All accounts</option>' + accounts.map((account) =>
+      '<option value="' + escapeHtml(account) + '"' + (payablesAccount === account ? ' selected' : '') + '>' + escapeHtml(account) + '</option>'
+    ).join('');
+    const grouped = visibleOpen.reduce((map, row) => {
+      if (!map[row.payTo]) map[row.payTo] = [];
+      map[row.payTo].push(row);
+      return map;
+    }, {});
+    const groupsHtml = Object.keys(grouped).sort().map((account) => payableSectionHtml(account, grouped[account])).join('');
+    const allClear = ownerOpen.length === 0;
+    const emptyCopy = allClear ? 'All clear — no open payables.' : 'No open items match these filters.';
+    const completedRows = completed.map(payableRowHtml).join('');
+    return (
+      '<section class="hero-fan owing-fan" aria-label="Owing totals">' +
+        '<div class="hero-fan-row">' +
+          '<div class="hero-metric" data-metric="owe"><div class="hero-label">' + (payablesView === 'mine' ? 'You owe' : 'Eric owes') + '</div><div class="hero-figure">' + moneyExact(payableTotal(ownerOpen)) + '</div><div class="hero-chip">' + ownerOpen.length + ' open payable' + (ownerOpen.length === 1 ? '' : 's') + '</div></div>' +
+          '<div class="hero-metric" data-metric="eric"><div class="hero-label">' + (payablesView === 'mine' ? 'Eric owes' : 'You owe') + '</div><div class="hero-figure">' + moneyExact(payableTotal(otherOpen)) + '</div><div class="hero-chip">' + otherOpen.length + ' open on other view</div></div>' +
+        '</div>' +
+      '</section>' +
+      '<section class="hero owing-hero" aria-label="Owing">' +
+        '<div class="hero-label">' + (payablesView === 'mine' ? 'You owe' : 'Eric owes') + '</div><div class="hero-figure">' + moneyExact(payableTotal(ownerOpen)) + '</div><div class="hero-chip">' + ownerOpen.length + ' open payable' + (ownerOpen.length === 1 ? '' : 's') + '</div>' +
+      '</section>' +
+      '<div class="page-body payables-body">' +
+        '<div class="payables-toolbar">' +
+          '<div class="chip-tabs" role="tablist" aria-label="Payables view" data-owner-only>' +
+            '<button class="chip-tab" type="button" data-pay-view="mine" aria-pressed="' + (payablesView === 'mine') + '">Mine</button>' +
+            '<button class="chip-tab" type="button" data-pay-view="eric" aria-pressed="' + (payablesView === 'eric') + '">Eric</button>' +
+          '</div>' +
+          '<label class="select-filter"><span>Account</span><select data-pay-account>' + accountOptions + '</select></label>' +
+          '<div class="chip-tabs" role="tablist" aria-label="Split filter">' +
+            '<button class="chip-tab" type="button" data-pay-filter="all" aria-pressed="' + (payablesFilter === 'all') + '">All</button>' +
+            '<button class="chip-tab" type="button" data-pay-filter="shared" aria-pressed="' + (payablesFilter === 'shared') + '">Shared</button>' +
+            '<button class="chip-tab" type="button" data-pay-filter="solo" aria-pressed="' + (payablesFilter === 'solo') + '">Solo</button>' +
+          '</div>' +
+          '<button class="text-btn" type="button" data-toggle-add-payable><span class="material-symbols-outlined" aria-hidden="true">add</span>Add payable</button>' +
+        '</div>' +
+        payablesAddFormHtml() +
+        '<article class="card payables-list-card">' +
+          '<div class="panel-card-head"><div><div class="panel-card-title">Open payables</div><div class="settings-row-hint">Grouped by Pay To account</div></div></div>' +
+          '<div class="payable-col-head" aria-hidden="true"><span></span><span>Name</span><span>Split</span><span>Share</span><span>Pay to</span><span>Allocate</span><span></span></div>' +
+          (groupsHtml || '<div class="payables-empty"><span class="material-symbols-outlined" aria-hidden="true">' + (allClear ? 'check_circle' : 'filter_alt_off') + '</span><strong>' + emptyCopy + '</strong><span>Add a payable or change filters to keep reviewing.</span></div>') +
+          '<button class="completed-toggle" type="button" data-completed-toggle aria-expanded="' + payablesCompletedOpen + '"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span><span>Completed · ' + completed.length + '</span></button>' +
+          '<div class="completed-list" data-completed-list' + (payablesCompletedOpen ? '' : ' hidden') + '>' + (completedRows || '<div class="payables-empty">Nothing completed yet.</div>') + '</div>' +
+        '</article>' +
+      '</div>' +
+      payablesAllocateModalHtml()
+    );
+  }
+
+  function savePayable(rootEl) {
+    const name = rootEl.querySelector('[data-add-payable-name]').value.trim() || 'New payable';
+    const total = Number(rootEl.querySelector('[data-add-payable-amount]').value || 0);
+    const split = rootEl.querySelector('[data-add-payable-split]').value;
+    const payTo = rootEl.querySelector('[data-add-payable-payto]').value;
+    const date = rootEl.querySelector('[data-add-payable-date]').value.trim() || 'Today';
+    payablesRows.push({
+      id: 'pay-' + Date.now(),
+      owner: payablesView,
+      name,
+      total,
+      share: split === 'shared' ? total / 2 : total,
+      split,
+      payTo,
+      date,
+      allocated: null,
+      done: false,
+    });
+    payablesAddOpen = false;
+    payablesAccount = 'all';
+    showToast('Payable added');
+    renderPayables();
   }
 
   function wirePayables(rootEl) {
     rootEl.querySelectorAll('[data-pay-view]').forEach((btn) => {
       btn.addEventListener('click', () => {
         payablesView = btn.dataset.payView;
+        payablesAccount = 'all';
         renderPayables();
       });
     });
@@ -2237,12 +2454,89 @@ body {
         renderPayables();
       });
     });
+    rootEl.querySelectorAll('[data-pay-account]').forEach((select) => {
+      select.addEventListener('change', () => {
+        payablesAccount = select.value;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-pay-collapse]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const account = btn.dataset.payCollapse;
+        if (payablesCollapsed.has(account)) payablesCollapsed.delete(account);
+        else payablesCollapsed.add(account);
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-pay-done]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const row = payablesRows.find((item) => item.id === btn.dataset.payDone);
+        if (!row) return;
+        row.done = !row.done;
+        showToast(row.done ? 'Marked complete' : 'Moved back to open');
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-pay-split]').forEach((select) => {
+      select.addEventListener('change', () => {
+        const row = payablesRows.find((item) => item.id === select.dataset.paySplit);
+        if (!row) return;
+        row.split = select.value;
+        row.share = row.split === 'shared' ? row.total / 2 : row.total;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-toggle-add-payable]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesAddOpen = !payablesAddOpen;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-save-payable]').forEach((btn) => {
+      btn.addEventListener('click', () => savePayable(btn.closest('[data-payables-root]')));
+    });
+    rootEl.querySelectorAll('[data-open-allocate]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const row = payablesRows.find((item) => item.id === btn.dataset.openAllocate);
+        payablesAllocateId = btn.dataset.openAllocate;
+        payablesAllocateDraft = row && row.allocated ? Object.assign({}, row.allocated) : { month: 'Aug 2026', period: 'P1' };
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-alloc-month]').forEach((select) => {
+      select.value = payablesAllocateDraft.month;
+      select.addEventListener('change', () => { payablesAllocateDraft.month = select.value; });
+    });
+    rootEl.querySelectorAll('[data-alloc-period]').forEach((select) => {
+      select.value = payablesAllocateDraft.period;
+      select.addEventListener('change', () => { payablesAllocateDraft.period = select.value; });
+    });
+    rootEl.querySelectorAll('[data-confirm-allocate]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const row = payablesRows.find((item) => item.id === btn.dataset.confirmAllocate);
+        if (row) row.allocated = Object.assign({}, payablesAllocateDraft);
+        payablesAllocateId = null;
+        showToast('Payable allocated');
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-close-allocate]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesAllocateId = null;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-delete-payable]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesRows = payablesRows.filter((row) => row.id !== btn.dataset.deletePayable);
+        showToast('Payable deleted');
+        renderPayables();
+      });
+    });
     rootEl.querySelectorAll('[data-completed-toggle]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const list = btn.parentElement.querySelector('[data-completed-list]');
-        const open = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', open ? 'false' : 'true');
-        if (list) list.hidden = open;
+        payablesCompletedOpen = !payablesCompletedOpen;
+        renderPayables();
       });
     });
   }
@@ -2255,11 +2549,327 @@ body {
     });
   }
 
+  /* ── Chat full-page mock ── */
+  let chatActiveThreadId = 'chat-1';
+  let chatSearch = '';
+  let chatDraft = '';
+  let chatThinking = false;
+  let chatReceiptAttached = false;
+  let chatHistoryOpen = false;
+  let chatThreads = [
+    {
+      id: 'chat-1',
+      title: 'Allocate Bunnings receipt',
+      date: 'Today',
+      messages: [
+        { role: 'user', text: 'I attached the Bunnings receipt. Can you add the shared payable?', tags: ['receipt'] },
+        {
+          role: 'assistant',
+          text: 'I found a likely household payable.\n- Merchant: **Bunnings**\n- Total: **$188.00**\n- Suggested split: **Shared 50/50**\n\nPlease confirm before I add it.',
+          tags: ['receipt'],
+          proposal: { id: 'proposal-1', title: 'Create payable', detail: 'Bunnings run · $94 share · Pay to Latitude', status: 'pending' },
+        },
+      ],
+    },
+    {
+      id: 'chat-2',
+      title: 'Safe to spend this period',
+      date: 'Yesterday',
+      messages: [
+        { role: 'user', text: 'How much is safe to spend after bills this fortnight?' },
+        { role: 'assistant', text: 'You have **$1,248** safe to spend after the locked bills and savings goals in Pay period 1. The biggest upcoming open payable is Vet visit at **$320**.' },
+      ],
+    },
+    {
+      id: 'chat-3',
+      title: 'Find subscriptions',
+      date: '29 Jul',
+      messages: [
+        { role: 'user', text: 'Search recurring subscriptions and tell me what changed.', tags: ['web search'] },
+        { role: 'assistant', text: 'I checked the recurring list.\n- ChatGPT, Clip Studio, Netflix, and Disney+ are unchanged.\n- Uber One was annual and already completed in Payables.', tags: ['search'] },
+      ],
+    },
+  ];
+
+  function activeChatThread() {
+    return chatThreads.find((thread) => thread.id === chatActiveThreadId) || chatThreads[0];
+  }
+
+  function chatPreview(thread) {
+    const last = thread.messages[thread.messages.length - 1];
+    return last ? last.text.replace(/\s+/g, ' ').slice(0, 54) : 'New finance assistant chat';
+  }
+
+  function chatMarkdownHtml(text) {
+    const lines = String(text || '').split('\n');
+    let html = '';
+    let inList = false;
+    lines.forEach((line) => {
+      const safe = escapeHtml(line).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      if (safe.indexOf('- ') === 0) {
+        if (!inList) {
+          html += '<ul class="chat-md-ul">';
+          inList = true;
+        }
+        html += '<li class="chat-md-li">' + safe.slice(2) + '</li>';
+      } else {
+        if (inList) {
+          html += '</ul>';
+          inList = false;
+        }
+        if (safe) html += '<p class="chat-md-p">' + safe + '</p>';
+      }
+    });
+    if (inList) html += '</ul>';
+    return html;
+  }
+
+  function chatTagHtml(tags) {
+    return (tags || []).map((tag) =>
+      '<span class="chat-tag"><span class="material-symbols-outlined" aria-hidden="true">' + (tag === 'receipt' ? 'receipt_long' : 'travel_explore') + '</span>' + escapeHtml(tag) + '</span>'
+    ).join('');
+  }
+
+  function chatProposalHtml(proposal) {
+    if (!proposal) return '';
+    const statusClass = proposal.status === 'confirmed' ? ' is-confirmed' : proposal.status === 'cancelled' ? ' is-cancelled' : '';
+    const actions = proposal.status === 'pending'
+      ? '<div class="chat-action-buttons"><button class="text-btn" type="button" data-chat-proposal="confirm" data-proposal-id="' + proposal.id + '">Confirm</button><button class="text-btn subtle" type="button" data-chat-proposal="cancel" data-proposal-id="' + proposal.id + '">Cancel</button></div>'
+      : '<div class="chat-action-status">' + (proposal.status === 'confirmed' ? 'Confirmed in mock' : 'Cancelled') + '</div>';
+    return (
+      '<div class="chat-action-card' + statusClass + '">' +
+        '<div class="chat-action-kicker">Proposed action</div>' +
+        '<div class="chat-action-title">' + escapeHtml(proposal.title) + '</div>' +
+        '<div class="chat-action-detail">' + escapeHtml(proposal.detail) + '</div>' +
+        actions +
+      '</div>'
+    );
+  }
+
+  function chatMessageHtml(message) {
+    const cls = message.role === 'user' ? 'chat-msg chat-msg-user' : 'chat-msg chat-msg-assistant';
+    return (
+      '<div class="' + cls + '">' +
+        (message.tags && message.tags.length ? '<div class="chat-tags">' + chatTagHtml(message.tags) + '</div>' : '') +
+        '<div class="chat-msg-text">' + (message.role === 'assistant' ? chatMarkdownHtml(message.text) : escapeHtml(message.text)) + '</div>' +
+        chatProposalHtml(message.proposal) +
+      '</div>'
+    );
+  }
+
+  function chatHistoryHtml() {
+    const q = chatSearch.trim().toLowerCase();
+    const threads = chatThreads.filter((thread) =>
+      !q ||
+      thread.title.toLowerCase().includes(q) ||
+      thread.messages.some((message) => message.text.toLowerCase().includes(q))
+    );
+    return (
+      '<aside class="chat-history-panel">' +
+        '<div class="chat-history-head">' +
+          '<div><h3>History</h3><span>Finance assistant</span></div>' +
+          '<button class="text-btn" type="button" data-chat-new>New chat</button>' +
+        '</div>' +
+        '<label class="chat-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input type="search" data-chat-search value="' + escapeHtml(chatSearch) + '" placeholder="Search history"></label>' +
+        '<div class="chat-thread-list">' +
+          (threads.map((thread) =>
+            '<button class="chat-thread' + (thread.id === chatActiveThreadId ? ' active' : '') + '" type="button" data-chat-thread="' + thread.id + '">' +
+              '<span class="chat-thread-title">' + escapeHtml(thread.title) + '</span>' +
+              '<span class="chat-thread-preview">' + escapeHtml(chatPreview(thread)) + '</span>' +
+              '<span class="chat-thread-date">' + escapeHtml(thread.date) + '</span>' +
+            '</button>'
+          ).join('') || '<div class="chat-history-empty">No matching threads.</div>') +
+        '</div>' +
+      '</aside>'
+    );
+  }
+
+  function chatLogHtml(thread) {
+    if (!thread || thread.messages.length === 0) {
+      return (
+        '<div class="chat-empty">' +
+          '<span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span>' +
+          '<h3>Ask about your budget</h3>' +
+          '<p>Try “What can I safely spend?”, “Attach this receipt”, or “Create a shared payable for dinner”.</p>' +
+        '</div>'
+      );
+    }
+    return thread.messages.map(chatMessageHtml).join('') + (chatThinking
+      ? '<div class="chat-thinking"><span>Thinking</span><span class="chat-thinking-dots"><i></i><i></i><i></i></span></div>'
+      : '');
+  }
+
+  function chatHtml() {
+    const thread = activeChatThread();
+    return (
+      '<div class="chat-page' + (chatHistoryOpen ? ' is-history-open' : '') + '">' +
+        '<button class="chat-history-scrim" type="button" data-chat-close-history aria-label="Close history"></button>' +
+        chatHistoryHtml() +
+        '<main class="chat-main-panel">' +
+          '<header class="chat-page-head">' +
+            '<button class="icon-btn chat-menu-btn" type="button" data-chat-toggle-history aria-label="Open chat history"><span class="material-symbols-outlined" aria-hidden="true">menu</span></button>' +
+            '<div><div class="chat-page-title">' + escapeHtml(thread.title) + '</div><div class="settings-row-hint">Local mock · no Firebase calls</div></div>' +
+            '<button class="icon-btn" type="button" data-chat-new aria-label="New chat"><span class="material-symbols-outlined" aria-hidden="true">add_comment</span></button>' +
+          '</header>' +
+          '<div class="chat-log">' + chatLogHtml(thread) + '</div>' +
+          '<form class="chat-composer-card" data-chat-form>' +
+            (chatReceiptAttached ? '<div class="chat-attachment-chip"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>receipt.jpg attached<button type="button" data-chat-remove-attachment aria-label="Remove receipt">×</button></div>' : '') +
+            '<div class="chat-composer-row">' +
+              '<button class="chat-attach" type="button" data-chat-attach aria-label="Attach receipt"><span class="material-symbols-outlined" aria-hidden="true">attach_file</span></button>' +
+              '<textarea data-chat-draft placeholder="Ask Pensive about payables, safe-to-spend, or a receipt">' + escapeHtml(chatDraft) + '</textarea>' +
+              '<button class="chat-send" type="submit" aria-label="Send"><span class="material-symbols-outlined" aria-hidden="true">send</span></button>' +
+            '</div>' +
+          '</form>' +
+        '</main>' +
+      '</div>'
+    );
+  }
+
+  function mockAssistantReply(userText, hadReceipt) {
+    const lower = userText.toLowerCase();
+    if (hadReceipt || lower.includes('receipt') || lower.includes('payable') || lower.includes('split')) {
+      return {
+        role: 'assistant',
+        text: 'I can create that as a payable.\n- Suggested name: **Bunnings run**\n- Split: **Shared 50/50**\n- Pay to: **Latitude**\n\nConfirm and I will add it to Payables.',
+        tags: hadReceipt ? ['receipt'] : [],
+        proposal: { id: 'proposal-' + Date.now(), title: 'Create payable', detail: 'Bunnings run · $94 share · Pay to Latitude', status: 'pending' },
+      };
+    }
+    return {
+      role: 'assistant',
+      text: 'Here is the quick read: **$1,248** is safe to spend this fortnight. You have 5 open payables worth **$888**, and 2 already allocated to Aug P1.',
+      tags: lower.includes('search') ? ['search'] : [],
+    };
+  }
+
+  function sendChat(rootEl) {
+    const input = rootEl.querySelector('[data-chat-draft]');
+    const text = (input.value || '').trim();
+    if (!text && !chatReceiptAttached) return;
+    const thread = activeChatThread();
+    const hadReceipt = chatReceiptAttached;
+    const userText = text || 'Attached a receipt';
+    thread.messages.push({ role: 'user', text: userText, tags: hadReceipt ? ['receipt'] : [] });
+    if (thread.title === 'New chat') thread.title = userText.slice(0, 32);
+    thread.date = 'Now';
+    chatDraft = '';
+    chatReceiptAttached = false;
+    chatThinking = true;
+    renderChat();
+    clearTimeout(sendChat._timer);
+    sendChat._timer = setTimeout(() => {
+      thread.messages.push(mockAssistantReply(userText, hadReceipt));
+      chatThinking = false;
+      renderChat();
+    }, 850);
+  }
+
+  function newChat() {
+    const thread = { id: 'chat-' + Date.now(), title: 'New chat', date: 'Now', messages: [] };
+    chatThreads.unshift(thread);
+    chatActiveThreadId = thread.id;
+    chatDraft = '';
+    chatReceiptAttached = false;
+    chatHistoryOpen = false;
+    renderChat();
+  }
+
+  function updateProposal(id, status) {
+    chatThreads.forEach((thread) => {
+      thread.messages.forEach((message) => {
+        if (message.proposal && message.proposal.id === id) message.proposal.status = status;
+      });
+    });
+    showToast(status === 'confirmed' ? 'Action confirmed' : 'Action cancelled');
+    renderChat();
+  }
+
+  function wireChat(rootEl) {
+    rootEl.querySelectorAll('[data-chat-toggle-history]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        chatHistoryOpen = true;
+        renderChat();
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-close-history]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        chatHistoryOpen = false;
+        renderChat();
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-thread]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        chatActiveThreadId = btn.dataset.chatThread;
+        chatHistoryOpen = false;
+        renderChat();
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-new]').forEach((btn) => {
+      btn.addEventListener('click', newChat);
+    });
+    rootEl.querySelectorAll('[data-chat-search]').forEach((input) => {
+      input.addEventListener('input', () => {
+        chatSearch = input.value;
+        renderChat();
+        document.querySelectorAll('[data-chat-search]').forEach((next) => {
+          next.focus();
+          next.setSelectionRange(chatSearch.length, chatSearch.length);
+        });
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-draft]').forEach((input) => {
+      input.addEventListener('input', () => { chatDraft = input.value; });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendChat(rootEl);
+        }
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-form]').forEach((form) => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        sendChat(rootEl);
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-attach]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        chatReceiptAttached = true;
+        showToast('Receipt attached');
+        renderChat();
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-remove-attachment]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        chatReceiptAttached = false;
+        renderChat();
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-proposal]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        updateProposal(btn.dataset.proposalId, btn.dataset.chatProposal === 'confirm' ? 'confirmed' : 'cancelled');
+      });
+    });
+  }
+
+  function renderChat() {
+    const html = chatHtml();
+    document.querySelectorAll('[data-chat-root]').forEach((el) => {
+      el.innerHTML = html;
+      wireChat(el);
+      const log = el.querySelector('.chat-log');
+      if (log) log.scrollTop = log.scrollHeight;
+    });
+  }
+
   renderHomeInsights();
   renderMonthly();
   renderPayables();
+  renderSettings();
+  renderChat();
   setPage('home');
   setTheme(root.getAttribute('data-theme') || 'light');
+  syncRoleControls();
 
   const metrics = [
     {
