@@ -1928,41 +1928,7 @@ html[data-theme="dark"] .period-tab[aria-pressed="true"] {
   background: color-mix(in srgb, var(--on-primary) 24%, transparent);
 }
 
-/* Soften period head — less chrome, keep safe chip */
-.period-card-head {
-  background: var(--surface-container-low);
-  color: var(--on-surface);
-  border-bottom: var(--border-row);
-}
-.period-card-kicker {
-  color: var(--on-surface-variant);
-  opacity: 1;
-}
-.period-card-actions .icon-btn {
-  color: var(--on-surface-variant);
-}
-.period-card-actions .icon-btn:hover {
-  background: var(--surface-container-high);
-}
-.period-safe-chip {
-  background: var(--surface-container-lowest);
-  border: var(--border-subtle);
-  color: var(--on-surface);
-}
-.period-safe-chip-label {
-  color: var(--on-surface-variant);
-  opacity: 1;
-}
-.period-safe-chip-value {
-  color: var(--hero-safe);
-}
-.period-safe-chip.is-negative {
-  background: color-mix(in srgb, var(--error) 12%, var(--surface-container-lowest));
-  border-color: color-mix(in srgb, var(--error) 35%, transparent);
-}
-.period-safe-chip.is-negative .period-safe-chip-value {
-  color: var(--error);
-}
+/* Period head keeps solid primary fill (easier to scan than soft surface). */
 .period-safe-hint {
   font-size: var(--text-xs);
   color: var(--error);
