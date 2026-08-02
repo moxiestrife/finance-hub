@@ -32,6 +32,7 @@ Pensive UI facelift mockup: extract a reusable design system (`design-system/tok
 - [x] AC-5: Payables page — owing hero (desktop fan / phone single), Mine/Eric + All/Shared/Solo chips, open list + completed disclosure.
 - [x] AC-6: Scope switch visible on Home only; month nav visible on Monthly only.
 - [x] AC-7: Production `index.html` unchanged.
+- [x] AC-8: Monthly capability surface — Money In/Out, groups, savings, select/ctx/calc/drag demos.
 
 ## Known limitations
 

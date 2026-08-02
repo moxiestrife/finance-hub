@@ -467,7 +467,9 @@ body {
                 <button class="month-nav-btn" type="button" data-month-dir="-1" aria-label="Previous month">
                   <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
                 </button>
-                <span class="month-nav-label" data-month-label>Aug 2026</span>
+                <button class="month-nav-label" type="button" data-month-label data-month-picker-toggle aria-haspopup="dialog" aria-expanded="false">
+                  Aug 2026 <span class="material-symbols-outlined" aria-hidden="true">arrow_drop_down</span>
+                </button>
                 <button class="month-nav-btn" type="button" data-month-dir="1" aria-label="Next month">
                   <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
                 </button>
@@ -565,7 +567,9 @@ body {
               <button class="month-nav-btn" type="button" data-month-dir="-1" aria-label="Previous month">
                 <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
               </button>
-              <span class="month-nav-label" data-month-label>Aug 2026</span>
+              <button class="month-nav-label" type="button" data-month-label data-month-picker-toggle aria-haspopup="dialog" aria-expanded="false">
+                Aug 2026 <span class="material-symbols-outlined" aria-hidden="true">arrow_drop_down</span>
+              </button>
               <button class="month-nav-btn" type="button" data-month-dir="1" aria-label="Next month">
                 <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
               </button>
@@ -707,7 +711,7 @@ body {
       <li><strong>Palette</strong>: Dusk default; designer picker is for exploration only.</li>
       <li><strong>Hero</strong>: desktop fans Safe to spend / Money in / Money out; phone keeps swipe + dots. Copy uses “this fortnight” (Elly).</li>
       <li><strong>Home</strong>: scope switcher; fortnight cards; categories + trends; recurring bills + expenses split.</li>
-      <li><strong>Monthly</strong>: month nav in app bar; paid progress strip; period cards with Money in / Bills / Savings + bill rows.</li>
+      <li><strong>Monthly</strong>: full capability surface — month picker, Money In/Out collapse, recurring/variable groups, savings, live safe-to-spend, multi-select + badge, right-click ctx menu, calc panel, drag affordance (demo toasts for modals).</li>
       <li><strong>Payables</strong>: owing hero; Mine/Eric + All/Shared/Solo chips; open list + completed disclosure.</li>
       <li><strong>IA</strong>: Home = overview. Scope switch is Home-only.</li>
       <li>Production app is untouched — this is exploration only.</li>
@@ -1305,120 +1309,576 @@ body {
     });
   }
 
-  /* ── Monthly ── */
+  /* ── Monthly (capability surface mock) ── */
   const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  let monthCursor = { year: 2026, month: 7 }; // Aug 2026 (0-indexed)
+  const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  let monthCursor = { year: 2026, month: 7 }; // Aug 2026
+  let monthPickerOpen = false;
+  let monthlySelected = new Set(); // bill ids
+  let monthlyLastClicked = null;
+  let calcVisible = false;
+  let calcOp = 'sum';
 
   const MONTHLY = {
-    progress: { label: '12 of 18 paid', pct: 67 },
+    salary: 4524.58,
+    monthsWithData: { '2026-6': true, '2026-7': true, '2026-8': true },
     periods: [
       {
-        title: 'Period 1 · 1–14 Aug',
-        safe: '$1,248',
-        sections: [
-          { name: 'Money in', amount: '$4,525', pct: 100 },
-          { name: 'Housing & bills', amount: '$2,810', pct: 62 },
-          { name: 'Savings', amount: '$467', pct: 40 },
-        ],
+        id: 'p1',
+        n: 1,
+        date: '1–14 Aug 2026',
+        moneyInOpen: false,
+        moneyOutOpen: true,
+        income: [{ id: 'p1-i1', name: 'Side gig', amount: 0, recurring: false }],
         bills: [
-          { name: 'Mortgage', amount: '$3,134', paid: true },
-          { name: 'Groceries', amount: '$625', paid: true },
-          { name: 'Personal loan share', amount: '$170', paid: false },
-          { name: 'ChatGPT', amount: '$30', paid: false },
+          { id: 'p1-b1', name: 'Mortgage', amount: 3134, payTo: 'NAB Offset', recurring: true, paid: true, kind: 'bill' },
+          { id: 'p1-b2', name: 'Groceries', amount: 625, payTo: 'CB Groceries', recurring: true, paid: true, kind: 'expense' },
+          { id: 'p1-b3', name: 'Personal loan share', amount: 170, payTo: 'JA Bills', recurring: true, paid: false, kind: 'bill' },
+          { id: 'p1-b4', name: 'Solar batteries', amount: 118, payTo: 'JA Bills', recurring: true, paid: false, kind: 'bill' },
+          { id: 'p1-b5', name: 'ChatGPT', amount: 30, payTo: 'JA Bills', recurring: true, paid: false, kind: 'expense' },
+          { id: 'p1-b6', name: 'NAB CC Payment', amount: 200, payTo: 'NAB CC', recurring: false, paid: false, kind: 'bill' },
+        ],
+        savings: [
+          { id: 'p1-s1', name: 'General Savings', amount: 400, payTo: 'Savings', recurring: true, paid: false, locked: true },
+          { id: 'p1-s2', name: 'Holiday', amount: 67, payTo: 'Savings', recurring: false, paid: false },
         ],
       },
       {
-        title: 'Period 2 · 15–28 Aug',
-        safe: '$980',
-        sections: [
-          { name: 'Money in', amount: '$4,525', pct: 100 },
-          { name: 'Housing & bills', amount: '$1,890', pct: 45 },
-          { name: 'Savings', amount: '$467', pct: 20 },
-        ],
+        id: 'p2',
+        n: 2,
+        date: '15–28 Aug 2026',
+        moneyInOpen: false,
+        moneyOutOpen: true,
+        income: [],
         bills: [
-          { name: 'Car installment', amount: '$930', paid: false },
-          { name: 'Bupa Health', amount: '$197', paid: false },
-          { name: 'Telstra', amount: '$188', paid: true },
-          { name: 'Netflix', amount: '$15', paid: true },
+          { id: 'p2-b1', name: 'Car installment', amount: 930, payTo: 'JA Bills', recurring: true, paid: false, kind: 'bill' },
+          { id: 'p2-b2', name: 'Bupa Health', amount: 197, payTo: 'JA Bills', recurring: true, paid: false, kind: 'bill' },
+          { id: 'p2-b3', name: 'Telstra', amount: 188, payTo: 'JA Bills', recurring: true, paid: true, kind: 'bill' },
+          { id: 'p2-b4', name: 'Internet', amount: 65, payTo: 'JA Bills', recurring: true, paid: true, kind: 'bill' },
+          { id: 'p2-b5', name: 'Netflix', amount: 15, payTo: 'JA Bills', recurring: true, paid: true, kind: 'expense' },
+          { id: 'p2-b6', name: 'Latitude card', amount: 575, payTo: 'Latitude', recurring: false, paid: false, kind: 'bill' },
+        ],
+        savings: [
+          { id: 'p2-s1', name: 'General Savings', amount: 400, payTo: 'Savings', recurring: true, paid: false, locked: true },
+          { id: 'p2-s2', name: 'Holiday', amount: 67, payTo: 'Savings', recurring: false, paid: false },
         ],
       },
     ],
   };
 
+  function money(n) {
+    return '$' + Math.round(n).toLocaleString('en-AU');
+  }
+  function moneyExact(n) {
+    return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+  function periodIncome(p) {
+    return MONTHLY.salary + p.income.reduce((s, r) => s + (r.amount || 0), 0);
+  }
+  function periodBillsTotal(p) {
+    return p.bills.reduce((s, r) => s + (r.amount || 0), 0);
+  }
+  function periodSavingsTotal(p) {
+    return p.savings.reduce((s, r) => s + (r.amount || 0), 0);
+  }
+  function periodSafe(p) {
+    return periodIncome(p) - periodBillsTotal(p) - periodSavingsTotal(p);
+  }
+  function monthProgress() {
+    const all = MONTHLY.periods.flatMap((p) => p.bills);
+    const paid = all.filter((b) => b.paid).length;
+    return { paid, total: all.length, pct: all.length ? Math.round((paid / all.length) * 100) : 0 };
+  }
+  function findBill(id) {
+    for (const p of MONTHLY.periods) {
+      const b = p.bills.find((x) => x.id === id) || p.savings.find((x) => x.id === id);
+      if (b) return { period: p, row: b };
+    }
+    return null;
+  }
+  function selectedRows() {
+    return [...monthlySelected].map(findBill).filter(Boolean).map((x) => x.row);
+  }
+  function selectedSum() {
+    return selectedRows().reduce((s, r) => s + (r.amount || 0), 0);
+  }
+
   function syncMonthLabel() {
     const label = MONTH_NAMES[monthCursor.month] + ' ' + monthCursor.year;
     document.querySelectorAll('[data-month-label]').forEach((el) => {
-      el.textContent = label;
+      el.innerHTML = label + ' <span class="material-symbols-outlined" aria-hidden="true">arrow_drop_down</span>';
+      el.setAttribute('aria-expanded', monthPickerOpen ? 'true' : 'false');
     });
   }
 
   function shiftMonth(dir) {
     monthCursor.month += dir;
-    if (monthCursor.month > 11) {
-      monthCursor.month = 0;
-      monthCursor.year += 1;
-    } else if (monthCursor.month < 0) {
-      monthCursor.month = 11;
-      monthCursor.year -= 1;
+    if (monthCursor.month > 11) { monthCursor.month = 0; monthCursor.year += 1; }
+    else if (monthCursor.month < 0) { monthCursor.month = 11; monthCursor.year -= 1; }
+    monthPickerOpen = false;
+    monthlySelected.clear();
+    showToast('Switched to ' + MONTH_NAMES[monthCursor.month] + ' ' + monthCursor.year);
+    renderMonthly();
+  }
+
+  function showToast(msg) {
+    let el = document.getElementById('monthlyToast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'monthlyToast';
+      el.className = 'monthly-toast';
+      document.body.appendChild(el);
     }
-    syncMonthLabel();
+    el.textContent = msg;
+    el.classList.add('is-visible');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => el.classList.remove('is-visible'), 2200);
+  }
+
+  function ensureCtxMenu() {
+    let menu = document.getElementById('monthlyCtx');
+    if (menu) return menu;
+    menu = document.createElement('div');
+    menu.id = 'monthlyCtx';
+    menu.className = 'ctx-menu';
+    menu.innerHTML =
+      '<button class="ctx-item" type="button" data-ctx="done"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Mark as done</button>' +
+      '<button class="ctx-item" type="button" data-ctx="undone"><span class="material-symbols-outlined" aria-hidden="true">radio_button_unchecked</span>Mark as not done</button>' +
+      '<button class="ctx-item" type="button" data-ctx="payto"><span class="material-symbols-outlined" aria-hidden="true">account_balance</span>Change pay to…</button>' +
+      '<button class="ctx-item" type="button" data-ctx="recur"><span class="material-symbols-outlined" aria-hidden="true">autorenew</span>Toggle recurring</button>' +
+      '<div class="ctx-sep"></div>' +
+      '<button class="ctx-item" type="button" data-ctx="move"><span class="material-symbols-outlined" aria-hidden="true">drive_file_move</span>Move to…</button>' +
+      '<button class="ctx-item" type="button" data-ctx="calc"><span class="material-symbols-outlined" aria-hidden="true">calculate</span>Calculate selection</button>' +
+      '<div class="ctx-sep"></div>' +
+      '<button class="ctx-item is-danger" type="button" data-ctx="delete"><span class="material-symbols-outlined" aria-hidden="true">delete</span>Delete selected</button>';
+    document.body.appendChild(menu);
+    menu.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-ctx]');
+      if (!btn) return;
+      runCtx(btn.dataset.ctx);
+      closeCtx();
+    });
+    return menu;
+  }
+
+  function openCtx(x, y) {
+    const menu = ensureCtxMenu();
+    menu.classList.add('is-open');
+    const pad = 8;
+    const w = 220;
+    const h = 280;
+    const left = Math.min(x, window.innerWidth - w - pad);
+    const top = Math.min(y, window.innerHeight - h - pad);
+    menu.style.left = Math.max(pad, left) + 'px';
+    menu.style.top = Math.max(pad, top) + 'px';
+  }
+  function closeCtx() {
+    const menu = document.getElementById('monthlyCtx');
+    if (menu) menu.classList.remove('is-open');
+  }
+
+  function runCtx(action) {
+    const rows = selectedRows();
+    if (!rows.length && action !== 'calc') {
+      showToast('Select a row first');
+      return;
+    }
+    if (action === 'done') {
+      rows.forEach((r) => { r.paid = true; });
+      showToast('Marked ' + rows.length + ' done');
+      renderMonthly();
+    } else if (action === 'undone') {
+      rows.forEach((r) => { r.paid = false; });
+      showToast('Marked ' + rows.length + ' not done');
+      renderMonthly();
+    } else if (action === 'recur') {
+      rows.forEach((r) => { r.recurring = !r.recurring; });
+      showToast('Toggled recurring');
+      renderMonthly();
+    } else if (action === 'payto') {
+      showToast('Change pay to… (modal in production)');
+    } else if (action === 'move') {
+      showToast('Move to month/period… (modal in production)');
+    } else if (action === 'delete') {
+      MONTHLY.periods.forEach((p) => {
+        p.bills = p.bills.filter((b) => !monthlySelected.has(b.id));
+        p.savings = p.savings.filter((s) => !monthlySelected.has(s.id) || s.locked);
+      });
+      monthlySelected.clear();
+      showToast('Deleted selected');
+      renderMonthly();
+    } else if (action === 'calc') {
+      calcVisible = true;
+      calcOp = 'sum';
+      renderMonthly();
+      showToast('Calc panel open');
+    }
+  }
+
+  function ledgerRowHtml(row, opts) {
+    opts = opts || {};
+    const selected = monthlySelected.has(row.id);
+    const cls = [
+      'ledger-row',
+      row.paid ? 'is-paid' : '',
+      selected ? 'is-selected' : '',
+      opts.salary ? 'ledger-salary' : '',
+    ].filter(Boolean).join(' ');
+    return (
+      '<div class="' + cls + '" data-ledger-id="' + row.id + '" draggable="' + (opts.draggable !== false ? 'true' : 'false') + '">' +
+        '<div class="ledger-handle" title="Drag to reorder / move period" aria-hidden="true">⋮⋮</div>' +
+        '<div class="bill-check" data-toggle-paid aria-hidden="true">' +
+          (row.paid ? '<span class="material-symbols-outlined">check</span>' : '') +
+        '</div>' +
+        '<div class="ledger-name">' + row.name + '</div>' +
+        '<div class="ledger-amt">' + moneyExact(row.amount) + '</div>' +
+        '<div class="ledger-payto">' + (row.payTo || '—') + '</div>' +
+        '<button class="ledger-recur' + (row.recurring ? ' is-on' : '') + '" type="button" data-toggle-recur title="Recurring" aria-pressed="' + !!row.recurring + '">' +
+          '<span class="material-symbols-outlined" aria-hidden="true">autorenew</span>' +
+        '</button>' +
+      '</div>'
+    );
+  }
+
+  function periodCardHtml(p) {
+    const income = periodIncome(p);
+    const billsTotal = periodBillsTotal(p);
+    const savTotal = periodSavingsTotal(p);
+    const outTotal = billsTotal + savTotal;
+    const safe = periodSafe(p);
+    const recurring = p.bills.filter((b) => b.recurring);
+    const variable = p.bills.filter((b) => !b.recurring);
+    const recSum = recurring.reduce((s, b) => s + b.amount, 0);
+    const varSum = variable.reduce((s, b) => s + b.amount, 0);
+
+    const incomeRows = [
+      ledgerRowHtml({ id: p.id + '-salary', name: 'Salary (fortnightly)', amount: MONTHLY.salary, payTo: 'Income', recurring: true, paid: false }, { salary: true, draggable: false }),
+    ].concat(p.income.map((r) => ledgerRowHtml(Object.assign({ payTo: 'Income' }, r), { draggable: false }))).join('');
+
+    const billRows = (list) => list.map((b) => ledgerRowHtml(b)).join('');
+    const savRows = p.savings.map((s) => ledgerRowHtml(s)).join('');
+
+    return (
+      '<article class="card period-card" data-period="' + p.id + '">' +
+        '<div class="period-card-head">' +
+          '<div class="period-card-head-main">' +
+            '<div class="period-card-kicker">Pay period ' + p.n + '</div>' +
+            '<div class="period-card-date">' + p.date + '</div>' +
+          '</div>' +
+          '<div class="period-card-head-right">' +
+            '<div class="period-safe-chip' + (safe < 0 ? ' is-negative' : '') + '">' +
+              '<div class="period-safe-chip-label">Safe to spend</div>' +
+              '<div class="period-safe-chip-value">' + money(safe) + '</div>' +
+            '</div>' +
+            '<div class="period-card-actions">' +
+              '<button class="icon-btn" type="button" data-demo-toast="Edit date (prompt in production)" title="Edit date" aria-label="Edit date">' +
+                '<span class="material-symbols-outlined" aria-hidden="true">edit_calendar</span>' +
+              '</button>' +
+              '<button class="icon-btn" type="button" data-demo-toast="Delete period (confirm in production)" title="Delete period" aria-label="Delete period">' +
+                '<span class="material-symbols-outlined" aria-hidden="true">delete</span>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<button class="section-toggle is-in" type="button" data-section-toggle="in" aria-expanded="' + p.moneyInOpen + '">' +
+          '<span class="section-toggle-left">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>' +
+            '<span class="section-toggle-label">Money in</span>' +
+          '</span>' +
+          '<span class="section-toggle-amt">' + moneyExact(income) + '</span>' +
+        '</button>' +
+        '<div class="section-body" data-section="in"' + (p.moneyInOpen ? '' : ' hidden') + '>' +
+          incomeRows +
+          '<button class="ledger-add" type="button" data-demo-toast="Add income line">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add income' +
+          '</button>' +
+        '</div>' +
+
+        '<button class="section-toggle is-out" type="button" data-section-toggle="out" aria-expanded="' + p.moneyOutOpen + '">' +
+          '<span class="section-toggle-left">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>' +
+            '<span class="section-toggle-label">Money out</span>' +
+          '</span>' +
+          '<span class="section-toggle-amt">' + money(outTotal) + '</span>' +
+        '</button>' +
+        '<div class="section-body" data-section="out"' + (p.moneyOutOpen ? '' : ' hidden') + '>' +
+          '<div class="sort-head" aria-hidden="true">' +
+            '<span></span><span></span>' +
+            '<button class="sort-col" type="button" data-demo-toast="Sort by name">Expense</button>' +
+            '<button class="sort-col is-amt" type="button" data-demo-toast="Sort by amount">Amt</button>' +
+            '<button class="sort-col" type="button" data-demo-toast="Sort by pay to">Pay to</button>' +
+            '<span></span>' +
+          '</div>' +
+          '<div class="group-head is-recurring"><span class="group-head-label">Recurring</span><span class="group-head-amt">' + money(recSum) + '</span></div>' +
+          '<div class="bill-list" data-bill-list="' + p.id + '-rec">' + billRows(recurring) + '</div>' +
+          '<div class="group-head is-variable"><span class="group-head-label">Variable</span><span class="group-head-amt">' + money(varSum) + '</span></div>' +
+          '<div class="bill-list" data-bill-list="' + p.id + '-var">' + billRows(variable) + '</div>' +
+          '<button class="ledger-add" type="button" data-demo-toast="Add expense">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add expense' +
+          '</button>' +
+        '</div>' +
+
+        '<div class="savings-block">' +
+          '<div class="group-head is-savings"><span class="group-head-label">Savings</span><span class="group-head-amt">' + money(savTotal) + '</span></div>' +
+          savRows +
+          '<button class="ledger-add" type="button" data-demo-toast="Add savings goal">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add savings goal' +
+          '</button>' +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  function monthPickerHtml() {
+    if (!monthPickerOpen) return '';
+    const cells = MONTH_SHORT.map((name, i) => {
+      const key = monthCursor.year + '-' + i;
+      const cls = [
+        'month-picker-cell',
+        i === monthCursor.month ? 'is-current' : '',
+        MONTHLY.monthsWithData[key] ? 'has-data' : '',
+      ].filter(Boolean).join(' ');
+      return '<button class="' + cls + '" type="button" data-pick-month="' + i + '">' + name + '</button>';
+    }).join('');
+    return (
+      '<div class="month-picker" data-month-picker role="dialog" aria-label="Pick month">' +
+        '<div class="month-picker-year">' +
+          '<button class="month-nav-btn" type="button" data-picker-year="-1" aria-label="Previous year"><span class="material-symbols-outlined" aria-hidden="true">chevron_left</span></button>' +
+          '<span>' + monthCursor.year + '</span>' +
+          '<button class="month-nav-btn" type="button" data-picker-year="1" aria-label="Next year"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>' +
+        '</div>' +
+        '<div class="month-picker-grid">' + cells + '</div>' +
+      '</div>'
+    );
+  }
+
+  function calcResult() {
+    const vals = selectedRows().map((r) => r.amount || 0);
+    if (!vals.length) return { label: 'Select rows', value: '—' };
+    if (calcOp === 'sum') return { label: 'SUM', value: moneyExact(vals.reduce((a, b) => a + b, 0)) };
+    if (calcOp === 'avg') return { label: 'AVG', value: moneyExact(vals.reduce((a, b) => a + b, 0) / vals.length) };
+    if (calcOp === 'min') return { label: 'MIN', value: moneyExact(Math.min(...vals)) };
+    if (calcOp === 'max') return { label: 'MAX', value: moneyExact(Math.max(...vals)) };
+    return { label: 'COUNT', value: String(vals.length) };
   }
 
   function monthlyHtml() {
-    const periods = MONTHLY.periods.map((p, idx) => {
-      const sections = p.sections.map((s) =>
-        '<div class="period-section">' +
-          '<div class="period-section-main">' +
-            '<div class="period-section-name">' + s.name + '</div>' +
-            '<div class="cat-bar-track" aria-hidden="true">' +
-              '<div class="cat-bar-fill" style="width:' + s.pct + '%"></div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="period-section-amt">' + s.amount + '</div>' +
-        '</div>'
-      ).join('');
-      const bills = p.bills.map((b) =>
-        '<div class="bill-row has-check' + (b.paid ? ' is-paid' : '') + '">' +
-          '<div class="bill-check" aria-hidden="true">' +
-            '<span class="material-symbols-outlined">check</span>' +
-          '</div>' +
-          '<div class="bill-name">' + b.name + '</div>' +
-          '<div class="bill-amount">' + b.amount + '</div>' +
-        '</div>'
-      ).join('');
-      const phoneCollapsed = idx === 1 ? ' data-period-secondary' : '';
-      return (
-        '<article class="card period-card"' + phoneCollapsed + '>' +
-          '<div class="panel-card-head">' +
-            '<div class="panel-card-title">' + p.title + '</div>' +
-            '<div class="period-safe">' + p.safe + '</div>' +
-          '</div>' +
-          sections +
-          '<div class="period-bills">' + bills + '</div>' +
-        '</article>'
-      );
-    }).join('');
+    const prog = monthProgress();
+    const selCount = monthlySelected.size;
+    const calc = calcResult();
     return (
-      '<div class="status-strip">' +
-        '<div class="status-strip-meta">' + MONTHLY.progress.label + '</div>' +
-        '<div class="cat-bar-track" aria-hidden="true">' +
-          '<div class="cat-bar-fill" style="width:' + MONTHLY.progress.pct + '%"></div>' +
+      '<div class="monthly-toolbar">' +
+        '<div class="monthly-legend">♻ recurring · copies next month &nbsp;|&nbsp; ✓ paid this period</div>' +
+        '<div class="monthly-progress">' +
+          '<span class="monthly-progress-label">' + prog.paid + ' / ' + prog.total + ' paid</span>' +
+          '<div class="cat-bar-track" aria-hidden="true"><div class="cat-bar-fill" style="width:' + prog.pct + '%"></div></div>' +
         '</div>' +
       '</div>' +
-      '<div class="periods-row">' + periods + '</div>'
+      '<div class="periods-row">' + MONTHLY.periods.map(periodCardHtml).join('') + '</div>' +
+      '<div class="calc-panel' + (calcVisible ? ' is-visible' : '') + '" data-calc-panel>' +
+        '<div class="calc-panel-head"><span>Calculate</span>' +
+          '<button class="icon-btn icon-btn-sm" type="button" data-calc-close aria-label="Close calc">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">close</span>' +
+          '</button>' +
+        '</div>' +
+        '<div class="calc-panel-result">' + calc.label + ' · ' + calc.value + '</div>' +
+        '<div class="calc-panel-ops">' +
+          ['sum', 'avg', 'min', 'max', 'count'].map((op) =>
+            '<button class="chip-tab" type="button" data-calc-op="' + op + '" aria-pressed="' + (calcOp === op) + '">' + op.toUpperCase() + '</button>'
+          ).join('') +
+        '</div>' +
+      '</div>' +
+      '<div class="sel-badge' + (selCount ? ' is-visible' : '') + '" data-sel-badge>' +
+        '<div class="sel-badge-meta">' +
+          '<div>' + selCount + ' selected · Sum ' + moneyExact(selectedSum()) + '</div>' +
+          '<div class="sel-badge-hint">Right-click for options · Shift/Ctrl multi-select</div>' +
+        '</div>' +
+        '<div class="sel-badge-actions">' +
+          '<button type="button" data-ctx-quick="calc">Calc</button>' +
+          '<button type="button" data-ctx-quick="done">Done</button>' +
+          '<button type="button" data-clear-sel>Clear</button>' +
+        '</div>' +
+      '</div>'
     );
+  }
+
+  function allLedgerIdsInRoot(rootEl) {
+    return [...rootEl.querySelectorAll('[data-ledger-id]')].map((el) => el.dataset.ledgerId);
+  }
+
+  function wireMonthly(rootEl) {
+    rootEl.querySelectorAll('[data-section-toggle]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const which = btn.dataset.sectionToggle;
+        const card = btn.closest('[data-period]');
+        const p = MONTHLY.periods.find((x) => x.id === card.dataset.period);
+        if (!p) return;
+        if (which === 'in') p.moneyInOpen = !p.moneyInOpen;
+        else p.moneyOutOpen = !p.moneyOutOpen;
+        renderMonthly();
+      });
+    });
+
+    rootEl.querySelectorAll('[data-toggle-paid]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = el.closest('[data-ledger-id]').dataset.ledgerId;
+        const hit = findBill(id);
+        if (!hit || hit.row.name.indexOf('Salary') === 0) return;
+        hit.row.paid = !hit.row.paid;
+        renderMonthly();
+      });
+    });
+
+    rootEl.querySelectorAll('[data-toggle-recur]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.closest('[data-ledger-id]').dataset.ledgerId;
+        const hit = findBill(id);
+        if (!hit) return;
+        hit.row.recurring = !hit.row.recurring;
+        showToast(hit.row.recurring ? 'Recurring on' : 'One-off');
+        renderMonthly();
+      });
+    });
+
+    rootEl.querySelectorAll('[data-ledger-id]').forEach((row) => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('[data-toggle-paid],[data-toggle-recur],button')) return;
+        const id = row.dataset.ledgerId;
+        if (id.indexOf('-salary') !== -1) return;
+        const ids = allLedgerIdsInRoot(rootEl).filter((x) => x.indexOf('-salary') === -1);
+        if (e.shiftKey && monthlyLastClicked) {
+          const a = ids.indexOf(monthlyLastClicked);
+          const b = ids.indexOf(id);
+          if (a >= 0 && b >= 0) {
+            const [lo, hi] = a < b ? [a, b] : [b, a];
+            for (let i = lo; i <= hi; i++) monthlySelected.add(ids[i]);
+          }
+        } else if (e.metaKey || e.ctrlKey) {
+          if (monthlySelected.has(id)) monthlySelected.delete(id);
+          else monthlySelected.add(id);
+        } else {
+          monthlySelected.clear();
+          monthlySelected.add(id);
+        }
+        monthlyLastClicked = id;
+        renderMonthly();
+      });
+      row.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const id = row.dataset.ledgerId;
+        if (id.indexOf('-salary') !== -1) return;
+        if (!monthlySelected.has(id)) {
+          monthlySelected.clear();
+          monthlySelected.add(id);
+          renderMonthly();
+        }
+        openCtx(e.clientX, e.clientY);
+      });
+      row.addEventListener('dragstart', (e) => {
+        row.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', row.dataset.ledgerId);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      row.addEventListener('dragend', () => row.classList.remove('dragging'));
+    });
+
+    rootEl.querySelectorAll('[data-bill-list]').forEach((list) => {
+      list.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        list.classList.add('drag-target');
+      });
+      list.addEventListener('dragleave', () => list.classList.remove('drag-target'));
+      list.addEventListener('drop', (e) => {
+        e.preventDefault();
+        list.classList.remove('drag-target');
+        const id = e.dataTransfer.getData('text/plain');
+        const hit = findBill(id);
+        if (!hit) return;
+        showToast('Moved “' + hit.row.name + '” (reorder/move demo)');
+      });
+    });
+
+    rootEl.querySelectorAll('[data-demo-toast]').forEach((btn) => {
+      btn.addEventListener('click', () => showToast(btn.dataset.demoToast));
+    });
+    rootEl.querySelectorAll('[data-ctx-quick]').forEach((btn) => {
+      btn.addEventListener('click', () => runCtx(btn.dataset.ctxQuick));
+    });
+    rootEl.querySelectorAll('[data-clear-sel]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        monthlySelected.clear();
+        calcVisible = false;
+        renderMonthly();
+      });
+    });
+    rootEl.querySelectorAll('[data-calc-close]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        calcVisible = false;
+        renderMonthly();
+      });
+    });
+    rootEl.querySelectorAll('[data-calc-op]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        calcOp = btn.dataset.calcOp;
+        renderMonthly();
+      });
+    });
   }
 
   function renderMonthly() {
     const html = monthlyHtml();
     document.querySelectorAll('[data-monthly-root]').forEach((el) => {
       el.innerHTML = html;
+      wireMonthly(el);
     });
     syncMonthLabel();
+    // Mount picker into each visible month-nav
+    document.querySelectorAll('[data-month-nav]').forEach((nav) => {
+      const old = nav.querySelector('[data-month-picker]');
+      if (old) old.remove();
+      if (monthPickerOpen) {
+        nav.insertAdjacentHTML('beforeend', monthPickerHtml());
+        nav.querySelectorAll('[data-pick-month]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            monthCursor.month = Number(btn.dataset.pickMonth);
+            monthPickerOpen = false;
+            showToast('Jumped to ' + MONTH_NAMES[monthCursor.month] + ' ' + monthCursor.year);
+            renderMonthly();
+          });
+        });
+        nav.querySelectorAll('[data-picker-year]').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            monthCursor.year += Number(btn.dataset.pickerYear);
+            renderMonthly();
+          });
+        });
+      }
+    });
   }
 
   document.querySelectorAll('[data-month-dir]').forEach((btn) => {
     btn.addEventListener('click', () => shiftMonth(Number(btn.dataset.monthDir)));
+  });
+  document.querySelectorAll('[data-month-picker-toggle]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      monthPickerOpen = !monthPickerOpen;
+      renderMonthly();
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-month-nav]')) {
+      if (monthPickerOpen) {
+        monthPickerOpen = false;
+        document.querySelectorAll('[data-month-picker]').forEach((el) => el.remove());
+        syncMonthLabel();
+      }
+    }
+    if (!e.target.closest('#monthlyCtx') && !e.target.closest('[data-ledger-id]')) closeCtx();
   });
 
   /* ── Payables ── */
