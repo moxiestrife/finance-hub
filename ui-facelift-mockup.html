@@ -1463,6 +1463,7 @@ body {
     return menu;
   }
 
+  let ctxOpenedAt = 0;
   function openCtx(x, y) {
     const menu = ensureCtxMenu();
     menu.classList.add('is-open');
@@ -1473,10 +1474,16 @@ body {
     const top = Math.min(y, window.innerHeight - h - pad);
     menu.style.left = Math.max(pad, left) + 'px';
     menu.style.top = Math.max(pad, top) + 'px';
+    // Ignore the opening gesture so the same click/contextmenu doesn't dismiss immediately
+    ctxOpenedAt = Date.now();
   }
   function closeCtx() {
     const menu = document.getElementById('monthlyCtx');
     if (menu) menu.classList.remove('is-open');
+  }
+  function isCtxOpen() {
+    const menu = document.getElementById('monthlyCtx');
+    return !!(menu && menu.classList.contains('is-open'));
   }
 
   function runCtx(action) {
@@ -1796,6 +1803,7 @@ body {
       });
       row.addEventListener('contextmenu', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         const id = row.dataset.ledgerId;
         if (id.indexOf('-salary') !== -1) return;
         if (!monthlySelected.has(id)) {
@@ -1866,18 +1874,26 @@ body {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const id = btn.closest('[data-ledger-id]').dataset.ledgerId;
-        if (monthlyExpanded.has(id) && monthlySelected.has(id)) {
-          openCtx(e.clientX, e.clientY);
-          return;
-        }
+        // ⋯ always opens the action menu once the row is focused
         if (!monthlySelected.has(id)) {
           monthlySelected.clear();
           monthlySelected.add(id);
         }
-        if (monthlyExpanded.has(id)) monthlyExpanded.delete(id);
-        else monthlyExpanded.add(id);
+        monthlyExpanded.add(id);
         monthlyLastClicked = id;
         renderMonthly();
+        openCtx(e.clientX, e.clientY);
+      });
+      btn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = btn.closest('[data-ledger-id]').dataset.ledgerId;
+        if (!monthlySelected.has(id)) {
+          monthlySelected.clear();
+          monthlySelected.add(id);
+          renderMonthly();
+        }
+        openCtx(e.clientX, e.clientY);
       });
     });
 
@@ -1958,7 +1974,17 @@ body {
         syncMonthLabel();
       }
     }
-    if (!e.target.closest('#monthlyCtx') && !e.target.closest('[data-ledger-id]')) closeCtx();
+    // Dismiss ctx on any outside click (ledger rows used to be exempt, which trapped the menu)
+    if (Date.now() - ctxOpenedAt < 80) return;
+    if (!e.target.closest('#monthlyCtx')) closeCtx();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeCtx();
+  });
+  document.addEventListener('contextmenu', (e) => {
+    if (!isCtxOpen()) return;
+    if (e.target.closest('#monthlyCtx') || e.target.closest('[data-ledger-id]')) return;
+    closeCtx();
   });
 
   /* ── Payables ── */
