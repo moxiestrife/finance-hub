@@ -1873,7 +1873,7 @@ body {
         '</button>' +
         '<div class="section-body" data-section="in"' + (moneyInOpen ? '' : ' hidden') + '>' +
           incomeRows +
-          '<button class="ledger-add" type="button" data-demo-toast="Add income line">' +
+          '<button class="ledger-add" type="button" data-add-ledger="income" data-period="' + p.id + '">' +
             '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add income' +
           '</button>' +
         '</div>' +
@@ -1890,7 +1890,7 @@ body {
           '<div class="bill-list" data-bill-list="' + p.id + '-rec">' + billRows(recurring) + '</div>' +
           '<div class="group-head is-variable"><span class="group-head-label">Variable</span><span class="group-head-amt">' + money(varSum) + '</span></div>' +
           '<div class="bill-list" data-bill-list="' + p.id + '-var">' + billRows(variable) + '</div>' +
-          '<button class="ledger-add" type="button" data-demo-toast="Add expense">' +
+          '<button class="ledger-add" type="button" data-add-ledger="expense" data-period="' + p.id + '">' +
             '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add expense' +
           '</button>' +
         '</div>' +
@@ -1898,7 +1898,7 @@ body {
         '<div class="savings-block">' +
           '<div class="group-head is-savings"><span class="group-head-label">Savings</span><span class="group-head-amt">' + money(savTotal) + '</span></div>' +
           savRows +
-          '<button class="ledger-add" type="button" data-demo-toast="Add savings goal">' +
+          '<button class="ledger-add" type="button" data-add-ledger="savings" data-period="' + p.id + '">' +
             '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add savings goal' +
           '</button>' +
         '</div>' +
@@ -2093,6 +2093,27 @@ body {
 
     rootEl.querySelectorAll('[data-demo-toast]').forEach((btn) => {
       btn.addEventListener('click', () => showToast(btn.dataset.demoToast));
+    });
+    rootEl.querySelectorAll('[data-add-ledger]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const period = MONTHLY.periods.find((item) => item.id === btn.dataset.period);
+        if (!period) return;
+        const kind = btn.dataset.addLedger;
+        const id = period.id + '-' + kind[0] + '-' + Date.now();
+        if (kind === 'income') {
+          period.income.push({ id, name: 'Extra income', amount: 100, recurring: false });
+          period.moneyInOpen = true;
+          showToast('Income line added');
+        } else if (kind === 'expense') {
+          period.bills.push({ id, name: 'New expense', amount: 50, payTo: 'JA Bills', recurring: false, paid: false, kind: 'expense' });
+          period.moneyOutOpen = true;
+          showToast('Expense added');
+        } else {
+          period.savings.push({ id, name: 'New savings goal', amount: 50, payTo: 'Savings', recurring: false, paid: false });
+          showToast('Savings goal added');
+        }
+        renderMonthly();
+      });
     });
     rootEl.querySelectorAll('[data-ctx-quick]').forEach((btn) => {
       btn.addEventListener('click', (e) => {

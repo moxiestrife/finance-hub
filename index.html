@@ -51,6 +51,7 @@
 </script>
 
 <link href="design-system/tokens.css" rel="stylesheet">
+<link href="design-system/home.css" rel="stylesheet">
 
 <style>
 /* ═══════════════════════════════════════
@@ -1549,7 +1550,8 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
 <!-- TOP-LEVEL TAB BAR -->
 <div class="tab-bar"><div class="header-inner" style="display:flex;gap:0;padding:0">
-  <button class="tab-btn active" id="tab-btn-monthly" onclick="switchTab('monthly')">📅 Monthly Budget</button>
+  <button class="tab-btn active" id="tab-btn-home" onclick="switchTab('home')">🏠 Home</button>
+  <button class="tab-btn" id="tab-btn-monthly" onclick="switchTab('monthly')">📅 Monthly Budget</button>
   <button class="tab-btn" id="tab-btn-payables" onclick="switchTab('payables')">
     💸 Payables
     <span class="tab-badge" id="payables-badge" style="display:none"></span>
@@ -1564,8 +1566,13 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 <!-- MAIN -->
 <div class="main">
 
+  <!-- ── HOME TAB (Phase 3B) ── -->
+  <div class="tab-content active" id="tab-home">
+    <div id="homeContent"></div>
+  </div>
+
   <!-- ── MONTHLY TAB ── -->
-  <div class="tab-content active" id="tab-monthly">
+  <div class="tab-content" id="tab-monthly">
     <div class="month-toolbar">
       <div class="legend">♻ = recurring · copies to next month &nbsp;|&nbsp; ✓ = paid off this period</div>
       <div class="progress-wrap" id="progressWrap" style="display:none">
@@ -2204,6 +2211,9 @@ function _switchBudgetUser(newUser) {
   // Wipe local state so the old user's data never bleeds through while Firebase loads
   state = { months: {}, settings: {}, accounts: [...DEFAULT_ACCOUNTS] };
   firebaseDataLoaded = false;
+  homeOtherBudget = null;
+  homeOtherBudgetStatus = 'idle';
+  homeOtherBudgetReq++;
   if (budgetUnsub) { budgetUnsub(); budgetUnsub = null; }
   // Render immediately with blank state so stale data disappears
   render();
@@ -2222,7 +2232,7 @@ function impersonateEric() {
   const ctrl = document.getElementById('impersonate-controls');
   if (ctrl) ctrl.innerHTML = '<span style="color:#6b7280;font-size:0.85rem">Currently viewing as Eric. Use the banner at the top to switch back.</span>';
   showToast('🎭 Now viewing as Eric');
-  switchTab('monthly');
+  switchTab('home');
 }
 
 function stopImpersonating() {
@@ -2235,7 +2245,7 @@ function stopImpersonating() {
   const ctrl = document.getElementById('impersonate-controls');
   if (ctrl) ctrl.innerHTML = '<button class="p-btn" style="background:#6366f1;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;border:none;cursor:pointer" onclick="impersonateEric()">👤 View as Eric</button>';
   showToast('✅ Back to Elly view');
-  switchTab('monthly');
+  switchTab('home');
 }
 
 function doLogout() {
@@ -2457,6 +2467,7 @@ function listenBudget() {
         const allKeys = Object.keys(localStorage).filter(k=>k.startsWith(pfx)).sort();
         while (allKeys.length > 3) localStorage.removeItem(allKeys.shift());
       } catch(e) {}
+      if (curTab === 'home')     renderHome();
       if (curTab === 'monthly')  render();
       if (curTab === 'summary')  renderSummary();
       if (curTab === 'insights') renderInsights();
@@ -2495,6 +2506,7 @@ function listenPayables() {
       // pRepairAllocations may pSave() if it changes anything, so it must run after _payablesLoaded=true
       pRepairAllocations();
       _onBothLoaded();
+      if (curTab === 'home') renderHome();
       if (curTab === 'payables') renderPayables();
       updatePayablesBadge();
     } else {
@@ -2790,7 +2802,7 @@ function getAccounts() { return (state.accounts || DEFAULT_ACCOUNTS).slice().sor
 
 let state = { settings: { salary: 4524.58 }, months: {}, accounts: [...DEFAULT_ACCOUNTS] };
 let curYear, curMonth;
-let curTab = 'monthly';
+let curTab = 'home';
 let chatBusy = false;
 let chatMode = 'bubble'; // bubble | panel | expanded
 let chatThreads = [];    // [{id, title, createdAt, updatedAt, messages:[]}]
@@ -3146,10 +3158,484 @@ function getMonthStats(key) {
   return { totalSpend, totalSavings, totalAllowance, salary: totalIncome };
 }
 
+
+// ═══════════════════════════════════════════════════════════════
+//  HOME (Phase 3B) — overview using live budget + payables
+// ═══════════════════════════════════════════════════════════════
+let homeScope = 'me'; // me | household
+let homeChart = 'expenses'; // expenses | safe | cashflow
+let homeOtherBudget = null; // { months, settings } partner ledger cache
+let homeOtherBudgetStatus = 'idle'; // idle | loading | ready | unavailable
+let homeOtherBudgetReq = 0;
+
+function homeMoney(n) {
+  const v = Math.round(Number(n) || 0);
+  return '$' + v.toLocaleString('en-AU');
+}
+
+function homeActiveMonthKey() {
+  const preferred = mKey(curYear, curMonth);
+  if (state.months[preferred]) return preferred;
+  const keys = Object.keys(state.months || {}).sort();
+  return keys.length ? keys[keys.length - 1] : preferred;
+}
+
+function homePeriodFrameLabel() {
+  return isEric() ? 'this month' : 'this fortnight';
+}
+
+function homeMetricsFromPeriods(periods, opts = {}) {
+  const list = Array.isArray(periods) ? periods : [];
+  if (!list.length) {
+    return {
+      safe: 0, moneyIn: 0, moneyOut: 0, billsOut: 0, savingsOut: 0,
+      unpaidBills: 0, totalBills: 0, label: opts.label || 'No period data yet'
+    };
+  }
+  const useAll = !!opts.allPeriods;
+  const selected = useAll
+    ? list
+    : [list.find(p => (p.bills || []).some(b => !b.done)) || list[0]];
+  let moneyIn = 0, billsOut = 0, savingsOut = 0, unpaidBills = 0, totalBills = 0;
+  selected.forEach(period => {
+    moneyIn += opts.incomeForPeriod
+      ? opts.incomeForPeriod(period)
+      : getPeriodIncome(period);
+    billsOut += (period.bills || []).reduce((s, b) => s + (parseFloat(b.amount) || 0), 0);
+    const goals = period.savingsGoals?.length
+      ? period.savingsGoals
+      : (period.savings ? [{ amount: period.savings }] : getSavingsGoals(period));
+    savingsOut += goals.reduce((s, g) => s + (parseFloat(g.amount) || 0), 0);
+    unpaidBills += (period.bills || []).filter(b => !b.done).length;
+    totalBills += (period.bills || []).length;
+  });
+  const moneyOut = billsOut + savingsOut;
+  return {
+    safe: moneyIn - moneyOut,
+    moneyIn, moneyOut, billsOut, savingsOut, unpaidBills, totalBills,
+    label: opts.label || homePeriodFrameLabel()
+  };
+}
+
+function homePeriodMetrics(key) {
+  const month = state.months[key];
+  return homeMetricsFromPeriods(month?.periods, { label: homePeriodFrameLabel() });
+}
+
+function homePartnerPeriodIncome(period, salary) {
+  // Partner ledgers (esp. Eric) often store salary in settings, not per-period income rows
+  const fromRows = (period.income || []).reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+  if (fromRows > 0) return fromRows;
+  return parseFloat(salary) || 0;
+}
+
+function homeHouseholdMetrics(key) {
+  const mine = homePeriodMetrics(key);
+  if (!homeOtherBudget || homeOtherBudgetStatus !== 'ready') {
+    return {
+      ...mine,
+      partnerReady: false,
+      partnerHint: homeOtherBudgetStatus === 'loading'
+        ? 'Loading partner…'
+        : homeOtherBudgetStatus === 'unavailable'
+          ? 'Your side only · partner budget unavailable'
+          : 'Your side only'
+    };
+  }
+  const otherMonth = homeOtherBudget.months?.[key];
+  const other = homeMetricsFromPeriods(otherMonth?.periods, {
+    allPeriods: true,
+    label: 'this month',
+    incomeForPeriod: (p) => homePartnerPeriodIncome(p, homeOtherBudget.settings?.salary)
+  });
+  // Household heroes use calendar-month totals for both sides so fortnight vs month framing aligns
+  const mineMonth = homeMetricsFromPeriods(state.months[key]?.periods, {
+    allPeriods: true,
+    label: 'this month',
+    incomeForPeriod: (p) => getPeriodIncome(p)
+  });
+  return {
+    safe: mineMonth.safe + other.safe,
+    moneyIn: mineMonth.moneyIn + other.moneyIn,
+    moneyOut: mineMonth.moneyOut + other.moneyOut,
+    billsOut: mineMonth.billsOut + other.billsOut,
+    savingsOut: mineMonth.savingsOut + other.savingsOut,
+    unpaidBills: mineMonth.unpaidBills + other.unpaidBills,
+    totalBills: mineMonth.totalBills + other.totalBills,
+    label: 'this month',
+    partnerReady: true,
+    partnerHint: ''
+  };
+}
+
+function homePayablesSnapshot(scope) {
+  const ellyEntries = pEllyEntries();
+  const ericEntries = pEricEntries();
+  const ellyOpen = ellyEntries.filter(e => !pIsEllyDone(e));
+  const ericOpen = ericEntries.filter(e => !pIsEricDone(e));
+  const ellySettled = ellyEntries.filter(e => pIsEllyDone(e)).length;
+  const ericSettled = ericEntries.filter(e => pIsEricDone(e)).length;
+  const ellyOwing = ellyOpen.reduce((s, e) => s + pMyShare(e), 0);
+  const ericOwing = ericOpen.reduce((s, e) => s + pEricShare(e), 0);
+
+  if (scope === 'household') {
+    let openCount = 0, settledCount = 0, owing = 0;
+    (pState.entries || []).forEach(e => {
+      const ellySide = e.split !== 'eric';
+      const ericSide = e.split === 'shared' || e.split === 'eric';
+      const ellyDone = !ellySide || pIsEllyDone(e);
+      const ericDone = !ericSide || pIsEricDone(e);
+      if (ellyDone && ericDone) {
+        settledCount++;
+        return;
+      }
+      openCount++;
+      if (ellySide && !pIsEllyDone(e)) owing += pMyShare(e);
+      if (ericSide && !pIsEricDone(e)) owing += pEricShare(e);
+    });
+    const totalCount = openCount + settledCount;
+    return {
+      owing,
+      openCount,
+      settledCount,
+      totalCount,
+      title: 'Shared payables',
+      hint: totalCount
+        ? `Household · ${settledCount} of ${totalCount} settled in total`
+        : 'No household payables yet'
+    };
+  }
+
+  if (isEric()) {
+    const totalCount = ericOpen.length + ericSettled;
+    return {
+      owing: ericOwing,
+      openCount: ericOpen.length,
+      settledCount: ericSettled,
+      totalCount,
+      title: 'Payables',
+      hint: totalCount
+        ? `${ericSettled} of ${totalCount} settled in total`
+        : 'No open payables'
+    };
+  }
+
+  const totalCount = ellyOpen.length + ellySettled;
+  return {
+    owing: ellyOwing,
+    openCount: ellyOpen.length,
+    settledCount: ellySettled,
+    totalCount,
+    title: 'Payables',
+    hint: totalCount
+      ? `${ellySettled} of ${totalCount} settled in total`
+      : 'No open payables'
+  };
+}
+
+function homeIsExpenseBill(b) {
+  if (b.kind === 'expense') return true;
+  if (b.kind === 'bill') return false;
+  const n = b.name || '';
+  const expenseKw = /netflix|spotify|chatgpt|disney|youtube|prime|subscription|gym|adobe|clip studio|grocer|food|uber|dining|coffee|coles|woolworth/i;
+  const billKw = /mortgage|rent|loan|insurance|rates|power|electric|water|gas|telstra|internet|bupa|car|council|vodafone/i;
+  if (expenseKw.test(n)) return true;
+  if (billKw.test(n)) return false;
+  return false; // default obligations → bills list
+}
+
+function homeCollectRecurring(periods) {
+  const bills = [];
+  const expenses = [];
+  (periods || []).forEach(p => {
+    (p.bills || []).filter(b => b.recurring).forEach(b => {
+      const row = { name: b.name, amount: parseFloat(b.amount) || 0 };
+      if (homeIsExpenseBill(b)) expenses.push(row);
+      else bills.push(row);
+    });
+  });
+  return { bills, expenses };
+}
+
+function homeDedupeTop(list, n = 5) {
+  const map = {};
+  list.forEach(r => {
+    const key = (r.name || '').trim();
+    if (!key) return;
+    map[key] = (map[key] || 0) + (r.amount || 0);
+  });
+  return Object.keys(map).map(name => ({ name, amount: map[name] }))
+    .sort((a, b) => b.amount - a.amount).slice(0, n);
+}
+
+function homeRecurringLists(key, scope) {
+  const mine = homeCollectRecurring(state.months[key]?.periods);
+  if (scope !== 'household' || !homeOtherBudget?.months?.[key]) {
+    return { bills: homeDedupeTop(mine.bills), expenses: homeDedupeTop(mine.expenses) };
+  }
+  const other = homeCollectRecurring(homeOtherBudget.months[key].periods);
+  return {
+    bills: homeDedupeTop(mine.bills.concat(other.bills)),
+    expenses: homeDedupeTop(mine.expenses.concat(other.expenses))
+  };
+}
+
+function homeAccumulateCategories(periods, buckets) {
+  (periods || []).forEach(p => {
+    (p.bills || []).forEach(b => {
+      const n = (b.name || '').toLowerCase();
+      const amt = parseFloat(b.amount) || 0;
+      if (/mortgage|rent|rates|council|insurance|power|electric|water|gas|internet|telstra|vodafone/.test(n)) buckets.Housing += amt;
+      else if (/car|fuel|uber|transport|rego|volvo/.test(n)) buckets.Transport += amt;
+      else if (/grocer|food|coles|woolworth|dining|pharmacy/.test(n)) buckets.Living += amt;
+      else if (/netflix|spotify|chatgpt|disney|prime|subscription|gym|adobe|clip studio/.test(n)) buckets.Subs += amt;
+      else if (/bupa|health/.test(n)) buckets.Health += amt;
+      else buckets.Other += amt;
+    });
+  });
+}
+
+function homeCategoryBreakdown(key, scope) {
+  const buckets = { Housing: 0, Transport: 0, Living: 0, Health: 0, Subs: 0, Other: 0 };
+  homeAccumulateCategories(state.months[key]?.periods, buckets);
+  if (scope === 'household' && homeOtherBudget?.months?.[key]) {
+    homeAccumulateCategories(homeOtherBudget.months[key].periods, buckets);
+  }
+  const total = Object.values(buckets).reduce((s, v) => s + v, 0) || 1;
+  const colors = ['#255a8c', '#0f6b58', '#a65d1f', '#b45309', '#64748b', '#475569'];
+  return Object.keys(buckets).filter(k => buckets[k] > 0).map((k, i) => ({
+    name: k, value: buckets[k], pct: Math.round((buckets[k] / total) * 100), color: colors[i % colors.length]
+  }));
+}
+
+function homeMonthStatsFromLedger(monthsObj, key, salarySetting) {
+  const m = monthsObj?.[key];
+  if (!m) return null;
+  let totalSpend = 0, totalSavings = 0, totalIncome = 0;
+  (m.periods || []).forEach(p => {
+    totalSpend += (p.bills || []).reduce((s, b) => s + (parseFloat(b.amount) || 0), 0);
+    const goals = p.savingsGoals?.length
+      ? p.savingsGoals
+      : (p.savings ? [{ amount: p.savings }] : []);
+    totalSavings += goals.reduce((s, g) => s + (parseFloat(g.amount) || 0), 0);
+    const rowInc = (p.income || []).reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+    totalIncome += rowInc > 0 ? rowInc : (parseFloat(salarySetting) || 0);
+  });
+  return {
+    totalSpend,
+    totalSavings,
+    totalAllowance: totalIncome - totalSpend - totalSavings,
+    salary: totalIncome
+  };
+}
+
+function homeTrendSeries(scope) {
+  const myKeys = Object.keys(state.months || {}).sort();
+  let keys = myKeys.slice(-7);
+  if (scope === 'household' && homeOtherBudget?.months) {
+    const both = myKeys.filter(k => homeOtherBudget.months[k]);
+    if (both.length) keys = both.slice(-7);
+  }
+  const expenses = [];
+  const safe = [];
+  const cashflow = [];
+  keys.forEach(k => {
+    const mine = getMonthStats(k) || { totalSpend: 0, totalSavings: 0, totalAllowance: 0, salary: 0 };
+    let totSpend = mine.totalSpend;
+    let totSav = mine.totalSavings;
+    let totInc = mine.salary;
+    let totSafe = mine.totalAllowance;
+    if (scope === 'household' && homeOtherBudget?.months) {
+      const other = homeMonthStatsFromLedger(homeOtherBudget.months, k, homeOtherBudget.settings?.salary);
+      if (other) {
+        totSpend += other.totalSpend;
+        totSav += other.totalSavings;
+        totInc += other.salary;
+        totSafe += other.totalAllowance;
+      }
+    }
+    expenses.push(Math.round(totSpend));
+    safe.push(Math.round(totSafe));
+    cashflow.push(Math.round(totInc - totSpend - totSav));
+  });
+  while (expenses.length < 2) { expenses.push(0); safe.push(0); cashflow.push(0); }
+  return { keys, expenses, safe, cashflow };
+}
+
+function homeSparkline(values, stroke) {
+  const w = 320, h = 120, pad = 12;
+  const nums = values.length ? values : [0, 0];
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  const span = (max - min) || 1;
+  const pts = nums.map((v, i) => {
+    const x = pad + (i * (w - pad * 2)) / Math.max(nums.length - 1, 1);
+    const y = h - pad - ((v - min) / span) * (h - pad * 2);
+    return [x, y];
+  });
+  const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const area = line + ` L ${pts[pts.length - 1][0].toFixed(1)} ${h - pad} L ${pts[0][0].toFixed(1)} ${h - pad} Z`;
+  const dots = pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="${stroke}" />`).join('');
+  return `<svg class="fh-chart-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="Trend chart"><path d="${area}" fill="${stroke}" opacity="0.12"/><path d="${line}" fill="none" stroke="${stroke}" stroke-width="2.5"/>${dots}</svg>`;
+}
+
+function homePie(categories) {
+  if (!categories.length) return '<div class="fh-empty">No category spend yet this month.</div>';
+  const total = categories.reduce((s, c) => s + c.value, 0) || 1;
+  let acc = 0;
+  const stops = categories.map(c => {
+    const start = (acc / total) * 100;
+    acc += c.value;
+    const end = (acc / total) * 100;
+    return `${c.color} ${start}% ${end}%`;
+  }).join(', ');
+  const legend = categories.map(c =>
+    `<div class="fh-pie-item"><span><i class="fh-pie-swatch" style="background:${c.color}"></i>${esc(c.name)}</span><strong>${homeMoney(c.value)}</strong></div>`
+  ).join('');
+  // Dynamic conic-gradient stops are set inline (JS-computed)
+  return `<div class="fh-pie-wrap"><div class="fh-pie-disk" style="background:conic-gradient(${stops})"></div><div class="fh-pie-legend">${legend}</div></div>`;
+}
+
+async function ensureHomeOtherBudget() {
+  if (homeOtherBudgetStatus === 'ready' || homeOtherBudgetStatus === 'loading') return;
+  if (!window._dbGet || !window._dbRef || !window._db) {
+    homeOtherBudgetStatus = 'unavailable';
+    return;
+  }
+  const req = ++homeOtherBudgetReq;
+  homeOtherBudgetStatus = 'loading';
+  const otherPath = isEric() ? DB_BUDGET_PATH : DB_ERIC_BUDGET_PATH;
+  try {
+    const snap = await window._dbGet(window._dbRef(window._db, otherPath));
+    if (req !== homeOtherBudgetReq) return;
+    const val = snap.val() || {};
+    homeOtherBudget = { months: val.months || {}, settings: val.settings || {} };
+    homeOtherBudgetStatus = 'ready';
+  } catch (e) {
+    if (req !== homeOtherBudgetReq) return;
+    homeOtherBudget = null;
+    homeOtherBudgetStatus = 'unavailable';
+  }
+  if (curTab === 'home' && homeScope === 'household') renderHome();
+}
+
+function setHomeScope(scope) {
+  homeScope = scope === 'household' ? 'household' : 'me';
+  if (homeScope === 'household') ensureHomeOtherBudget();
+  renderHome();
+}
+
+function setHomeChart(chart) {
+  homeChart = ['expenses', 'safe', 'cashflow'].includes(chart) ? chart : 'expenses';
+  renderHome();
+}
+
+function renderHome() {
+  const root = document.getElementById('homeContent');
+  if (!root) return;
+  const isHousehold = homeScope === 'household';
+  const key = homeActiveMonthKey();
+  const metrics = isHousehold ? homeHouseholdMetrics(key) : homePeriodMetrics(key);
+  const pay = homePayablesSnapshot(isHousehold ? 'household' : 'me');
+  const recurring = homeRecurringLists(key, homeScope);
+  const categories = homeCategoryBreakdown(key, homeScope);
+  const trends = homeTrendSeries(homeScope);
+  const series = trends[homeChart] || trends.expenses;
+  const stroke = homeChart === 'safe' ? 'var(--hero-safe, #0f6b58)' : homeChart === 'cashflow' ? 'var(--primary, #1e3a5f)' : 'var(--hero-out, #b45309)';
+
+  const billsPaid = Math.max(metrics.totalBills - metrics.unpaidBills, 0);
+  const billsPct = metrics.totalBills ? Math.round((billsPaid / metrics.totalBills) * 100) : 0;
+  const payPct = pay.totalCount ? Math.round((pay.settledCount / pay.totalCount) * 100) : 0;
+
+  const heroChipExtra = isHousehold && metrics.partnerHint
+    ? ` · ${metrics.partnerHint}`
+    : '';
+
+  const [yy, mm] = key.split('-').map(Number);
+  const monthLabel = (MONTHS[(mm || 1) - 1] || '') + ' ' + (yy || curYear);
+
+  root.innerHTML = `
+    <div class="fh-home-bar">
+      <div class="fh-scope" role="group" aria-label="View scope">
+        <button type="button" class="fh-scope-label ${homeScope === 'me' ? 'is-active' : ''}" onclick="setHomeScope('me')">Just me</button>
+        <button class="fh-scope-toggle" type="button" role="switch" aria-checked="${isHousehold}" aria-label="Switch between Just me and Household" onclick="setHomeScope(homeScope==='me'?'household':'me')">
+          <span class="fh-scope-thumb" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="fh-scope-label ${isHousehold ? 'is-active' : ''}" onclick="setHomeScope('household')">Household</button>
+      </div>
+    </div>
+    <section class="fh-hero" aria-label="Period totals">
+      <div class="fh-hero-metric" data-metric="safe">
+        <div class="fh-hero-label">Safe to spend</div>
+        <div class="fh-hero-figure">${homeMoney(metrics.safe)}</div>
+        <div class="fh-hero-chip">After bills &amp; savings ${esc(metrics.label)}${esc(heroChipExtra)}</div>
+      </div>
+      <div class="fh-hero-metric" data-metric="in">
+        <div class="fh-hero-label">Money in</div>
+        <div class="fh-hero-figure">${homeMoney(metrics.moneyIn)}</div>
+        <div class="fh-hero-chip">Income ${esc(metrics.label)}</div>
+      </div>
+      <div class="fh-hero-metric" data-metric="out">
+        <div class="fh-hero-label">Money out</div>
+        <div class="fh-hero-figure">${homeMoney(metrics.moneyOut)}</div>
+        <div class="fh-hero-chip">Bills + savings ${esc(metrics.label)}</div>
+      </div>
+    </section>
+    <div class="fh-row">
+      <article class="fh-card">
+        <div class="fh-cat-top">
+          <div>
+            <div class="fh-cat-name">Housing &amp; bills</div>
+            <div class="fh-cat-hint">${billsPaid} of ${metrics.totalBills} settled ${esc(metrics.label)}</div>
+          </div>
+          <div class="fh-cat-amt">${homeMoney(metrics.billsOut)}</div>
+        </div>
+        <div class="fh-bar" aria-hidden="true"><span style="width:${billsPct}%"></span></div>
+      </article>
+      <article class="fh-card">
+        <div class="fh-cat-top">
+          <div>
+            <div class="fh-cat-name">${esc(pay.title)}</div>
+            <div class="fh-cat-hint">${esc(pay.hint)}</div>
+          </div>
+          <div class="fh-cat-amt">${homeMoney(pay.owing)}</div>
+        </div>
+        <div class="fh-bar" aria-hidden="true"><span style="width:${payPct}%"></span></div>
+      </article>
+    </div>
+    <div class="fh-row">
+      <article class="fh-card">
+        <div class="fh-card-title">Top expense categories · ${esc(monthLabel)}</div>
+        ${homePie(categories)}
+      </article>
+      <article class="fh-card">
+        <div class="fh-card-title">Trends</div>
+        <div class="fh-chart-tabs" role="tablist" aria-label="Chart type">
+          <button class="fh-chart-tab" type="button" aria-pressed="${homeChart==='expenses'}" onclick="setHomeChart('expenses')">Expenses</button>
+          <button class="fh-chart-tab" type="button" aria-pressed="${homeChart==='safe'}" onclick="setHomeChart('safe')">Safe to spend</button>
+          <button class="fh-chart-tab" type="button" aria-pressed="${homeChart==='cashflow'}" onclick="setHomeChart('cashflow')">Cashflow</button>
+        </div>
+        ${homeSparkline(series, stroke)}
+      </article>
+    </div>
+    <div class="fh-row">
+      <article class="fh-card">
+        <div class="fh-card-title">Top recurring bills</div>
+        ${recurring.bills.length ? recurring.bills.map(b => `<div class="fh-bill-row"><span class="fh-bill-name">${esc(b.name)}</span><span class="fh-bill-amt">${homeMoney(b.amount)}</span></div>`).join('') : '<div class="fh-empty">No recurring bills in this month yet.</div>'}
+      </article>
+      <article class="fh-card">
+        <div class="fh-card-title">Top recurring expenses</div>
+        ${recurring.expenses.length ? recurring.expenses.map(b => `<div class="fh-bill-row"><span class="fh-bill-name">${esc(b.name)}</span><span class="fh-bill-amt">${homeMoney(b.amount)}</span></div>`).join('') : '<div class="fh-empty">No recurring expenses tagged yet.</div>'}
+      </article>
+    </div>
+  `;
+}
+
+
 function switchTab(tab) {
   curTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  ['monthly','summary','insights','payables','admin','compare'].forEach(t => {
+  ['home','monthly','summary','insights','payables','admin','compare'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.classList.remove('active');
   });
@@ -3164,6 +3650,7 @@ function switchTab(tab) {
     render();
   } else {
     mnav.style.display = 'none';
+    if (tab === 'home')     renderHome();
     if (tab === 'summary')  renderSummary();
     if (tab === 'insights') renderInsights();
     if (tab === 'payables') renderPayables();
@@ -6348,7 +6835,7 @@ function init() {
   updatePayablesBadge();
 
   applyAdminSettings();
-  switchTab('monthly');
+  switchTab('home');
   setChatMode('bubble');
 
   // Start Firebase listeners (if Firebase is ready, otherwise they fire after firebaseReady event)
