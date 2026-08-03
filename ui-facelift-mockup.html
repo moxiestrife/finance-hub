@@ -463,6 +463,13 @@ body {
                 </button>
                 <span class="scope-label" data-scope-label="household">Household</span>
               </div>
+              <div class="scope-switch" data-payables-switch data-owner-only role="group" aria-label="Payables view">
+                <span class="scope-label is-active" data-pay-label="mine">Mine</span>
+                <button class="scope-toggle" type="button" role="switch" data-pay-toggle aria-checked="false" aria-label="Switch between Mine and Eric">
+                  <span class="scope-toggle-thumb" aria-hidden="true"></span>
+                </button>
+                <span class="scope-label" data-pay-label="eric">Eric</span>
+              </div>
               <div class="month-nav" data-month-nav role="group" aria-label="Month">
                 <button class="month-nav-btn" type="button" data-month-dir="-1" aria-label="Previous month">
                   <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
@@ -536,6 +543,13 @@ body {
                 <span class="scope-toggle-thumb" aria-hidden="true"></span>
               </button>
               <span class="scope-label" data-scope-label="household">Household</span>
+            </div>
+            <div class="scope-switch" data-payables-switch data-owner-only role="group" aria-label="Payables view">
+              <span class="scope-label is-active" data-pay-label="mine">Mine</span>
+              <button class="scope-toggle" type="button" role="switch" data-pay-toggle aria-checked="false" aria-label="Switch between Mine and Eric">
+                <span class="scope-toggle-thumb" aria-hidden="true"></span>
+              </button>
+              <span class="scope-label" data-pay-label="eric">Eric</span>
             </div>
             <div class="month-nav" data-month-nav role="group" aria-label="Month">
               <button class="month-nav-btn" type="button" data-month-dir="-1" aria-label="Previous month">
@@ -984,12 +998,16 @@ body {
         btn.classList.toggle('filled', name === 'settings');
       }
     });
-    document.querySelectorAll('.scope-switch').forEach((el) => {
+    document.querySelectorAll('.scope-switch:not([data-payables-switch])').forEach((el) => {
       el.classList.toggle('is-visible', name === 'home');
+    });
+    document.querySelectorAll('[data-payables-switch]').forEach((el) => {
+      el.classList.toggle('is-visible', name === 'payables');
     });
     document.querySelectorAll('[data-month-nav]').forEach((el) => {
       el.classList.toggle('is-visible', name === 'monthly');
     });
+    syncPayablesSwitch();
   }
 
   document.querySelectorAll('[data-theme-set]').forEach((btn) => {
@@ -2631,10 +2649,6 @@ body {
       '</section>' +
       '<div class="page-body payables-body">' +
         '<div class="payables-toolbar">' +
-          '<div class="chip-tabs" role="tablist" aria-label="Payables view" data-owner-only>' +
-            '<button class="chip-tab" type="button" data-pay-view="mine" aria-pressed="' + (payablesView === 'mine') + '">Mine</button>' +
-            '<button class="chip-tab" type="button" data-pay-view="eric" aria-pressed="' + (payablesView === 'eric') + '">Eric</button>' +
-          '</div>' +
           '<label class="select-filter"><span>Account</span><select data-pay-account>' + accountOptions + '</select></label>' +
           '<div class="chip-tabs" role="tablist" aria-label="Split filter">' +
             '<button class="chip-tab" type="button" data-pay-filter="all" aria-pressed="' + (payablesFilter === 'all') + '">All</button>' +
@@ -2683,14 +2697,25 @@ body {
     renderPayables();
   }
 
-  function wirePayables(rootEl) {
-    rootEl.querySelectorAll('[data-pay-view]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        payablesView = btn.dataset.payView;
-        payablesAccount = 'all';
-        renderPayables();
+  function syncPayablesSwitch() {
+    const isEric = payablesView === 'eric';
+    document.querySelectorAll('[data-payables-switch]').forEach((el) => {
+      const toggle = el.querySelector('[data-pay-toggle]');
+      if (toggle) toggle.setAttribute('aria-checked', isEric ? 'true' : 'false');
+      el.querySelectorAll('[data-pay-label]').forEach((label) => {
+        label.classList.toggle('is-active', label.dataset.payLabel === payablesView);
       });
     });
+  }
+
+  function setPayablesView(view) {
+    payablesView = view === 'eric' ? 'eric' : 'mine';
+    payablesAccount = 'all';
+    syncPayablesSwitch();
+    renderPayables();
+  }
+
+  function wirePayables(rootEl) {
     rootEl.querySelectorAll('[data-pay-filter]').forEach((btn) => {
       btn.addEventListener('click', () => {
         payablesFilter = btn.dataset.payFilter;
@@ -2802,7 +2827,14 @@ body {
       el.innerHTML = html;
       wirePayables(el);
     });
+    syncPayablesSwitch();
   }
+
+  document.querySelectorAll('[data-pay-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setPayablesView(payablesView === 'mine' ? 'eric' : 'mine');
+    });
+  });
 
   /* ── Chat full-page mock ── */
   let chatActiveThreadId = 'chat-1';

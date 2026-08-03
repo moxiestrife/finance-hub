@@ -169,6 +169,19 @@
 .desktop-main .app-page[data-page="payables"] {
   overflow: auto;
 }
+/* Phone chrome: no persistent scrollbar gutter (real devices hide it) */
+.phone .app-page,
+.phone .chat-log,
+.phone .chat-history-panel,
+.phone .page-body {
+  scrollbar-width: none;
+}
+.phone .app-page::-webkit-scrollbar,
+.phone .chat-log::-webkit-scrollbar,
+.phone .chat-history-panel::-webkit-scrollbar,
+.phone .page-body::-webkit-scrollbar {
+  display: none;
+}
 
 /* Scope switcher */
 .scope-switch {
