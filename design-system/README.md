@@ -11,6 +11,7 @@ Reusable tokens and UI components for the Finance Hub / Pensive facelift.
 | [`home.css`](home.css) | Home tab styles scoped under `#tab-home` (Phase 3B; safe alongside prod Monthly CSS) |
 | [`monthly.css`](monthly.css) | Monthly tab styles scoped under `#tab-monthly` (Phase 3C; bridges prod ledger markup to facelift tokens) |
 | [`payables.css`](payables.css) | Payables tab styles scoped under `#tab-payables` (Phase 3D; restyles prod owing/rows/chips toward facelift) |
+| [`app.css`](app.css) | Production shell adaptations (side rail / bottom nav / app-bar slots) over `components.css` |
 
 ## Usage
 

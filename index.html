@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Pensive — Finance Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,0..1,0" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <!-- Firebase -->
@@ -51,6 +55,8 @@
 </script>
 
 <link href="design-system/tokens.css" rel="stylesheet">
+<link href="design-system/components.css" rel="stylesheet">
+<link href="design-system/app.css" rel="stylesheet">
 <link href="design-system/home.css" rel="stylesheet">
 <link href="design-system/payables.css" rel="stylesheet">
 <link href="design-system/monthly.css" rel="stylesheet">
@@ -1681,81 +1687,125 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   <button onclick="document.getElementById('perm-error-banner').style.display='none'" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.6);color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:0.8rem;font-weight:600">Dismiss</button>
 </div>
 
-<!-- TOP BAR -->
-<div class="sticky-header">
-<div class="topbar">
-<div class="header-inner">
-  <h1>Pensive</h1>
-  <div class="month-nav" id="monthNavWrap" style="position:relative;z-index:200">
-    <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
-    <span class="month-label" id="monthLabel" onclick="toggleMonthPicker(event)">—</span>
-    <button class="nav-btn" onclick="changeMonth(1)">›</button>
-    <!-- Month picker popover -->
-    <div id="month-picker">
-      <div class="mp-year-row">
-        <button class="mp-year-btn" onclick="mpChangeYear(-1)">‹</button>
-        <span class="mp-year-label" id="mp-year-label">2026</span>
-        <button class="mp-year-btn" onclick="mpChangeYear(1)">›</button>
-      </div>
-      <div class="mp-months" id="mp-months"></div>
-    </div>
-  </div>
-  <div class="topbar-right">
-    <div class="sync-indicator">
-      <div class="sync-dot" id="sync-dot"></div>
-      <span id="sync-label">—</span>
-    </div>
-    <button class="logout-btn desktop-only" onclick="runFinanceHubQA()" title="Run a self-test to confirm you can read and save your data" style="background:rgba(255,255,255,0.12)">🧪 Self-test</button>
-    <div class="user-chip">
-      <div class="user-avatar" id="user-avatar"></div>
-      <span id="user-name-display"></span>
-    </div>
-    <button class="logout-btn" onclick="doLogout()">Sign out</button>
-  </div>
-</div>
+<!-- Hidden legacy tab buttons (kept for any leftover ID lookups) -->
+<div class="tab-bar" hidden aria-hidden="true">
+  <button class="tab-btn active" id="tab-btn-home" onclick="switchTab('home')">Home</button>
+  <button class="tab-btn" id="tab-btn-monthly" onclick="switchTab('monthly')">Monthly</button>
+  <button class="tab-btn" id="tab-btn-payables" onclick="switchTab('payables')">Payables<span class="tab-badge" id="payables-badge" style="display:none"></span></button>
+  <button class="tab-btn" id="tab-btn-chat" onclick="switchTab('chat')">Chat</button>
+  <button class="tab-btn" id="tab-btn-settings" onclick="switchTab('settings')">Settings</button>
+  <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')" hidden>Summary</button>
+  <button class="tab-btn" id="tab-btn-insights" onclick="switchTab('insights')" hidden>Insights</button>
+  <button class="tab-btn" id="tab-btn-compare" onclick="switchTab('compare')" hidden>Compare</button>
+  <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" hidden>Admin</button>
 </div>
 
-<!-- TOP-LEVEL TAB BAR -->
-<div class="tab-bar"><div class="header-inner tab-bar-inner">
-  <button class="tab-btn active" id="tab-btn-home" onclick="switchTab('home')">🏠 Home</button>
-  <button class="tab-btn" id="tab-btn-monthly" onclick="switchTab('monthly')">📅 Monthly</button>
-  <button class="tab-btn" id="tab-btn-payables" onclick="switchTab('payables')">
-    💸 Payables
-    <span class="tab-badge" id="payables-badge" style="display:none"></span>
-  </button>
-  <button class="tab-btn" id="tab-btn-chat" onclick="switchTab('chat')">💬 Chat</button>
-  <button class="tab-btn" id="tab-btn-settings" onclick="switchTab('settings')">⚙ Settings</button>
-  <!-- Legacy tabs kept in DOM for Phase 4 cutover; hidden from primary nav -->
-  <button class="tab-btn tab-btn-legacy" id="tab-btn-summary" onclick="switchTab('summary')" hidden>📊 Summary</button>
-  <button class="tab-btn tab-btn-legacy" id="tab-btn-insights" onclick="switchTab('insights')" hidden>💡 Insights</button>
-  <button class="tab-btn tab-btn-legacy" id="tab-btn-compare" onclick="switchTab('compare')" hidden>⚖ Compare</button>
-  <button class="tab-btn tab-btn-legacy" id="tab-btn-admin" onclick="switchTab('admin')" hidden>⚙ Admin</button>
-</div></div>
-</div><!-- /.sticky-header -->
+<!-- Pensive facelift shell (matches ui-facelift-mockup chrome) -->
+<div class="pensive-shell">
+  <div class="desktop-shell">
+    <nav class="side-rail" aria-label="Primary">
+      <button type="button" class="rail-item active" data-nav="home" onclick="switchTab('home')">
+        <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">home</span></span>
+        Home
+      </button>
+      <button type="button" class="rail-item" data-nav="monthly" onclick="switchTab('monthly')">
+        <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span></span>
+        Monthly
+      </button>
+      <button type="button" class="rail-item" data-nav="payables" onclick="switchTab('payables')">
+        <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">sync_alt</span></span>
+        Payables
+      </button>
+      <button type="button" class="rail-item" data-nav="chat" onclick="switchTab('chat')">
+        <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span></span>
+        Chat
+      </button>
+    </nav>
 
-<!-- MAIN -->
-<div class="main">
+    <div class="desktop-main">
+      <header class="app-bar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">P</span>
+          <span class="brand-text">Pensive</span>
+        </div>
 
-  <!-- ── HOME TAB (Phase 3B) ── -->
-  <div class="tab-content active" id="tab-home">
-    <div id="homeContent"></div>
+        <div class="scope-switch" id="homeScopeSwitch" role="group" aria-label="View scope">
+          <button type="button" class="scope-label is-active" data-scope-label="me" onclick="setHomeScope('me')">Just me</button>
+          <button class="scope-toggle" type="button" role="switch" id="homeScopeToggle" aria-checked="false" aria-label="Switch between Just me and Household" onclick="setHomeScope(homeScope==='me'?'household':'me')">
+            <span class="scope-toggle-thumb" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="scope-label" data-scope-label="household" onclick="setHomeScope('household')">Household</button>
+        </div>
+
+        <div class="scope-switch" id="payablesScopeSwitch" data-owner-only role="group" aria-label="Payables view">
+          <button type="button" class="scope-label is-active" data-pay-label="mine" onclick="pSetView('mine')">Mine</button>
+          <button class="scope-toggle" type="button" role="switch" id="payablesScopeToggle" aria-checked="false" aria-label="Switch between Mine and Eric" onclick="pSetView(document.getElementById('payablesScopeToggle').getAttribute('aria-checked')==='true'?'mine':'eric')">
+            <span class="scope-toggle-thumb" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="scope-label" data-pay-label="eric" onclick="pSetView('eric')">Eric</button>
+        </div>
+
+        <div class="month-nav-slot" id="monthNavWrap">
+          <div class="month-nav is-visible" style="position:relative;z-index:200">
+            <button class="month-nav-btn" type="button" onclick="changeMonth(-1)" aria-label="Previous month">
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+            </button>
+            <button class="month-nav-label" type="button" id="monthLabel" onclick="toggleMonthPicker(event)">—</button>
+            <button class="month-nav-btn" type="button" onclick="changeMonth(1)" aria-label="Next month">
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+            </button>
+            <div id="month-picker">
+              <div class="mp-year-row">
+                <button class="mp-year-btn" onclick="mpChangeYear(-1)">‹</button>
+                <span class="mp-year-label" id="mp-year-label">2026</span>
+                <button class="mp-year-btn" onclick="mpChangeYear(1)">›</button>
+              </div>
+              <div class="mp-months" id="mp-months"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-bar-right">
+          <div class="sync-pill">
+            <div class="sync-dot" id="sync-dot"></div>
+            <span id="sync-label">—</span>
+          </div>
+          <div class="user-chip-mini">
+            <div class="user-avatar" id="user-avatar"></div>
+            <span id="user-name-display"></span>
+          </div>
+          <button class="icon-btn" type="button" title="Sign out" aria-label="Sign out" onclick="doLogout()">
+            <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+          </button>
+          <button class="icon-btn filled" type="button" data-nav="settings" title="Settings" aria-label="Settings" onclick="switchTab('settings')">
+            <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="app-pages">
+
+  <!-- ── HOME ── -->
+  <div class="app-page tab-content active" id="tab-home" data-page="home" data-active>
+    <div class="page-body home-body" id="homeContent"></div>
   </div>
 
-  <!-- ── MONTHLY TAB ── -->
-  <div class="tab-content" id="tab-monthly">
-    <div class="month-toolbar">
-      <div class="legend">♻ = recurring · copies to next month &nbsp;|&nbsp; ✓ = paid off this period</div>
-      <div class="progress-wrap" id="progressWrap" style="display:none">
-        <span id="progressText">0 / 0</span>
-        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <!-- ── MONTHLY ── -->
+  <div class="app-page tab-content" id="tab-monthly" data-page="monthly">
+    <div class="period-tabs" id="periodTabs" role="tablist" aria-label="Pay periods"></div>
+    <div class="monthly-toolbar">
+      <div class="monthly-legend">♻ recurring · ✓ paid</div>
+      <div class="monthly-progress" id="progressWrap" style="display:none">
+        <span class="monthly-progress-label" id="progressText">0 / 0</span>
+        <div class="cat-bar-track"><div class="cat-bar-fill" id="progressFill" style="width:0%"></div></div>
       </div>
     </div>
-    <div class="periods-grid" id="periodsGrid"></div>
+    <div class="periods-row periods-grid" id="periodsGrid"></div>
   </div>
 
-  <!-- ── SETTINGS TAB (Phase 3E — was Admin) ── -->
-  <div class="tab-content" id="tab-settings">
-    <div class="settings-section admin-section" id="settingsHub">
+  <!-- ── SETTINGS ── -->
+  <div class="app-page tab-content" id="tab-settings" data-page="settings">
+    <div class="page-body settings-section admin-section settings-stack" id="settingsHub">
 
       <div class="admin-card settings-card" id="appearance-card">
         <h2>🎨 Appearance</h2>
@@ -1862,45 +1912,41 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   </div>
 
   <!-- Admin tab alias kept for any deep links — redirects via switchTab -->
-  <div class="tab-content" id="tab-admin" hidden></div>
+  <div class="app-page tab-content" id="tab-admin" data-page="admin" hidden></div>
 
-  <!-- ── COMPARE TAB ── -->
-  <div class="tab-content" id="tab-compare">
-    <div id="compareContent" style="padding:16px 20px;max-width:960px;margin:0 auto"></div>
+  <div class="app-page tab-content" id="tab-compare" data-page="compare">
+    <div class="page-body" id="compareContent"></div>
   </div>
 
-  <!-- ── SUMMARY TAB ── -->
-  <div class="tab-content" id="tab-summary">
-    <div id="summaryContent"></div>
+  <div class="app-page tab-content" id="tab-summary" data-page="summary">
+    <div class="page-body" id="summaryContent"></div>
   </div>
 
-  <!-- ── INSIGHTS TAB ── -->
-  <div class="tab-content" id="tab-insights">
-    <div id="insightsContent"></div>
+  <div class="app-page tab-content" id="tab-insights" data-page="insights">
+    <div class="page-body" id="insightsContent"></div>
   </div>
 
-  <!-- ── CHAT TAB (Phase 3F — page mode) ── -->
-  <div class="tab-content" id="tab-chat">
+  <div class="app-page tab-content" id="tab-chat" data-page="chat">
     <div class="chat-page-root" id="chatPageRoot" aria-label="Finance assistant"></div>
   </div>
 
-  <!-- ── PAYABLES TAB ── -->
-  <div class="tab-content" id="tab-payables">
-    <div class="payables-content" id="payables-main-view">
-
-      <!-- Owing card -->
-      <div class="p-owing-card" id="p-owing-card">
-        <div class="p-owing-left">
-          <div class="p-owing-label" id="p-owing-label">I owe</div>
-          <div class="p-owing-amount" id="p-owing-amount">$0.00</div>
-          <div class="p-owing-sub" id="p-owing-sub">0 items pending</div>
+  <!-- ── PAYABLES ── -->
+  <div class="app-page tab-content" id="tab-payables" data-page="payables">
+    <section class="hero-fan owing-fan" id="p-owing-card" aria-label="Owing totals">
+      <div class="hero-fan-row">
+        <div class="hero-metric" data-metric="owe">
+          <div class="hero-label" id="p-owing-label">I owe</div>
+          <div class="hero-figure" id="p-owing-amount">$0.00</div>
+          <div class="hero-chip" id="p-owing-sub">0 items pending</div>
         </div>
-        <div class="p-owing-right p-eric-peek" id="p-owing-right" hidden>
-          <div class="p-owing-label">Eric owes</div>
-          <div class="p-owing-amount p-owing-amount-sm" id="p-eric-owing-amt">$0.00</div>
-          <div class="p-owing-sub" id="p-eric-owing-sub">0 items</div>
+        <div class="hero-metric" data-metric="eric" id="p-owing-right" hidden>
+          <div class="hero-label">Eric owes</div>
+          <div class="hero-figure" id="p-eric-owing-amt">$0.00</div>
+          <div class="hero-chip" id="p-eric-owing-sub">0 items</div>
         </div>
       </div>
+    </section>
+    <div class="page-body payables-body payables-content" id="payables-main-view">
 
       <!-- Add form -->
       <div class="p-add-card" id="p-add-card" style="display:none">
@@ -2012,7 +2058,29 @@ body:not(.authed) .chat-backdrop { display: none !important; }
     </div>
   </div><!-- end tab-payables -->
 
-</div><!-- end .main -->
+      </div><!-- /.app-pages -->
+    </div><!-- /.desktop-main -->
+  </div><!-- /.desktop-shell -->
+
+  <nav class="bottom-nav" aria-label="Primary">
+    <button type="button" class="nav-item active" data-nav="home" onclick="switchTab('home')">
+      <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">home</span></span>
+      Home
+    </button>
+    <button type="button" class="nav-item" data-nav="monthly" onclick="switchTab('monthly')">
+      <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span></span>
+      Monthly
+    </button>
+    <button type="button" class="nav-item" data-nav="payables" onclick="switchTab('payables')">
+      <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">sync_alt</span></span>
+      Payables
+    </button>
+    <button type="button" class="nav-item" data-nav="chat" onclick="switchTab('chat')">
+      <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span></span>
+      Chat
+    </button>
+  </nav>
+</div><!-- /.pensive-shell -->
 
 <!-- Chat: floating bubble/panel kept as optional quick access; primary surface is Chat tab -->
 <button class="chat-launcher" id="chatLauncher" type="button" hidden aria-label="Open chat" title="Chat" onclick="switchTab('chat')">
@@ -3718,6 +3786,11 @@ async function ensureHomeOtherBudget() {
 
 function setHomeScope(scope) {
   homeScope = scope === 'household' ? 'household' : 'me';
+  const toggle = document.getElementById('homeScopeToggle');
+  if (toggle) toggle.setAttribute('aria-checked', homeScope === 'household' ? 'true' : 'false');
+  document.querySelectorAll('#homeScopeSwitch [data-scope-label]').forEach(el => {
+    el.classList.toggle('is-active', el.getAttribute('data-scope-label') === homeScope);
+  });
   if (homeScope === 'household') ensureHomeOtherBudget();
   renderHome();
 }
@@ -3751,53 +3824,53 @@ function renderHome() {
   const [yy, mm] = key.split('-').map(Number);
   const monthLabel = (MONTHS[(mm || 1) - 1] || '') + ' ' + (yy || curYear);
 
+  // Scope switch lives in the app bar; keep labels in sync
+  const toggle = document.getElementById('homeScopeToggle');
+  if (toggle) toggle.setAttribute('aria-checked', isHousehold ? 'true' : 'false');
+  document.querySelectorAll('#homeScopeSwitch [data-scope-label]').forEach(el => {
+    el.classList.toggle('is-active', el.getAttribute('data-scope-label') === homeScope);
+  });
+
   root.innerHTML = `
-    <div class="fh-home-bar">
-      <div class="fh-scope" role="group" aria-label="View scope">
-        <button type="button" class="fh-scope-label ${homeScope === 'me' ? 'is-active' : ''}" onclick="setHomeScope('me')">Just me</button>
-        <button class="fh-scope-toggle" type="button" role="switch" aria-checked="${isHousehold}" aria-label="Switch between Just me and Household" onclick="setHomeScope(homeScope==='me'?'household':'me')">
-          <span class="fh-scope-thumb" aria-hidden="true"></span>
-        </button>
-        <button type="button" class="fh-scope-label ${isHousehold ? 'is-active' : ''}" onclick="setHomeScope('household')">Household</button>
-      </div>
-    </div>
-    <section class="fh-hero" aria-label="Period totals">
-      <div class="fh-hero-metric" data-metric="safe">
-        <div class="fh-hero-label">Safe to spend</div>
-        <div class="fh-hero-figure">${homeMoney(metrics.safe)}</div>
-        <div class="fh-hero-chip">After bills &amp; savings ${esc(metrics.label)}${esc(heroChipExtra)}</div>
-      </div>
-      <div class="fh-hero-metric" data-metric="in">
-        <div class="fh-hero-label">Money in</div>
-        <div class="fh-hero-figure">${homeMoney(metrics.moneyIn)}</div>
-        <div class="fh-hero-chip">Income ${esc(metrics.label)}</div>
-      </div>
-      <div class="fh-hero-metric" data-metric="out">
-        <div class="fh-hero-label">Money out</div>
-        <div class="fh-hero-figure">${homeMoney(metrics.moneyOut)}</div>
-        <div class="fh-hero-chip">Bills + savings ${esc(metrics.label)}</div>
+    <section class="hero-fan" aria-label="Period totals">
+      <div class="hero-fan-row">
+        <div class="hero-metric" data-metric="safe">
+          <div class="hero-label">Safe to spend</div>
+          <div class="hero-figure">${homeMoney(metrics.safe)}</div>
+          <div class="hero-chip">After bills &amp; savings ${esc(metrics.label)}${esc(heroChipExtra)}</div>
+        </div>
+        <div class="hero-metric" data-metric="in">
+          <div class="hero-label">Money in</div>
+          <div class="hero-figure">${homeMoney(metrics.moneyIn)}</div>
+          <div class="hero-chip">Income ${esc(metrics.label)}</div>
+        </div>
+        <div class="hero-metric" data-metric="out">
+          <div class="hero-label">Money out</div>
+          <div class="hero-figure">${homeMoney(metrics.moneyOut)}</div>
+          <div class="hero-chip">Bills + savings ${esc(metrics.label)}</div>
+        </div>
       </div>
     </section>
-    <div class="fh-row">
-      <article class="fh-card">
-        <div class="fh-cat-top">
+    <div class="fortnight-row fh-row">
+      <article class="card cat-card fh-card">
+        <div class="cat-card-top fh-cat-top">
           <div>
-            <div class="fh-cat-name">Housing &amp; bills</div>
-            <div class="fh-cat-hint">${billsPaid} of ${metrics.totalBills} settled ${esc(metrics.label)}</div>
+            <div class="cat-name fh-cat-name">Housing &amp; bills</div>
+            <div class="cat-hint fh-cat-hint">${billsPaid} of ${metrics.totalBills} settled ${esc(metrics.label)}</div>
           </div>
           <div class="fh-cat-amt">${homeMoney(metrics.billsOut)}</div>
         </div>
-        <div class="fh-bar" aria-hidden="true"><span style="width:${billsPct}%"></span></div>
+        <div class="cat-bar-track fh-bar" aria-hidden="true"><div class="cat-bar-fill" style="width:${billsPct}%"></div></div>
       </article>
-      <article class="fh-card">
-        <div class="fh-cat-top">
+      <article class="card cat-card fh-card">
+        <div class="cat-card-top fh-cat-top">
           <div>
-            <div class="fh-cat-name">${esc(pay.title)}</div>
-            <div class="fh-cat-hint">${esc(pay.hint)}</div>
+            <div class="cat-name fh-cat-name">${esc(pay.title)}</div>
+            <div class="cat-hint fh-cat-hint">${esc(pay.hint)}</div>
           </div>
           <div class="fh-cat-amt">${homeMoney(pay.owing)}</div>
         </div>
-        <div class="fh-bar" aria-hidden="true"><span style="width:${payPct}%"></span></div>
+        <div class="cat-bar-track fh-bar" aria-hidden="true"><div class="cat-bar-fill" style="width:${payPct}%"></div></div>
       </article>
     </div>
     <div class="fh-row">
@@ -3829,6 +3902,30 @@ function renderHome() {
 }
 
 
+function syncFaceliftNav(tab) {
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    const isSettings = el.getAttribute('data-nav') === 'settings';
+    if (isSettings) {
+      el.classList.toggle('filled', tab === 'settings');
+      el.classList.toggle('active', tab === 'settings');
+    } else {
+      el.classList.toggle('active', el.getAttribute('data-nav') === tab);
+    }
+  });
+  document.querySelectorAll('.app-page').forEach(page => {
+    const on = page.getAttribute('data-page') === tab;
+    page.classList.toggle('active', on);
+    if (on) page.setAttribute('data-active', '');
+    else page.removeAttribute('data-active');
+  });
+  const homeScope = document.getElementById('homeScopeSwitch');
+  const payScope = document.getElementById('payablesScopeSwitch');
+  const monthSlot = document.getElementById('monthNavWrap');
+  homeScope?.classList.toggle('is-visible', tab === 'home');
+  payScope?.classList.toggle('is-visible', tab === 'payables' && !isEric());
+  monthSlot?.classList.toggle('is-visible', tab === 'monthly');
+}
+
 function switchTab(tab) {
   // Admin alias → Settings hub
   if (tab === 'admin') tab = 'settings';
@@ -3846,15 +3943,11 @@ function switchTab(tab) {
   });
   const activeBtn = document.getElementById('tab-btn-' + tab);
   if (activeBtn) activeBtn.classList.add('active');
-  const activeTab = document.getElementById('tab-'+tab);
-  if (activeTab) activeTab.classList.add('active');
+  syncFaceliftNav(tab);
 
-  const mnav = document.getElementById('monthNavWrap');
   if (tab === 'monthly') {
-    mnav.style.display = 'flex';
     render();
   } else {
-    mnav.style.display = 'none';
     if (tab === 'home')     renderHome();
     if (tab === 'summary')  renderSummary();
     if (tab === 'insights') renderInsights();
@@ -4146,18 +4239,29 @@ function editDate(key,pi) {
 // ─────────────────────────────────────────────
 //  MONTHLY RENDER
 // ─────────────────────────────────────────────
+let focusedPeriodIndex = 0;
+
+function setFocusedPeriod(pi) {
+  focusedPeriodIndex = pi;
+  render();
+}
+
 function render() {
   if (curTab !== 'monthly') return;
   const canEdit = isAdmin();
   const key = mKey(curYear, curMonth);
-  document.getElementById('monthLabel').textContent = `${MONTHS[curMonth]} ${curYear}`;
+  const labelEl = document.getElementById('monthLabel');
+  if (labelEl) labelEl.textContent = `${MONTHS[curMonth]} ${curYear}`;
   const monthData = state.months[key];
   const grid = document.getElementById('periodsGrid');
-
+  const tabs = document.getElementById('periodTabs');
 
   if (!monthData) {
+    if (tabs) tabs.innerHTML = '';
     grid.innerHTML = `<div class="empty-msg"><h3>No data for ${MONTHS[curMonth]} ${curYear}</h3><p>You can start by copying last month's pay period data.</p>${canEdit?`<button class="create-btn" onclick="createMonthFromLastRecurring(${curYear},${curMonth});render()">Create using last month's recurring bills</button>`:''}</div>`;
-    document.getElementById('progressWrap').style.display='none'; return;
+    const pw0 = document.getElementById('progressWrap');
+    if (pw0) pw0.style.display='none';
+    return;
   }
 
   // Existing months (e.g. July saved with 2 periods) get missing in-month fortnights appended
@@ -4169,12 +4273,31 @@ function render() {
     }
   }
 
+  if (focusedPeriodIndex >= monthData.periods.length) focusedPeriodIndex = 0;
+
   const allBills = monthData.periods.flatMap(p=>p.bills);
   const done=allBills.filter(b=>b.done).length, total=allBills.length;
   const pw=document.getElementById('progressWrap');
-  pw.style.display=total?'flex':'none';
-  document.getElementById('progressText').textContent=`${done} / ${total} paid`;
-  document.getElementById('progressFill').style.width=total?`${(done/total)*100}%`:'0%';
+  if (pw) pw.style.display=total?'flex':'none';
+  const pt = document.getElementById('progressText');
+  if (pt) pt.textContent=`${done} / ${total} paid`;
+  const pf = document.getElementById('progressFill');
+  if (pf) pf.style.width=total?`${(done/total)*100}%`:'0%';
+
+  if (tabs) {
+    tabs.innerHTML = monthData.periods.map((period, pi) => {
+      const income = getPeriodIncome(period);
+      const out = (period.bills||[]).reduce((s,b)=>s+(parseFloat(b.amount)||0),0)
+        + getSavingsGoals(period).reduce((s,g)=>s+(parseFloat(g.amount)||0),0);
+      const safe = income - out;
+      const short = (period.date || '').replace(/\s+/g, ' ').slice(0, 18);
+      return `<button type="button" class="period-tab" data-focus-period="${pi}" aria-pressed="${pi===focusedPeriodIndex}" onclick="setFocusedPeriod(${pi})">
+        P${pi+1}${short ? ' · ' + esc(short) : ''}
+        <span class="period-tab-safe${safe<0?' is-neg':''}">$${Math.round(safe).toLocaleString('en-AU')}</span>
+      </button>`;
+    }).join('');
+  }
+
   grid.innerHTML='';
   monthData.periods.forEach((period,pi)=>grid.appendChild(buildPeriodCard(key,period,pi,canEdit)));
 }
@@ -4265,134 +4388,148 @@ function buildPeriodCard(key, period, pi, canEdit) {
   const subtotal = period.bills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
   const allowance = totalIncome - subtotal - totalSavings;
   const extraIncome = period.income || [];
+  const focused = (typeof focusedPeriodIndex === 'number' ? focusedPeriodIndex : 0) === pi;
 
-  const card = document.createElement('div'); card.className = 'period-card';
+  const card = document.createElement('article');
+  card.className = 'card period-card' + (focused ? ' is-focused' : '');
+  card.dataset.period = `${key}-${pi}`;
 
-  // Header with Safe to Spend chip
-  const chipClass = allowance < 0 ? 'safe-to-spend-chip negative' : 'safe-to-spend-chip';
-  const headerDiv = document.createElement('div'); headerDiv.className = 'period-header';
-  headerDiv.innerHTML = `
-    <div class="period-header-left">
-      <span class="period-title">Pay period ${pi+1}</span>
-      <span class="period-date-display">${esc(period.date)}</span>
-    </div>
-    <div class="period-header-right">
-      <div class="${chipClass}">
-        <span class="safe-to-spend-label">Safe to spend</span>
-        <span data-chip="${key}-${pi}">$${allowance.toFixed(2)}</span>
+  const chipNeg = allowance < 0 ? ' is-negative' : '';
+  card.innerHTML = `
+    <div class="period-card-head">
+      <div class="period-card-head-main">
+        <div class="period-card-kicker">Pay period ${pi+1}</div>
+        <div class="period-card-date">${esc(period.date)}</div>
       </div>
-      ${canEdit ? `<button class="edit-date-btn" onclick="editDate('${key}',${pi})">✏ Date</button>` : ''}
-      ${canEdit ? `<button class="period-delete-btn" onclick="deletePeriod('${key}',${pi})">🗑</button>` : ''}
-    </div>`;
-  card.appendChild(headerDiv);
-
-  // ── MONEY IN section ──
-  const incomeSectionId = `income-body-${key}-${pi}`;
-  const incomeToggle = document.createElement('div');
-  incomeToggle.className = 'section-toggle money-in';
-  incomeToggle.innerHTML = `
-    <div class="section-toggle-left">
-      <span class="section-chevron" id="chev-in-${key}-${pi}">▼</span>
-      <span class="section-toggle-label">Money In</span>
+      <div class="period-card-head-right">
+        <div class="period-safe-chip${chipNeg}">
+          <div class="period-safe-chip-label">Safe to spend</div>
+          <div class="period-safe-chip-value" data-chip="${key}-${pi}">$${allowance.toFixed(2)}</div>
+        </div>
+        <div class="period-card-actions">
+          ${canEdit ? `<button class="icon-btn" type="button" onclick="editDate('${key}',${pi})" title="Edit date" aria-label="Edit date"><span class="material-symbols-outlined" aria-hidden="true">edit_calendar</span></button>
+          <button class="icon-btn" type="button" onclick="deletePeriod('${key}',${pi})" title="Delete period" aria-label="Delete period"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button>` : ''}
+        </div>
+      </div>
     </div>
-    <span class="section-toggle-amount">$${totalIncome.toFixed(2)}</span>`;
-  incomeToggle.onclick = () => toggleSection(incomeSectionId, `chev-in-${key}-${pi}`);
+    ${allowance < 0 ? `<div class="period-safe-hint">Overspent by $${Math.abs(allowance).toFixed(2)} — open Money in to adjust.</div>` : ''}
+  `;
+
+  const moneyInOpen = allowance < 0;
+  const incomeToggle = document.createElement('button');
+  incomeToggle.type = 'button';
+  incomeToggle.className = 'section-toggle is-in';
+  incomeToggle.setAttribute('aria-expanded', moneyInOpen ? 'true' : 'false');
+  incomeToggle.innerHTML = `
+    <span class="section-toggle-left">
+      <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+      <span class="section-toggle-label">Money in</span>
+    </span>
+    <span class="section-toggle-amt">$${totalIncome.toFixed(2)}</span>`;
+  const incomeSectionId = `income-body-${key}-${pi}`;
+  incomeToggle.onclick = () => {
+    const body = document.getElementById(incomeSectionId);
+    if (!body) return;
+    const open = body.hasAttribute('hidden');
+    if (open) body.removeAttribute('hidden'); else body.setAttribute('hidden', '');
+    incomeToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
   card.appendChild(incomeToggle);
 
   const incomeBody = document.createElement('div');
-  incomeBody.className = 'section-body collapsed';
+  incomeBody.className = 'section-body';
   incomeBody.id = incomeSectionId;
+  if (!moneyInOpen) incomeBody.setAttribute('hidden', '');
 
-  // Salary row — editable inline
-  const salaryRow = document.createElement('div');
-  salaryRow.className = 'bill-row';
+  // Salary row (mock ledger look)
   const salaryAmt = state.settings.salary || 0;
-  if (canEdit) {
-    salaryRow.innerHTML = `
-      <span></span><span></span>
-      <span class="bill-name-input" style="color:#059669;font-weight:600;pointer-events:none">Salary (fortnightly)</span>
-      <input class="salary-inline-input" type="number" step="0.01" value="${salaryAmt.toFixed(2)}"
-        onchange="updateSalaryInlineSave('${key}',this.value)" oninput="updateSalaryInline('${key}',this.value)"
-        title="Edit default salary">
-      <span></span><span></span><span></span>`;
-  } else {
-    salaryRow.innerHTML = `<span></span><span></span><span class="bill-name-input" style="color:#059669;font-weight:600;pointer-events:none">Salary (fortnightly)</span><span class="readonly-amount" style="color:#059669">$${salaryAmt.toFixed(2)}</span><span></span><span></span><span></span>`;
-  }
+  const salaryRow = document.createElement('div');
+  salaryRow.className = 'ledger-row ledger-salary';
+  salaryRow.innerHTML = `
+    <div class="bill-check" aria-hidden="true"></div>
+    <div class="ledger-main"><div class="ledger-name">Salary (fortnightly)</div></div>
+    <div class="ledger-amt">$${salaryAmt.toFixed(2)}</div>
+    <span></span>
+    <div class="ledger-detail">
+      ${canEdit ? `<div class="ledger-edit-fields">
+        <input class="salary-inline-input bill-amount-input" type="number" step="0.01" value="${salaryAmt.toFixed(2)}"
+          onchange="updateSalaryInlineSave('${key}',this.value)" oninput="updateSalaryInline('${key}',this.value)" title="Edit default salary">
+      </div>` : ''}
+    </div>`;
   incomeBody.appendChild(salaryRow);
 
-  // Extra income lines
   const extraDiv = document.createElement('div');
   extraDiv.setAttribute('data-income', `${key}-${pi}`);
   extraIncome.forEach(item => {
-    const row = document.createElement('div'); row.className = 'bill-row';
+    const row = document.createElement('div');
+    row.className = 'ledger-row';
+    const amt = parseFloat(item.amount||0);
+    row.innerHTML = `
+      <div class="bill-check" aria-hidden="true"></div>
+      <div class="ledger-main"><div class="ledger-name">${esc(item.name)||'Income'}</div></div>
+      <div class="ledger-amt">$${amt.toFixed(2)}</div>
+      ${canEdit ? `<button class="ledger-more" type="button" onclick="event.stopPropagation();deleteIncome('${key}',${pi},'${item.id}')" aria-label="Delete"><span class="material-symbols-outlined">close</span></button>` : '<span></span>'}
+      <div class="ledger-detail">
+        ${canEdit ? `<div class="ledger-edit-fields">
+          <input class="bill-name-input" type="text" value="${esc(item.name)}" placeholder="e.g. Freelance"
+            onchange="updateIncome('${key}',${pi},'${item.id}','name',this.value)">
+          <input class="bill-amount-input" type="number" step="0.01" value="${amt?amt.toFixed(2):''}" placeholder="0.00"
+            onchange="updateIncome('${key}',${pi},'${item.id}','amount',this.value)" oninput="refreshChip('${key}',${pi})">
+          <button class="ledger-recur ${item.recurring?'is-on':''}" type="button" onclick="toggleIncomeRecurring('${key}',${pi},'${item.id}')" aria-pressed="${!!item.recurring}">
+            <span class="material-symbols-outlined">autorenew</span>
+          </button>
+        </div>` : ''}
+      </div>`;
     if (canEdit) {
-      const incAmt = item.amount ? parseFloat(item.amount).toFixed(2) : '';
-      row.innerHTML = `
-        <span></span><span></span>
-        <input class="bill-name-input" type="text" value="${esc(item.name)}" placeholder="e.g. Freelance"
-          onchange="updateIncome('${key}',${pi},'${item.id}','name',this.value)">
-        <input class="bill-amount-input" type="number" step="0.01" value="${incAmt}" placeholder="0.00"
-          onchange="updateIncome('${key}',${pi},'${item.id}','amount',this.value)" oninput="refreshChip('${key}',${pi})">
-        <span></span>
-        <button class="recur-btn ${item.recurring?'on':''}" onclick="toggleIncomeRecurring('${key}',${pi},'${item.id}')">♻</button>
-        <button class="del-btn" onclick="deleteIncome('${key}',${pi},'${item.id}')">×</button>`;
-    } else {
-      row.innerHTML = `<span></span><span></span><span class="bill-name-input">${esc(item.name)}</span><span class="readonly-amount" style="color:#059669">$${parseFloat(item.amount||0).toFixed(2)}</span><span></span><span></span><span></span>`;
+      row.classList.add('is-expanded');
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('input,button,select')) return;
+        row.classList.toggle('is-selected');
+        row.classList.toggle('is-expanded', row.classList.contains('is-selected'));
+      });
     }
     extraDiv.appendChild(row);
   });
   incomeBody.appendChild(extraDiv);
-
   if (canEdit) {
-    const addIncomeDiv = document.createElement('div'); addIncomeDiv.className = 'add-row';
-    addIncomeDiv.innerHTML = `<button class="add-btn" style="color:#059669;border-color:#a7f3d0" onclick="addIncomeLine('${key}',${pi})">＋ Add income</button>`;
-    incomeBody.appendChild(addIncomeDiv);
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'ledger-add';
+    add.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add income';
+    add.onclick = () => addIncomeLine(key, pi);
+    incomeBody.appendChild(add);
   }
   card.appendChild(incomeBody);
 
-  // ── MONEY OUT section ──
-  const outSectionId = `out-body-${key}-${pi}`;
-  const outToggle = document.createElement('div');
-  outToggle.className = 'section-toggle money-out';
+  // Money out
+  const outToggle = document.createElement('button');
+  outToggle.type = 'button';
+  outToggle.className = 'section-toggle is-out';
+  outToggle.setAttribute('aria-expanded', 'true');
   outToggle.innerHTML = `
-    <div class="section-toggle-left">
-      <span class="section-chevron open" id="chev-out-${key}-${pi}">▼</span>
-      <span class="section-toggle-label">Money Out</span>
-    </div>
-    <span class="section-toggle-amount" data-out-total="${key}-${pi}">$${(subtotal + totalSavings).toFixed(2)}</span>`;
-  outToggle.onclick = () => toggleSection(outSectionId, `chev-out-${key}-${pi}`);
+    <span class="section-toggle-left">
+      <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+      <span class="section-toggle-label">Money out</span>
+    </span>
+    <span class="section-toggle-amt" data-out-total="${key}-${pi}">$${(subtotal + totalSavings).toFixed(2)}</span>`;
+  const outSectionId = `out-body-${key}-${pi}`;
+  outToggle.onclick = () => {
+    const body = document.getElementById(outSectionId);
+    if (!body) return;
+    const open = body.hasAttribute('hidden');
+    if (open) body.removeAttribute('hidden'); else body.setAttribute('hidden', '');
+    outToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
   card.appendChild(outToggle);
 
   const outBody = document.createElement('div');
   outBody.className = 'section-body';
   outBody.id = outSectionId;
 
-  // Column header — sortable
   const periodSortKey = `${key}-${pi}`;
   const sortSt = cardSortState[periodSortKey];
-  const arrow = (col) => {
-    if (!sortSt && col === 'payTo') return `<span class="sort-arrow">↕</span>`; // default indicator
-    if (!sortSt || sortSt.col !== col) return `<span class="sort-arrow">↕</span>`;
-    return `<span class="sort-arrow">${sortSt.dir === 1 ? '↑' : '↓'}</span>`;
-  };
-  const cls = (col) => {
-    if (!sortSt && col === 'payTo') return 'sort-col active';
-    return `sort-col${sortSt?.col === col ? ' active' : ''}`;
-  };
-  const colHeader = document.createElement('div'); colHeader.className = 'bill-list-header';
-  colHeader.innerHTML = `
-    <span></span><span></span>
-    <span class="${cls('name')}" onclick="cycleSort('${periodSortKey}','name')">Expense ${arrow('name')}</span>
-    <span class="${cls('amount')}" style="text-align:right;justify-content:flex-end" onclick="cycleSort('${periodSortKey}','amount')">Amount ${arrow('amount')}</span>
-    <span class="${cls('payTo')}" onclick="cycleSort('${periodSortKey}','payTo')">Pay to ${arrow('payTo')}</span>
-    <span class="${cls('recurring')}" onclick="cycleSort('${periodSortKey}','recurring')" title="Sort by recurring">${arrow('recurring')}</span>
-    <span class="${cls('done')}" onclick="cycleSort('${periodSortKey}','done')" title="Sort by done">${arrow('done')}</span>`;
-  outBody.appendChild(colHeader);
-
-  // Apply sort — view only, doesn't change saved order
   const sortKey = sortSt ? (sortSt.dir === -1 ? `-${sortSt.col}` : sortSt.col) : 'default';
   const sortedBills = getSortedBills(period.bills, sortKey);
-
   const recurringBills = sortedBills.filter(b => b.recurring);
   const variableBills  = sortedBills.filter(b => !b.recurring);
   const recurringTotal = recurringBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
@@ -4409,20 +4546,60 @@ function buildPeriodCard(key, period, pi, canEdit) {
     return ld;
   }
   const recurListDiv = mkListDiv();
-  const varListDiv   = mkListDiv();
+  const varListDiv = mkListDiv();
 
   sortedBills.forEach((bill, billIdx) => {
     const row = document.createElement('div');
-    row.className = 'bill-row' + (bill.done ? ' is-done' : '');
+    // Keep bill-row for existing selection/drag JS; ledger-row for mock look
+    row.className = 'ledger-row bill-row' + (bill.done ? ' is-paid is-done' : '');
     row.dataset.key = key; row.dataset.pi = pi; row.dataset.billId = bill.id;
     row.dataset.amount = bill.amount || 0; row.dataset.name = bill.name || '';
+    row.dataset.ledgerId = bill.id;
 
-    // Build handle element (select + drag zone)
-    const handle = document.createElement('div');
-    handle.className = 'row-handle';
-    handle.title = 'Drag to reorder · Click to select · Shift/Ctrl+click for multi-select';
-    handle.innerHTML = '⋮⋮';
-    handle.addEventListener('click', (e) => { e.stopPropagation(); handleRowClick(e, row, key, pi, bill, billIdx, true); });
+    const amtVal = bill.amount ? parseFloat(bill.amount).toFixed(2) : '';
+    const payToSel = canEdit
+      ? `<select class="payto-select" onchange="handlePayToChange('${key}',${pi},'${bill.id}',this)" onclick="event.stopPropagation()">${getAccountOptions(bill.payTo)}</select>`
+      : `<span class="ledger-chip">${esc(bill.payTo||'No account')}</span>`;
+
+    row.innerHTML = `
+      <div class="bill-check" data-toggle-paid aria-hidden="true">${bill.done ? '<span class="material-symbols-outlined">check</span>' : ''}</div>
+      <div class="ledger-main"><div class="ledger-name">${esc(bill.name)||'Expense'}</div></div>
+      <div class="ledger-amt">$${parseFloat(bill.amount||0).toFixed(2)}</div>
+      <button class="ledger-more" type="button" data-row-more aria-label="More actions" title="More">
+        <span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>
+      </button>
+      <div class="ledger-detail">
+        <div class="ledger-handle row-handle" title="Drag to reorder · Click to select">⋮⋮</div>
+        <span class="ledger-chip">${esc(bill.payTo||'No account')}</span>
+        <span class="ledger-chip ${bill.recurring?'is-recur':''}">${bill.recurring?'Recurring':'This period'}</span>
+        <button class="ledger-recur ${bill.recurring?'is-on':''}" type="button" ${canEdit?`onclick="event.stopPropagation();toggleRecurring('${key}',${pi},'${bill.id}')"`:'disabled'} aria-pressed="${!!bill.recurring}">
+          <span class="material-symbols-outlined">autorenew</span>
+        </button>
+        ${canEdit ? `<div class="ledger-edit-fields">
+          <input class="bill-name-input" type="text" value="${esc(bill.name)}" placeholder="Expense name"
+            onchange="updateBill('${key}',${pi},'${bill.id}','name',this.value)" onclick="event.stopPropagation()">
+          <input class="bill-amount-input" type="number" step="0.01" value="${amtVal}" placeholder="0.00"
+            onchange="updateBill('${key}',${pi},'${bill.id}','amount',this.value)" oninput="refreshChip('${key}',${pi})" onclick="event.stopPropagation()">
+          ${payToSel}
+          <button class="del-btn" type="button" onclick="event.stopPropagation();deleteBill('${key}',${pi},'${bill.id}')" aria-label="Delete">×</button>
+        </div>` : ''}
+      </div>`;
+
+    // Toggle paid via check hit-target
+    const check = row.querySelector('.bill-check');
+    if (check && canEdit) {
+      check.style.cursor = 'pointer';
+      check.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const next = !bill.done;
+        toggleDone(key, pi, bill.id, next);
+      });
+    }
+
+    const handle = row.querySelector('.row-handle');
+    if (handle) {
+      handle.addEventListener('click', (e) => { e.stopPropagation(); handleRowClick(e, row, key, pi, bill, billIdx, true); });
+    }
     if (canEdit) {
       row.setAttribute('draggable', 'true');
       row.addEventListener('dragstart', (e) => billDragStart(e, key, pi, bill.id));
@@ -4430,105 +4607,92 @@ function buildPeriodCard(key, period, pi, canEdit) {
       row.addEventListener('drop',      (e) => billDrop(e, key, pi, bill.id));
       row.addEventListener('dragend',   billDragEnd);
     }
-
-    if (canEdit) {
-      const amtVal = bill.amount ? parseFloat(bill.amount).toFixed(2) : '';
-      const payToSel = `<select class="payto-select" onchange="handlePayToChange('${key}',${pi},'${bill.id}',this)" onclick="event.stopPropagation()">${getAccountOptions(bill.payTo)}</select>`;
-      row.innerHTML = `
-        <span></span>
-        <input type="checkbox" class="bill-check" ${bill.done?'checked':''} onchange="toggleDone('${key}',${pi},'${bill.id}',this.checked)" onclick="event.stopPropagation()">
-        <input class="bill-name-input" type="text" value="${esc(bill.name)}" placeholder="Expense name"
-          onchange="updateBill('${key}',${pi},'${bill.id}','name',this.value)" onclick="event.stopPropagation()">
-        <input class="bill-amount-input" type="number" step="0.01" value="${amtVal}" placeholder="0.00"
-          onchange="updateBill('${key}',${pi},'${bill.id}','amount',this.value)" oninput="refreshChip('${key}',${pi})" onclick="event.stopPropagation()">
-        ${payToSel}
-        <button class="recur-btn ${bill.recurring?'on':''}" onclick="event.stopPropagation();toggleRecurring('${key}',${pi},'${bill.id}')">♻</button>
-        <button class="del-btn" onclick="event.stopPropagation();deleteBill('${key}',${pi},'${bill.id}')">×</button>`;
-      row.children[0].replaceWith(handle);
-    } else {
-      row.innerHTML = `
-        <span></span>
-        <input type="checkbox" class="bill-check" ${bill.done?'checked':''} disabled>
-        <span class="bill-name-input" style="pointer-events:none">${esc(bill.name)}</span>
-        <span class="readonly-amount">$${parseFloat(bill.amount||0).toFixed(2)}</span>
-        <span class="readonly-payto">${esc(bill.payTo||'')}</span>
-        <span class="recur-btn ${bill.recurring?'on':''}" style="pointer-events:none">♻</span>
-        <span></span>`;
-      row.children[0].replaceWith(handle);
-    }
-
-    // Row selection via handle or row body (not inputs)
     row.addEventListener('click', (e) => {
-      if (e.target.closest('.row-handle')) return; // handled above
+      if (e.target.closest('.row-handle, .bill-check, input, select, button')) return;
       handleRowClick(e, row, key, pi, bill, billIdx, false);
+      row.classList.toggle('is-selected', row.classList.contains('selected'));
+      row.classList.toggle('is-expanded', row.classList.contains('selected'));
     });
     row.addEventListener('contextmenu', (e) => handleRowRightClick(e, row));
+    const more = row.querySelector('[data-row-more]');
+    if (more) more.addEventListener('click', (e) => { e.stopPropagation(); handleRowRightClick(e, row); });
+
     (bill.recurring ? recurListDiv : varListDiv).appendChild(row);
   });
 
-  // Recurring group
-  const recurGroupHeader = document.createElement('div');
-  recurGroupHeader.className = 'bill-group-header recurring';
-  recurGroupHeader.innerHTML = `<span class="bill-group-label">Recurring</span><span class="bill-group-total">$${recurringTotal.toFixed(2)}</span>`;
-  outBody.appendChild(recurGroupHeader);
+  const recurHead = document.createElement('div');
+  recurHead.className = 'group-head is-recurring';
+  recurHead.innerHTML = `<span class="group-head-label">Recurring</span><span class="group-head-amt">$${recurringTotal.toFixed(2)}</span>`;
+  outBody.appendChild(recurHead);
   outBody.appendChild(recurListDiv);
 
-  // Variable group
-  const varGroupHeader = document.createElement('div');
-  varGroupHeader.className = 'bill-group-header variable';
-  varGroupHeader.innerHTML = `<span class="bill-group-label">Variable</span><span class="bill-group-total">$${variableTotal.toFixed(2)}</span>`;
-  outBody.appendChild(varGroupHeader);
+  const varHead = document.createElement('div');
+  varHead.className = 'group-head is-variable';
+  varHead.innerHTML = `<span class="group-head-label">Variable</span><span class="group-head-amt">$${variableTotal.toFixed(2)}</span>`;
+  outBody.appendChild(varHead);
   outBody.appendChild(varListDiv);
 
   if (canEdit) {
-    const addDiv = document.createElement('div'); addDiv.className = 'add-row';
-    addDiv.innerHTML = `<button class="add-btn" onclick="addBill('${key}',${pi})">＋ Add expense</button>`;
-    outBody.appendChild(addDiv);
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'ledger-add';
+    add.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add expense';
+    add.onclick = () => addBill(key, pi);
+    outBody.appendChild(add);
   }
   card.appendChild(outBody);
 
-  // ── Savings Goals section ──
-  const savSection = document.createElement('div');
-  savSection.className = 'savings-section';
-  const savHeader = document.createElement('div');
-  savHeader.className = 'savings-section-header';
-  savHeader.textContent = 'Savings';
-  savSection.appendChild(savHeader);
+  // Savings
+  const savBlock = document.createElement('div');
+  savBlock.className = 'savings-block';
+  const savHead = document.createElement('div');
+  savHead.className = 'group-head is-savings';
+  savHead.innerHTML = `<span class="group-head-label">Savings</span><span class="group-head-amt">$${totalSavings.toFixed(2)}</span>`;
+  savBlock.appendChild(savHead);
 
   savingsGoals.forEach((goal, gi) => {
-    const isFirst = gi === 0; // General Savings — no delete
+    const isFirst = gi === 0;
     const sRow = document.createElement('div');
-    sRow.className = 'saving-row' + (goal.done ? ' is-done' : '');
-    if (canEdit) {
-      const nameVal = isFirst && !goal.name ? 'General Savings' : esc(goal.name);
-      const amtVal  = goal.amount ? parseFloat(goal.amount).toFixed(2) : '';
-      sRow.innerHTML = `
-        <input type="checkbox" class="bill-check" ${goal.done?'checked':''} onchange="toggleSavingsDone('${key}',${pi},'${goal.id}',this.checked)" onclick="event.stopPropagation()">
-        <input class="bill-name-input" type="text" value="${nameVal}" placeholder="Savings goal name" ${isFirst?'style="color:#059669;font-weight:600"':''}
-          onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','name',this.value)" onclick="event.stopPropagation()">
-        <input class="bill-amount-input" type="number" step="0.01" value="${amtVal}" placeholder="0.00"
-          onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','amount',this.value)" oninput="refreshChip('${key}',${pi})" onclick="event.stopPropagation()">
-        <select class="payto-select" onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','payTo',this.value)" onclick="event.stopPropagation()">${getAccountOptions(goal.payTo)}</select>
-        <button class="recur-btn ${goal.recurring?'on':''}" onclick="event.stopPropagation();toggleSavingsRecurring('${key}',${pi},'${goal.id}')">♻</button>
-        ${isFirst ? '<span></span>' : `<button class="del-btn" onclick="event.stopPropagation();deleteSavingsGoal('${key}',${pi},'${goal.id}')">×</button>`}`;
-    } else {
-      sRow.innerHTML = `
-        <input type="checkbox" class="bill-check" ${goal.done?'checked':''} disabled>
-        <span class="bill-name-input" ${gi===0?'style="color:#059669;font-weight:600"':''}>${goal.name||'General Savings'}</span>
-        <span class="readonly-amount" style="color:#059669">$${parseFloat(goal.amount||0).toFixed(2)}</span>
-        <span class="readonly-payto">${esc(goal.payTo||'')}</span>
-        <span class="recur-btn ${goal.recurring?'on':''}" style="pointer-events:none">♻</span>`;
+    sRow.className = 'ledger-row' + (goal.done ? ' is-paid' : '');
+    const nameVal = isFirst && !goal.name ? 'General Savings' : (goal.name || 'Savings');
+    const amt = parseFloat(goal.amount||0);
+    sRow.innerHTML = `
+      <div class="bill-check" aria-hidden="true">${goal.done ? '<span class="material-symbols-outlined">check</span>' : ''}</div>
+      <div class="ledger-main"><div class="ledger-name">${esc(nameVal)}</div></div>
+      <div class="ledger-amt">$${amt.toFixed(2)}</div>
+      ${canEdit && !isFirst ? `<button class="ledger-more" type="button" onclick="deleteSavingsGoal('${key}',${pi},'${goal.id}')"><span class="material-symbols-outlined">close</span></button>` : '<span></span>'}
+      <div class="ledger-detail">
+        ${canEdit ? `<div class="ledger-edit-fields">
+          <input class="bill-name-input" type="text" value="${esc(nameVal)}" ${isFirst?'readonly':''}
+            onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','name',this.value)">
+          <input class="bill-amount-input" type="number" step="0.01" value="${amt?amt.toFixed(2):''}"
+            onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','amount',this.value)" oninput="refreshChip('${key}',${pi})">
+          <select class="payto-select" onchange="updateSavingsGoal('${key}',${pi},'${goal.id}','payTo',this.value)">${getAccountOptions(goal.payTo)}</select>
+          <button class="ledger-recur ${goal.recurring?'is-on':''}" type="button" onclick="toggleSavingsRecurring('${key}',${pi},'${goal.id}')">
+            <span class="material-symbols-outlined">autorenew</span>
+          </button>
+        </div>` : `<span class="ledger-chip">${esc(goal.payTo||'')}</span>`}
+      </div>`;
+    const check = sRow.querySelector('.bill-check');
+    if (check && canEdit) {
+      check.style.cursor = 'pointer';
+      check.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSavingsDone(key, pi, goal.id, !goal.done);
+      });
     }
-    savSection.appendChild(sRow);
+    if (canEdit) sRow.classList.add('is-expanded');
+    savBlock.appendChild(sRow);
   });
-
   if (canEdit) {
-    const addSavDiv = document.createElement('div'); addSavDiv.className = 'add-row';
-    addSavDiv.innerHTML = `<button class="add-btn" style="color:#059669;border-color:#a7f3d0" onclick="addSavingsGoal('${key}',${pi})">＋ Add savings goal</button>`;
-    savSection.appendChild(addSavDiv);
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'ledger-add';
+    add.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add savings goal';
+    add.onclick = () => addSavingsGoal(key, pi);
+    savBlock.appendChild(add);
   }
-
-  card.appendChild(savSection);
+  card.appendChild(savBlock);
   return card;
 }
 
