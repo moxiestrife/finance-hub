@@ -5277,15 +5277,20 @@ function pSetEricSplitFilter(val, btn) {
 }
 
 function pSetView(view) {
-  pActiveView = view;
+  pActiveView = view === 'eric' ? 'eric' : 'mine';
   const mineCol = document.getElementById('p-col-mine');
   const ericCol = document.getElementById('p-col-eric');
   const mineBtn = document.getElementById('p-vs-mine');
   const ericBtn = document.getElementById('p-vs-eric');
-  if (mineCol) mineCol.style.display = view === 'mine' ? '' : 'none';
-  if (ericCol) ericCol.style.display = view === 'eric' ? '' : 'none';
-  if (mineBtn) mineBtn.classList.toggle('active', view === 'mine');
-  if (ericBtn) ericBtn.classList.toggle('active', view === 'eric');
+  if (mineCol) mineCol.style.display = pActiveView === 'mine' ? '' : 'none';
+  if (ericCol) ericCol.style.display = pActiveView === 'eric' ? '' : 'none';
+  if (mineBtn) mineBtn.classList.toggle('active', pActiveView === 'mine');
+  if (ericBtn) ericBtn.classList.toggle('active', pActiveView === 'eric');
+  const toggle = document.getElementById('payablesScopeToggle');
+  if (toggle) toggle.setAttribute('aria-checked', pActiveView === 'eric' ? 'true' : 'false');
+  document.querySelectorAll('#payablesScopeSwitch [data-pay-label]').forEach(el => {
+    el.classList.toggle('is-active', el.getAttribute('data-pay-label') === pActiveView);
+  });
 }
 let pIdSeq = Date.now() + 1000000;
 const pUid = () => 'p' + (++pIdSeq);
