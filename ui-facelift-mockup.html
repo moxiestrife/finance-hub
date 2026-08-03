@@ -2721,6 +2721,7 @@ body {
   function setPayablesView(view) {
     payablesView = view === 'eric' ? 'eric' : 'mine';
     payablesAccount = 'all';
+    payablesAccountOpen = false;
     syncPayablesSwitch();
     renderPayables();
   }
