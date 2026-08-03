@@ -152,10 +152,14 @@
 }
 .phone .page-body,
 .phone .home-body {
-  padding: 4px 14px 16px;
+  padding: 4px 14px calc(var(--bottom-nav-reserve) + var(--space-3));
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+.phone .app-page[data-page="chat"] .page-body,
+.phone .app-page[data-page="settings"] .page-body {
+  padding-bottom: calc(var(--bottom-nav-reserve) + var(--space-3));
 }
 .phone .app-page[data-page="home"],
 .desktop-main .app-page[data-page="home"],
@@ -861,7 +865,7 @@ html[data-theme="dark"] .cat-name { color: var(--tertiary); }
   position: absolute;
   left: 12px;
   right: 12px;
-  bottom: 12px;
+  bottom: var(--bottom-nav-offset);
   height: 64px;
   background: var(--surface-container-lowest);
   border-radius: 28px;
@@ -1876,7 +1880,7 @@ html[data-theme="dark"] .period-tab[aria-pressed="true"] {
 /* Action dock — teaches bulk actions without "right-click" */
 .action-dock {
   position: sticky;
-  bottom: 8px;
+  bottom: calc(8px + var(--safe-bottom));
   z-index: var(--z-sticky);
   display: none;
   flex-direction: column;
@@ -1887,6 +1891,9 @@ html[data-theme="dark"] .period-tab[aria-pressed="true"] {
   background: var(--primary);
   color: var(--on-primary);
   box-shadow: var(--shadow-nav);
+}
+.phone .action-dock {
+  bottom: calc(var(--bottom-nav-reserve) - 12px);
 }
 .action-dock.is-visible {
   display: flex;
@@ -2846,20 +2853,20 @@ html[data-theme="dark"] .mock-modal {
 .mock-modal-backdrop.is-fixed {
   position: fixed;
   inset: 0;
-  z-index: calc(var(--z-sticky) + 40);
+  z-index: var(--z-modal);
 }
 .impersonation-banner {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: calc(var(--z-sticky) + 50);
+  z-index: var(--z-banner);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
   flex-wrap: wrap;
-  padding: 10px 16px;
+  padding: calc(10px + var(--safe-top)) 16px 10px;
   background: color-mix(in srgb, var(--secondary) 22%, var(--surface-container-highest));
   color: var(--on-surface);
   border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
@@ -2880,7 +2887,7 @@ html[data-theme="dark"] .mock-modal {
   cursor: pointer;
 }
 body.is-impersonating .stage {
-  padding-top: 48px;
+  padding-top: calc(48px + var(--safe-top));
 }
 .text-btn.is-danger-text {
   color: var(--error);
