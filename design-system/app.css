@@ -104,13 +104,41 @@ body.authed > .main {
 }
 .pensive-shell .app-bar .scope-switch,
 .pensive-shell .app-bar .month-nav-slot {
-  display: none;
+  display: none !important;
 }
 .pensive-shell .app-bar .scope-switch.is-visible,
 .pensive-shell .app-bar .month-nav-slot.is-visible {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  height: 40px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface-container-high, #e8e8eb);
+  border: 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 55%, transparent);
+}
+.pensive-shell .app-bar .scope-chip {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--on-surface-variant, #64748b);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  min-height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pensive-shell .app-bar .scope-chip:hover {
+  color: var(--on-surface, #1a1a1d);
+}
+.pensive-shell .app-bar .scope-chip.is-active {
+  background: var(--surface-container-lowest, #fff);
+  color: var(--on-surface, #1a1a1d);
+  box-shadow: 0 1px 3px var(--shadow, rgba(0, 0, 0, 0.12));
 }
 
 /* Month nav inside app bar uses components .month-nav */

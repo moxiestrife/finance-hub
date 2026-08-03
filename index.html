@@ -1729,20 +1729,14 @@ body:not(.authed) .chat-backdrop { display: none !important; }
           <span class="brand-text">Pensive</span>
         </div>
 
-        <div class="scope-switch" id="homeScopeSwitch" role="group" aria-label="View scope">
-          <button type="button" class="scope-label is-active" data-scope-label="me" onclick="setHomeScope('me')">Just me</button>
-          <button class="scope-toggle" type="button" role="switch" id="homeScopeToggle" aria-checked="false" aria-label="Switch between Just me and Household" onclick="setHomeScope(homeScope==='me'?'household':'me')">
-            <span class="scope-toggle-thumb" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="scope-label" data-scope-label="household" onclick="setHomeScope('household')">Household</button>
+        <div class="scope-switch is-visible" id="homeScopeSwitch" role="group" aria-label="View scope">
+          <button type="button" class="scope-chip is-active" data-scope-label="me" onclick="setHomeScope('me')">Just me</button>
+          <button type="button" class="scope-chip" data-scope-label="household" onclick="setHomeScope('household')">Household</button>
         </div>
 
         <div class="scope-switch" id="payablesScopeSwitch" data-owner-only role="group" aria-label="Payables view">
-          <button type="button" class="scope-label is-active" data-pay-label="mine" onclick="pSetView('mine')">Mine</button>
-          <button class="scope-toggle" type="button" role="switch" id="payablesScopeToggle" aria-checked="false" aria-label="Switch between Mine and Eric" onclick="pSetView(document.getElementById('payablesScopeToggle').getAttribute('aria-checked')==='true'?'mine':'eric')">
-            <span class="scope-toggle-thumb" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="scope-label" data-pay-label="eric" onclick="pSetView('eric')">Eric</button>
+          <button type="button" class="scope-chip is-active" data-pay-label="mine" onclick="pSetView('mine')">Mine</button>
+          <button type="button" class="scope-chip" data-pay-label="eric" onclick="pSetView('eric')">Eric</button>
         </div>
 
         <div class="month-nav-slot" id="monthNavWrap">
@@ -3786,8 +3780,6 @@ async function ensureHomeOtherBudget() {
 
 function setHomeScope(scope) {
   homeScope = scope === 'household' ? 'household' : 'me';
-  const toggle = document.getElementById('homeScopeToggle');
-  if (toggle) toggle.setAttribute('aria-checked', homeScope === 'household' ? 'true' : 'false');
   document.querySelectorAll('#homeScopeSwitch [data-scope-label]').forEach(el => {
     el.classList.toggle('is-active', el.getAttribute('data-scope-label') === homeScope);
   });
@@ -3824,9 +3816,7 @@ function renderHome() {
   const [yy, mm] = key.split('-').map(Number);
   const monthLabel = (MONTHS[(mm || 1) - 1] || '') + ' ' + (yy || curYear);
 
-  // Scope switch lives in the app bar; keep labels in sync
-  const toggle = document.getElementById('homeScopeToggle');
-  if (toggle) toggle.setAttribute('aria-checked', isHousehold ? 'true' : 'false');
+  // Scope chips live in the app bar; keep active state in sync
   document.querySelectorAll('#homeScopeSwitch [data-scope-label]').forEach(el => {
     el.classList.toggle('is-active', el.getAttribute('data-scope-label') === homeScope);
   });
@@ -5286,8 +5276,6 @@ function pSetView(view) {
   if (ericCol) ericCol.style.display = pActiveView === 'eric' ? '' : 'none';
   if (mineBtn) mineBtn.classList.toggle('active', pActiveView === 'mine');
   if (ericBtn) ericBtn.classList.toggle('active', pActiveView === 'eric');
-  const toggle = document.getElementById('payablesScopeToggle');
-  if (toggle) toggle.setAttribute('aria-checked', pActiveView === 'eric' ? 'true' : 'false');
   document.querySelectorAll('#payablesScopeSwitch [data-pay-label]').forEach(el => {
     el.classList.toggle('is-active', el.getAttribute('data-pay-label') === pActiveView);
   });
