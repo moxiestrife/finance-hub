@@ -1,0 +1,638 @@
+/* ═══════════════════════════════════════════════════════════════
+   Payables (Phase 3D) — scoped under #tab-payables so Monthly/Home CSS is untouched
+   Restyles existing production classes (.p-owing-card, .p-row, …) toward the facelift
+   Depends on design-system/tokens.css
+   ═══════════════════════════════════════════════════════════════ */
+
+#tab-payables {
+  max-width: var(--content-max-width-eric, 900px);
+  margin: 0 auto;
+}
+
+#tab-payables .payables-content {
+  max-width: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 14px);
+  padding-bottom: var(--space-5, 16px);
+}
+
+/* ── Owing summary (fan / hero metric look) ─────────────── */
+#tab-payables .p-owing-card {
+  background: var(--surface-container-lowest, #fff);
+  color: var(--on-surface, #1c1c1f);
+  border: var(--border-subtle, 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 55%, transparent));
+  border-radius: var(--radius-card, 18px);
+  padding: var(--space-5, 16px) var(--space-6, 20px);
+  margin-bottom: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+  box-shadow: var(--shadow-card, 0 1px 3px var(--shadow, rgba(0, 0, 0, 0.06)));
+}
+
+#tab-payables .p-owing-left,
+#tab-payables .p-owing-right {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: left;
+}
+
+#tab-payables .p-owing-right {
+  border-left: 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 70%, transparent);
+  padding-left: var(--space-5, 16px);
+  margin-left: var(--space-5, 16px);
+}
+
+#tab-payables .p-owing-left .p-owing-label,
+#tab-payables .p-owing-right > div:first-child {
+  font-size: var(--text-xs, 0.68rem);
+  font-weight: var(--weight-bold, 700);
+  letter-spacing: var(--tracking-hero-label, 0.12em);
+  text-transform: uppercase;
+  color: var(--on-surface-variant, #3f3f46);
+  opacity: 1;
+  margin-bottom: 6px;
+}
+
+#tab-payables .p-owing-left .p-owing-amount {
+  font-size: clamp(1.85rem, 2.8vw, 2.35rem);
+  font-weight: var(--weight-bold, 700);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--hero-out, #a65d1f);
+  margin-top: 0;
+}
+
+#tab-payables .p-owing-right #p-eric-owing-amt,
+#tab-payables .p-owing-right > div:nth-child(2) {
+  font-size: clamp(1.45rem, 2.2vw, 1.85rem) !important;
+  font-weight: var(--weight-bold, 700) !important;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--hero-in, #5c6570) !important;
+  margin-top: 0 !important;
+  opacity: 1 !important;
+}
+
+#tab-payables .p-owing-left .p-owing-sub,
+#tab-payables .p-owing-right #p-eric-owing-sub,
+#tab-payables .p-owing-right > div:nth-child(3) {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.74rem;
+  font-weight: var(--weight-medium, 500);
+  color: var(--on-surface-variant, #3f3f46);
+  opacity: 1 !important;
+}
+
+#tab-payables .p-eric-peek {
+  font-size: var(--text-md, 0.78rem);
+  color: var(--on-surface-variant, #3f3f46);
+  opacity: 1;
+  text-decoration: none;
+  border-bottom: 1px dotted color-mix(in srgb, var(--outline, #71717a) 60%, transparent);
+  margin-top: var(--space-2, 8px);
+}
+#tab-payables .p-eric-peek:hover {
+  color: var(--primary, #2a2a2e);
+  opacity: 1;
+}
+
+/* ── Add payable form card ──────────────────────────────── */
+#tab-payables .p-add-card {
+  background: var(--surface-container-lowest, #fff);
+  border: var(--border-subtle, 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 55%, transparent));
+  border-radius: var(--radius-card, 18px);
+  padding: var(--space-5, 16px) var(--space-6, 20px);
+  margin-bottom: 0;
+  box-shadow: var(--shadow-card, 0 1px 3px var(--shadow, rgba(0, 0, 0, 0.06)));
+}
+
+#tab-payables .p-add-title {
+  font-size: var(--text-lg, 0.92rem);
+  font-weight: var(--weight-bold, 700);
+  color: var(--on-surface, #1c1c1f);
+  margin-bottom: var(--space-4, 14px);
+}
+
+#tab-payables .p-form-grid {
+  gap: var(--space-3, 12px);
+}
+
+#tab-payables .p-flabel {
+  font-size: var(--text-xs, 0.68rem);
+  font-weight: var(--weight-bold, 700);
+  letter-spacing: var(--tracking-label, 0.06em);
+  color: var(--on-surface-variant, #3f3f46);
+}
+
+#tab-payables .p-input {
+  border: 1.5px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 70%, transparent);
+  border-radius: var(--radius-sm, 8px);
+  background: var(--surface-container-low, #eeeeef);
+  color: var(--on-surface, #1c1c1f);
+  font-size: var(--text-base, 0.88rem);
+}
+#tab-payables .p-input:focus {
+  border-color: var(--primary, #2a2a2e);
+  background: var(--surface-container-lowest, #fff);
+  outline: 2px solid color-mix(in srgb, var(--primary, #2a2a2e) 22%, transparent);
+  outline-offset: 1px;
+}
+
+#tab-payables .p-add-actions {
+  gap: var(--space-2, 8px);
+  margin-top: var(--space-4, 14px);
+}
+
+#tab-payables .p-split-hint {
+  color: var(--on-surface-variant, #3f3f46);
+  font-size: var(--text-md, 0.78rem);
+}
+
+/* ── Buttons inside payables ────────────────────────────── */
+#tab-payables .p-btn {
+  border-radius: var(--radius-sm, 8px);
+  font-size: var(--text-base, 0.88rem);
+  font-weight: var(--weight-semibold, 600);
+  min-height: 36px;
+  padding: 8px 16px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+#tab-payables .p-btn-primary {
+  background: var(--primary, #2a2a2e);
+  color: var(--on-primary, #fff);
+}
+#tab-payables .p-btn-primary:hover {
+  background: color-mix(in srgb, var(--primary, #2a2a2e) 88%, black);
+}
+
+#tab-payables .p-btn-ghost {
+  background: var(--surface-container-high, #e1e1e4);
+  color: var(--on-surface, #1c1c1f);
+  border: 1px solid transparent;
+}
+#tab-payables .p-btn-ghost:hover {
+  background: var(--surface-container-highest, #d9d9dd);
+}
+
+#tab-payables .p-btn-danger {
+  background: color-mix(in srgb, var(--error, #b42318) 14%, transparent);
+  color: var(--error, #b42318);
+}
+#tab-payables .p-btn-danger:hover {
+  background: color-mix(in srgb, var(--error, #b42318) 22%, transparent);
+}
+
+/* ── Mine / Eric view switcher (chip-tab feel) ──────────── */
+#tab-payables .p-view-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 0;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+}
+
+#tab-payables .p-vs-btn {
+  flex: 0 1 auto;
+  min-height: 36px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--surface-container-high, #e1e1e4);
+  color: var(--on-surface-variant, #3f3f46);
+  font-size: var(--text-sm, 0.72rem);
+  font-weight: var(--weight-semibold, 600);
+  box-shadow: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+#tab-payables .p-vs-btn:hover {
+  color: var(--on-surface, #1c1c1f);
+  background: var(--surface-container-highest, #d9d9dd);
+}
+#tab-payables .p-vs-btn.active {
+  background: var(--primary-container, #e6e6e9);
+  color: var(--on-primary-container, #1a1a1d);
+  box-shadow: none;
+}
+
+/* ── List card shell ────────────────────────────────────── */
+#tab-payables .p-list-card {
+  background: var(--surface-container-lowest, #fff);
+  border: var(--border-subtle, 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 55%, transparent));
+  border-radius: var(--radius-card, 18px);
+  margin-bottom: 0;
+  box-shadow: var(--shadow-card, 0 1px 3px var(--shadow, rgba(0, 0, 0, 0.06)));
+  overflow: hidden;
+}
+
+#tab-payables .p-list-header {
+  padding: var(--space-4, 14px) var(--space-5, 16px);
+  border-bottom: var(--border-row, 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 45%, transparent));
+  gap: var(--space-3, 12px);
+  flex-wrap: wrap;
+}
+
+#tab-payables .p-list-header h3 {
+  font-size: var(--text-lg, 0.92rem);
+  font-weight: var(--weight-bold, 700);
+  color: var(--on-surface, #1c1c1f);
+}
+
+#tab-payables .p-list-header-eric {
+  background: color-mix(in srgb, var(--hero-in, #5c6570) 8%, var(--surface-container-lowest, #fff));
+}
+#tab-payables .p-list-header-eric h3 {
+  color: var(--hero-in, #5c6570);
+}
+
+/* Split filter chips */
+#tab-payables .p-split-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+#tab-payables .p-sf-btn {
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill, 999px);
+  border: none;
+  background: var(--surface-container-high, #e1e1e4);
+  color: var(--on-surface-variant, #3f3f46);
+  font-size: var(--text-sm, 0.72rem);
+  font-weight: var(--weight-semibold, 600);
+}
+#tab-payables .p-sf-btn:hover {
+  background: var(--surface-container-highest, #d9d9dd);
+}
+#tab-payables .p-sf-btn.active {
+  background: var(--primary-container, #e6e6e9);
+  color: var(--on-primary-container, #1a1a1d);
+  border-color: transparent;
+}
+
+#tab-payables .p-account-select {
+  border: 1.5px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 70%, transparent);
+  border-radius: var(--radius-pill, 999px);
+  background: var(--surface-container-low, #eeeeef);
+  color: var(--on-surface, #1c1c1f);
+  font-size: var(--text-sm, 0.72rem);
+  font-weight: var(--weight-semibold, 600);
+  padding: 6px 12px;
+  max-width: 160px;
+}
+#tab-payables .p-account-select:focus {
+  border-color: var(--primary, #2a2a2e);
+  background: var(--surface-container-lowest, #fff);
+}
+
+#tab-payables .p-list-header .p-btn-primary {
+  min-height: 32px;
+  padding: 6px 14px;
+  font-size: var(--text-md, 0.78rem);
+  border-radius: var(--radius-pill, 999px);
+}
+
+/* Column headers */
+#tab-payables .p-list-col-header {
+  padding: 8px 12px;
+  gap: var(--space-2, 8px);
+  font-size: var(--text-xs, 0.68rem);
+  font-weight: var(--weight-bold, 700);
+  letter-spacing: var(--tracking-label, 0.06em);
+  color: var(--on-surface-variant, #3f3f46);
+  background: var(--surface-container-low, #eeeeef);
+  border-bottom: var(--border-row, 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 45%, transparent));
+}
+
+/* ── Payable rows ───────────────────────────────────────── */
+#tab-payables .p-row {
+  padding: 10px 12px;
+  gap: var(--space-2, 8px);
+  border-bottom: var(--border-row, 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 45%, transparent));
+  transition: background 0.12s ease;
+}
+#tab-payables .p-row:last-child {
+  border-bottom: none;
+}
+#tab-payables .p-row:hover {
+  background: var(--surface-container-low, #eeeeef);
+}
+#tab-payables .p-row.p-selected {
+  background: color-mix(in srgb, var(--primary-container, #e6e6e9) 70%, transparent) !important;
+  outline: 1.5px solid color-mix(in srgb, var(--primary, #2a2a2e) 35%, transparent);
+  outline-offset: -1px;
+}
+#tab-payables .p-row.is-done {
+  opacity: 1;
+}
+#tab-payables .p-row.is-done .p-row-name,
+#tab-payables .p-row.is-done .p-name-input,
+#tab-payables .p-row.is-done .p-amount-input,
+#tab-payables .p-row.is-done .p-row-amount {
+  color: var(--on-surface-variant, #3f3f46);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--outline, #71717a) 50%, transparent);
+}
+
+#tab-payables .p-check {
+  accent-color: var(--primary, #2a2a2e);
+  width: 18px;
+  height: 18px;
+}
+
+#tab-payables .p-row-name,
+#tab-payables .p-name-input {
+  font-size: var(--text-base, 0.88rem);
+  font-weight: var(--weight-medium, 500);
+  color: var(--on-surface, #1c1c1f);
+}
+
+#tab-payables .p-name-input:focus,
+#tab-payables .p-amount-input:focus {
+  background: color-mix(in srgb, var(--primary-container, #e6e6e9) 55%, transparent);
+}
+
+#tab-payables .p-row-amount,
+#tab-payables .p-amount-input {
+  font-size: var(--text-base, 0.88rem);
+  font-weight: var(--weight-bold, 700);
+  font-variant-numeric: tabular-nums;
+  color: var(--on-surface, #1c1c1f);
+  text-align: right;
+}
+
+#tab-payables .p-row-payto {
+  font-size: var(--text-md, 0.78rem);
+  font-weight: var(--weight-semibold, 600);
+  color: var(--on-surface-variant, #3f3f46);
+}
+
+#tab-payables .p-row-meta {
+  gap: 4px;
+}
+
+/* Split badges / selects → soft token chips */
+#tab-payables .p-split-badge,
+#tab-payables .p-split-select {
+  border-radius: var(--radius-pill, 999px);
+  font-size: var(--text-xs, 0.68rem);
+  font-weight: var(--weight-bold, 700);
+  padding: 4px 8px;
+}
+
+#tab-payables .p-split-mine,
+#tab-payables .p-split-select.p-split-mine {
+  background: color-mix(in srgb, var(--tertiary, #a65d1f) 18%, transparent);
+  color: var(--tertiary, #a65d1f);
+}
+
+#tab-payables .p-split-shared,
+#tab-payables .p-split-select.p-split-shared {
+  background: color-mix(in srgb, var(--secondary, #6e5a48) 18%, transparent);
+  color: var(--secondary, #6e5a48);
+}
+
+#tab-payables .p-split-eric,
+#tab-payables .p-split-select.p-split-eric {
+  background: color-mix(in srgb, var(--hero-in, #5c6570) 18%, transparent);
+  color: var(--hero-in, #5c6570);
+}
+
+#tab-payables .p-alloc-badge {
+  font-size: var(--text-xs, 0.68rem);
+  font-weight: var(--weight-bold, 700);
+  padding: 4px 8px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--surface-container-high, #e1e1e4);
+  color: var(--on-surface-variant, #3f3f46);
+  white-space: nowrap;
+}
+#tab-payables .p-alloc-badge.linked {
+  background: var(--primary-container, #e6e6e9);
+  color: var(--on-primary-container, #1a1a1d);
+  cursor: pointer;
+}
+
+#tab-payables .p-action-btn {
+  color: var(--outline, #71717a);
+  border-radius: var(--radius-sm, 8px);
+  padding: 4px 6px;
+}
+#tab-payables .p-row:hover .p-action-btn {
+  opacity: 0.75;
+}
+#tab-payables .p-action-btn:hover {
+  color: var(--on-surface, #1c1c1f);
+  background: var(--surface-container-high, #e1e1e4);
+}
+#tab-payables .p-action-btn.danger:hover {
+  color: var(--error, #b42318);
+  background: color-mix(in srgb, var(--error, #b42318) 14%, transparent);
+}
+
+/* ── Account grouping ───────────────────────────────────── */
+#tab-payables .p-acct-section {
+  border-bottom: var(--border-row, 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 45%, transparent));
+}
+#tab-payables .p-acct-section:last-child {
+  border-bottom: none;
+}
+
+#tab-payables .p-acct-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 12px);
+  padding: 10px 12px;
+  background: var(--surface-container-lowest, #fff);
+  color: var(--on-surface, #1c1c1f);
+  font-size: var(--text-md, 0.78rem);
+  font-weight: var(--weight-bold, 700);
+  border-top: var(--border-row, 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 45%, transparent));
+}
+#tab-payables .p-acct-section:first-child .p-acct-header {
+  border-top: none;
+}
+#tab-payables .p-acct-header:hover {
+  background: var(--surface-container-low, #eeeeef);
+}
+
+#tab-payables .p-acct-name {
+  flex: 1;
+  min-width: 0;
+}
+
+#tab-payables .p-acct-stats {
+  font-size: var(--text-xs, 0.68rem);
+  font-weight: var(--weight-semibold, 600);
+  color: var(--on-surface-variant, #3f3f46);
+}
+
+#tab-payables .p-acct-header .p-comp-arrow {
+  transition: transform 0.15s ease;
+  color: var(--on-surface-variant, #3f3f46);
+}
+
+#tab-payables .p-col-eric .p-acct-header {
+  background: color-mix(in srgb, var(--hero-in, #5c6570) 6%, var(--surface-container-lowest, #fff));
+  color: var(--on-surface, #1c1c1f);
+}
+#tab-payables .p-col-eric .p-acct-header:hover {
+  background: color-mix(in srgb, var(--hero-in, #5c6570) 12%, var(--surface-container-lowest, #fff));
+}
+
+/* ── Completed section ──────────────────────────────────── */
+#tab-payables .p-completed-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  padding: 12px 16px;
+  font-size: var(--text-md, 0.78rem);
+  font-weight: var(--weight-semibold, 600);
+  color: var(--on-surface-variant, #3f3f46);
+  background: transparent;
+  border-top: var(--border-row, 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 45%, transparent));
+}
+#tab-payables .p-completed-toggle:hover {
+  background: var(--surface-container-low, #eeeeef);
+}
+#tab-payables .p-completed-toggle .p-comp-arrow {
+  transition: transform 0.2s ease;
+  color: var(--on-surface-variant, #3f3f46);
+}
+#tab-payables .p-completed-toggle.open .p-comp-arrow {
+  transform: rotate(90deg);
+}
+
+#tab-payables .p-empty {
+  padding: var(--space-7, 28px) var(--space-6, 20px);
+  color: var(--on-surface-variant, #3f3f46);
+  font-size: var(--text-base, 0.88rem);
+}
+
+/* ── Mobile ─────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  #tab-payables {
+    max-width: none;
+  }
+
+  #tab-payables .payables-content {
+    gap: var(--space-3, 12px);
+  }
+
+  #tab-payables .p-owing-card {
+    flex-wrap: wrap;
+    padding: var(--space-4, 14px) var(--space-5, 16px);
+  }
+
+  #tab-payables .p-owing-left,
+  #tab-payables .p-owing-right {
+    flex: 1 1 100%;
+  }
+
+  #tab-payables .p-owing-right {
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+    border-top: 1px solid color-mix(in srgb, var(--outline-variant, #c6c6cc) 70%, transparent);
+    padding-top: var(--space-4, 14px);
+    width: 100%;
+    text-align: left !important;
+  }
+
+  #tab-payables .p-owing-left .p-owing-amount {
+    font-size: clamp(1.75rem, 8vw, 2.15rem);
+  }
+
+  #tab-payables .p-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  #tab-payables .p-form-col[style*="grid-column"] {
+    grid-column: 1 / -1 !important;
+  }
+
+  #tab-payables .p-list-col-header {
+    display: none;
+  }
+
+  #tab-payables .p-list-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #tab-payables .p-list-header > div {
+    width: 100%;
+  }
+
+  #tab-payables .p-view-switcher {
+    width: 100%;
+  }
+
+  #tab-payables .p-vs-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #tab-payables .p-row,
+  #tab-payables .p-col-mine .p-row,
+  #tab-payables .p-col-eric .p-row {
+    grid-template-columns: 28px minmax(0, 1fr) 88px !important;
+    grid-template-rows: auto auto auto;
+    gap: 4px 8px;
+    padding: 10px 12px;
+    align-items: start;
+  }
+
+  #tab-payables .p-row > :nth-child(1) {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    align-self: start;
+  }
+  #tab-payables .p-row > :nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+  #tab-payables .p-row > :nth-child(3) {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  #tab-payables .p-row > :nth-child(4) {
+    grid-column: 2 / span 2;
+    grid-row: 2;
+  }
+  #tab-payables .p-row > :nth-child(5) {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  #tab-payables .p-row > :nth-child(6) {
+    grid-column: 3;
+    grid-row: 3;
+    justify-self: end;
+  }
+
+  #tab-payables .p-action-btn {
+    opacity: 0.7;
+  }
+
+  #tab-payables .p-row-meta {
+    display: flex !important;
+  }
+
+  #tab-payables .p-account-select {
+    max-width: none;
+    flex: 1 1 auto;
+  }
+}

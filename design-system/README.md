@@ -10,6 +10,7 @@ Reusable tokens and UI components for the Finance Hub / Pensive facelift.
 | [`components.css`](components.css) | App chrome + reusable patterns (cards, heroes, lists, tabs, period cards) |
 | [`home.css`](home.css) | Home tab styles scoped under `#tab-home` (Phase 3B; safe alongside prod Monthly CSS) |
 | [`monthly.css`](monthly.css) | Monthly tab styles scoped under `#tab-monthly` (Phase 3C; bridges prod ledger markup to facelift tokens) |
+| [`payables.css`](payables.css) | Payables tab styles scoped under `#tab-payables` (Phase 3D; restyles prod owing/rows/chips toward facelift) |
 
 ## Usage
 
@@ -63,4 +64,5 @@ Default palette is **graphite**. Switch with `data-palette`: `ocean` | `azulejo`
 - **Phase 3A**: production may link `tokens.css` only and bridge brand vars; keep `components.css` until chrome migration.
 - **Phase 3B**: production links `home.css` for the Home overview; Household scope merges payables immediately and loads the partner budget on demand.
 - **Phase 3C**: production links `monthly.css` for period cards / ledger rows under `#tab-monthly`; legacy `.money-in` / `.money-out` map to token hero colours without touching other tabs.
+- **Phase 3D**: production links `payables.css` for owing summary, payable rows, Mine/Eric switcher, and filters under `#tab-payables`; does not load `components.css`.
 - Live composition / contract: [`../ui-facelift-mockup.html`](../ui-facelift-mockup.html).
