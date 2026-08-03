@@ -1,0 +1,21 @@
+{
+  "name": "finance-hub",
+  "version": "1.0.0",
+  "description": "our financial hub",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moxiestrife/finance-hub.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/moxiestrife/finance-hub/issues"
+  },
+  "homepage": "https://github.com/moxiestrife/finance-hub#readme"
+}

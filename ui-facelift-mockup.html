@@ -1,0 +1,3334 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-palette="graphite" data-role="owner">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pensive — UI facelift mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,0..1,0" rel="stylesheet">
+<link rel="stylesheet" href="design-system/tokens.css">
+<link rel="stylesheet" href="design-system/components.css">
+<style>
+
+/* Mockup stage chrome only — app UI lives in design-system/ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-family);
+  background: #5c6470;
+  color: var(--on-surface);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 48px;
+}
+
+.page-intro {
+  max-width: 1200px;
+  width: 100%;
+  color: #f4f6f8;
+  margin-bottom: 20px;
+}
+.page-intro h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.page-intro p {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  opacity: 0.85;
+  max-width: 52ch;
+}
+.page-intro .meta {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  opacity: 0.65;
+}
+
+.stage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1280px;
+}
+.device-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.device-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 248, 0.7);
+  padding-left: 4px;
+}
+
+.phone {
+  width: min(390px, 100%);
+  height: min(760px, 90dvh);
+  background: var(--surface);
+  border-radius: 28px;
+  box-shadow: 0 24px 64px var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.desktop {
+  width: min(860px, 100%);
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px var(--shadow);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  min-height: min(640px, 85dvh);
+}
+.browser-chrome {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #2a2f36;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.browser-dots {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.browser-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #5c6470;
+}
+.browser-dots span:nth-child(1) { background: #ff5f57; }
+.browser-dots span:nth-child(2) { background: #febc2e; }
+.browser-dots span:nth-child(3) { background: #28c840; }
+.browser-url {
+  flex: 1;
+  min-width: 0;
+  background: #1a1e23;
+  color: rgba(244, 246, 248, 0.75);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.controls {
+  width: 100%;
+  max-width: 1280px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+.controls-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 248, 0.55);
+  width: 100%;
+  text-align: center;
+}
+.pill {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #e8eaed;
+  color: #202124;
+}
+.pill.primary,
+.pill[aria-pressed="true"] {
+  background: #255a8c;
+  color: white;
+}
+.pill.palette-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.pill-swatches {
+  display: inline-flex;
+  gap: 3px;
+}
+.pill-swatches i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: block;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+.notes {
+  max-width: 1200px;
+  width: 100%;
+  margin-top: 28px;
+  color: #e8eaed;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.notes h2 {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+.notes ul { padding-left: 1.2em; }
+.notes li { margin: 4px 0; opacity: 0.88; }
+.badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #34a853;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.palette {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 28px;
+  padding: 20px 22px 22px;
+  border-radius: 16px;
+  background: #2a2f36;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f4f6f8;
+}
+.palette-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.palette-head h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.palette-head .meta {
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+.palette-group + .palette-group {
+  margin-top: 18px;
+}
+.palette-group-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 248, 0.55);
+  margin-bottom: 8px;
+}
+.swatch-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 10px;
+}
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.swatch-chip {
+  height: 52px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+.swatch-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 52px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.swatch-pair > span { display: block; height: 100%; }
+.swatch-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.swatch-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.swatch-hex {
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+  font-family: var(--font-mono);
+}
+
+.logo-board {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 28px;
+  padding: 20px 22px 22px;
+  border-radius: 16px;
+  background: #2a2f36;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f4f6f8;
+}
+.logo-board-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.logo-board-head h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.logo-board-head .meta {
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+.logo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.logo-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1a1e23;
+  border-radius: 14px;
+  padding: 14px 12px 12px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.logo-card:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+.logo-card[aria-pressed="true"] {
+  border-color: #d4c19a;
+  box-shadow: 0 0 0 1px #d4c19a;
+}
+.logo-card-preview {
+  height: 72px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 10px;
+  background: #f6f5f4;
+  color: #3a332e;
+}
+.logo-card-preview.svg-wrap svg {
+  width: 48px;
+  height: 48px;
+}
+.logo-card-preview .accent { fill: #7a6848; }
+.logo-card-preview .ink { fill: currentColor; }
+.logo-card-preview .stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.logo-card-preview .stroke-accent {
+  fill: none;
+  stroke: #7a6848;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.logo-card-preview .coin-line {
+  fill: none;
+  stroke: #f6f5f4;
+  stroke-width: 1.45;
+  opacity: 1;
+}
+.logo-card-preview .coin-rim {
+  fill: none;
+  stroke: #f6f5f4;
+  stroke-width: 1.25;
+  opacity: 0.95;
+}
+.logo-card-preview .coin-seam {
+  fill: none;
+  stroke: #f6f5f4;
+  stroke-width: 1.1;
+  opacity: 0.55;
+}
+.logo-card-preview .coin-p,
+.logo-card-preview .coin-p-sm {
+  fill: #f6f5f4;
+  font-family: var(--font-family);
+  font-weight: 700;
+}
+.logo-card-preview .coin-p { font-size: 11px; }
+.logo-card-preview .coin-p-sm { font-size: 5.5px; }
+.logo-card-preview.wordmark-preview {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
+}
+.logo-card-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.logo-card-desc {
+  font-size: 0.72rem;
+  opacity: 0.65;
+  line-height: 1.35;
+}
+</style>
+</head>
+<body>
+  <div class="page-intro">
+    <div class="badge">Mockup only — not live app</div>
+    <h1>Pensive — phone + desktop facelift</h1>
+    <p>
+      Graphite-first look with a reusable <code>design-system/</code> (tokens + components).
+      Home folds in summary/insights, while Monthly, Payables, Chat, and Settings now model production capability surfaces.
+    </p>
+    <p class="meta">Nav / logo / theme sync across frames. Open <code>ui-facelift-mockup.html</code>.</p>
+  </div>
+
+  <div class="stage">
+    <div class="device-col">
+      <div class="device-label">Desktop · ~860</div>
+      <div class="desktop" id="desktop">
+        <div class="browser-chrome" aria-hidden="true">
+          <div class="browser-dots"><span></span><span></span><span></span></div>
+          <div class="browser-url" data-browser-url>pensive · Home</div>
+        </div>
+        <div class="desktop-shell">
+          <nav class="side-rail" aria-label="Primary">
+            <button class="rail-item active" type="button" data-nav="home"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">home</span></span>Home</button>
+            <button class="rail-item" type="button" data-nav="monthly"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span></span>Monthly</button>
+            <button class="rail-item" type="button" data-nav="payables"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">sync_alt</span></span>Payables</button>
+            <button class="rail-item" type="button" data-nav="chat"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span></span>Chat</button>
+          </nav>
+          <div class="desktop-main">
+            <header class="app-bar">
+              <div class="brand" data-app-brand data-logo="stacked-pence">
+                <span class="brand-mark" data-brand-mark aria-hidden="true"></span>
+                <span class="brand-text" data-app-title>Pensive</span>
+              </div>
+              <div class="scope-switch is-visible" role="group" aria-label="View scope">
+                <span class="scope-label is-active" data-scope-label="me">Just me</span>
+                <button class="scope-toggle" type="button" role="switch" data-scope-toggle aria-checked="false" aria-label="Switch between Just me and Household">
+                  <span class="scope-toggle-thumb" aria-hidden="true"></span>
+                </button>
+                <span class="scope-label" data-scope-label="household">Household</span>
+              </div>
+              <div class="scope-switch" data-payables-switch data-owner-only role="group" aria-label="Payables view">
+                <span class="scope-label is-active" data-pay-label="mine">Mine</span>
+                <button class="scope-toggle" type="button" role="switch" data-pay-toggle aria-checked="false" aria-label="Switch between Mine and Eric">
+                  <span class="scope-toggle-thumb" aria-hidden="true"></span>
+                </button>
+                <span class="scope-label" data-pay-label="eric">Eric</span>
+              </div>
+              <div class="month-nav" data-month-nav role="group" aria-label="Month">
+                <button class="month-nav-btn" type="button" data-month-dir="-1" aria-label="Previous month">
+                  <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+                </button>
+                <button class="month-nav-label" type="button" data-month-label data-month-picker-toggle aria-haspopup="dialog" aria-expanded="false">
+                  Aug 2026 <span class="material-symbols-outlined" aria-hidden="true">arrow_drop_down</span>
+                </button>
+                <button class="month-nav-btn" type="button" data-month-dir="1" aria-label="Next month">
+                  <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                </button>
+              </div>
+              <button class="icon-btn filled" type="button" data-nav="settings" title="Settings" aria-label="Open settings">
+                <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+              </button>
+            </header>
+
+            <div class="app-pages">
+              <div class="app-page" data-page="home" data-active>
+                <section class="hero-fan" aria-label="Period totals">
+                  <div class="hero-fan-row">
+                    <div class="hero-metric" data-metric="safe">
+                      <div class="hero-label">Safe to spend</div>
+                      <div class="hero-figure">$1,248</div>
+                      <div class="hero-chip">After bills &amp; savings this fortnight</div>
+                    </div>
+                    <div class="hero-metric" data-metric="in">
+                      <div class="hero-label">Money in</div>
+                      <div class="hero-figure">$4,525</div>
+                      <div class="hero-chip">Salary this fortnight</div>
+                    </div>
+                    <div class="hero-metric" data-metric="out">
+                      <div class="hero-label">Money out</div>
+                      <div class="hero-figure">$3,277</div>
+                      <div class="hero-chip">Bills + savings this fortnight</div>
+                    </div>
+                  </div>
+                </section>
+                <div class="page-body home-body" data-home-insights></div>
+              </div>
+
+              <div class="app-page" data-page="monthly">
+                <div class="page-body" data-monthly-root></div>
+              </div>
+              <div class="app-page" data-page="payables">
+                <div data-payables-root></div>
+              </div>
+              <div class="app-page" data-page="chat">
+                <div data-chat-root></div>
+              </div>
+              <div class="app-page" data-page="settings">
+                <div data-settings-root></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-col">
+      <div class="device-label">Phone · 390</div>
+      <div class="phone" id="phone">
+        <div class="phone-scroll">
+          <header class="app-bar">
+            <div class="brand" data-app-brand data-logo="stacked-pence">
+              <span class="brand-mark" data-brand-mark aria-hidden="true"></span>
+              <span class="brand-text" data-app-title>Pensive</span>
+            </div>
+            <div class="scope-switch is-visible" role="group" aria-label="View scope">
+              <span class="scope-label is-active" data-scope-label="me">Just me</span>
+              <button class="scope-toggle" type="button" role="switch" data-scope-toggle aria-checked="false" aria-label="Switch between Just me and Household">
+                <span class="scope-toggle-thumb" aria-hidden="true"></span>
+              </button>
+              <span class="scope-label" data-scope-label="household">Household</span>
+            </div>
+            <div class="scope-switch" data-payables-switch data-owner-only role="group" aria-label="Payables view">
+              <span class="scope-label is-active" data-pay-label="mine">Mine</span>
+              <button class="scope-toggle" type="button" role="switch" data-pay-toggle aria-checked="false" aria-label="Switch between Mine and Eric">
+                <span class="scope-toggle-thumb" aria-hidden="true"></span>
+              </button>
+              <span class="scope-label" data-pay-label="eric">Eric</span>
+            </div>
+            <div class="month-nav" data-month-nav role="group" aria-label="Month">
+              <button class="month-nav-btn" type="button" data-month-dir="-1" aria-label="Previous month">
+                <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+              </button>
+              <button class="month-nav-label" type="button" data-month-label data-month-picker-toggle aria-haspopup="dialog" aria-expanded="false">
+                Aug 2026 <span class="material-symbols-outlined" aria-hidden="true">arrow_drop_down</span>
+              </button>
+              <button class="month-nav-btn" type="button" data-month-dir="1" aria-label="Next month">
+                <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+              </button>
+            </div>
+            <button class="icon-btn filled" type="button" data-nav="settings" title="Settings" aria-label="Open settings">
+              <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+            </button>
+          </header>
+
+          <div class="app-pages">
+            <div class="app-page" data-page="home" data-active>
+              <section class="hero hero-carousel" data-metric="safe" aria-roledescription="carousel">
+                <div class="hero-label">Safe to spend</div>
+                <button class="hero-figure-btn" type="button" aria-label="Switch hero metric">
+                  <span class="hero-figure">$1,248</span>
+                </button>
+                <div class="hero-dots" role="tablist" aria-label="Hero metrics">
+                  <button class="hero-dot" type="button" role="tab" data-idx="0" aria-current="true" aria-label="Safe to spend"></button>
+                  <button class="hero-dot" type="button" role="tab" data-idx="1" aria-label="Money in"></button>
+                  <button class="hero-dot" type="button" role="tab" data-idx="2" aria-label="Money out"></button>
+                </div>
+                <div class="hero-chip">After bills &amp; savings this fortnight</div>
+              </section>
+              <div class="page-body home-body" data-home-insights></div>
+            </div>
+
+            <div class="app-page" data-page="monthly">
+              <div class="page-body" data-monthly-root></div>
+            </div>
+            <div class="app-page" data-page="payables">
+              <div data-payables-root></div>
+            </div>
+            <div class="app-page" data-page="chat">
+              <div data-chat-root></div>
+            </div>
+            <div class="app-page" data-page="settings">
+              <div data-settings-root></div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="bottom-nav" aria-label="Primary">
+          <button class="nav-item active" type="button" data-nav="home"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">home</span></span>Home</button>
+          <button class="nav-item" type="button" data-nav="monthly"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span></span>Monthly</button>
+          <button class="nav-item" type="button" data-nav="payables"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">sync_alt</span></span>Payables</button>
+          <button class="nav-item" type="button" data-nav="chat"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span></span>Chat</button>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <section class="logo-board" aria-label="Logo explorations">
+    <div class="logo-board-head">
+      <h2>Logo explorations</h2>
+      <div class="meta" id="logoMeta">Pensive marks — click to preview in both app bars</div>
+    </div>
+    <div class="logo-grid" id="logoGrid"></div>
+  </section>
+
+  <div class="controls">
+    <div class="controls-label">Designer — palette template</div>
+    <div class="controls-row" id="palettePicker" role="group" aria-label="Palette template">
+      <button class="pill palette-pill" type="button" data-palette="ocean" aria-pressed="false" title="Blue + teal">
+        <span class="pill-swatches" aria-hidden="true"><i style="background:#255a8c"></i><i style="background:#0f6b58"></i><i style="background:#d3e4ff"></i></span>
+        Ocean
+      </button>
+      <button class="pill palette-pill" type="button" data-palette="azulejo" aria-pressed="false" title="Cobalt + saffron">
+        <span class="pill-swatches" aria-hidden="true"><i style="background:#1a56a0"></i><i style="background:#c9920a"></i><i style="background:#0f766e"></i></span>
+        Azulejo
+      </button>
+      <button class="pill palette-pill" type="button" data-palette="graphite" aria-pressed="true" title="Ink + copper, neutral gray">
+        <span class="pill-swatches" aria-hidden="true"><i style="background:#2a2a2e"></i><i style="background:#a65d1f"></i><i style="background:#e6e6e9"></i></span>
+        Graphite
+      </button>
+      <button class="pill palette-pill" type="button" data-palette="slate" aria-pressed="false" title="Cool stone + rust">
+        <span class="pill-swatches" aria-hidden="true"><i style="background:#334155"></i><i style="background:#c2410c"></i><i style="background:#e4e4e7"></i></span>
+        Slate
+      </button>
+      <button class="pill palette-pill" type="button" data-palette="dusk" aria-pressed="false" title="Charcoal + muted gold">
+        <span class="pill-swatches" aria-hidden="true"><i style="background:#3a332e"></i><i style="background:#7a6848"></i><i style="background:#ebe6e2"></i></span>
+        Dusk
+      </button>
+    </div>
+    <div class="controls-label">Designer — view as</div>
+    <div class="controls-row" id="rolePicker" role="group" aria-label="View as">
+      <button class="pill" type="button" data-role-set="owner" aria-pressed="true">Elly (owner)</button>
+      <button class="pill" type="button" data-role-set="member" aria-pressed="false">Eric (member)</button>
+    </div>
+  </div>
+
+  <section class="palette" id="palette" aria-label="Colour palette">
+    <div class="palette-head">
+      <h2>Colour template — live swatches</h2>
+      <div class="meta" id="paletteThemeMeta">Ocean · light</div>
+    </div>
+
+    <div class="palette-group">
+      <div class="palette-group-label">Brand</div>
+      <div class="swatch-row" data-swatch-group="brand"></div>
+    </div>
+    <div class="palette-group">
+      <div class="palette-group-label">Surfaces</div>
+      <div class="swatch-row" data-swatch-group="surfaces"></div>
+    </div>
+    <div class="palette-group">
+      <div class="palette-group-label">Text &amp; line</div>
+      <div class="swatch-row" data-swatch-group="text"></div>
+    </div>
+    <div class="palette-group">
+      <div class="palette-group-label">Hero accents (safe / in / out)</div>
+      <div class="swatch-row" data-swatch-group="hero"></div>
+    </div>
+  </section>
+
+  <div class="notes">
+    <h2>Design notes for review</h2>
+    <ul>
+      <li><strong>Logo</strong>: Pensive marks — P in coin, thoughtful P, leaning stack, seed penny, wordmark.</li>
+      <li><strong>Design system</strong>: reusable tokens + components in <code>design-system/</code> (palettes, spacing, cards, heroes, lists, chip tabs, period cards).</li>
+      <li><strong>Pages</strong>: Home / Monthly / Payables / Chat / Settings are mocked. No Compare page; summary and insights stay folded into Home.</li>
+      <li><strong>Appearance</strong>: Settings opens as a hub; Appearance is a drill-in for Theme (Light/Dark) + palettes. <strong>Graphite</strong> remains default; Ocean, Azulejo, Dusk, Graphite, and Slate are selectable.</li>
+      <li><strong>Hero</strong>: desktop fans Safe to spend / Money in / Money out; phone keeps swipe + dots. Copy uses “this fortnight” (Elly).</li>
+      <li><strong>Home</strong>: scope switcher; fortnight cards; categories + trends; recurring bills + expenses split.</li>
+      <li><strong>Monthly v2</strong>: progressive rows (check·name·amount; pay-to/♻/drag on select), phone period tabs, action dock (Done/Move/Pay to/More), long-press menu, auto-open Money In when overspent.</li>
+      <li><strong>Payables</strong>: owing hero; Mine/Eric owner switch in the app bar (same pattern as Home scope); account filter + All/Shared/Solo chips; account-grouped open sections; add form; allocation modal; completed disclosure.</li>
+      <li><strong>Chat</strong>: full nav page inspired by production expanded mode — searchable history, new chat, receipt attach, composer, thinking state, and proposed-action confirm cards.</li>
+      <li><strong>Settings</strong>: Salary and Pay To accounts are grouped in the hub. Admin actions are marked owner-only via <code>html[data-role="owner"]</code> so the Elly/Eric demo toggle can hide them.</li>
+      <li><strong>IA</strong>: Home = overview. Scope switch is Home-only.</li>
+      <li><strong>Phase 0 defaults</strong> (prod path): drop Compare; keep Home simplified (no full Insights/Summary restore); Chat stays a nav page; ship <code>propose_payable</code> first; Eric copy uses “this month” where period framing differs.</li>
+      <li><strong>Phase 1</strong>: Monthly Pay To + Move modals, Payables Edit sheet, Chat receipt preview + proposal saving state — no toast-only dead ends on those flows.</li>
+      <li><strong>Phase 2 / 3A</strong>: design-system safe-area + contrast hardened; production Admin now has Appearance (theme/palette) wired to <code>tokens.css</code>.</li>
+      <li>Production app is untouched — this is exploration only.</li>
+    </ul>
+  </div>
+
+<script>
+  const root = document.documentElement;
+
+  const LOGOS = [
+    {
+      id: 'p-coin',
+      name: 'P in coin',
+      desc: 'Penny + P — classic seal, gold rim.',
+      svg:
+        '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          '<circle class="stroke" cx="16" cy="16" r="11"/>' +
+          '<circle class="stroke-accent" cx="16" cy="16" r="8.6"/>' +
+          '<path class="ink" d="M13.2 9.4h5.1c2.6 0 4.3 1.5 4.3 3.7 0 1.9-1.2 3.2-3.1 3.6l3.6 5.9h-3.5l-3.2-5.4h-1.1V22.6h-3.1V9.4zm3.1 2.5v3.4h1.7c1.1 0 1.8-.6 1.8-1.7s-.7-1.7-1.8-1.7H16.3z"/>' +
+        '</svg>',
+    },
+    {
+      id: 'pensive-p',
+      name: 'Thoughtful P',
+      desc: 'Lettermark with a quiet pause mark — think before you spend.',
+      svg:
+        '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          '<path class="ink" d="M9.5 6.5h7.2c3.8 0 6.3 2.3 6.3 5.7 0 3.3-2.5 5.6-6.3 5.6H12.8v7.7H9.5V6.5zm3.3 3v5.3h3.6c1.9 0 3.1-1 3.1-2.65S18.3 9.5 16.4 9.5h-3.6z"/>' +
+          '<circle class="accent" cx="24.2" cy="23.4" r="2.1"/>' +
+        '</svg>',
+    },
+    {
+      id: 'stacked-pence',
+      name: 'Leaning stack',
+      desc: 'Solid ellipse stack + front P coin — no P on the top coin.',
+      svg:
+        '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          // nudge up so mark optically centres with the wordmark
+          '<g transform="translate(0 -2.2)">' +
+            '<path class="ink" d="M14.6 21.8v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>' +
+            '<ellipse class="ink" cx="21" cy="24.5" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="ink" cx="21" cy="21.8" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="coin-seam" cx="21" cy="21.8" rx="6" ry="1.65"/>' +
+            '<path class="ink" d="M14.6 17.2v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>' +
+            '<ellipse class="ink" cx="21" cy="19.9" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="ink" cx="21" cy="17.2" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="coin-seam" cx="21" cy="17.2" rx="6" ry="1.65"/>' +
+            '<path class="ink" d="M14.6 12.6v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>' +
+            '<ellipse class="ink" cx="21" cy="15.3" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="ink" cx="21" cy="12.6" rx="6.4" ry="1.9"/>' +
+            '<ellipse class="coin-seam" cx="21" cy="12.6" rx="6" ry="1.65"/>' +
+            '<g transform="rotate(-22 10.5 18.5)">' +
+              '<circle class="ink" cx="10.5" cy="18.5" r="8.4"/>' +
+              '<circle class="coin-rim" cx="10.5" cy="18.5" r="7"/>' +
+              '<text class="coin-p" x="10.5" y="21.7" text-anchor="middle">P</text>' +
+            '</g>' +
+          '</g>' +
+        '</svg>',
+    },
+    {
+      id: 'seed-penny',
+      name: 'Seed penny',
+      desc: 'Coin base + soft sprout — grow what you keep.',
+      svg:
+        '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          '<circle class="stroke" cx="16" cy="20.5" r="7.2"/>' +
+          '<circle class="accent" cx="16" cy="20.5" r="2"/>' +
+          '<path class="stroke-accent" d="M16 13.5V7.8"/>' +
+          '<path class="ink" d="M16 10.2c-2.4-1.8-5.2-1.5-5.8.4-.5 1.6 1.2 3.2 4.2 3.8 0-1.6.5-3 1.6-4.2z"/>' +
+          '<path class="ink" d="M16 10.2c2.4-1.8 5.2-1.5 5.8.4.5 1.6-1.2 3.2-4.2 3.8 0-1.6-.5-3-1.6-4.2z"/>' +
+        '</svg>',
+    },
+    {
+      id: 'wordmark',
+      name: 'Wordmark only',
+      desc: 'Just Pensive — no mark, elegant type in the bar.',
+      svg: '',
+      wordmark: true,
+    },
+  ];
+
+  const TOKEN_GROUPS = {
+    brand: [
+      { token: '--primary', label: 'primary' },
+      { token: '--primary-container', label: 'primary-container', on: '--on-primary-container' },
+      { token: '--secondary', label: 'secondary' },
+      { token: '--secondary-container', label: 'secondary-container', on: '--on-secondary-container' },
+      { token: '--tertiary', label: 'tertiary' },
+      { token: '--tertiary-container', label: 'tertiary-container' },
+      { token: '--error', label: 'error' },
+      { token: '--nav-indicator', label: 'nav-indicator' },
+    ],
+    surfaces: [
+      { token: '--surface', label: 'surface' },
+      { token: '--surface-container-lowest', label: 'container-lowest' },
+      { token: '--surface-container-low', label: 'container-low' },
+      { token: '--surface-container', label: 'container' },
+      { token: '--surface-container-high', label: 'container-high' },
+      { token: '--surface-container-highest', label: 'container-highest' },
+      { token: '--surface-dim', label: 'surface-dim' },
+    ],
+    text: [
+      { token: '--on-surface', label: 'on-surface' },
+      { token: '--on-surface-variant', label: 'on-surface-variant' },
+      { token: '--outline', label: 'outline' },
+      { token: '--outline-variant', label: 'outline-variant' },
+    ],
+    hero: [
+      { token: '--hero-safe', label: 'safe to spend' },
+      { token: '--hero-in', label: 'money in' },
+      { token: '--hero-out', label: 'money out' },
+    ],
+  };
+
+  const PALETTE_LABELS = {
+    ocean: 'Ocean — blue + teal (current)',
+    graphite: 'Graphite — ink + copper',
+    slate: 'Slate — stone + rust',
+    dusk: 'Dusk — charcoal + gold',
+  };
+
+  function cssColorToHex(value) {
+    if (!value) return '—';
+    const v = value.trim();
+    if (v.startsWith('#')) {
+      if (v.length === 4) {
+        return ('#' + [...v.slice(1)].map((c) => c + c).join('')).toLowerCase();
+      }
+      return v.slice(0, 7).toLowerCase();
+    }
+    const m = v.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+    if (!m) return v;
+    const hex = [m[1], m[2], m[3]].map((n) => {
+      const x = Math.round(Number(n)).toString(16).padStart(2, '0');
+      return x;
+    }).join('');
+    return '#' + hex;
+  }
+
+  function buildPalette() {
+    Object.entries(TOKEN_GROUPS).forEach(([group, items]) => {
+      const row = document.querySelector(`[data-swatch-group="${group}"]`);
+      if (!row) return;
+      row.innerHTML = '';
+      items.forEach((item) => {
+        const el = document.createElement('div');
+        el.className = 'swatch';
+        el.dataset.token = item.token;
+        if (item.fixedLight) {
+          el.dataset.fixedLight = item.fixedLight;
+          el.dataset.fixedDark = item.fixedDark;
+        }
+        if (item.on) {
+          el.innerHTML =
+            '<div class="swatch-pair">' +
+              '<span class="swatch-bg"></span>' +
+              '<span class="swatch-on"></span>' +
+            '</div>' +
+            '<div class="swatch-meta">' +
+              '<span class="swatch-name"></span>' +
+              '<span class="swatch-hex"></span>' +
+            '</div>';
+          el.querySelector('.swatch-name').textContent = item.label;
+          el.dataset.on = item.on;
+        } else {
+          el.innerHTML =
+            '<div class="swatch-chip swatch-bg"></div>' +
+            '<div class="swatch-meta">' +
+              '<span class="swatch-name"></span>' +
+              '<span class="swatch-hex"></span>' +
+            '</div>';
+          el.querySelector('.swatch-name').textContent = item.label;
+        }
+        row.appendChild(el);
+      });
+    });
+  }
+
+  function refreshPalette() {
+    const theme = root.getAttribute('data-theme') || 'light';
+    const palette = root.getAttribute('data-palette') || 'ocean';
+    const styles = getComputedStyle(root);
+    document.getElementById('paletteThemeMeta').textContent =
+      (PALETTE_LABELS[palette] || palette) + ' · ' + theme;
+
+    document.querySelectorAll('.swatch').forEach((el) => {
+      const color = styles.getPropertyValue(el.dataset.token).trim();
+      const bg = el.querySelector('.swatch-bg');
+      if (bg) bg.style.background = color;
+      const hexEl = el.querySelector('.swatch-hex');
+      if (el.dataset.on) {
+        const onColor = styles.getPropertyValue(el.dataset.on).trim();
+        const on = el.querySelector('.swatch-on');
+        if (on) on.style.background = onColor;
+        hexEl.textContent = cssColorToHex(color) + ' / ' + cssColorToHex(onColor);
+      } else {
+        hexEl.textContent = cssColorToHex(color);
+      }
+    });
+  }
+
+  buildPalette();
+  refreshPalette();
+
+  function buildLogoBoard() {
+    const grid = document.getElementById('logoGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    LOGOS.forEach((logo) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'logo-card';
+      btn.dataset.logo = logo.id;
+      btn.setAttribute('aria-pressed', 'false');
+      const previewClass = logo.wordmark ? 'logo-card-preview wordmark-preview' : 'logo-card-preview svg-wrap';
+      const previewInner = logo.wordmark ? 'Pensive' : logo.svg;
+      btn.innerHTML =
+        '<div class="' + previewClass + '">' + previewInner + '</div>' +
+        '<div class="logo-card-name"></div>' +
+        '<div class="logo-card-desc"></div>';
+      btn.querySelector('.logo-card-name').textContent = logo.name;
+      btn.querySelector('.logo-card-desc').textContent = logo.desc;
+      btn.addEventListener('click', () => setLogo(logo.id));
+      grid.appendChild(btn);
+    });
+  }
+
+  function setLogo(id) {
+    const logo = LOGOS.find((l) => l.id === id) || LOGOS[0];
+    document.querySelectorAll('[data-app-brand]').forEach((brand) => {
+      brand.dataset.logo = logo.id;
+      const mark = brand.querySelector('[data-brand-mark]');
+      if (!mark) return;
+      mark.innerHTML = logo.wordmark ? '' : logo.svg;
+    });
+    document.querySelectorAll('#logoGrid .logo-card').forEach((card) => {
+      card.setAttribute('aria-pressed', card.dataset.logo === logo.id ? 'true' : 'false');
+    });
+    const meta = document.getElementById('logoMeta');
+    if (meta) meta.textContent = 'Selected: ' + logo.name + ' · previews in both app bars';
+  }
+
+  buildLogoBoard();
+  setLogo('stacked-pence');
+
+  const PAGE_TITLES = {
+    home: 'Pensive',
+    monthly: 'Monthly',
+    payables: 'Payables',
+    chat: 'Chat',
+    settings: 'Settings',
+  };
+  const PRIMARY_PAGES = new Set(['home', 'monthly', 'payables', 'chat']);
+  let currentPage = 'home';
+
+  const PALETTES = new Set(['ocean', 'azulejo', 'dusk', 'graphite', 'slate']);
+  const THEMES = new Set(['light', 'dark']);
+  const PALETTE_CHOICES = [
+    { id: 'ocean', name: 'Ocean', hint: 'Blue + teal', swatches: ['#255a8c', '#0f6b58', '#d3e4ff'] },
+    { id: 'azulejo', name: 'Azulejo', hint: 'Cobalt + saffron', swatches: ['#1a56a0', '#c9920a', '#0f766e'] },
+    { id: 'dusk', name: 'Dusk', hint: 'Charcoal + gold', swatches: ['#3a332e', '#7a6848', '#ebe6e2'] },
+    { id: 'graphite', name: 'Graphite', hint: 'Ink + copper', swatches: ['#2a2a2e', '#a65d1f', '#e6e6e9'] },
+    { id: 'slate', name: 'Slate', hint: 'Stone + rust', swatches: ['#334155', '#c2410c', '#e4e4e7'] },
+  ];
+
+  function setTheme(mode) {
+    if (!THEMES.has(mode)) mode = 'light';
+    root.setAttribute('data-theme', mode);
+    try { localStorage.setItem('fh-theme', mode); } catch (_) {}
+    document.querySelectorAll('[data-theme-set]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', btn.dataset.themeSet === mode ? 'true' : 'false');
+    });
+    refreshPalette();
+  }
+
+  function setPalette(name) {
+    if (!PALETTES.has(name)) name = 'graphite';
+    root.setAttribute('data-palette', name);
+    try { localStorage.setItem('fh-palette', name); } catch (_) {}
+    document.querySelectorAll('#palettePicker [data-palette]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', btn.dataset.palette === name ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-palette-set]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', btn.dataset.paletteSet === name ? 'true' : 'false');
+    });
+    refreshPalette();
+  }
+
+  function setPage(name) {
+    if (!PAGE_TITLES[name]) return;
+    currentPage = name;
+    document.querySelectorAll('.app-page').forEach((page) => {
+      if (page.dataset.page === name) page.setAttribute('data-active', '');
+      else page.removeAttribute('data-active');
+    });
+    document.querySelectorAll('[data-app-title]').forEach((el) => {
+      el.textContent = 'Pensive';
+    });
+    document.querySelectorAll('[data-browser-url]').forEach((el) => {
+      el.textContent = 'pensive · ' + PAGE_TITLES[name];
+    });
+    document.querySelectorAll('[data-nav]').forEach((btn) => {
+      const target = btn.dataset.nav;
+      const isPrimary = btn.classList.contains('nav-item') || btn.classList.contains('rail-item');
+      if (isPrimary) {
+        btn.classList.toggle('active', PRIMARY_PAGES.has(name) && target === name);
+      }
+      if (target === 'settings') {
+        btn.classList.toggle('filled', name === 'settings');
+      }
+    });
+    document.querySelectorAll('.scope-switch:not([data-payables-switch])').forEach((el) => {
+      el.classList.toggle('is-visible', name === 'home');
+    });
+    document.querySelectorAll('[data-payables-switch]').forEach((el) => {
+      el.classList.toggle('is-visible', name === 'payables');
+    });
+    document.querySelectorAll('[data-month-nav]').forEach((el) => {
+      el.classList.toggle('is-visible', name === 'monthly');
+    });
+    syncPayablesSwitch();
+  }
+
+  document.querySelectorAll('[data-theme-set]').forEach((btn) => {
+    btn.addEventListener('click', () => setTheme(btn.dataset.themeSet));
+  });
+  document.querySelectorAll('#palettePicker [data-palette]').forEach((btn) => {
+    btn.addEventListener('click', () => setPalette(btn.dataset.palette));
+  });
+  document.querySelectorAll('[data-palette-set]').forEach((btn) => {
+    btn.addEventListener('click', () => setPalette(btn.dataset.paletteSet));
+  });
+  try {
+    const savedTheme = localStorage.getItem('fh-theme');
+    const savedPalette = localStorage.getItem('fh-palette');
+    if (savedTheme) setTheme(savedTheme);
+    if (savedPalette) setPalette(savedPalette);
+    else setPalette('graphite');
+  } catch (_) {
+    setPalette('graphite');
+  }
+  document.querySelectorAll('[data-nav]').forEach((btn) => {
+    btn.addEventListener('click', () => setPage(btn.dataset.nav));
+  });
+
+  const SCOPE = {
+    me: {
+      cards: [
+        { name: 'Housing & bills', hint: '4 of 14 settled this fortnight', amount: '$3,134', pct: 29 },
+        { name: 'Payables', hint: '3 of 8 settled in total', amount: '$2,559', pct: 38 },
+      ],
+      // Bills = fixed obligations (debt, utilities, insurance, housing).
+      // Expenses = lifestyle / discretionary / groceries / subs.
+      bills: [
+        { name: 'Mortgage', amount: '$3,134' },
+        { name: 'Car installment', amount: '$930' },
+        { name: 'Bupa Health', amount: '$197' },
+        { name: 'Telstra', amount: '$188' },
+        { name: 'Personal loan share', amount: '$170' },
+      ],
+      expenses: [
+        { name: 'Groceries', amount: '$625' },
+        { name: 'ChatGPT', amount: '$30' },
+        { name: 'Clip Studio', amount: '$19' },
+        { name: 'Netflix', amount: '$15' },
+        { name: 'Disney+', amount: '$11' },
+      ],
+      categories: [
+        { name: 'Housing', value: 3134, amount: '$3,134', icon: 'home' },
+        { name: 'Food', value: 625, amount: '$625', icon: 'restaurant' },
+        { name: 'Transport', value: 480, amount: '$480', icon: 'directions_car' },
+        { name: 'Health', value: 197, amount: '$197', icon: 'health_and_safety' },
+        { name: 'Subs', value: 95, amount: '$95', icon: 'subscriptions' },
+      ],
+      charts: {
+        expenses: [42, 48, 45, 52, 49, 58, 55],
+        safe: [38, 36, 40, 34, 32, 30, 28],
+        cashflow: [20, 35, 22, 40, 28, 45, 38],
+      },
+    },
+    household: {
+      cards: [
+        { name: 'Housing & bills', hint: '9 of 22 settled this fortnight', amount: '$6,268', pct: 41 },
+        { name: 'Shared payables', hint: 'Household · 5 of 12 settled in total', amount: '$2,559', pct: 42 },
+      ],
+      bills: [
+        { name: 'Mortgage', amount: '$3,134' },
+        { name: 'Car installment', amount: '$930' },
+        { name: 'Personal loan share', amount: '$339' },
+        { name: 'Bupa Health', amount: '$197' },
+        { name: 'Telstra', amount: '$188' },
+      ],
+      expenses: [
+        { name: 'Groceries', amount: '$625' },
+        { name: 'ChatGPT', amount: '$30' },
+        { name: 'Clip Studio', amount: '$19' },
+        { name: 'Netflix', amount: '$15' },
+        { name: 'Disney+', amount: '$11' },
+      ],
+      categories: [
+        { name: 'Housing', value: 6268, amount: '$6,268', icon: 'home' },
+        { name: 'Transport', value: 1410, amount: '$1,410', icon: 'directions_car' },
+        { name: 'Food', value: 980, amount: '$980', icon: 'restaurant' },
+        { name: 'Health', value: 394, amount: '$394', icon: 'health_and_safety' },
+        { name: 'Subs', value: 210, amount: '$210', icon: 'subscriptions' },
+      ],
+      charts: {
+        expenses: [50, 54, 52, 60, 58, 64, 62],
+        safe: [44, 42, 46, 40, 38, 36, 34],
+        cashflow: [28, 40, 30, 48, 36, 52, 44],
+      },
+    },
+  };
+
+  const CHART_META = {
+    expenses: { label: 'Expenses trend', cls: '' },
+    safe: { label: 'Safe to spend trend', cls: 'is-safe' },
+    cashflow: { label: 'Cashflow', cls: 'is-cash' },
+  };
+
+  let currentScope = 'me';
+  let currentChart = 'expenses';
+
+  function renderPieChart(categories) {
+    const total = categories.reduce((sum, c) => sum + c.value, 0) || 1;
+    const cx = 60;
+    const cy = 60;
+    const r = 50;
+    const radarCx = 130;
+    const radarCy = 124;
+    const labelR = 108;
+    let angle = -Math.PI / 2;
+    const slices = categories.map((c, i) => {
+      const slice = (c.value / total) * Math.PI * 2;
+      const start = angle;
+      const mid = start + slice / 2;
+      angle += slice;
+      const x1 = cx + r * Math.cos(start);
+      const y1 = cy + r * Math.sin(start);
+      const x2 = cx + r * Math.cos(angle);
+      const y2 = cy + r * Math.sin(angle);
+      const large = slice > Math.PI ? 1 : 0;
+      const d = 'M ' + cx + ' ' + cy +
+        ' L ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
+        ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2) + ' Z';
+      const left = radarCx + Math.cos(mid) * labelR;
+      const top = radarCy + Math.sin(mid) * labelR;
+      return {
+        d,
+        cls: 'pie-slice-' + i,
+        name: c.name,
+        amount: c.amount,
+        icon: c.icon || 'circle',
+        left,
+        top,
+      };
+    });
+    const paths = slices.map((s) =>
+      '<path class="' + s.cls + '" d="' + s.d + '"><title>' + s.name + ' ' + s.amount + '</title></path>'
+    ).join('');
+    const callouts = slices.map((s) =>
+      '<div class="pie-callout" style="left:' + s.left.toFixed(1) + 'px;top:' + s.top.toFixed(1) + 'px" title="' + s.name + '">' +
+        '<span class="material-symbols-outlined" aria-hidden="true">' + s.icon + '</span>' +
+        '<span class="pie-callout-amt">' + s.amount + '</span>' +
+      '</div>'
+    ).join('');
+    return (
+      '<div class="pie-layout">' +
+        '<div class="pie-radar">' +
+          '<svg class="pie-svg" viewBox="0 0 120 120" role="img" aria-label="Expense categories pie chart">' +
+            paths +
+          '</svg>' +
+          callouts +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function chartPaths(values) {
+    const w = 320;
+    const h = 140;
+    const padX = 28;
+    const padY = 16;
+    const innerW = w - padX * 2;
+    const innerH = h - padY * 2;
+    const min = Math.min(...values) - 4;
+    const max = Math.max(...values) + 4;
+    const pts = values.map((v, i) => {
+      const x = padX + (innerW * i) / (values.length - 1);
+      const y = padY + innerH * (1 - (v - min) / (max - min));
+      return [x, y];
+    });
+    const line = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const area = line + ' L' + pts[pts.length - 1][0].toFixed(1) + ' ' + (padY + innerH) +
+      ' L' + pts[0][0].toFixed(1) + ' ' + (padY + innerH) + ' Z';
+    return { line, area, pts, w, h, padX, padY, innerH };
+  }
+
+  function renderChartSvg(values, cls) {
+    const { line, area, pts, w, h, padX, padY, innerH } = chartPaths(values);
+    const labels = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'];
+    const grid = [0.25, 0.5, 0.75].map((t) => {
+      const y = padY + innerH * t;
+      return '<line class="chart-grid" x1="' + padX + '" y1="' + y + '" x2="' + (w - padX) + '" y2="' + y + '"/>';
+    }).join('');
+    const points = pts.map((p) =>
+      '<circle class="chart-point ' + cls + '" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.2"/>'
+    ).join('');
+    const axis = pts.map((p, i) =>
+      '<text class="chart-axis" x="' + p[0].toFixed(1) + '" y="' + (h - 4) + '" text-anchor="middle">' + labels[i] + '</text>'
+    ).join('');
+    return (
+      '<svg class="chart-svg" viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="Trend chart">' +
+        grid +
+        '<path class="chart-area ' + cls + '" d="' + area + '"/>' +
+        '<path class="chart-line ' + cls + '" d="' + line + '"/>' +
+        points +
+        axis +
+      '</svg>'
+    );
+  }
+
+  function homeInsightsHtml(scopeKey) {
+    const d = SCOPE[scopeKey];
+    const cards = d.cards.map((c) =>
+      '<article class="card cat-card">' +
+        '<div class="cat-chevron"><span class="material-symbols-outlined" aria-hidden="true">expand_more</span></div>' +
+        '<div class="cat-card-body">' +
+          '<div class="cat-card-top">' +
+            '<div><div class="cat-name">' + c.name + '</div><div class="cat-hint">' + c.hint + '</div></div>' +
+            '<div class="card-amount">' + c.amount + '</div>' +
+          '</div>' +
+          '<div class="cat-bar-track" aria-hidden="true">' +
+            '<div class="cat-bar-fill" style="width:' + c.pct + '%"></div>' +
+          '</div>' +
+        '</div>' +
+      '</article>'
+    ).join('');
+    const listRows = (items) => items.map((b) =>
+      '<div class="bill-row">' +
+        '<div class="bill-name">' + b.name + '</div>' +
+        '<div class="bill-amount">' + b.amount + '</div>' +
+      '</div>'
+    ).join('');
+    const chartCls = CHART_META[currentChart].cls;
+    return (
+      '<div class="fortnight-row">' +
+        cards +
+      '</div>' +
+      '<div class="insights-split">' +
+        '<article class="card">' +
+          '<div class="panel-card-head"><div class="panel-card-title">Top expense categories</div></div>' +
+          renderPieChart(d.categories) +
+        '</article>' +
+        '<article class="card">' +
+          '<div class="panel-card-head"><div class="panel-card-title">Trends</div></div>' +
+          '<div class="chart-tabs" role="tablist" aria-label="Chart type">' +
+            '<button class="chart-tab" type="button" data-chart="expenses" aria-pressed="' + (currentChart === 'expenses') + '">Expenses</button>' +
+            '<button class="chart-tab" type="button" data-chart="safe" aria-pressed="' + (currentChart === 'safe') + '">Safe to spend</button>' +
+            '<button class="chart-tab" type="button" data-chart="cashflow" aria-pressed="' + (currentChart === 'cashflow') + '">Cashflow</button>' +
+          '</div>' +
+          '<div data-chart-mount>' + renderChartSvg(d.charts[currentChart], chartCls) + '</div>' +
+        '</article>' +
+      '</div>' +
+      '<div class="recurring-row">' +
+        '<article class="card bills-card">' +
+          '<div class="panel-card-head"><div class="panel-card-title">Top recurring bills</div></div>' +
+          listRows(d.bills) +
+        '</article>' +
+        '<article class="card bills-card">' +
+          '<div class="panel-card-head"><div class="panel-card-title">Top recurring expenses</div></div>' +
+          listRows(d.expenses) +
+        '</article>' +
+      '</div>'
+    );
+  }
+
+  function wireHomeInsights(rootEl) {
+    rootEl.querySelectorAll('[data-chart]').forEach((btn) => {
+      btn.addEventListener('click', () => setChart(btn.dataset.chart));
+    });
+  }
+
+  function syncScopeToggle() {
+    const isHousehold = currentScope === 'household';
+    document.querySelectorAll('[data-scope-toggle]').forEach((btn) => {
+      btn.setAttribute('aria-checked', isHousehold ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-scope-label]').forEach((el) => {
+      el.classList.toggle('is-active', el.dataset.scopeLabel === currentScope);
+    });
+  }
+
+  function renderHomeInsights() {
+    const html = homeInsightsHtml(currentScope);
+    document.querySelectorAll('[data-home-insights]').forEach((el) => {
+      el.innerHTML = html;
+      wireHomeInsights(el);
+    });
+    syncScopeToggle();
+  }
+
+  function setScope(scope) {
+    currentScope = scope;
+    renderHomeInsights();
+  }
+
+  document.querySelectorAll('[data-scope-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setScope(currentScope === 'me' ? 'household' : 'me');
+    });
+  });
+  document.querySelectorAll('[data-scope-label]').forEach((el) => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => setScope(el.dataset.scopeLabel));
+  });
+
+  function setChart(chart) {
+    currentChart = chart;
+    const d = SCOPE[currentScope];
+    const cls = CHART_META[chart].cls;
+    document.querySelectorAll('[data-home-insights]').forEach((rootEl) => {
+      rootEl.querySelectorAll('[data-chart]').forEach((btn) => {
+        btn.setAttribute('aria-pressed', btn.dataset.chart === chart ? 'true' : 'false');
+      });
+      const mount = rootEl.querySelector('[data-chart-mount]');
+      if (mount) mount.innerHTML = renderChartSvg(d.charts[chart], cls);
+    });
+  }
+
+  /* ── Monthly (capability surface mock) ── */
+  const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  let monthCursor = { year: 2026, month: 7 }; // Aug 2026
+  let monthPickerOpen = false;
+  let monthlySelected = new Set(); // bill ids
+  let monthlyExpanded = new Set(); // row ids with ⋯ open
+  let monthlyLastClicked = null;
+  let calcVisible = false;
+  let calcOp = 'sum';
+  let focusedPeriodId = 'p1'; // phone period focus
+
+  const MONTHLY = {
+    salary: 4524.58,
+    monthsWithData: { '2026-6': true, '2026-7': true, '2026-8': true },
+    periods: [
+      {
+        id: 'p1',
+        n: 1,
+        date: '1–14 Aug 2026',
+        moneyInOpen: false,
+        moneyOutOpen: true,
+        income: [{ id: 'p1-i1', name: 'Side gig', amount: 0, recurring: false }],
+        bills: [
+          { id: 'p1-b1', name: 'Mortgage', amount: 3134, payTo: 'NAB Offset', recurring: true, paid: true, kind: 'bill' },
+          { id: 'p1-b2', name: 'Groceries', amount: 625, payTo: 'CB Groceries', recurring: true, paid: true, kind: 'expense' },
+          { id: 'p1-b3', name: 'Personal loan share', amount: 170, payTo: 'JA Bills', recurring: true, paid: false, kind: 'bill' },
+          { id: 'p1-b4', name: 'Solar batteries', amount: 118, payTo: 'JA Bills', recurring: true, paid: false, kind: 'bill' },
+          { id: 'p1-b5', name: 'ChatGPT', amount: 30, payTo: 'JA Bills', recurring: true, paid: false, kind: 'expense' },
+          { id: 'p1-b6', name: 'NAB CC Payment', amount: 200, payTo: 'NAB CC', recurring: false, paid: false, kind: 'bill' },
+        ],
+        savings: [
+          { id: 'p1-s1', name: 'General Savings', amount: 400, payTo: 'Savings', recurring: true, paid: false, locked: true },
+          { id: 'p1-s2', name: 'Holiday', amount: 67, payTo: 'Savings', recurring: false, paid: false },
+        ],
+      },
+      {
+        id: 'p2',
+        n: 2,
+        date: '15–28 Aug 2026',
+        moneyInOpen: false,
+        moneyOutOpen: true,
+        income: [],
+        bills: [
+          { id: 'p2-b1', name: 'Car installment', amount: 930, payTo: 'JA Bills', recurring: true, paid: false, kind: 'bill' },
+          { id: 'p2-b2', name: 'Bupa Health', amount: 197, payTo: 'JA Bills', recurring: true, paid: false, kind: 'bill' },
+          { id: 'p2-b3', name: 'Telstra', amount: 188, payTo: 'JA Bills', recurring: true, paid: true, kind: 'bill' },
+          { id: 'p2-b4', name: 'Internet', amount: 65, payTo: 'JA Bills', recurring: true, paid: true, kind: 'bill' },
+          { id: 'p2-b5', name: 'Netflix', amount: 15, payTo: 'JA Bills', recurring: true, paid: true, kind: 'expense' },
+          { id: 'p2-b6', name: 'Latitude card', amount: 575, payTo: 'Latitude', recurring: false, paid: false, kind: 'bill' },
+        ],
+        savings: [
+          { id: 'p2-s1', name: 'General Savings', amount: 400, payTo: 'Savings', recurring: true, paid: false, locked: true },
+          { id: 'p2-s2', name: 'Holiday', amount: 67, payTo: 'Savings', recurring: false, paid: false },
+        ],
+      },
+    ],
+  };
+
+  function money(n) {
+    return '$' + Math.round(n).toLocaleString('en-AU');
+  }
+  function moneyExact(n) {
+    return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+  function periodIncome(p) {
+    return MONTHLY.salary + p.income.reduce((s, r) => s + (r.amount || 0), 0);
+  }
+  function periodBillsTotal(p) {
+    return p.bills.reduce((s, r) => s + (r.amount || 0), 0);
+  }
+  function periodSavingsTotal(p) {
+    return p.savings.reduce((s, r) => s + (r.amount || 0), 0);
+  }
+  function periodSafe(p) {
+    return periodIncome(p) - periodBillsTotal(p) - periodSavingsTotal(p);
+  }
+  function monthProgress() {
+    const all = MONTHLY.periods.flatMap((p) => p.bills);
+    const paid = all.filter((b) => b.paid).length;
+    return { paid, total: all.length, pct: all.length ? Math.round((paid / all.length) * 100) : 0 };
+  }
+  function findBill(id) {
+    for (const p of MONTHLY.periods) {
+      const b = p.bills.find((x) => x.id === id) || p.savings.find((x) => x.id === id);
+      if (b) return { period: p, row: b };
+    }
+    return null;
+  }
+  function selectedRows() {
+    return [...monthlySelected].map(findBill).filter(Boolean).map((x) => x.row);
+  }
+  function selectedSum() {
+    return selectedRows().reduce((s, r) => s + (r.amount || 0), 0);
+  }
+
+  function syncMonthLabel() {
+    const label = MONTH_NAMES[monthCursor.month] + ' ' + monthCursor.year;
+    document.querySelectorAll('[data-month-label]').forEach((el) => {
+      el.innerHTML = label + ' <span class="material-symbols-outlined" aria-hidden="true">arrow_drop_down</span>';
+      el.setAttribute('aria-expanded', monthPickerOpen ? 'true' : 'false');
+    });
+  }
+
+  function shiftMonth(dir) {
+    monthCursor.month += dir;
+    if (monthCursor.month > 11) { monthCursor.month = 0; monthCursor.year += 1; }
+    else if (monthCursor.month < 0) { monthCursor.month = 11; monthCursor.year -= 1; }
+    monthPickerOpen = false;
+    monthlySelected.clear();
+    showToast('Switched to ' + MONTH_NAMES[monthCursor.month] + ' ' + monthCursor.year);
+    renderMonthly();
+  }
+
+  function showToast(msg) {
+    let el = document.getElementById('monthlyToast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'monthlyToast';
+      el.className = 'monthly-toast';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add('is-visible');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => el.classList.remove('is-visible'), 2200);
+  }
+
+  /* Shared app modal host (Monthly Pay To / Move, Payables Edit) */
+  let appModal = null; // { type, ids?, account?, periodId?, payableId? }
+
+  function accountNames() {
+    const fromSettings = payToAccounts.map((a) => a.name);
+    const extras = ['NAB Offset', 'JA Bills', 'CB Groceries', 'NAB CC', 'Latitude', 'NAB Elly', 'NAB Eric', 'Savings', 'Income'];
+    return [...new Set(fromSettings.concat(extras))];
+  }
+
+  function findMonthlyRow(id) {
+    for (const period of MONTHLY.periods) {
+      for (const listName of ['bills', 'savings', 'income']) {
+        const list = period[listName];
+        const idx = list.findIndex((row) => row.id === id);
+        if (idx >= 0) return { period, listName, idx, row: list[idx] };
+      }
+    }
+    return null;
+  }
+
+  function closeAppModal() {
+    appModal = null;
+    renderAppModal();
+  }
+
+  function openAppModal(modal) {
+    appModal = modal;
+    closeCtx();
+    renderAppModal();
+  }
+
+  function appModalHtml() {
+    if (!appModal) return '';
+    if (appModal.type === 'payto') {
+      const count = appModal.ids.length;
+      const options = accountNames().map((name) =>
+        '<option value="' + escapeHtml(name) + '"' + (name === appModal.account ? ' selected' : '') + '>' + escapeHtml(name) + '</option>'
+      ).join('');
+      return (
+        '<div class="mock-modal-backdrop is-fixed" data-app-modal-backdrop role="presentation">' +
+          '<div class="mock-modal" role="dialog" aria-modal="true" aria-label="Change pay to">' +
+            '<div class="mock-modal-head">' +
+              '<div><div class="settings-card-title">Change pay to</div><h3>' + count + ' selected item' + (count === 1 ? '' : 's') + '</h3></div>' +
+              '<button class="icon-btn icon-btn-sm" type="button" data-close-app-modal aria-label="Close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>' +
+            '</div>' +
+            '<label class="settings-field"><span>Pay to account</span><select data-modal-payto>' + options + '</select></label>' +
+            '<div class="payable-form-actions">' +
+              '<button class="text-btn" type="button" data-confirm-payto>Save</button>' +
+              '<button class="text-btn subtle" type="button" data-close-app-modal>Cancel</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+    if (appModal.type === 'move') {
+      const count = appModal.ids.length;
+      const periodOptions = MONTHLY.periods.map((period) =>
+        '<option value="' + period.id + '"' + (period.id === appModal.periodId ? ' selected' : '') + '>Period ' + period.n + ' · ' + escapeHtml(period.date) + '</option>'
+      ).join('');
+      return (
+        '<div class="mock-modal-backdrop is-fixed" data-app-modal-backdrop role="presentation">' +
+          '<div class="mock-modal" role="dialog" aria-modal="true" aria-label="Move items">' +
+            '<div class="mock-modal-head">' +
+              '<div><div class="settings-card-title">Move to period</div><h3>' + count + ' selected item' + (count === 1 ? '' : 's') + '</h3></div>' +
+              '<button class="icon-btn icon-btn-sm" type="button" data-close-app-modal aria-label="Close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>' +
+            '</div>' +
+            '<label class="settings-field"><span>Destination</span><select data-modal-period>' + periodOptions + '</select></label>' +
+            '<div class="settings-row-hint">Moves within the current month mock. Cross-month move stays a later production concern.</div>' +
+            '<div class="payable-form-actions">' +
+              '<button class="text-btn" type="button" data-confirm-move>Move</button>' +
+              '<button class="text-btn subtle" type="button" data-close-app-modal>Cancel</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+    if (appModal.type === 'payable-edit') {
+      const row = payablesRows.find((item) => item.id === appModal.payableId);
+      if (!row) return '';
+      const splitSelect =
+        '<option value="shared"' + (row.split === 'shared' ? ' selected' : '') + '>Shared</option>' +
+        '<option value="solo"' + (row.split === 'solo' && row.owner !== 'eric' ? ' selected' : '') + '>Solo (mine)</option>' +
+        '<option value="eric"' + (row.split === 'solo' && row.owner === 'eric' ? ' selected' : '') + '>Solo (Eric’s)</option>';
+      const payOptions = accountNames().map((name) =>
+        '<option value="' + escapeHtml(name) + '"' + (name === row.payTo ? ' selected' : '') + '>' + escapeHtml(name) + '</option>'
+      ).join('');
+      return (
+        '<div class="mock-modal-backdrop is-fixed" data-app-modal-backdrop role="presentation">' +
+          '<div class="mock-modal" role="dialog" aria-modal="true" aria-label="Edit payable">' +
+            '<div class="mock-modal-head">' +
+              '<div><div class="settings-card-title">Edit payable</div><h3>' + escapeHtml(row.name) + '</h3></div>' +
+              '<button class="icon-btn icon-btn-sm" type="button" data-close-app-modal aria-label="Close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>' +
+            '</div>' +
+            '<div class="payable-form-grid">' +
+              '<label class="settings-field"><span>Name</span><input type="text" data-edit-payable-name value="' + escapeHtml(row.name) + '"></label>' +
+              '<label class="settings-field"><span>Full amount</span><input type="number" min="0" step="0.01" data-edit-payable-amount value="' + row.total + '"></label>' +
+              '<label class="settings-field"><span>Split</span><select data-edit-payable-split>' + splitSelect + '</select></label>' +
+              '<label class="settings-field"><span>Pay to</span><select data-edit-payable-payto>' + payOptions + '</select></label>' +
+              '<label class="settings-field"><span>Date</span><input type="text" data-edit-payable-date value="' + escapeHtml(row.date) + '"></label>' +
+            '</div>' +
+            '<div class="payable-form-actions">' +
+              '<button class="text-btn" type="button" data-confirm-payable-edit>Save</button>' +
+              '<button class="text-btn subtle" type="button" data-close-app-modal>Cancel</button>' +
+              '<button class="text-btn subtle is-danger-text" type="button" data-delete-payable-edit>Delete</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+    return '';
+  }
+
+  function renderAppModal() {
+    let host = document.getElementById('appModalHost');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'appModalHost';
+      document.body.appendChild(host);
+    }
+    host.innerHTML = appModalHtml();
+    wireAppModal(host);
+  }
+
+  function wireAppModal(host) {
+    host.querySelectorAll('[data-close-app-modal]').forEach((btn) => {
+      btn.addEventListener('click', closeAppModal);
+    });
+    const backdrop = host.querySelector('[data-app-modal-backdrop]');
+    if (backdrop) {
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) closeAppModal();
+      });
+    }
+    host.querySelectorAll('[data-confirm-payto]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const select = host.querySelector('[data-modal-payto]');
+        const account = select ? select.value : 'JA Bills';
+        (appModal.ids || []).forEach((id) => {
+          const hit = findMonthlyRow(id);
+          if (hit && !hit.row.locked) hit.row.payTo = account;
+        });
+        showToast('Pay to → ' + account);
+        closeAppModal();
+        renderMonthly();
+      });
+    });
+    host.querySelectorAll('[data-confirm-move]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const select = host.querySelector('[data-modal-period]');
+        const destId = select ? select.value : 'p1';
+        const dest = MONTHLY.periods.find((period) => period.id === destId);
+        if (!dest) return;
+        const ids = (appModal.ids || []).slice();
+        ids.forEach((id) => {
+          const hit = findMonthlyRow(id);
+          if (!hit || hit.row.locked) return;
+          if (hit.period.id === dest.id) return;
+          hit.period[hit.listName].splice(hit.idx, 1);
+          dest[hit.listName].push(hit.row);
+        });
+        monthlySelected.clear();
+        showToast('Moved to Period ' + dest.n);
+        closeAppModal();
+        renderMonthly();
+      });
+    });
+    host.querySelectorAll('[data-confirm-payable-edit]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const row = payablesRows.find((item) => item.id === appModal.payableId);
+        if (!row) return;
+        const name = host.querySelector('[data-edit-payable-name]').value.trim() || row.name;
+        const total = Number(host.querySelector('[data-edit-payable-amount]').value || 0);
+        const splitVal = host.querySelector('[data-edit-payable-split]').value;
+        const payTo = host.querySelector('[data-edit-payable-payto]').value;
+        const date = host.querySelector('[data-edit-payable-date]').value.trim() || row.date;
+        row.name = name;
+        row.total = total;
+        row.payTo = payTo;
+        row.date = date;
+        if (splitVal === 'shared') {
+          row.split = 'shared';
+          row.share = total / 2;
+        } else if (splitVal === 'eric') {
+          row.split = 'solo';
+          row.owner = 'eric';
+          row.share = total;
+        } else {
+          row.split = 'solo';
+          row.owner = 'mine';
+          row.share = total;
+        }
+        showToast('Payable updated');
+        closeAppModal();
+        renderPayables();
+      });
+    });
+    host.querySelectorAll('[data-delete-payable-edit]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = appModal.payableId;
+        payablesRows = payablesRows.filter((row) => row.id !== id);
+        showToast('Payable deleted');
+        closeAppModal();
+        renderPayables();
+      });
+    });
+  }
+
+  function ensureCtxMenu() {
+    let menu = document.getElementById('monthlyCtx');
+    if (menu) return menu;
+    menu = document.createElement('div');
+    menu.id = 'monthlyCtx';
+    menu.className = 'ctx-menu';
+    menu.innerHTML =
+      '<button class="ctx-item" type="button" data-ctx="done"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Mark as done</button>' +
+      '<button class="ctx-item" type="button" data-ctx="undone"><span class="material-symbols-outlined" aria-hidden="true">radio_button_unchecked</span>Mark as not done</button>' +
+      '<button class="ctx-item" type="button" data-ctx="payto"><span class="material-symbols-outlined" aria-hidden="true">account_balance</span>Change pay to…</button>' +
+      '<button class="ctx-item" type="button" data-ctx="recur"><span class="material-symbols-outlined" aria-hidden="true">autorenew</span>Toggle recurring</button>' +
+      '<div class="ctx-sep"></div>' +
+      '<button class="ctx-item" type="button" data-ctx="move"><span class="material-symbols-outlined" aria-hidden="true">drive_file_move</span>Move to…</button>' +
+      '<button class="ctx-item" type="button" data-ctx="calc"><span class="material-symbols-outlined" aria-hidden="true">calculate</span>Calculate selection</button>' +
+      '<div class="ctx-sep"></div>' +
+      '<button class="ctx-item is-danger" type="button" data-ctx="delete"><span class="material-symbols-outlined" aria-hidden="true">delete</span>Delete selected</button>';
+    document.body.appendChild(menu);
+    menu.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-ctx]');
+      if (!btn) return;
+      runCtx(btn.dataset.ctx);
+      closeCtx();
+    });
+    return menu;
+  }
+
+  let ctxOpenedAt = 0;
+  function openCtx(x, y, anchorEl) {
+    const menu = ensureCtxMenu();
+    menu.classList.add('is-open');
+    // Measure real size (was using a tall 280px guess that pinned menus to the viewport bottom)
+    menu.style.left = '0px';
+    menu.style.top = '0px';
+    const pad = 8;
+    const mw = menu.offsetWidth || 220;
+    const mh = menu.offsetHeight || 240;
+    const anchor = anchorEl && anchorEl.getBoundingClientRect
+      ? anchorEl.getBoundingClientRect()
+      : null;
+
+    let left;
+    let top;
+    if (anchor) {
+      // Prefer just under the ⋯, right-aligned to the button
+      left = anchor.right - mw;
+      top = anchor.bottom + 4;
+      if (top + mh > window.innerHeight - pad) {
+        top = anchor.top - mh - 4; // flip above
+      }
+      if (left + mw > window.innerWidth - pad) left = window.innerWidth - mw - pad;
+      if (left < pad) left = pad;
+      if (top < pad) top = pad;
+    } else {
+      left = Math.min(Math.max(pad, x), window.innerWidth - mw - pad);
+      top = y + 4;
+      if (top + mh > window.innerHeight - pad) top = y - mh - 4;
+      if (top < pad) top = pad;
+    }
+
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+    // Ignore the opening gesture so the same click/contextmenu doesn't dismiss immediately
+    ctxOpenedAt = Date.now();
+  }
+  function closeCtx() {
+    const menu = document.getElementById('monthlyCtx');
+    if (menu) menu.classList.remove('is-open');
+  }
+  function isCtxOpen() {
+    const menu = document.getElementById('monthlyCtx');
+    return !!(menu && menu.classList.contains('is-open'));
+  }
+
+  function runCtx(action) {
+    const rows = selectedRows();
+    if (!rows.length && action !== 'calc') {
+      showToast('Select a row first');
+      return;
+    }
+    if (action === 'done') {
+      rows.forEach((r) => { r.paid = true; });
+      showToast('Marked ' + rows.length + ' done');
+      renderMonthly();
+    } else if (action === 'undone') {
+      rows.forEach((r) => { r.paid = false; });
+      showToast('Marked ' + rows.length + ' not done');
+      renderMonthly();
+    } else if (action === 'recur') {
+      rows.forEach((r) => { r.recurring = !r.recurring; });
+      showToast('Toggled recurring');
+      renderMonthly();
+    } else if (action === 'payto') {
+      const first = rows[0];
+      openAppModal({
+        type: 'payto',
+        ids: rows.map((row) => row.id),
+        account: first.payTo || accountNames()[0],
+      });
+    } else if (action === 'move') {
+      const firstHit = findMonthlyRow(rows[0].id);
+      openAppModal({
+        type: 'move',
+        ids: rows.map((row) => row.id),
+        periodId: firstHit ? firstHit.period.id : MONTHLY.periods[0].id,
+      });
+    } else if (action === 'delete') {
+      MONTHLY.periods.forEach((p) => {
+        p.bills = p.bills.filter((b) => !monthlySelected.has(b.id));
+        p.savings = p.savings.filter((s) => !monthlySelected.has(s.id) || s.locked);
+      });
+      monthlySelected.clear();
+      showToast('Deleted selected');
+      renderMonthly();
+    } else if (action === 'calc') {
+      calcVisible = true;
+      calcOp = 'sum';
+      renderMonthly();
+      showToast('Calc panel open');
+    } else if (action === 'more') {
+      const selId = [...monthlySelected][0];
+      const anchor = selId
+        ? document.querySelector('[data-ledger-id="' + selId + '"] [data-row-more]')
+        : document.querySelector('[data-action-dock]');
+      const rect = anchor ? anchor.getBoundingClientRect() : { left: 40, top: 80, right: 68, bottom: 108 };
+      openCtx(rect.left, rect.bottom, anchor);
+    }
+  }
+
+  function ledgerRowHtml(row, opts) {
+    opts = opts || {};
+    const selected = monthlySelected.has(row.id);
+    const expanded = monthlyExpanded.has(row.id) || selected;
+    const cls = [
+      'ledger-row',
+      row.paid ? 'is-paid' : '',
+      selected ? 'is-selected' : '',
+      expanded ? 'is-expanded' : '',
+      opts.salary ? 'ledger-salary' : '',
+    ].filter(Boolean).join(' ');
+    const canDrag = opts.draggable !== false && !opts.salary;
+    return (
+      '<div class="' + cls + '" data-ledger-id="' + row.id + '" draggable="' + canDrag + '">' +
+        '<div class="bill-check" data-toggle-paid aria-hidden="true">' +
+          (row.paid ? '<span class="material-symbols-outlined">check</span>' : '') +
+        '</div>' +
+        '<div class="ledger-main">' +
+          '<div class="ledger-name">' + row.name + '</div>' +
+        '</div>' +
+        '<div class="ledger-amt">' + moneyExact(row.amount) + '</div>' +
+        (opts.salary
+          ? '<span></span>'
+          : '<button class="ledger-more" type="button" data-row-more aria-label="More actions" title="More">' +
+              '<span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>' +
+            '</button>') +
+        '<div class="ledger-detail">' +
+          (canDrag ? '<div class="ledger-handle" title="Drag to reorder / move" aria-hidden="true">⋮⋮</div>' : '') +
+          '<span class="ledger-chip">' + (row.payTo || 'No account') + '</span>' +
+          (row.recurring ? '<span class="ledger-chip is-recur">Recurring</span>' : '<span class="ledger-chip">This period</span>') +
+          '<button class="ledger-recur' + (row.recurring ? ' is-on' : '') + '" type="button" data-toggle-recur title="Toggle recurring" aria-pressed="' + !!row.recurring + '">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">autorenew</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function periodCardHtml(p) {
+    const income = periodIncome(p);
+    const billsTotal = periodBillsTotal(p);
+    const savTotal = periodSavingsTotal(p);
+    const outTotal = billsTotal + savTotal;
+    const safe = periodSafe(p);
+    const moneyInOpen = p.moneyInOpen || safe < 0;
+    const recurring = p.bills.filter((b) => b.recurring);
+    const variable = p.bills.filter((b) => !b.recurring);
+    const recSum = recurring.reduce((s, b) => s + b.amount, 0);
+    const varSum = variable.reduce((s, b) => s + b.amount, 0);
+
+    const incomeRows = [
+      ledgerRowHtml({ id: p.id + '-salary', name: 'Salary (fortnightly)', amount: MONTHLY.salary, payTo: 'Income', recurring: true, paid: false }, { salary: true, draggable: false }),
+    ].concat(p.income.map((r) => ledgerRowHtml(Object.assign({ payTo: 'Income' }, r), { draggable: false }))).join('');
+
+    const billRows = (list) => list.map((b) => ledgerRowHtml(b)).join('');
+    const savRows = p.savings.map((s) => ledgerRowHtml(s)).join('');
+    const focused = p.id === focusedPeriodId ? ' is-focused' : '';
+
+    return (
+      '<article class="card period-card' + focused + '" data-period="' + p.id + '">' +
+        '<div class="period-card-head">' +
+          '<div class="period-card-head-main">' +
+            '<div class="period-card-kicker">Pay period ' + p.n + '</div>' +
+            '<div class="period-card-date">' + p.date + '</div>' +
+          '</div>' +
+          '<div class="period-card-head-right">' +
+            '<div class="period-safe-chip' + (safe < 0 ? ' is-negative' : '') + '">' +
+              '<div class="period-safe-chip-label">Safe to spend</div>' +
+              '<div class="period-safe-chip-value">' + money(safe) + '</div>' +
+            '</div>' +
+            '<div class="period-card-actions">' +
+              '<button class="icon-btn" type="button" data-demo-toast="Edit date…" title="Edit date" aria-label="Edit date">' +
+                '<span class="material-symbols-outlined" aria-hidden="true">edit_calendar</span>' +
+              '</button>' +
+              '<button class="icon-btn" type="button" data-demo-toast="Delete period…" title="Delete period" aria-label="Delete period">' +
+                '<span class="material-symbols-outlined" aria-hidden="true">delete</span>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        (safe < 0
+          ? '<div class="period-safe-hint">Over by ' + money(Math.abs(safe)) + ' — Money in is open so you can check salary</div>'
+          : '') +
+
+        '<button class="section-toggle is-in" type="button" data-section-toggle="in" aria-expanded="' + moneyInOpen + '">' +
+          '<span class="section-toggle-left">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>' +
+            '<span class="section-toggle-label">Money in</span>' +
+          '</span>' +
+          '<span class="section-toggle-amt">' + moneyExact(income) + '</span>' +
+        '</button>' +
+        '<div class="section-body" data-section="in"' + (moneyInOpen ? '' : ' hidden') + '>' +
+          incomeRows +
+          '<button class="ledger-add" type="button" data-add-ledger="income" data-period="' + p.id + '">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add income' +
+          '</button>' +
+        '</div>' +
+
+        '<button class="section-toggle is-out" type="button" data-section-toggle="out" aria-expanded="' + p.moneyOutOpen + '">' +
+          '<span class="section-toggle-left">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>' +
+            '<span class="section-toggle-label">Money out</span>' +
+          '</span>' +
+          '<span class="section-toggle-amt">' + money(outTotal) + '</span>' +
+        '</button>' +
+        '<div class="section-body" data-section="out"' + (p.moneyOutOpen ? '' : ' hidden') + '>' +
+          '<div class="group-head is-recurring"><span class="group-head-label">Recurring</span><span class="group-head-amt">' + money(recSum) + '</span></div>' +
+          '<div class="bill-list" data-bill-list="' + p.id + '-rec">' + billRows(recurring) + '</div>' +
+          '<div class="group-head is-variable"><span class="group-head-label">Variable</span><span class="group-head-amt">' + money(varSum) + '</span></div>' +
+          '<div class="bill-list" data-bill-list="' + p.id + '-var">' + billRows(variable) + '</div>' +
+          '<button class="ledger-add" type="button" data-add-ledger="expense" data-period="' + p.id + '">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add expense' +
+          '</button>' +
+        '</div>' +
+
+        '<div class="savings-block">' +
+          '<div class="group-head is-savings"><span class="group-head-label">Savings</span><span class="group-head-amt">' + money(savTotal) + '</span></div>' +
+          savRows +
+          '<button class="ledger-add" type="button" data-add-ledger="savings" data-period="' + p.id + '">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">add</span> Add savings goal' +
+          '</button>' +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  function monthPickerHtml() {
+    if (!monthPickerOpen) return '';
+    const cells = MONTH_SHORT.map((name, i) => {
+      const key = monthCursor.year + '-' + i;
+      const cls = [
+        'month-picker-cell',
+        i === monthCursor.month ? 'is-current' : '',
+        MONTHLY.monthsWithData[key] ? 'has-data' : '',
+      ].filter(Boolean).join(' ');
+      return '<button class="' + cls + '" type="button" data-pick-month="' + i + '">' + name + '</button>';
+    }).join('');
+    return (
+      '<div class="month-picker" data-month-picker role="dialog" aria-label="Pick month">' +
+        '<div class="month-picker-year">' +
+          '<button class="month-nav-btn" type="button" data-picker-year="-1" aria-label="Previous year"><span class="material-symbols-outlined" aria-hidden="true">chevron_left</span></button>' +
+          '<span>' + monthCursor.year + '</span>' +
+          '<button class="month-nav-btn" type="button" data-picker-year="1" aria-label="Next year"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>' +
+        '</div>' +
+        '<div class="month-picker-grid">' + cells + '</div>' +
+      '</div>'
+    );
+  }
+
+  function calcResult() {
+    const vals = selectedRows().map((r) => r.amount || 0);
+    if (!vals.length) return { label: 'Select rows', value: '—' };
+    if (calcOp === 'sum') return { label: 'SUM', value: moneyExact(vals.reduce((a, b) => a + b, 0)) };
+    if (calcOp === 'avg') return { label: 'AVG', value: moneyExact(vals.reduce((a, b) => a + b, 0) / vals.length) };
+    if (calcOp === 'min') return { label: 'MIN', value: moneyExact(Math.min(...vals)) };
+    if (calcOp === 'max') return { label: 'MAX', value: moneyExact(Math.max(...vals)) };
+    return { label: 'COUNT', value: String(vals.length) };
+  }
+
+  function monthlyHtml() {
+    const prog = monthProgress();
+    const selCount = monthlySelected.size;
+    const calc = calcResult();
+    const tabs = MONTHLY.periods.map((p) => {
+      const safe = periodSafe(p);
+      return (
+        '<button class="period-tab" type="button" data-focus-period="' + p.id + '" aria-pressed="' + (focusedPeriodId === p.id) + '">' +
+          'P' + p.n + ' · ' + p.date.replace(' 2026', '') +
+          '<span class="period-tab-safe' + (safe < 0 ? ' is-neg' : '') + '">' + money(safe) + '</span>' +
+        '</button>'
+      );
+    }).join('');
+    return (
+      '<div class="period-tabs" role="tablist" aria-label="Pay period">' + tabs + '</div>' +
+      '<div class="monthly-toolbar">' +
+        '<div class="monthly-legend">Select a row for pay-to, recurring, drag · multi-select with Ctrl/Shift</div>' +
+        '<div class="monthly-progress">' +
+          '<span class="monthly-progress-label">' + prog.paid + ' / ' + prog.total + ' paid</span>' +
+          '<div class="cat-bar-track" aria-hidden="true"><div class="cat-bar-fill" style="width:' + prog.pct + '%"></div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="periods-row">' + MONTHLY.periods.map(periodCardHtml).join('') + '</div>' +
+      '<div class="calc-panel' + (calcVisible ? ' is-visible' : '') + '" data-calc-panel>' +
+        '<div class="calc-panel-head"><span>Calculate</span>' +
+          '<button class="icon-btn icon-btn-sm" type="button" data-calc-close aria-label="Close calc">' +
+            '<span class="material-symbols-outlined" aria-hidden="true">close</span>' +
+          '</button>' +
+        '</div>' +
+        '<div class="calc-panel-result">' + calc.label + ' · ' + calc.value + '</div>' +
+        '<div class="calc-panel-ops">' +
+          ['sum', 'avg', 'min', 'max', 'count'].map((op) =>
+            '<button class="chip-tab" type="button" data-calc-op="' + op + '" aria-pressed="' + (calcOp === op) + '">' + op.toUpperCase() + '</button>'
+          ).join('') +
+        '</div>' +
+      '</div>' +
+      '<div class="action-dock' + (selCount ? ' is-visible' : '') + '" data-action-dock>' +
+        '<div>' +
+          '<div class="action-dock-meta">' + selCount + ' selected · ' + moneyExact(selectedSum()) + '</div>' +
+          '<div class="action-dock-hint">Long-press or ⋯ for more · Ctrl/Shift to multi-select</div>' +
+        '</div>' +
+        '<div class="action-dock-actions">' +
+          '<button type="button" data-ctx-quick="done"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Done</button>' +
+          '<button type="button" data-ctx-quick="move"><span class="material-symbols-outlined" aria-hidden="true">drive_file_move</span>Move</button>' +
+          '<button type="button" data-ctx-quick="payto"><span class="material-symbols-outlined" aria-hidden="true">account_balance</span>Pay to</button>' +
+          '<button type="button" data-ctx-quick="more"><span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>More</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function allLedgerIdsInRoot(rootEl) {
+    return [...rootEl.querySelectorAll('[data-ledger-id]')].map((el) => el.dataset.ledgerId);
+  }
+
+  function wireMonthly(rootEl) {
+    rootEl.querySelectorAll('[data-section-toggle]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const which = btn.dataset.sectionToggle;
+        const card = btn.closest('[data-period]');
+        const p = MONTHLY.periods.find((x) => x.id === card.dataset.period);
+        if (!p) return;
+        if (which === 'in') p.moneyInOpen = !p.moneyInOpen;
+        else p.moneyOutOpen = !p.moneyOutOpen;
+        renderMonthly();
+      });
+    });
+
+    rootEl.querySelectorAll('[data-toggle-paid]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = el.closest('[data-ledger-id]').dataset.ledgerId;
+        const hit = findBill(id);
+        if (!hit || hit.row.name.indexOf('Salary') === 0) return;
+        hit.row.paid = !hit.row.paid;
+        renderMonthly();
+      });
+    });
+
+    rootEl.querySelectorAll('[data-toggle-recur]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.closest('[data-ledger-id]').dataset.ledgerId;
+        const hit = findBill(id);
+        if (!hit) return;
+        hit.row.recurring = !hit.row.recurring;
+        showToast(hit.row.recurring ? 'Recurring on' : 'One-off');
+        renderMonthly();
+      });
+    });
+
+    rootEl.querySelectorAll('[data-ledger-id]').forEach((row) => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('[data-toggle-paid],[data-toggle-recur],button')) return;
+        const id = row.dataset.ledgerId;
+        if (id.indexOf('-salary') !== -1) return;
+        const ids = allLedgerIdsInRoot(rootEl).filter((x) => x.indexOf('-salary') === -1);
+        if (e.shiftKey && monthlyLastClicked) {
+          const a = ids.indexOf(monthlyLastClicked);
+          const b = ids.indexOf(id);
+          if (a >= 0 && b >= 0) {
+            const [lo, hi] = a < b ? [a, b] : [b, a];
+            for (let i = lo; i <= hi; i++) monthlySelected.add(ids[i]);
+          }
+        } else if (e.metaKey || e.ctrlKey) {
+          if (monthlySelected.has(id)) monthlySelected.delete(id);
+          else monthlySelected.add(id);
+        } else {
+          monthlySelected.clear();
+          monthlySelected.add(id);
+        }
+        monthlyLastClicked = id;
+        renderMonthly();
+      });
+      row.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = row.dataset.ledgerId;
+        if (id.indexOf('-salary') !== -1) return;
+        const moreBtn = row.querySelector('[data-row-more]');
+        if (!monthlySelected.has(id)) {
+          monthlySelected.clear();
+          monthlySelected.add(id);
+          renderMonthly();
+        }
+        const anchor = document.querySelector('[data-ledger-id="' + id + '"] [data-row-more]') || moreBtn;
+        openCtx(e.clientX, e.clientY, anchor);
+      });
+      row.addEventListener('dragstart', (e) => {
+        row.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', row.dataset.ledgerId);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      row.addEventListener('dragend', () => row.classList.remove('dragging'));
+    });
+
+    rootEl.querySelectorAll('[data-bill-list]').forEach((list) => {
+      list.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        list.classList.add('drag-target');
+      });
+      list.addEventListener('dragleave', () => list.classList.remove('drag-target'));
+      list.addEventListener('drop', (e) => {
+        e.preventDefault();
+        list.classList.remove('drag-target');
+        const id = e.dataTransfer.getData('text/plain');
+        const hit = findBill(id);
+        if (!hit) return;
+        showToast('Moved “' + hit.row.name + '” (reorder/move demo)');
+      });
+    });
+
+    rootEl.querySelectorAll('[data-demo-toast]').forEach((btn) => {
+      btn.addEventListener('click', () => showToast(btn.dataset.demoToast));
+    });
+    rootEl.querySelectorAll('[data-add-ledger]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const period = MONTHLY.periods.find((item) => item.id === btn.dataset.period);
+        if (!period) return;
+        const kind = btn.dataset.addLedger;
+        const id = period.id + '-' + kind[0] + '-' + Date.now();
+        if (kind === 'income') {
+          period.income.push({ id, name: 'Extra income', amount: 100, recurring: false });
+          period.moneyInOpen = true;
+          showToast('Income line added');
+        } else if (kind === 'expense') {
+          period.bills.push({ id, name: 'New expense', amount: 50, payTo: 'JA Bills', recurring: false, paid: false, kind: 'expense' });
+          period.moneyOutOpen = true;
+          showToast('Expense added');
+        } else {
+          period.savings.push({ id, name: 'New savings goal', amount: 50, payTo: 'Savings', recurring: false, paid: false });
+          showToast('Savings goal added');
+        }
+        renderMonthly();
+      });
+    });
+    rootEl.querySelectorAll('[data-ctx-quick]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        runCtx(btn.dataset.ctxQuick);
+      });
+    });
+    rootEl.querySelectorAll('[data-clear-sel]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        monthlySelected.clear();
+        calcVisible = false;
+        renderMonthly();
+      });
+    });
+    rootEl.querySelectorAll('[data-calc-close]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        calcVisible = false;
+        renderMonthly();
+      });
+    });
+    rootEl.querySelectorAll('[data-calc-op]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        calcOp = btn.dataset.calcOp;
+        renderMonthly();
+      });
+    });
+
+    rootEl.querySelectorAll('[data-focus-period]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        focusedPeriodId = btn.dataset.focusPeriod;
+        renderMonthly();
+      });
+    });
+
+    rootEl.querySelectorAll('[data-row-more]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.closest('[data-ledger-id]').dataset.ledgerId;
+        const cx = e.clientX;
+        const cy = e.clientY;
+        // ⋯ always opens the action menu once the row is focused
+        if (!monthlySelected.has(id)) {
+          monthlySelected.clear();
+          monthlySelected.add(id);
+        }
+        monthlyExpanded.add(id);
+        monthlyLastClicked = id;
+        renderMonthly();
+        const anchor = document.querySelector('[data-ledger-id="' + id + '"] [data-row-more]');
+        openCtx(cx, cy, anchor);
+      });
+      btn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = btn.closest('[data-ledger-id]').dataset.ledgerId;
+        if (!monthlySelected.has(id)) {
+          monthlySelected.clear();
+          monthlySelected.add(id);
+          renderMonthly();
+        }
+        const anchor = document.querySelector('[data-ledger-id="' + id + '"] [data-row-more]') || btn;
+        openCtx(e.clientX, e.clientY, anchor);
+      });
+    });
+
+    // Long-press → context menu (touch / phone)
+    rootEl.querySelectorAll('[data-ledger-id]').forEach((row) => {
+      let pressTimer = null;
+      const clearPress = () => {
+        if (pressTimer) clearTimeout(pressTimer);
+        pressTimer = null;
+      };
+      row.addEventListener('touchstart', (e) => {
+        const id = row.dataset.ledgerId;
+        if (id.indexOf('-salary') !== -1) return;
+        pressTimer = setTimeout(() => {
+          if (!monthlySelected.has(id)) {
+            monthlySelected.clear();
+            monthlySelected.add(id);
+            renderMonthly();
+          }
+          const t = e.touches[0] || e.changedTouches[0];
+          const anchor = document.querySelector('[data-ledger-id="' + id + '"] [data-row-more]');
+          openCtx(t.clientX, t.clientY, anchor);
+          showToast('Actions');
+        }, 480);
+      }, { passive: true });
+      row.addEventListener('touchend', clearPress, { passive: true });
+      row.addEventListener('touchmove', clearPress, { passive: true });
+      row.addEventListener('touchcancel', clearPress, { passive: true });
+    });
+  }
+
+  function renderMonthly() {
+    const html = monthlyHtml();
+    document.querySelectorAll('[data-monthly-root]').forEach((el) => {
+      el.innerHTML = html;
+      wireMonthly(el);
+    });
+    syncMonthLabel();
+    // Mount picker into each visible month-nav
+    document.querySelectorAll('[data-month-nav]').forEach((nav) => {
+      const old = nav.querySelector('[data-month-picker]');
+      if (old) old.remove();
+      if (monthPickerOpen) {
+        nav.insertAdjacentHTML('beforeend', monthPickerHtml());
+        nav.querySelectorAll('[data-pick-month]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            monthCursor.month = Number(btn.dataset.pickMonth);
+            monthPickerOpen = false;
+            showToast('Jumped to ' + MONTH_NAMES[monthCursor.month] + ' ' + monthCursor.year);
+            renderMonthly();
+          });
+        });
+        nav.querySelectorAll('[data-picker-year]').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            monthCursor.year += Number(btn.dataset.pickerYear);
+            renderMonthly();
+          });
+        });
+      }
+    });
+  }
+
+  document.querySelectorAll('[data-month-dir]').forEach((btn) => {
+    btn.addEventListener('click', () => shiftMonth(Number(btn.dataset.monthDir)));
+  });
+  document.querySelectorAll('[data-month-picker-toggle]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      monthPickerOpen = !monthPickerOpen;
+      renderMonthly();
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-month-nav]')) {
+      if (monthPickerOpen) {
+        monthPickerOpen = false;
+        document.querySelectorAll('[data-month-picker]').forEach((el) => el.remove());
+        syncMonthLabel();
+      }
+    }
+    // Dismiss ctx on any outside click (ledger rows used to be exempt, which trapped the menu)
+    if (Date.now() - ctxOpenedAt < 80) return;
+    if (!e.target.closest('#monthlyCtx')) closeCtx();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (appModal) closeAppModal();
+    closeCtx();
+  });
+  document.addEventListener('contextmenu', (e) => {
+    if (!isCtxOpen()) return;
+    if (e.target.closest('#monthlyCtx') || e.target.closest('[data-ledger-id]')) return;
+    closeCtx();
+  });
+
+  /* ── Shared mock helpers ── */
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function syncRoleControls() {
+    const role = root.getAttribute('data-role') || 'owner';
+    document.querySelectorAll('[data-role-set]').forEach((btn) => {
+      btn.setAttribute('aria-pressed', btn.dataset.roleSet === role ? 'true' : 'false');
+    });
+    let banner = document.getElementById('impersonationBanner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'impersonationBanner';
+      banner.className = 'impersonation-banner';
+      banner.innerHTML =
+        '<span><strong>Viewing as Eric</strong> · member preview (Admin hidden)</span>' +
+        '<button type="button" data-exit-impersonation>Back to Elly</button>';
+      document.body.appendChild(banner);
+      banner.querySelector('[data-exit-impersonation]').addEventListener('click', () => setRole('owner'));
+    }
+    banner.hidden = role !== 'member';
+    document.body.classList.toggle('is-impersonating', role === 'member');
+  }
+
+  function setRole(role) {
+    if (role !== 'owner' && role !== 'member') role = 'owner';
+    root.setAttribute('data-role', role);
+    if (role === 'member') {
+      payablesView = 'eric';
+      settingsPanel = 'hub';
+    } else {
+      payablesView = 'mine';
+    }
+    syncRoleControls();
+    renderSettings();
+    renderPayables();
+    showToast(role === 'owner' ? 'Viewing as Elly' : 'Viewing as Eric');
+  }
+
+  document.querySelectorAll('[data-role-set]').forEach((btn) => {
+    btn.addEventListener('click', () => setRole(btn.dataset.roleSet));
+  });
+
+  /* ── Settings hub + drill-in ── */
+  let settingsPanel = 'hub';
+  let settingsSalary = 4524.58;
+  let ericCanViewBudget = true;
+  let payToAccounts = [
+    { id: 'acct-ja', name: 'JA Bills', hint: 'Shared bills and subscriptions' },
+    { id: 'acct-offset', name: 'NAB Offset', hint: 'Mortgage + household buffer' },
+    { id: 'acct-latitude', name: 'Latitude', hint: 'Credit card repayments' },
+  ];
+
+  function paletteOptionHtml(palette) {
+    const pressed = root.getAttribute('data-palette') === palette.id;
+    return (
+      '<button type="button" class="palette-option" data-palette-set="' + palette.id + '" aria-pressed="' + pressed + '">' +
+        '<span class="palette-option-swatches" aria-hidden="true">' +
+          palette.swatches.map((color) => '<i style="background:' + color + '"></i>').join('') +
+        '</span>' +
+        '<span class="palette-option-name">' + palette.name + '</span>' +
+        '<span class="palette-option-hint">' + palette.hint + '</span>' +
+      '</button>'
+    );
+  }
+
+  function settingsHubHtml() {
+    const accountRows = payToAccounts.map((account) =>
+      '<div class="settings-account-row" data-account-id="' + account.id + '">' +
+        '<div><div class="settings-row-label">' + escapeHtml(account.name) + '</div><div class="settings-row-hint">' + escapeHtml(account.hint) + '</div></div>' +
+        '<button class="icon-btn icon-btn-sm" type="button" data-delete-account="' + account.id + '" aria-label="Delete ' + escapeHtml(account.name) + '">' +
+          '<span class="material-symbols-outlined" aria-hidden="true">delete</span>' +
+        '</button>' +
+      '</div>'
+    ).join('');
+    const roleLabel = (root.getAttribute('data-role') || 'owner') === 'owner' ? 'Elly owner view' : 'Eric member view';
+    return (
+      '<div class="settings-stack settings-hub">' +
+        '<article class="settings-card">' +
+          '<div class="settings-card-title">Personalisation</div>' +
+          '<button class="settings-link-row" type="button" data-settings-panel="appearance">' +
+            '<span class="settings-link-icon material-symbols-outlined" aria-hidden="true">palette</span>' +
+            '<span><span class="settings-row-label">Appearance</span><span class="settings-row-hint">Theme and colour palette</span></span>' +
+            '<span class="settings-link-chevron material-symbols-outlined" aria-hidden="true">chevron_right</span>' +
+          '</button>' +
+        '</article>' +
+        '<article class="settings-card">' +
+          '<div class="settings-card-title">Money defaults</div>' +
+          '<label class="settings-field">' +
+            '<span><span class="settings-row-label">Salary</span><span class="settings-row-hint">Default fortnightly salary used by Monthly</span></span>' +
+            '<span class="field-with-prefix"><span>$</span><input type="number" min="0" step="0.01" data-salary-input value="' + settingsSalary + '"></span>' +
+          '</label>' +
+          '<div class="settings-actions"><button class="text-btn" type="button" data-save-salary>Save salary</button></div>' +
+        '</article>' +
+        '<article class="settings-card">' +
+          '<div class="settings-card-title">Pay To accounts</div>' +
+          '<div class="settings-account-list">' + (accountRows || '<div class="settings-row-hint">No accounts yet.</div>') + '</div>' +
+          '<div class="settings-inline-form">' +
+            '<input type="text" data-account-name placeholder="Account name">' +
+            '<button class="text-btn" type="button" data-add-account>Add</button>' +
+          '</div>' +
+        '</article>' +
+        '<article class="settings-card settings-admin-card" data-owner-only>' +
+          '<div class="settings-card-title">Admin</div>' +
+          '<div class="settings-row">' +
+            '<div><div class="settings-row-label">Eric can view budget</div><div class="settings-row-hint">Owner-only household access toggle</div></div>' +
+            '<button class="mini-switch" type="button" role="switch" data-toggle-eric-budget aria-checked="' + ericCanViewBudget + '"><span></span></button>' +
+          '</div>' +
+          '<div class="settings-row">' +
+            '<div><div class="settings-row-label">Impersonate</div><div class="settings-row-hint">Current demo role: ' + roleLabel + '</div></div>' +
+            '<button class="text-btn" type="button" data-impersonate-eric>View as Eric</button>' +
+          '</div>' +
+          '<div class="settings-action-grid">' +
+            '<button class="text-btn" type="button" data-settings-toast="Exported budget JSON (mock)">Export JSON</button>' +
+            '<button class="text-btn" type="button" data-settings-toast="Import picker would open (mock)">Import JSON</button>' +
+          '</div>' +
+        '</article>' +
+      '</div>'
+    );
+  }
+
+  function settingsAppearanceHtml() {
+    const theme = root.getAttribute('data-theme') || 'light';
+    return (
+      '<div class="settings-stack settings-drill">' +
+        '<button class="settings-back" type="button" data-settings-panel="hub">' +
+          '<span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Settings' +
+        '</button>' +
+        '<article class="settings-card">' +
+          '<div class="settings-card-title">Appearance</div>' +
+          '<div class="settings-row">' +
+            '<div><div class="settings-row-label">Theme</div><div class="settings-row-hint">Light or dark across the app</div></div>' +
+            '<div class="theme-segment" role="group" aria-label="Theme">' +
+              '<button type="button" data-theme-set="light" aria-pressed="' + (theme === 'light') + '">' +
+                '<span class="material-symbols-outlined" aria-hidden="true">light_mode</span> Light' +
+              '</button>' +
+              '<button type="button" data-theme-set="dark" aria-pressed="' + (theme === 'dark') + '">' +
+                '<span class="material-symbols-outlined" aria-hidden="true">dark_mode</span> Dark' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="settings-row settings-row-stack">' +
+            '<div><div class="settings-row-label">Colour palette</div><div class="settings-row-hint">Graphite is the default — pick any look you like</div></div>' +
+            '<div class="palette-options" role="group" aria-label="Colour palette" data-palette-options>' +
+              PALETTE_CHOICES.map(paletteOptionHtml).join('') +
+            '</div>' +
+          '</div>' +
+        '</article>' +
+      '</div>'
+    );
+  }
+
+  function settingsHtml() {
+    return settingsPanel === 'appearance' ? settingsAppearanceHtml() : settingsHubHtml();
+  }
+
+  function wireSettings(rootEl) {
+    rootEl.querySelectorAll('[data-settings-panel]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        settingsPanel = btn.dataset.settingsPanel;
+        renderSettings();
+      });
+    });
+    rootEl.querySelectorAll('[data-theme-set]').forEach((btn) => {
+      btn.addEventListener('click', () => setTheme(btn.dataset.themeSet));
+    });
+    rootEl.querySelectorAll('[data-palette-set]').forEach((btn) => {
+      btn.addEventListener('click', () => setPalette(btn.dataset.paletteSet));
+    });
+    rootEl.querySelectorAll('[data-save-salary]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const input = btn.closest('[data-settings-root]').querySelector('[data-salary-input]');
+        settingsSalary = Number(input.value || settingsSalary);
+        showToast('Salary saved: ' + moneyExact(settingsSalary));
+      });
+    });
+    rootEl.querySelectorAll('[data-delete-account]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payToAccounts = payToAccounts.filter((account) => account.id !== btn.dataset.deleteAccount);
+        showToast('Pay To account removed');
+        renderSettings();
+      });
+    });
+    rootEl.querySelectorAll('[data-add-account]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const input = btn.closest('[data-settings-root]').querySelector('[data-account-name]');
+        const name = input.value.trim() || 'New account';
+        payToAccounts.push({ id: 'acct-' + Date.now(), name, hint: 'Added in mock settings' });
+        showToast('Pay To account added');
+        renderSettings();
+      });
+    });
+    rootEl.querySelectorAll('[data-toggle-eric-budget]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        ericCanViewBudget = !ericCanViewBudget;
+        showToast(ericCanViewBudget ? 'Eric budget access on' : 'Eric budget access off');
+        renderSettings();
+      });
+    });
+    rootEl.querySelectorAll('[data-impersonate-eric]').forEach((btn) => {
+      btn.addEventListener('click', () => setRole('member'));
+    });
+    rootEl.querySelectorAll('[data-settings-toast]').forEach((btn) => {
+      btn.addEventListener('click', () => showToast(btn.dataset.settingsToast));
+    });
+  }
+
+  function renderSettings() {
+    const html = settingsHtml();
+    document.querySelectorAll('[data-settings-root]').forEach((el) => {
+      el.innerHTML = html;
+      wireSettings(el);
+    });
+    syncRoleControls();
+  }
+
+  /* ── Payables ── */
+  let payablesView = 'mine'; // mine | eric
+  let payablesFilter = 'all'; // all | shared | solo
+  let payablesAccount = 'all';
+  let payablesAccountOpen = false;
+  let payablesAddOpen = false;
+  let payablesCompletedOpen = false;
+  let payablesAllocateId = null;
+  let payablesAllocateDraft = { month: 'Aug 2026', period: 'P1' };
+  let payablesCollapsed = new Set();
+  let payablesRows = [
+    { id: 'pay-1', owner: 'mine', name: 'Energy bill', total: 372, share: 186, split: 'shared', payTo: 'NAB Offset', date: '8 Aug', allocated: null, done: false },
+    { id: 'pay-2', owner: 'mine', name: 'Council rates share', total: 480, share: 240, split: 'shared', payTo: 'JA Bills', date: '12 Aug', allocated: { month: 'Aug 2026', period: 'P1' }, done: false },
+    { id: 'pay-3', owner: 'mine', name: 'Vet visit', total: 320, share: 320, split: 'solo', payTo: 'NAB Elly', date: '14 Aug', allocated: null, done: false },
+    { id: 'pay-4', owner: 'mine', name: 'Bunnings run', total: 188, share: 94, split: 'shared', payTo: 'Latitude', date: '18 Aug', allocated: null, done: false },
+    { id: 'pay-5', owner: 'mine', name: 'Pharmacy', total: 48, share: 48, split: 'solo', payTo: 'NAB Elly', date: '21 Aug', allocated: null, done: false },
+    { id: 'pay-6', owner: 'mine', name: 'Internet top-up', total: 130, share: 65, split: 'shared', payTo: 'JA Bills', date: '2 Aug', allocated: { month: 'Aug 2026', period: 'P1' }, done: true },
+    { id: 'pay-7', owner: 'mine', name: 'Uber One annual', total: 60, share: 60, split: 'solo', payTo: 'NAB Elly', date: '28 Jul', allocated: { month: 'Jul 2026', period: 'P2' }, done: true },
+    { id: 'pay-8', owner: 'eric', name: 'Car service', total: 410, share: 410, split: 'solo', payTo: 'NAB Offset', date: '9 Aug', allocated: null, done: false },
+    { id: 'pay-9', owner: 'eric', name: 'Energy bill', total: 372, share: 186, split: 'shared', payTo: 'NAB Offset', date: '8 Aug', allocated: null, done: false },
+    { id: 'pay-10', owner: 'eric', name: 'Council rates share', total: 480, share: 240, split: 'shared', payTo: 'JA Bills', date: '12 Aug', allocated: { month: 'Aug 2026', period: 'P1' }, done: false },
+    { id: 'pay-11', owner: 'eric', name: 'Fuel reimbursement', total: 80, share: 80, split: 'solo', payTo: 'NAB Eric', date: '29 Jul', allocated: { month: 'Jul 2026', period: 'P2' }, done: true },
+  ];
+
+  function payableOwnerRows(owner) {
+    return payablesRows.filter((row) => row.owner === owner);
+  }
+
+  function payableOpenRows(owner) {
+    return payableOwnerRows(owner).filter((row) => !row.done);
+  }
+
+  function payableVisibleOpenRows() {
+    return payableOpenRows(payablesView).filter((row) =>
+      (payablesFilter === 'all' || row.split === payablesFilter) &&
+      (payablesAccount === 'all' || row.payTo === payablesAccount)
+    );
+  }
+
+  function payableTotal(rows) {
+    return rows.reduce((sum, row) => sum + row.share, 0);
+  }
+
+  function payableAccounts(owner) {
+    return [...new Set(payableOpenRows(owner).map((row) => row.payTo))].sort();
+  }
+
+  function splitLabel(row) {
+    if (row.split === 'shared') return 'Shared';
+    return row.owner === 'mine' ? 'Solo' : 'Eric';
+  }
+
+  function splitSelectHtml(row) {
+    return (
+      '<select class="payable-split-select is-' + row.split + '" data-pay-split="' + row.id + '" aria-label="Split for ' + escapeHtml(row.name) + '">' +
+        '<option value="shared"' + (row.split === 'shared' ? ' selected' : '') + '>Shared</option>' +
+        '<option value="solo"' + (row.split === 'solo' ? ' selected' : '') + '>' + (row.owner === 'mine' ? 'Solo' : 'Eric') + '</option>' +
+      '</select>'
+    );
+  }
+
+  function payableRowHtml(row) {
+    const allocated = row.allocated
+      ? '<button class="payable-alloc-badge is-linked" type="button" data-open-allocate="' + row.id + '">' + row.allocated.month + ' · ' + row.allocated.period + '</button>'
+      : '<button class="payable-allocate-link" type="button" data-open-allocate="' + row.id + '">Allocate</button>';
+    return (
+      '<div class="payable-row' + (row.done ? ' is-paid' : '') + '" data-payable-id="' + row.id + '">' +
+        '<button class="bill-check" type="button" data-pay-done="' + row.id + '" aria-label="Toggle ' + escapeHtml(row.name) + '">' +
+          (row.done ? '<span class="material-symbols-outlined" aria-hidden="true">check</span>' : '') +
+        '</button>' +
+        '<div class="payable-name-cell">' +
+          '<div class="bill-name">' + escapeHtml(row.name) + '</div>' +
+          '<div class="bill-meta">' + escapeHtml(row.date) + ' · total ' + moneyExact(row.total) + '</div>' +
+        '</div>' +
+        '<div class="payable-split-cell">' + (row.done ? '<span class="payable-split-badge is-' + row.split + '">' + splitLabel(row) + '</span>' : splitSelectHtml(row)) + '</div>' +
+        '<div class="payable-share-cell">' + moneyExact(row.share) + '</div>' +
+        '<div class="payable-payto-cell">' + escapeHtml(row.payTo) + '</div>' +
+        '<div class="payable-alloc-cell">' + allocated + '</div>' +
+        '<button class="ledger-more" type="button" data-edit-payable="' + row.id + '" aria-label="Edit ' + escapeHtml(row.name) + '">' +
+          '<span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>' +
+        '</button>' +
+      '</div>'
+    );
+  }
+
+  function payableSectionHtml(account, rows) {
+    const collapsed = payablesCollapsed.has(account);
+    return (
+      '<section class="payable-account-section">' +
+        '<button class="payable-account-head" type="button" data-pay-collapse="' + escapeHtml(account) + '" aria-expanded="' + (!collapsed) + '">' +
+          '<span class="section-toggle-left"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span><span class="section-toggle-label">' + escapeHtml(account) + '</span></span>' +
+          '<span class="section-toggle-amt">' + rows.length + ' · ' + moneyExact(payableTotal(rows)) + '</span>' +
+        '</button>' +
+        '<div class="payable-account-body"' + (collapsed ? ' hidden' : '') + '>' + rows.map(payableRowHtml).join('') + '</div>' +
+      '</section>'
+    );
+  }
+
+  function payablesAddFormHtml() {
+    if (!payablesAddOpen) return '';
+    return (
+      '<article class="card payable-add-card">' +
+        '<div class="panel-card-head"><div class="panel-card-title">Add payable</div></div>' +
+        '<div class="payable-form-grid">' +
+          '<label class="settings-field"><span>Name</span><input type="text" data-add-payable-name value="Receipt from Bunnings"></label>' +
+          '<label class="settings-field"><span>Amount</span><input type="number" min="0" step="0.01" data-add-payable-amount value="188"></label>' +
+          '<label class="settings-field"><span>Split</span><select data-add-payable-split><option value="shared">Shared</option><option value="solo">Solo (mine)</option><option value="eric">Solo (Eric’s)</option></select></label>' +
+          '<div class="settings-row-hint" data-add-split-hint>Shared splits 50/50 — your share updates as you type.</div>' +
+          '<label class="settings-field"><span>Pay to</span><select data-add-payable-payto>' +
+            ['JA Bills', 'NAB Offset', 'Latitude', 'NAB Elly'].map((account) => '<option>' + account + '</option>').join('') +
+          '</select></label>' +
+          '<label class="settings-field"><span>Date</span><input type="text" data-add-payable-date value="24 Aug"></label>' +
+        '</div>' +
+        '<div class="payable-form-actions">' +
+          '<button class="text-btn" type="button" data-save-payable>Save payable</button>' +
+          '<button class="text-btn subtle" type="button" data-toggle-add-payable>Cancel</button>' +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  function payablesAllocateModalHtml() {
+    const row = payablesRows.find((item) => item.id === payablesAllocateId);
+    if (!row) return '';
+    return (
+      '<div class="mock-modal-backdrop" role="dialog" aria-modal="true" aria-label="Allocate payable">' +
+        '<div class="mock-modal">' +
+          '<div class="mock-modal-head">' +
+            '<div><div class="settings-card-title">Allocate payable</div><h3>' + escapeHtml(row.name) + '</h3></div>' +
+            '<button class="icon-btn icon-btn-sm" type="button" data-close-allocate aria-label="Close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>' +
+          '</div>' +
+          '<div class="payable-form-grid">' +
+            '<label class="settings-field"><span>Month</span><select data-alloc-month><option>Aug 2026</option><option>Sep 2026</option><option>Jul 2026</option></select></label>' +
+            '<label class="settings-field"><span>Period</span><select data-alloc-period><option>P1</option><option>P2</option></select></label>' +
+          '</div>' +
+          '<div class="safe-hint"><span class="material-symbols-outlined" aria-hidden="true">savings</span>Creates a bill in that period · share ' + moneyExact(row.share) + ' · safe after: ' + moneyExact(Math.max(0, 1248 - row.share)) + '</div>' +
+          '<div class="payable-form-actions">' +
+            '<button class="text-btn" type="button" data-confirm-allocate="' + row.id + '">Confirm allocation</button>' +
+            '<button class="text-btn subtle" type="button" data-close-allocate>Cancel</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function payablesHtml() {
+    const ownerOpen = payableOpenRows(payablesView);
+    const otherOwner = payablesView === 'mine' ? 'eric' : 'mine';
+    const otherOpen = payableOpenRows(otherOwner);
+    const completed = payableOwnerRows(payablesView).filter((row) => row.done);
+    const accounts = payableAccounts(payablesView);
+    if (payablesAccount !== 'all' && !accounts.includes(payablesAccount)) payablesAccount = 'all';
+    const visibleOpen = payableVisibleOpenRows();
+    const accountChipLabel = payablesAccount === 'all' ? 'Account' : payablesAccount;
+    const accountSubchips =
+      '<button class="chip-tab" type="button" data-pay-account="all" aria-pressed="' + (payablesAccount === 'all') + '">All accounts</button>' +
+      accounts.map((account) =>
+        '<button class="chip-tab" type="button" data-pay-account="' + escapeHtml(account) + '" aria-pressed="' + (payablesAccount === account) + '">' + escapeHtml(account) + '</button>'
+      ).join('');
+    const grouped = visibleOpen.reduce((map, row) => {
+      if (!map[row.payTo]) map[row.payTo] = [];
+      map[row.payTo].push(row);
+      return map;
+    }, {});
+    const groupsHtml = Object.keys(grouped).sort().map((account) => payableSectionHtml(account, grouped[account])).join('');
+    const allClear = ownerOpen.length === 0;
+    const emptyCopy = allClear ? 'All clear — no open payables.' : 'No open items match these filters.';
+    const completedRows = completed.map(payableRowHtml).join('');
+    return (
+      '<section class="hero-fan owing-fan" aria-label="Owing totals">' +
+        '<div class="hero-fan-row">' +
+          '<div class="hero-metric" data-metric="owe"><div class="hero-label">' + (payablesView === 'mine' ? 'You owe' : 'Eric owes') + '</div><div class="hero-figure">' + moneyExact(payableTotal(ownerOpen)) + '</div><div class="hero-chip">' + ownerOpen.length + ' open payable' + (ownerOpen.length === 1 ? '' : 's') + '</div></div>' +
+          '<div class="hero-metric" data-metric="eric"><div class="hero-label">' + (payablesView === 'mine' ? 'Eric owes' : 'You owe') + '</div><div class="hero-figure">' + moneyExact(payableTotal(otherOpen)) + '</div><div class="hero-chip">' + otherOpen.length + ' open on other view</div></div>' +
+        '</div>' +
+      '</section>' +
+      '<section class="hero owing-hero" aria-label="Owing">' +
+        '<div class="hero-label">' + (payablesView === 'mine' ? 'You owe' : 'Eric owes') + '</div><div class="hero-figure">' + moneyExact(payableTotal(ownerOpen)) + '</div><div class="hero-chip">' + ownerOpen.length + ' open payable' + (ownerOpen.length === 1 ? '' : 's') + '</div>' +
+      '</section>' +
+      '<div class="page-body payables-body">' +
+        '<div class="payables-toolbar">' +
+          '<div class="chip-tabs" role="toolbar" aria-label="Payables filters">' +
+            '<button class="chip-tab chip-tab-account' + (payablesAccount !== 'all' || payablesAccountOpen ? ' is-active-filter' : '') + '" type="button" data-toggle-account-chips aria-expanded="' + payablesAccountOpen + '">' +
+              escapeHtml(accountChipLabel) +
+              '<span class="material-symbols-outlined" aria-hidden="true">' + (payablesAccountOpen ? 'expand_less' : 'expand_more') + '</span>' +
+            '</button>' +
+            '<button class="chip-tab" type="button" data-pay-filter="all" aria-pressed="' + (payablesFilter === 'all') + '">All</button>' +
+            '<button class="chip-tab" type="button" data-pay-filter="shared" aria-pressed="' + (payablesFilter === 'shared') + '">Shared</button>' +
+            '<button class="chip-tab" type="button" data-pay-filter="solo" aria-pressed="' + (payablesFilter === 'solo') + '">Solo</button>' +
+          '</div>' +
+          '<button class="text-btn" type="button" data-toggle-add-payable><span class="material-symbols-outlined" aria-hidden="true">add</span>Add payable</button>' +
+        '</div>' +
+        '<div class="chip-tabs chip-tabs-sub' + (payablesAccountOpen ? ' is-open' : '') + '" role="listbox" aria-label="Pay To account" ' + (payablesAccountOpen ? '' : 'hidden') + '>' +
+          accountSubchips +
+        '</div>' +
+        payablesAddFormHtml() +
+        '<article class="card payables-list-card">' +
+          '<div class="panel-card-head"><div><div class="panel-card-title">Open payables</div><div class="settings-row-hint">Grouped by Pay To account</div></div></div>' +
+          '<div class="payable-col-head" aria-hidden="true"><span></span><span>Name</span><span>Split</span><span>Share</span><span>Pay to</span><span>Allocate</span><span></span></div>' +
+          (groupsHtml || '<div class="payables-empty"><span class="material-symbols-outlined" aria-hidden="true">' + (allClear ? 'check_circle' : 'filter_alt_off') + '</span><strong>' + emptyCopy + '</strong><span>Add a payable or change filters to keep reviewing.</span></div>') +
+          '<button class="completed-toggle" type="button" data-completed-toggle aria-expanded="' + payablesCompletedOpen + '"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span><span>Completed · ' + completed.length + '</span></button>' +
+          '<div class="completed-list" data-completed-list' + (payablesCompletedOpen ? '' : ' hidden') + '>' + (completedRows || '<div class="payables-empty">Nothing completed yet.</div>') + '</div>' +
+        '</article>' +
+      '</div>' +
+      payablesAllocateModalHtml()
+    );
+  }
+
+  function savePayable(rootEl) {
+    const name = rootEl.querySelector('[data-add-payable-name]').value.trim() || 'New payable';
+    const total = Number(rootEl.querySelector('[data-add-payable-amount]').value || 0);
+    const splitVal = rootEl.querySelector('[data-add-payable-split]').value;
+    const payTo = rootEl.querySelector('[data-add-payable-payto]').value;
+    const date = rootEl.querySelector('[data-add-payable-date]').value.trim() || 'Today';
+    const owner = splitVal === 'eric' ? 'eric' : payablesView === 'eric' && splitVal === 'solo' ? 'eric' : 'mine';
+    const split = splitVal === 'shared' ? 'shared' : 'solo';
+    payablesRows.push({
+      id: 'pay-' + Date.now(),
+      owner,
+      name,
+      total,
+      share: split === 'shared' ? total / 2 : total,
+      split,
+      payTo,
+      date,
+      allocated: null,
+      done: false,
+    });
+    payablesAddOpen = false;
+    payablesAccount = 'all';
+    if (owner !== payablesView) payablesView = owner;
+    showToast('Payable added');
+    renderPayables();
+  }
+
+  function syncPayablesSwitch() {
+    const isEric = payablesView === 'eric';
+    document.querySelectorAll('[data-payables-switch]').forEach((el) => {
+      const toggle = el.querySelector('[data-pay-toggle]');
+      if (toggle) toggle.setAttribute('aria-checked', isEric ? 'true' : 'false');
+      el.querySelectorAll('[data-pay-label]').forEach((label) => {
+        label.classList.toggle('is-active', label.dataset.payLabel === payablesView);
+      });
+    });
+  }
+
+  function setPayablesView(view) {
+    payablesView = view === 'eric' ? 'eric' : 'mine';
+    payablesAccount = 'all';
+    payablesAccountOpen = false;
+    syncPayablesSwitch();
+    renderPayables();
+  }
+
+  function wirePayables(rootEl) {
+    rootEl.querySelectorAll('[data-pay-filter]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesFilter = btn.dataset.payFilter;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-toggle-account-chips]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesAccountOpen = !payablesAccountOpen;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-pay-account]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesAccount = btn.dataset.payAccount || 'all';
+        payablesAccountOpen = false;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-pay-collapse]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const account = btn.dataset.payCollapse;
+        if (payablesCollapsed.has(account)) payablesCollapsed.delete(account);
+        else payablesCollapsed.add(account);
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-pay-done]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const row = payablesRows.find((item) => item.id === btn.dataset.payDone);
+        if (!row) return;
+        row.done = !row.done;
+        showToast(row.done ? 'Marked complete' : 'Moved back to open');
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-pay-split]').forEach((select) => {
+      select.addEventListener('change', () => {
+        const row = payablesRows.find((item) => item.id === select.dataset.paySplit);
+        if (!row) return;
+        row.split = select.value;
+        row.share = row.split === 'shared' ? row.total / 2 : row.total;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-toggle-add-payable]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesAddOpen = !payablesAddOpen;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-save-payable]').forEach((btn) => {
+      btn.addEventListener('click', () => savePayable(btn.closest('[data-payables-root]')));
+    });
+    rootEl.querySelectorAll('[data-open-allocate]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const row = payablesRows.find((item) => item.id === btn.dataset.openAllocate);
+        payablesAllocateId = btn.dataset.openAllocate;
+        payablesAllocateDraft = row && row.allocated ? Object.assign({}, row.allocated) : { month: 'Aug 2026', period: 'P1' };
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-alloc-month]').forEach((select) => {
+      select.value = payablesAllocateDraft.month;
+      select.addEventListener('change', () => { payablesAllocateDraft.month = select.value; });
+    });
+    rootEl.querySelectorAll('[data-alloc-period]').forEach((select) => {
+      select.value = payablesAllocateDraft.period;
+      select.addEventListener('change', () => { payablesAllocateDraft.period = select.value; });
+    });
+    rootEl.querySelectorAll('[data-confirm-allocate]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const row = payablesRows.find((item) => item.id === btn.dataset.confirmAllocate);
+        if (row) row.allocated = Object.assign({}, payablesAllocateDraft);
+        payablesAllocateId = null;
+        showToast('Allocated — bill created in ' + payablesAllocateDraft.month + ' ' + payablesAllocateDraft.period);
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-close-allocate]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesAllocateId = null;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-edit-payable]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        openAppModal({ type: 'payable-edit', payableId: btn.dataset.editPayable });
+      });
+    });
+    const amountInput = rootEl.querySelector('[data-add-payable-amount]');
+    const splitInput = rootEl.querySelector('[data-add-payable-split]');
+    const hint = rootEl.querySelector('[data-add-split-hint]');
+    function syncAddHint() {
+      if (!amountInput || !splitInput || !hint) return;
+      const total = Number(amountInput.value || 0);
+      const splitVal = splitInput.value;
+      if (splitVal === 'shared') hint.textContent = 'Shared 50/50 — your share ' + moneyExact(total / 2);
+      else if (splitVal === 'eric') hint.textContent = 'Solo (Eric’s) — full amount ' + moneyExact(total) + ' on Eric';
+      else hint.textContent = 'Solo (mine) — full amount ' + moneyExact(total) + ' on you';
+    }
+    if (amountInput) amountInput.addEventListener('input', syncAddHint);
+    if (splitInput) splitInput.addEventListener('change', syncAddHint);
+    syncAddHint();
+    rootEl.querySelectorAll('[data-completed-toggle]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesCompletedOpen = !payablesCompletedOpen;
+        renderPayables();
+      });
+    });
+  }
+
+  function renderPayables() {
+    const html = payablesHtml();
+    document.querySelectorAll('[data-payables-root]').forEach((el) => {
+      el.innerHTML = html;
+      wirePayables(el);
+    });
+    syncPayablesSwitch();
+  }
+
+  document.querySelectorAll('[data-pay-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setPayablesView(payablesView === 'mine' ? 'eric' : 'mine');
+    });
+  });
+
+  /* ── Chat full-page mock ── */
+  let chatActiveThreadId = 'chat-1';
+  let chatSearch = '';
+  let chatDraft = '';
+  let chatThinking = false;
+  let chatReceiptAttached = false;
+  let chatReceiptPreview = '';
+  let chatHistoryOpen = false;
+  let chatProposalSavingId = null;
+  let chatThreads = [
+    {
+      id: 'chat-1',
+      title: 'Allocate Bunnings receipt',
+      date: 'Today',
+      messages: [
+        { role: 'user', text: 'I attached the Bunnings receipt. Can you add the shared payable?', tags: ['receipt'] },
+        {
+          role: 'assistant',
+          text: 'I found a likely household payable.\n- Merchant: **Bunnings**\n- Total: **$188.00**\n- Suggested split: **Shared 50/50**\n\nPlease confirm before I add it.',
+          tags: ['receipt'],
+          proposal: { id: 'proposal-1', title: 'Create payable', detail: 'Bunnings run · $94 share · Pay to Latitude', status: 'pending' },
+        },
+      ],
+    },
+    {
+      id: 'chat-2',
+      title: 'Safe to spend this period',
+      date: 'Yesterday',
+      messages: [
+        { role: 'user', text: 'How much is safe to spend after bills this fortnight?' },
+        { role: 'assistant', text: 'You have **$1,248** safe to spend after the locked bills and savings goals in Pay period 1. The biggest upcoming open payable is Vet visit at **$320**.' },
+      ],
+    },
+    {
+      id: 'chat-3',
+      title: 'Find subscriptions',
+      date: '29 Jul',
+      messages: [
+        { role: 'user', text: 'Search recurring subscriptions and tell me what changed.', tags: ['web search'] },
+        { role: 'assistant', text: 'I checked the recurring list.\n- ChatGPT, Clip Studio, Netflix, and Disney+ are unchanged.\n- Uber One was annual and already completed in Payables.', tags: ['search'] },
+      ],
+    },
+  ];
+
+  function activeChatThread() {
+    return chatThreads.find((thread) => thread.id === chatActiveThreadId) || chatThreads[0];
+  }
+
+  function chatPreview(thread) {
+    const last = thread.messages[thread.messages.length - 1];
+    return last ? last.text.replace(/\s+/g, ' ').slice(0, 54) : 'New finance assistant chat';
+  }
+
+  function chatMarkdownHtml(text) {
+    const lines = String(text || '').split('\n');
+    let html = '';
+    let inList = false;
+    lines.forEach((line) => {
+      const safe = escapeHtml(line).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      if (safe.indexOf('- ') === 0) {
+        if (!inList) {
+          html += '<ul class="chat-md-ul">';
+          inList = true;
+        }
+        html += '<li class="chat-md-li">' + safe.slice(2) + '</li>';
+      } else {
+        if (inList) {
+          html += '</ul>';
+          inList = false;
+        }
+        if (safe) html += '<p class="chat-md-p">' + safe + '</p>';
+      }
+    });
+    if (inList) html += '</ul>';
+    return html;
+  }
+
+  function chatTagHtml(tags) {
+    return (tags || []).map((tag) =>
+      '<span class="chat-tag"><span class="material-symbols-outlined" aria-hidden="true">' + (tag === 'receipt' ? 'receipt_long' : 'travel_explore') + '</span>' + escapeHtml(tag) + '</span>'
+    ).join('');
+  }
+
+  function chatProposalHtml(proposal) {
+    if (!proposal) return '';
+    const saving = chatProposalSavingId === proposal.id;
+    const statusClass = proposal.status === 'confirmed' ? ' is-confirmed' : proposal.status === 'cancelled' ? ' is-cancelled' : saving ? ' is-saving' : '';
+    let actions = '';
+    if (saving) {
+      actions = '<div class="chat-action-status">Saving…</div>';
+    } else if (proposal.status === 'pending') {
+      actions = '<div class="chat-action-buttons"><button class="text-btn" type="button" data-chat-proposal="confirm" data-proposal-id="' + proposal.id + '">Confirm</button><button class="text-btn subtle" type="button" data-chat-proposal="cancel" data-proposal-id="' + proposal.id + '">Cancel</button></div>';
+    } else {
+      actions = '<div class="chat-action-status">' + (proposal.status === 'confirmed' ? 'Confirmed · added to Payables' : 'Cancelled') + '</div>';
+    }
+    return (
+      '<div class="chat-action-card' + statusClass + '">' +
+        '<div class="chat-action-kicker">Proposed action</div>' +
+        '<div class="chat-action-title">' + escapeHtml(proposal.title) + '</div>' +
+        '<div class="chat-action-detail">' + escapeHtml(proposal.detail) + '</div>' +
+        actions +
+      '</div>'
+    );
+  }
+
+  function chatMessageHtml(message) {
+    const cls = message.role === 'user' ? 'chat-msg chat-msg-user' : 'chat-msg chat-msg-assistant';
+    return (
+      '<div class="' + cls + '">' +
+        (message.tags && message.tags.length ? '<div class="chat-tags">' + chatTagHtml(message.tags) + '</div>' : '') +
+        '<div class="chat-msg-text">' + (message.role === 'assistant' ? chatMarkdownHtml(message.text) : escapeHtml(message.text)) + '</div>' +
+        chatProposalHtml(message.proposal) +
+      '</div>'
+    );
+  }
+
+  function chatHistoryHtml() {
+    const q = chatSearch.trim().toLowerCase();
+    const threads = chatThreads.filter((thread) =>
+      !q ||
+      thread.title.toLowerCase().includes(q) ||
+      thread.messages.some((message) => message.text.toLowerCase().includes(q))
+    );
+    return (
+      '<aside class="chat-history-panel">' +
+        '<div class="chat-history-head">' +
+          '<div><h3>History</h3><span>Finance assistant</span></div>' +
+          '<button class="text-btn" type="button" data-chat-new>New chat</button>' +
+        '</div>' +
+        '<label class="chat-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input type="search" data-chat-search value="' + escapeHtml(chatSearch) + '" placeholder="Search history"></label>' +
+        '<div class="chat-thread-list">' +
+          (threads.map((thread) =>
+            '<button class="chat-thread' + (thread.id === chatActiveThreadId ? ' active' : '') + '" type="button" data-chat-thread="' + thread.id + '">' +
+              '<span class="chat-thread-title">' + escapeHtml(thread.title) + '</span>' +
+              '<span class="chat-thread-preview">' + escapeHtml(chatPreview(thread)) + '</span>' +
+              '<span class="chat-thread-date">' + escapeHtml(thread.date) + '</span>' +
+            '</button>'
+          ).join('') || '<div class="chat-history-empty">No matching threads.</div>') +
+        '</div>' +
+      '</aside>'
+    );
+  }
+
+  function chatLogHtml(thread) {
+    if (!thread || thread.messages.length === 0) {
+      return (
+        '<div class="chat-empty">' +
+          '<span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span>' +
+          '<h3>Ask about your budget</h3>' +
+          '<p>Try “What can I safely spend?”, “Attach this receipt”, or “Create a shared payable for dinner”.</p>' +
+        '</div>'
+      );
+    }
+    return thread.messages.map(chatMessageHtml).join('') + (chatThinking
+      ? '<div class="chat-thinking"><span>Thinking</span><span class="chat-thinking-dots"><i></i><i></i><i></i></span></div>'
+      : '');
+  }
+
+  function chatHtml() {
+    const thread = activeChatThread();
+    return (
+      '<div class="chat-page' + (chatHistoryOpen ? ' is-history-open' : '') + '">' +
+        '<button class="chat-history-scrim" type="button" data-chat-close-history aria-label="Close history"></button>' +
+        chatHistoryHtml() +
+        '<main class="chat-main-panel">' +
+          '<header class="chat-page-head">' +
+            '<button class="icon-btn chat-menu-btn" type="button" data-chat-toggle-history aria-label="Open chat history"><span class="material-symbols-outlined" aria-hidden="true">menu</span></button>' +
+            '<div><div class="chat-page-title">' + escapeHtml(thread.title) + '</div><div class="settings-row-hint">Local mock · no Firebase calls</div></div>' +
+            '<button class="icon-btn" type="button" data-chat-new aria-label="New chat"><span class="material-symbols-outlined" aria-hidden="true">add_comment</span></button>' +
+          '</header>' +
+          '<div class="chat-log">' + chatLogHtml(thread) + '</div>' +
+          '<form class="chat-composer-card" data-chat-form>' +
+            (chatReceiptAttached
+              ? '<div class="chat-attachment-preview">' +
+                  (chatReceiptPreview
+                    ? '<img src="' + chatReceiptPreview + '" alt="Attached receipt">'
+                    : '<div class="chat-attachment-fallback"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span></div>') +
+                  '<div class="chat-attachment-meta"><strong>receipt.jpg</strong><span>Ready to send with your message</span></div>' +
+                  '<button type="button" data-chat-remove-attachment aria-label="Remove receipt">×</button>' +
+                '</div>'
+              : '') +
+            '<div class="chat-composer-row">' +
+              '<button class="chat-attach" type="button" data-chat-attach aria-label="Attach receipt"><span class="material-symbols-outlined" aria-hidden="true">attach_file</span></button>' +
+              '<textarea data-chat-draft placeholder="Ask Pensive about payables, safe-to-spend, or a receipt">' + escapeHtml(chatDraft) + '</textarea>' +
+              '<button class="chat-send" type="submit" aria-label="Send"><span class="material-symbols-outlined" aria-hidden="true">send</span></button>' +
+            '</div>' +
+            '<input type="file" accept="image/*" hidden data-chat-file>' +
+          '</form>' +
+        '</main>' +
+      '</div>'
+    );
+  }
+
+  function mockAssistantReply(userText, hadReceipt) {
+    const lower = userText.toLowerCase();
+    if (hadReceipt || lower.includes('receipt') || lower.includes('payable') || lower.includes('split')) {
+      return {
+        role: 'assistant',
+        text: 'I can create that as a payable.\n- Suggested name: **Bunnings run**\n- Split: **Shared 50/50**\n- Pay to: **Latitude**\n\nConfirm and I will add it to Payables.',
+        tags: hadReceipt ? ['receipt'] : [],
+        proposal: { id: 'proposal-' + Date.now(), title: 'Create payable', detail: 'Bunnings run · $94 share · Pay to Latitude', status: 'pending' },
+      };
+    }
+    return {
+      role: 'assistant',
+      text: 'Here is the quick read: **$1,248** is safe to spend this fortnight. You have 5 open payables worth **$888**, and 2 already allocated to Aug P1.',
+      tags: lower.includes('search') ? ['search'] : [],
+    };
+  }
+
+  function sendChat(rootEl) {
+    const input = rootEl.querySelector('[data-chat-draft]');
+    const text = (input.value || '').trim();
+    if (!text && !chatReceiptAttached) return;
+    const thread = activeChatThread();
+    const hadReceipt = chatReceiptAttached;
+    const userText = text || 'Attached a receipt';
+    thread.messages.push({ role: 'user', text: userText, tags: hadReceipt ? ['receipt'] : [] });
+    if (thread.title === 'New chat') thread.title = userText.slice(0, 32);
+    thread.date = 'Now';
+    chatDraft = '';
+    chatReceiptAttached = false;
+    chatReceiptPreview = '';
+    chatThinking = true;
+    renderChat();
+    clearTimeout(sendChat._timer);
+    sendChat._timer = setTimeout(() => {
+      thread.messages.push(mockAssistantReply(userText, hadReceipt));
+      chatThinking = false;
+      renderChat();
+    }, 850);
+  }
+
+  function newChat() {
+    const thread = { id: 'chat-' + Date.now(), title: 'New chat', date: 'Now', messages: [] };
+    chatThreads.unshift(thread);
+    chatActiveThreadId = thread.id;
+    chatDraft = '';
+    chatReceiptAttached = false;
+    chatReceiptPreview = '';
+    chatHistoryOpen = false;
+    renderChat();
+  }
+
+  function updateProposal(id, status) {
+    if (status === 'confirmed') {
+      chatProposalSavingId = id;
+      renderChat();
+      clearTimeout(updateProposal._timer);
+      updateProposal._timer = setTimeout(() => {
+        chatThreads.forEach((thread) => {
+          thread.messages.forEach((message) => {
+            if (message.proposal && message.proposal.id === id) message.proposal.status = 'confirmed';
+          });
+        });
+        chatProposalSavingId = null;
+        // Mirror production: confirming a payable proposal adds a mock payable
+        payablesRows.unshift({
+          id: 'pay-chat-' + Date.now(),
+          owner: 'mine',
+          name: 'Bunnings run',
+          total: 188,
+          share: 94,
+          split: 'shared',
+          payTo: 'Latitude',
+          date: 'Today',
+          allocated: null,
+          done: false,
+        });
+        showToast('Payable added from Chat');
+        renderChat();
+        renderPayables();
+      }, 700);
+      return;
+    }
+    chatThreads.forEach((thread) => {
+      thread.messages.forEach((message) => {
+        if (message.proposal && message.proposal.id === id) message.proposal.status = status;
+      });
+    });
+    showToast('Action cancelled');
+    renderChat();
+  }
+
+  function wireChat(rootEl) {
+    rootEl.querySelectorAll('[data-chat-toggle-history]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        chatHistoryOpen = true;
+        renderChat();
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-close-history]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        chatHistoryOpen = false;
+        renderChat();
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-thread]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        chatActiveThreadId = btn.dataset.chatThread;
+        chatHistoryOpen = false;
+        renderChat();
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-new]').forEach((btn) => {
+      btn.addEventListener('click', newChat);
+    });
+    rootEl.querySelectorAll('[data-chat-search]').forEach((input) => {
+      input.addEventListener('input', () => {
+        chatSearch = input.value;
+        renderChat();
+        document.querySelectorAll('[data-chat-search]').forEach((next) => {
+          next.focus();
+          next.setSelectionRange(chatSearch.length, chatSearch.length);
+        });
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-draft]').forEach((input) => {
+      input.addEventListener('input', () => { chatDraft = input.value; });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendChat(rootEl);
+        }
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-form]').forEach((form) => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        sendChat(rootEl);
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-attach]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const fileInput = rootEl.querySelector('[data-chat-file]');
+        if (fileInput) fileInput.click();
+        else {
+          chatReceiptAttached = true;
+          chatReceiptPreview = '';
+          showToast('Receipt attached');
+          renderChat();
+        }
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-file]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          chatReceiptAttached = true;
+          chatReceiptPreview = String(reader.result || '');
+          showToast('Receipt attached');
+          renderChat();
+        };
+        reader.readAsDataURL(file);
+        input.value = '';
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-remove-attachment]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        chatReceiptAttached = false;
+        chatReceiptPreview = '';
+        renderChat();
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-proposal]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        updateProposal(btn.dataset.proposalId, btn.dataset.chatProposal === 'confirm' ? 'confirmed' : 'cancelled');
+      });
+    });
+  }
+
+  function renderChat() {
+    const html = chatHtml();
+    document.querySelectorAll('[data-chat-root]').forEach((el) => {
+      el.innerHTML = html;
+      wireChat(el);
+      const log = el.querySelector('.chat-log');
+      if (log) log.scrollTop = log.scrollHeight;
+    });
+  }
+
+  renderHomeInsights();
+  renderMonthly();
+  renderPayables();
+  renderSettings();
+  renderChat();
+  setPage('home');
+  setTheme(root.getAttribute('data-theme') || 'light');
+  syncRoleControls();
+
+  const metrics = [
+    {
+      id: 'safe',
+      label: 'Safe to spend',
+      value: '$1,248',
+      chip: 'After bills & savings this fortnight',
+    },
+    {
+      id: 'in',
+      label: 'Money in',
+      value: '$4,525',
+      chip: 'Salary this fortnight',
+    },
+    {
+      id: 'out',
+      label: 'Money out',
+      value: '$3,277',
+      chip: 'Bills + savings this fortnight',
+    },
+  ];
+
+  // Compact/phone only — desktop fans all three metrics out.
+  const heroes = [...document.querySelectorAll('.hero-carousel')];
+  let metricIndex = 0;
+
+  function setMetric(i) {
+    metricIndex = (i + metrics.length) % metrics.length;
+    const m = metrics[metricIndex];
+    heroes.forEach((hero) => {
+      hero.dataset.metric = m.id;
+      hero.querySelector('.hero-label').textContent = m.label;
+      hero.querySelector('.hero-figure').textContent = m.value;
+      hero.querySelector('.hero-chip').textContent = m.chip;
+      const btn = hero.querySelector('.hero-figure-btn');
+      btn.setAttribute('aria-label', m.label + '. Tap to switch metric');
+      hero.querySelectorAll('.hero-dot').forEach((d, idx) => {
+        if (idx === metricIndex) d.setAttribute('aria-current', 'true');
+        else d.removeAttribute('aria-current');
+      });
+    });
+  }
+
+  heroes.forEach((hero) => {
+    hero.querySelector('.hero-figure-btn').addEventListener('click', () => setMetric(metricIndex + 1));
+    hero.querySelectorAll('.hero-dot').forEach((d) => {
+      d.addEventListener('click', () => setMetric(Number(d.dataset.idx)));
+    });
+
+    let touchX = null;
+    hero.addEventListener('touchstart', (e) => {
+      touchX = e.changedTouches[0].clientX;
+    }, { passive: true });
+    hero.addEventListener('touchend', (e) => {
+      if (touchX == null) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      touchX = null;
+      if (Math.abs(dx) < 40) return;
+      setMetric(metricIndex + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  });
+
+  setMetric(0);
+</script>
+</body>
+</html>

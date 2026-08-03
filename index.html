@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" data-palette="graphite">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>💰 Finance Hub — Elly & Eric</title>
+<title>Pensive — Finance Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <!-- Firebase -->
@@ -50,6 +50,11 @@
   document.dispatchEvent(new Event('firebaseReady'));
 </script>
 
+<link href="design-system/tokens.css" rel="stylesheet">
+<link href="design-system/home.css" rel="stylesheet">
+<link href="design-system/payables.css" rel="stylesheet">
+<link href="design-system/monthly.css" rel="stylesheet">
+
 <style>
 /* ═══════════════════════════════════════
    CSS VARIABLES
@@ -61,28 +66,29 @@
   --eric-light: #E0F2FE;
   --shared: #059669;
   --shared-light: #D1FAE5;
-  --danger: #DC2626;
+  --danger: var(--error, #DC2626);
   --danger-light: #FEE2E2;
   --warn-light: #FEF3C7;
-  --surface: #FFFFFF;
-  --surface-alt: #F8FAFC;
-  --surface-sunken: #F1F5F9;
-  --brand-col: #1E3A5F; /* topbar navy — also headings and primary buttons */
-  --text-col: #1A202C;
-  --border-col: #E2E8F0;
-  --border-strong-col: #CBD5E1;
-  --muted-col: #64748B;
-  --faint-col: #94A3B8;
+  /* Bridge facelift tokens → legacy app chrome */
+  --surface: var(--surface-container-lowest, #FFFFFF);
+  --surface-alt: var(--surface-container-low, #F8FAFC);
+  --surface-sunken: var(--surface-container, #F1F5F9);
+  --brand-col: var(--primary, #1E3A5F);
+  --text-col: var(--on-surface, #1A202C);
+  --border-col: var(--outline-variant, #E2E8F0);
+  --border-strong-col: var(--outline, #CBD5E1);
+  --muted-col: var(--on-surface-variant, #64748B);
+  --faint-col: var(--outline, #94A3B8);
   --danger-dark: #B91C1C;
   --shared-border: #A7F3D0;
   --shared-dark: #065F46;
-  --radius: 12px;
+  --radius: var(--radius-md, 12px);
   --main-padding-y: 20px;
-  --brand-deep: #162d4a;
+  --brand-deep: color-mix(in srgb, var(--primary, #1E3A5F) 82%, #000);
   --z-chat-widget: 1200;
   --z-chat-overlay: 1300;
-  --shadow-chat-panel: 0 12px 40px rgba(15, 30, 49, 0.22);
-  --shadow-chat-bubble: 0 8px 24px rgba(15, 30, 49, 0.28);
+  --shadow-chat-panel: 0 12px 40px var(--shadow, rgba(15, 30, 49, 0.22));
+  --shadow-chat-bubble: 0 8px 24px var(--shadow, rgba(15, 30, 49, 0.28));
   --chat-input-height: 36px;
   --chat-input-height-active: 76px; /* ~3 lines */
   --content-max-width: 80%;
@@ -97,9 +103,73 @@ body.user-eric {
 ═══════════════════════════════════════ */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f0f2f5; color: #1a202c; min-height: 100vh;
+  font-family: var(--font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  background: var(--surface, #f0f2f5);
+  color: var(--on-surface, #1a202c);
+  min-height: 100vh;
 }
+
+/* ── Appearance (Phase 3A — tokens bridge) ── */
+.appearance-theme-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.appearance-theme-btn {
+  border: 1.5px solid var(--border-col);
+  background: var(--surface-alt);
+  color: var(--text-col);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.appearance-theme-btn[aria-pressed="true"] {
+  border-color: var(--brand-col);
+  background: var(--primary-container, #e6e6e9);
+  color: var(--on-primary-container, var(--text-col));
+}
+.appearance-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.appearance-palette-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  border: 1.5px solid var(--border-col);
+  background: var(--surface-alt);
+  color: var(--text-col);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+.appearance-palette-btn[aria-pressed="true"] {
+  border-color: var(--brand-col);
+  background: var(--primary-container, #e6e6e9);
+  color: var(--on-primary-container, var(--text-col));
+}
+.appearance-swatches { display: flex; gap: 4px; }
+.appearance-swatches i {
+  width: 14px; height: 14px; border-radius: 50%;
+  display: block; border: 1px solid rgba(0,0,0,0.12);
+}
+.appearance-palette-btn strong { font-size: 0.85rem; }
+.appearance-palette-btn span { font-size: 0.72rem; color: var(--muted-col); }
+html[data-theme="dark"] body { color-scheme: dark; }
+html[data-theme="dark"] .admin-card {
+  background: var(--surface-container-lowest, #fff);
+  border-color: var(--border-col);
+}
+
 
 /* ═══════════════════════════════════════
    LOGIN SCREEN
@@ -107,28 +177,39 @@ body {
 #login-screen {
   min-height: 100vh;
   display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #1e3a5f 0%, #162d4a 60%, #0f1e31 100%);
+  background:
+    radial-gradient(ellipse at 20% 10%, color-mix(in srgb, var(--primary-container, #e6e6e9) 55%, transparent), transparent 55%),
+    linear-gradient(160deg, var(--surface, #f4f4f5) 0%, var(--surface-container, #ececee) 45%, color-mix(in srgb, var(--primary, #2a2a2e) 18%, #f4f4f5) 100%);
 }
 .login-box {
-  background: white; border-radius: 20px;
+  background: var(--surface-container-lowest, #fff); border-radius: 20px;
   padding: 44px 40px; width: 100%; max-width: 420px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+  box-shadow: 0 18px 50px var(--shadow, rgba(15,30,49,0.14));
+  border: 1px solid var(--outline-variant, #e2e8f0);
   text-align: center;
 }
-.login-logo { font-size: 2.8rem; margin-bottom: 6px; }
-.login-title { font-size: 1.55rem; font-weight: 800; color: #1e3a5f; margin-bottom: 4px; }
-.login-sub   { font-size: 0.88rem; color: #64748b; margin-bottom: 32px; }
+.login-logo {
+  width: 56px; height: 56px; margin: 0 auto 12px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--primary, #2a2a2e);
+  color: var(--on-primary, #fff);
+  font-size: 1.55rem; font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.login-title { font-size: 1.7rem; font-weight: 800; color: var(--on-surface, #1a1a1d); margin-bottom: 4px; letter-spacing: -0.03em; }
+.login-sub   { font-size: 0.88rem; color: var(--on-surface-variant, #64748b); margin-bottom: 32px; }
 .login-label { display: block; font-size: 0.8rem; font-weight: 700; color: #374151; text-align: left; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 .login-input {
   width: 100%; padding: 11px 14px; border: 2px solid #e2e8f0;
   border-radius: 10px; font-size: 1rem; margin-bottom: 18px;
   outline: none; transition: border-color 0.2s; font-family: inherit;
 }
-.login-input:focus { border-color: #7C3AED; }
+.login-input:focus { border-color: var(--primary, #2a2a2e); }
 .login-btn {
   width: 100%; padding: 13px; border: none; border-radius: 10px;
   font-size: 1rem; font-weight: 700; cursor: pointer;
-  background: #1e3a5f; color: white; transition: background 0.2s;
+  background: var(--brand-col); color: white; transition: background 0.2s;
   font-family: inherit;
 }
 .login-btn:hover { background: #2d4a7a; }
@@ -150,7 +231,7 @@ body {
 
 /* ── TOP BAR ── */
 .topbar {
-  background: #1e3a5f; color: white;
+  background: var(--brand-col); color: white;
   padding: 13px 0;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
@@ -208,10 +289,10 @@ body {
 .mp-year-row {
   display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
 }
-.mp-year-label { font-size: 1rem; font-weight: 700; color: #1e3a5f; }
+.mp-year-label { font-size: 1rem; font-weight: 700; color: var(--brand-col); }
 .mp-year-btn {
   background: none; border: none; font-size: 1.1rem; cursor: pointer;
-  color: #1e3a5f; padding: 2px 8px; border-radius: 6px; line-height: 1;
+  color: var(--brand-col); padding: 2px 8px; border-radius: 6px; line-height: 1;
 }
 .mp-year-btn:hover { background: #eff6ff; }
 .mp-months {
@@ -222,10 +303,10 @@ body {
   font-size: 0.82rem; font-weight: 500; color: #374151;
   border: 2px solid transparent; transition: all 0.12s;
 }
-.mp-month:hover { background: #eff6ff; color: #1e3a5f; }
-.mp-month.has-data { font-weight: 700; color: #1e3a5f; }
-.mp-month.current { border-color: #1e3a5f; background: #1e3a5f; color: white; }
-.mp-month.has-data.current { background: #1e3a5f; color: white; }
+.mp-month:hover { background: #eff6ff; color: var(--brand-col); }
+.mp-month.has-data { font-weight: 700; color: var(--brand-col); }
+.mp-month.current { border-color: var(--brand-col); background: var(--brand-col); color: white; }
+.mp-month.has-data.current { background: var(--brand-col); color: white; }
 .nav-btn {
   background: rgba(255,255,255,0.15); border: none; color: white;
   width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 1.2rem;
@@ -244,7 +325,7 @@ body {
 .sticky-header { position: sticky; top: 0; z-index: 100; }
 .header-inner { max-width: var(--content-max-width); margin: 0 auto; width: 100%; display: flex; align-items: center; gap: 10px; padding: 0 16px; box-sizing: border-box; }
 .tab-bar {
-  background: #162d4a;
+  background: var(--brand-deep);
   display: flex; gap: 0; padding: 0; flex-wrap: wrap;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
@@ -346,7 +427,7 @@ body {
 /* Period card */
 .period-card { background: white; border-radius: 12px; overflow: visible; box-shadow: 0 1px 4px rgba(0,0,0,0.08); position: relative; }
 .period-header {
-  background: #1e3a5f; color: white; padding: 11px 16px;
+  background: var(--brand-col); color: white; padding: 11px 16px;
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   border-radius: 12px 12px 0 0;
 }
@@ -422,10 +503,10 @@ body {
   cursor: pointer; user-select: none;
   display: flex; align-items: center; gap: 3px;
 }
-.sort-col:hover { color: #1e3a5f; }
-.sort-col.active { color: #1e3a5f; }
+.sort-col:hover { color: var(--brand-col); }
+.sort-col.active { color: var(--brand-col); }
 .sort-arrow { font-size: 0.6rem; opacity: 0.5; }
-.sort-col.active .sort-arrow { opacity: 1; color: #1e3a5f; }
+.sort-col.active .sort-arrow { opacity: 1; color: var(--brand-col); }
 /* Select / drag handle — the tappable zone */
 .row-handle {
   width: 20px; height: 100%; display: flex; align-items: center; justify-content: center;
@@ -439,7 +520,7 @@ body {
 .bill-row.drag-over { border-top: 2px solid #7C3AED; background: #f5f3ff; }
 .bill-row.dragging  { opacity: 0.35; }
 .bill-list.drag-target { outline: 2px dashed #7C3AED; outline-offset: -4px; background: #faf5ff; border-radius: 6px; }
-.bill-check { width: 18px; height: 18px; cursor: pointer; accent-color: #1e3a5f; flex-shrink: 0; }
+.bill-check { width: 18px; height: 18px; cursor: pointer; accent-color: var(--brand-col); flex-shrink: 0; }
 .bill-name-input {
   border: none; background: transparent;
   font-size: 0.875rem; color: #1a202c; outline: none;
@@ -608,7 +689,7 @@ body {
   padding: 16px 20px 12px; border-bottom: 1px solid #f0f4f8;
   display: flex; align-items: center; justify-content: space-between;
 }
-.modal-header h3 { font-size: 1rem; font-weight: 700; color: #1e3a5f; }
+.modal-header h3 { font-size: 1rem; font-weight: 700; color: var(--brand-col); }
 .modal-close {
   background: none; border: none; font-size: 1.2rem; color: #9ca3af;
   cursor: pointer; padding: 2px 6px; border-radius: 6px; line-height: 1;
@@ -620,7 +701,7 @@ body {
   padding: 8px 18px; border-radius: 8px; border: none; font-size: 0.875rem;
   font-family: inherit; font-weight: 600; cursor: pointer;
 }
-.modal-btn.primary { background: #1e3a5f; color: white; }
+.modal-btn.primary { background: var(--brand-col); color: white; }
 .modal-btn.primary:hover { background: #2d5a9e; }
 .modal-btn.ghost { background: #f1f5f9; color: #374151; }
 .modal-btn.ghost:hover { background: #e2e8f0; }
@@ -633,8 +714,8 @@ body {
   cursor: pointer; font-size: 0.875rem; font-weight: 500; color: #374151;
   transition: all 0.12s; text-align: center;
 }
-.payto-option:hover { border-color: #1e3a5f; background: #eff6ff; color: #1e3a5f; }
-.payto-option.selected { border-color: #1e3a5f; background: #1e3a5f; color: white; }
+.payto-option:hover { border-color: var(--brand-col); background: #eff6ff; color: var(--brand-col); }
+.payto-option.selected { border-color: var(--brand-col); background: var(--brand-col); color: white; }
 /* Recurrence options */
 .recur-options { display: flex; gap: 10px; margin-top: 4px; }
 .recur-option {
@@ -653,7 +734,7 @@ body {
   cursor: pointer; font-size: 0.875rem; font-weight: 500; color: #374151;
   background: white; text-align: left; transition: all 0.12s; font-family: inherit;
 }
-.move-month-btn:hover, .move-month-btn.selected { border-color: #1e3a5f; background: #eff6ff; color: #1e3a5f; }
+.move-month-btn:hover, .move-month-btn.selected { border-color: var(--brand-col); background: #eff6ff; color: var(--brand-col); }
 .move-period-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0f4f8; }
 .move-period-btn {
   padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px;
@@ -675,7 +756,7 @@ body {
 }
 #calc-panel.open { right: 0; }
 .calc-panel-header {
-  background: #1e3a5f; color: white; padding: 14px 18px;
+  background: var(--brand-col); color: white; padding: 14px 18px;
   display: flex; align-items: center; justify-content: space-between;
   flex-shrink: 0;
 }
@@ -694,7 +775,7 @@ body {
 }
 .calc-entry-formula { font-size: 0.75rem; color: #7C3AED; font-family: monospace; margin-bottom: 4px; }
 .calc-entry-items { font-size: 0.75rem; color: #9ca3af; margin-bottom: 6px; line-height: 1.5; }
-.calc-entry-result { font-size: 1.3rem; font-weight: 800; color: #1e3a5f; }
+.calc-entry-result { font-size: 1.3rem; font-weight: 800; color: var(--brand-col); }
 .calc-entry-time { font-size: 0.7rem; color: #cbd5e1; margin-top: 4px; }
 .calc-empty { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 0.875rem; }
 .calc-panel-footer { padding: 12px 14px; border-top: 1px solid #f0f4f8; flex-shrink: 0; }
@@ -705,22 +786,176 @@ body {
 }
 .calc-clear-btn:hover { background: #ef4444; color: white; }
 
-/* Selection count badge */
+/* Selection action dock */
 .sel-badge {
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  background: #1e3a5f; color: white; border-radius: 999px;
-  padding: 8px 20px; font-size: 0.85rem; font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  background: var(--surface-container-lowest, #fff); color: var(--on-surface, #1a202c);
+  border: 1px solid var(--outline-variant, #e2e8f0);
+  border-radius: 16px;
+  padding: 10px 14px; font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 8px 28px var(--shadow, rgba(15, 30, 49, 0.18));
   z-index: 7000; display: none;
   transition: opacity 0.2s;
+  max-width: calc(100vw - 24px);
 }
-.sel-badge.visible { display: block; }
+.sel-badge.visible {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.sel-badge-meta {
+  font-size: 0.8rem;
+  color: var(--on-surface-variant, #64748b);
+  white-space: nowrap;
+}
+.sel-badge-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sel-badge-btn {
+  border: none;
+  background: var(--primary, #1e3a5f);
+  color: var(--on-primary, #fff);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sel-badge-btn:hover { filter: brightness(1.08); }
+
+/* Tab bar inner */
+.tab-bar-inner {
+  display: flex;
+  gap: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+.tab-btn-legacy[hidden] { display: none !important; }
+
+/* Settings hub */
+#tab-settings {
+  max-width: var(--content-max-width, 80%);
+  margin: 0 auto;
+}
+#tab-settings .settings-card-desc { margin-bottom: 12px; }
+#tab-settings .settings-salary-row,
+#tab-settings .settings-account-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 16px;
+}
+#tab-settings .settings-salary-prefix {
+  font-size: 0.9rem;
+  color: var(--muted-col, #6b7280);
+}
+#tab-settings .settings-account-input { flex: 1; width: auto; }
+#tab-settings .settings-accounts-list { margin-bottom: 12px; }
+#tab-settings .settings-account-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-col, #f0f4f8);
+}
+#tab-settings .settings-account-name { flex: 1; font-size: 0.9rem; }
+#tab-settings .settings-account-del {
+  background: none;
+  border: none;
+  color: var(--danger, #ef4444);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+#tab-settings .settings-account-del:hover { background: var(--danger-light, #fee2e2); }
+#tab-settings .settings-impersonate-btn {
+  background: var(--primary, #1e3a5f);
+  color: var(--on-primary, #fff);
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+#tab-settings .settings-import-label { cursor: pointer; }
+#tab-settings .settings-advanced-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+#tab-settings .settings-link-btn {
+  border: 1.5px solid var(--border-col);
+  background: var(--surface-alt);
+  color: var(--text-col);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+#tab-settings .settings-link-btn:hover {
+  border-color: var(--brand-col);
+}
+#tab-settings .settings-owner-only[hidden] { display: none !important; }
+
+/* Chat page (Phase 3F) */
+#tab-chat {
+  max-width: none;
+  padding: 0;
+}
+.chat-page-root {
+  min-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+}
+.chat-page-root .chat-expanded {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  max-width: var(--content-max-width, 1100px);
+  margin: 0 auto;
+  height: calc(100vh - 140px);
+  min-height: 480px;
+  border-radius: 16px;
+  border: 1px solid var(--border-col);
+  box-shadow: 0 1px 4px var(--shadow, rgba(0,0,0,0.06));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface, #fff);
+}
+body.chat-page-active .chat-launcher,
+body.chat-page-active .chat-panel,
+body.chat-page-active .chat-backdrop {
+  display: none !important;
+}
+@media (max-width: 800px) {
+  .chat-page-root .chat-expanded {
+    height: calc(100vh - 120px);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+}
+
+/* Auth / brand chrome (Phase 3G light) */
+.header-inner > h1 {
+  font-family: var(--font-family, inherit);
+  letter-spacing: -0.02em;
+}
 
 /* Empty */
 .empty-msg { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #9ca3af; }
 .empty-msg h3 { color: #374151; font-size: 1.15rem; margin-bottom: 8px; }
 .create-btn {
-  background: #1e3a5f; color: white; border: none;
+  background: var(--brand-col); color: white; border: none;
   padding: 10px 22px; border-radius: 8px; cursor: pointer;
   font-size: 0.9rem; font-weight: 600; margin-top: 16px; font-family: inherit;
 }
@@ -755,7 +990,7 @@ body {
 .insight-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
 .insight-title { font-size: 0.8rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
 .insight-text { font-size: 0.875rem; color: #1a202c; margin-top: 3px; line-height: 1.4; }
-.insight-text strong { color: #1e3a5f; }
+.insight-text strong { color: var(--brand-col); }
 .expenses-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
 .expenses-table th { text-align: left; padding: 8px 12px; font-size: 0.75rem; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
 .expenses-table td { padding: 8px 12px; border-bottom: 1px solid #f0f4f8; }
@@ -769,7 +1004,7 @@ body {
 /* Toast */
 #toast {
   position: fixed; bottom: 20px; right: 20px;
-  background: #1e3a5f; color: white; padding: 10px 18px;
+  background: var(--brand-col); color: white; padding: 10px 18px;
   border-radius: 8px; font-size: 0.875rem;
   opacity: 0; transform: translateY(8px);
   transition: all 0.3s; pointer-events: none; z-index: 9999;
@@ -783,7 +1018,7 @@ body {
 
 /* Owing card */
 .p-owing-card {
-  background: #1e3a5f; color: white; border-radius: 14px;
+  background: var(--brand-col); color: white; border-radius: 14px;
   padding: 20px 24px; margin-bottom: 18px;
   display: flex; align-items: center; justify-content: space-between;
   box-shadow: 0 4px 16px rgba(30,58,95,0.25);
@@ -801,7 +1036,7 @@ body {
   padding: 18px 20px; margin-bottom: 18px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-.p-add-title { font-size: 0.9rem; font-weight: 700; color: #1e3a5f; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+.p-add-title { font-size: 0.9rem; font-weight: 700; color: var(--brand-col); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
 .p-form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; align-items: end; }
 .p-form-col { display: flex; flex-direction: column; gap: 4px; }
 .p-form-col.full { grid-column: 1 / -1; }
@@ -811,14 +1046,14 @@ body {
   font-size: 0.875rem; color: #1a202c; background: #f8fafc;
   outline: none; transition: border-color 0.15s; font-family: inherit; width: 100%; box-sizing: border-box;
 }
-.p-input:focus { border-color: #1e3a5f; background: white; }
+.p-input:focus { border-color: var(--brand-col); background: white; }
 .p-add-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
 .p-btn {
   padding: 9px 18px; border: none; border-radius: 8px;
   font-size: 0.875rem; font-weight: 600; cursor: pointer;
   transition: all 0.15s; font-family: inherit;
 }
-.p-btn-primary { background: #1e3a5f; color: white; }
+.p-btn-primary { background: var(--brand-col); color: white; }
 .p-btn-primary:hover { background: #2d5a9e; }
 .p-btn-ghost { background: #f1f5f9; color: #374151; border: 1px solid #e2e8f0; }
 .p-btn-ghost:hover { background: #e2e8f0; }
@@ -1082,7 +1317,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 16px; border-bottom: 2px solid #f0f4f8;
 }
-.p-list-header h3 { font-size: 0.95rem; font-weight: 700; color: #1e3a5f; }
+.p-list-header h3 { font-size: 0.95rem; font-weight: 700; color: var(--brand-col); }
 .p-list-col-header {
   display: grid; grid-template-columns: 24px 1fr 90px 120px 100px 28px;
   padding: 6px 14px; gap: 8px;
@@ -1101,12 +1336,12 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 .p-row.p-selected { background: #eff6ff !important; outline: 1.5px solid #93c5fd; outline-offset: -1px; }
 .p-row.is-done { opacity: 0.45; }
 .p-row.is-done .p-row-name { text-decoration: line-through; color: #9ca3af; }
-.p-check { width: 18px; height: 18px; cursor: pointer; accent-color: #1e3a5f; flex-shrink: 0; }
+.p-check { width: 18px; height: 18px; cursor: pointer; accent-color: var(--brand-col); flex-shrink: 0; }
 .p-row-name { font-size: 0.875rem; color: #1a202c; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.p-row-amount { font-size: 0.875rem; font-weight: 700; color: #1e3a5f; text-align: right; }
+.p-row-amount { font-size: 0.875rem; font-weight: 700; color: var(--brand-col); text-align: right; }
 .p-name-input { border: none; background: transparent; font-size: 0.875rem; color: #1a202c; font-weight: 500; outline: none; padding: 2px 4px; border-radius: 4px; min-width: 0; width: 100%; font-family: inherit; }
 .p-name-input:focus { background: #eff6ff; }
-.p-amount-input { border: none; background: transparent; font-size: 0.875rem; font-weight: 700; color: #1e3a5f; text-align: right; width: 100%; outline: none; padding: 2px 4px; border-radius: 4px; font-family: inherit; }
+.p-amount-input { border: none; background: transparent; font-size: 0.875rem; font-weight: 700; color: var(--brand-col); text-align: right; width: 100%; outline: none; padding: 2px 4px; border-radius: 4px; font-family: inherit; }
 .p-amount-input:focus { background: #eff6ff; }
 .is-done .p-name-input { text-decoration: line-through; color: #9ca3af; }
 .p-row-payto { font-size: 0.78rem; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1152,7 +1387,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   cursor:pointer; transition:all 0.15s; font-family:inherit;
 }
 .p-sf-btn:hover { background:#e2e8f0; }
-.p-sf-btn.active { background:#1e3a5f; color:white; border-color:#1e3a5f; }
+.p-sf-btn.active { background:var(--brand-col); color:white; border-color:var(--brand-col); }
 
 .p-completed-toggle {
   display: flex; align-items: center; gap: 8px; padding: 12px 16px;
@@ -1188,7 +1423,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   transition: all 0.15s;
 }
 .p-vs-btn:hover { color: #374151; }
-.p-vs-btn.active { background: white; color: #1e3a5f; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+.p-vs-btn.active { background: white; color: var(--brand-col); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
 
 /* ── Account filter dropdown ─────────────────────── */
 .p-account-select {
@@ -1196,7 +1431,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   font-size: 0.75rem; color: #374151; background: #f8fafc;
   outline: none; font-family: inherit; cursor: pointer; max-width: 140px;
 }
-.p-account-select:focus { border-color: #1e3a5f; background: white; }
+.p-account-select:focus { border-color: var(--brand-col); background: white; }
 
 /* ── Account grouping sections ───────────────────── */
 .p-acct-section { border-bottom: 1px solid #f0f4f8; }
@@ -1228,7 +1463,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   }
 
   /* Topbar: title + actions on row 1, month centered on row 2 */
-  .sticky-header { padding-top: env(safe-area-inset-top, 0px); background: #1e3a5f; }
+  .sticky-header { padding-top: env(safe-area-inset-top, 0px); background: var(--brand-col); }
   .topbar { padding: 10px 0 8px; }
   .topbar .header-inner {
     flex-wrap: wrap;
@@ -1385,7 +1620,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   display: flex; align-items: center; gap: 8px;
   padding: 9px 14px; cursor: pointer;
   background: #f4f7fb; font-size: 0.8rem; font-weight: 700;
-  color: #1e3a5f; user-select: none; border-top: 1px solid #edf0f5;
+  color: var(--brand-col); user-select: none; border-top: 1px solid #edf0f5;
 }
 .p-acct-section:first-child .p-acct-header { border-top: none; }
 .p-acct-header:hover { background: #eef2f8; }
@@ -1404,9 +1639,9 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 ════════════════════════════════════ -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">💰</div>
-    <div class="login-title">Finance Hub</div>
-    <div class="login-sub">Private household finance tracker</div>
+    <div class="login-logo" aria-hidden="true">P</div>
+    <div class="login-title">Pensive</div>
+    <div class="login-sub">Household finances, thoughtfully</div>
 
     <p class="login-checking" id="login-checking" style="display:none;">Checking your account&hellip;</p>
 
@@ -1450,7 +1685,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 <div class="sticky-header">
 <div class="topbar">
 <div class="header-inner">
-  <h1>💰 Finance Hub</h1>
+  <h1>Pensive</h1>
   <div class="month-nav" id="monthNavWrap" style="position:relative;z-index:200">
     <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
     <span class="month-label" id="monthLabel" onclick="toggleMonthPicker(event)">—</span>
@@ -1481,24 +1716,33 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 </div>
 
 <!-- TOP-LEVEL TAB BAR -->
-<div class="tab-bar"><div class="header-inner" style="display:flex;gap:0;padding:0">
-  <button class="tab-btn active" id="tab-btn-monthly" onclick="switchTab('monthly')">📅 Monthly Budget</button>
+<div class="tab-bar"><div class="header-inner tab-bar-inner">
+  <button class="tab-btn active" id="tab-btn-home" onclick="switchTab('home')">🏠 Home</button>
+  <button class="tab-btn" id="tab-btn-monthly" onclick="switchTab('monthly')">📅 Monthly</button>
   <button class="tab-btn" id="tab-btn-payables" onclick="switchTab('payables')">
     💸 Payables
     <span class="tab-badge" id="payables-badge" style="display:none"></span>
   </button>
-  <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">📊 Summary</button>
-  <button class="tab-btn" id="tab-btn-insights" onclick="switchTab('insights')">💡 Insights</button>
-  <button class="tab-btn" id="tab-btn-compare" onclick="switchTab('compare')" style="display:none">⚖ Compare</button>
-  <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">⚙ Admin</button>
+  <button class="tab-btn" id="tab-btn-chat" onclick="switchTab('chat')">💬 Chat</button>
+  <button class="tab-btn" id="tab-btn-settings" onclick="switchTab('settings')">⚙ Settings</button>
+  <!-- Legacy tabs kept in DOM for Phase 4 cutover; hidden from primary nav -->
+  <button class="tab-btn tab-btn-legacy" id="tab-btn-summary" onclick="switchTab('summary')" hidden>📊 Summary</button>
+  <button class="tab-btn tab-btn-legacy" id="tab-btn-insights" onclick="switchTab('insights')" hidden>💡 Insights</button>
+  <button class="tab-btn tab-btn-legacy" id="tab-btn-compare" onclick="switchTab('compare')" hidden>⚖ Compare</button>
+  <button class="tab-btn tab-btn-legacy" id="tab-btn-admin" onclick="switchTab('admin')" hidden>⚙ Admin</button>
 </div></div>
 </div><!-- /.sticky-header -->
 
 <!-- MAIN -->
 <div class="main">
 
+  <!-- ── HOME TAB (Phase 3B) ── -->
+  <div class="tab-content active" id="tab-home">
+    <div id="homeContent"></div>
+  </div>
+
   <!-- ── MONTHLY TAB ── -->
-  <div class="tab-content active" id="tab-monthly">
+  <div class="tab-content" id="tab-monthly">
     <div class="month-toolbar">
       <div class="legend">♻ = recurring · copies to next month &nbsp;|&nbsp; ✓ = paid off this period</div>
       <div class="progress-wrap" id="progressWrap" style="display:none">
@@ -1509,16 +1753,73 @@ body:not(.authed) .chat-backdrop { display: none !important; }
     <div class="periods-grid" id="periodsGrid"></div>
   </div>
 
-  <!-- ── ADMIN TAB ── -->
-  <div class="tab-content" id="tab-admin">
-    <div class="admin-section">
+  <!-- ── SETTINGS TAB (Phase 3E — was Admin) ── -->
+  <div class="tab-content" id="tab-settings">
+    <div class="settings-section admin-section" id="settingsHub">
 
-      <div class="admin-card">
-        <h2>🔵 Eric's Access</h2>
+      <div class="admin-card settings-card" id="appearance-card">
+        <h2>🎨 Appearance</h2>
+        <div class="admin-toggle-desc settings-card-desc">Theme and colour palette. Graphite is the default.</div>
+        <div class="admin-toggle-label">Theme</div>
+        <div class="appearance-theme-row" role="group" aria-label="Theme">
+          <button type="button" class="appearance-theme-btn" data-theme-set="light" aria-pressed="true">Light</button>
+          <button type="button" class="appearance-theme-btn" data-theme-set="dark" aria-pressed="false">Dark</button>
+        </div>
+        <div class="admin-toggle-label" style="margin-top:16px">Colour palette</div>
+        <div class="appearance-palette-grid" role="group" aria-label="Colour palette">
+          <button type="button" class="appearance-palette-btn" data-palette-set="graphite" aria-pressed="true">
+            <span class="appearance-swatches" aria-hidden="true"><i style="background:#2a2a2e"></i><i style="background:#a65d1f"></i><i style="background:#e6e6e9"></i></span>
+            <strong>Graphite</strong><span>Ink + copper · default</span>
+          </button>
+          <button type="button" class="appearance-palette-btn" data-palette-set="ocean" aria-pressed="false">
+            <span class="appearance-swatches" aria-hidden="true"><i style="background:#255a8c"></i><i style="background:#0f6b58"></i><i style="background:#d3e4ff"></i></span>
+            <strong>Ocean</strong><span>Blue + teal</span>
+          </button>
+          <button type="button" class="appearance-palette-btn" data-palette-set="azulejo" aria-pressed="false">
+            <span class="appearance-swatches" aria-hidden="true"><i style="background:#1a56a0"></i><i style="background:#c9920a"></i><i style="background:#0f766e"></i></span>
+            <strong>Azulejo</strong><span>Cobalt + saffron</span>
+          </button>
+          <button type="button" class="appearance-palette-btn" data-palette-set="dusk" aria-pressed="false">
+            <span class="appearance-swatches" aria-hidden="true"><i style="background:#3a332e"></i><i style="background:#7a6848"></i><i style="background:#ebe6e2"></i></span>
+            <strong>Dusk</strong><span>Charcoal + gold</span>
+          </button>
+          <button type="button" class="appearance-palette-btn" data-palette-set="slate" aria-pressed="false">
+            <span class="appearance-swatches" aria-hidden="true"><i style="background:#334155"></i><i style="background:#c2410c"></i><i style="background:#e4e4e7"></i></span>
+            <strong>Slate</strong><span>Stone + rust</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-card settings-card" id="settings-salary-card">
+        <h2>💰 Salary</h2>
+        <div class="admin-toggle">
+          <div>
+            <div class="admin-toggle-label">Default salary</div>
+            <div class="admin-toggle-desc">Base income for each pay period. Override per-period in Money In.</div>
+          </div>
+          <div class="settings-salary-row">
+            <span class="settings-salary-prefix">$</span>
+            <input class="admin-salary-input" type="number" id="salaryInput" step="0.01" placeholder="4524.58">
+            <button class="admin-save-btn" onclick="saveSettings()">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card settings-card" id="settings-accounts-card">
+        <h2>🏦 Pay To accounts</h2>
+        <div id="admin-accounts-list" class="settings-accounts-list"></div>
+        <div class="settings-account-add">
+          <input id="new-account-input" class="admin-salary-input settings-account-input" type="text" placeholder="New account name…" onkeydown="if(event.key==='Enter')addAccount()">
+          <button class="admin-save-btn" onclick="addAccount()">Add</button>
+        </div>
+      </div>
+
+      <div class="admin-card settings-card settings-owner-only" id="settings-eric-access-card">
+        <h2>🔵 Eric's access</h2>
         <div class="admin-toggle">
           <div>
             <div class="admin-toggle-label">Eric can view budget &amp; ledger</div>
-            <div class="admin-toggle-desc">Monthly View, Summary and Insights tabs will be visible to Eric</div>
+            <div class="admin-toggle-desc">Controls partner visibility of shared budget tools.</div>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="toggle-eric-budget" onchange="saveAdminSettings()">
@@ -1527,51 +1828,41 @@ body:not(.authed) .chat-backdrop { display: none !important; }
         </div>
       </div>
 
-      <div class="admin-card">
-        <h2>💰 Salary Settings</h2>
-        <div class="admin-toggle">
-          <div>
-            <div class="admin-toggle-label">Default fortnightly salary</div>
-            <div class="admin-toggle-desc">Used as the base income for each pay period. You can override per-period in Money In.</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-left:16px">
-            <span style="font-size:0.9rem;color:#6b7280">$</span>
-            <input class="admin-salary-input" type="number" id="salaryInput" step="0.01" placeholder="4524.58">
-            <button class="admin-save-btn" onclick="saveSettings()">Save</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="admin-card">
-        <h2>🏦 Pay To Accounts</h2>
-        <div id="admin-accounts-list" style="margin-bottom:12px"></div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <input id="new-account-input" class="admin-salary-input" style="flex:1;width:auto" type="text" placeholder="New account name…" onkeydown="if(event.key==='Enter')addAccount()">
-          <button class="admin-save-btn" onclick="addAccount()">Add</button>
-        </div>
-      </div>
-
-      <div class="admin-card">
-        <h2>🔧 Data Tools</h2>
+      <div class="admin-card settings-card settings-owner-only" id="settings-data-card">
+        <h2>🔧 Data tools</h2>
         <div class="admin-data-row">
           <button class="p-btn p-btn-export" onclick="exportBudget()">⬇ Export Budget</button>
-          <label class="p-btn p-btn-export" style="cursor:pointer">
+          <label class="p-btn p-btn-export settings-import-label">
             ⬆ Import Budget
-            <input type="file" accept=".json" onchange="importBudget(event)" style="display:none">
+            <input type="file" accept=".json" onchange="importBudget(event)" hidden>
           </label>
         </div>
       </div>
 
-      <div class="admin-card">
-        <h2>🎭 Impersonate User</h2>
-        <div class="admin-toggle-desc" style="margin-bottom:12px;color:#6b7280">Switch your view to test the app as Eric. Your Elly login stays active — Firebase writes still work on both paths.</div>
+      <div class="admin-card settings-card settings-owner-only" id="settings-impersonate-card">
+        <h2>🎭 Impersonate</h2>
+        <div class="admin-toggle-desc settings-card-desc">Switch view to test as Eric. Your Elly login stays active.</div>
         <div id="impersonate-controls">
-          <button class="p-btn" style="background:#6366f1;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;border:none;cursor:pointer" onclick="impersonateEric()">👤 View as Eric</button>
+          <button class="p-btn settings-impersonate-btn" onclick="impersonateEric()">👤 View as Eric</button>
+        </div>
+      </div>
+
+      <div class="admin-card settings-card" id="settings-advanced-card">
+        <h2>📎 Advanced</h2>
+        <div class="admin-toggle-desc settings-card-desc">Legacy views kept during the facelift cutover.</div>
+        <div class="settings-advanced-links">
+          <button type="button" class="settings-link-btn" onclick="switchTab('summary')">Summary</button>
+          <button type="button" class="settings-link-btn" onclick="switchTab('insights')">Insights</button>
+          <button type="button" class="settings-link-btn settings-owner-only" onclick="switchTab('compare')">Compare</button>
+          <button type="button" class="settings-link-btn" onclick="runFinanceHubQA()">Self-test</button>
         </div>
       </div>
 
     </div>
   </div>
+
+  <!-- Admin tab alias kept for any deep links — redirects via switchTab -->
+  <div class="tab-content" id="tab-admin" hidden></div>
 
   <!-- ── COMPARE TAB ── -->
   <div class="tab-content" id="tab-compare">
@@ -1588,6 +1879,11 @@ body:not(.authed) .chat-backdrop { display: none !important; }
     <div id="insightsContent"></div>
   </div>
 
+  <!-- ── CHAT TAB (Phase 3F — page mode) ── -->
+  <div class="tab-content" id="tab-chat">
+    <div class="chat-page-root" id="chatPageRoot" aria-label="Finance assistant"></div>
+  </div>
+
   <!-- ── PAYABLES TAB ── -->
   <div class="tab-content" id="tab-payables">
     <div class="payables-content" id="payables-main-view">
@@ -1599,10 +1895,10 @@ body:not(.authed) .chat-backdrop { display: none !important; }
           <div class="p-owing-amount" id="p-owing-amount">$0.00</div>
           <div class="p-owing-sub" id="p-owing-sub">0 items pending</div>
         </div>
-        <div class="p-owing-right" id="p-owing-right" style="display:none">
-          <div style="font-size:0.72rem;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.4px">Eric owes</div>
-          <div style="font-size:1.3rem;font-weight:800;margin-top:2px" id="p-eric-owing-amt">$0.00</div>
-          <div style="font-size:0.72rem;opacity:0.65" id="p-eric-owing-sub">0 items</div>
+        <div class="p-owing-right p-eric-peek" id="p-owing-right" hidden>
+          <div class="p-owing-label">Eric owes</div>
+          <div class="p-owing-amount p-owing-amount-sm" id="p-eric-owing-amt">$0.00</div>
+          <div class="p-owing-sub" id="p-eric-owing-sub">0 items</div>
         </div>
       </div>
 
@@ -1646,8 +1942,8 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
       <!-- View switcher (Elly only — Eric sees no switcher) -->
       <div class="p-view-switcher" id="p-view-switcher">
-        <button class="p-vs-btn active" id="p-vs-mine" onclick="pSetView('mine')">💳 My Payables</button>
-        <button class="p-vs-btn" id="p-vs-eric" onclick="pSetView('eric')">👤 Eric's Payables</button>
+        <button class="p-vs-btn active" id="p-vs-mine" onclick="pSetView('mine')">Mine</button>
+        <button class="p-vs-btn" id="p-vs-eric" onclick="pSetView('eric')">Eric</button>
       </div>
 
       <!-- Columns (one visible at a time via switcher) -->
@@ -1718,8 +2014,8 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
 </div><!-- end .main -->
 
-<!-- Chat widget: bubble → compact panel → expanded with history -->
-<button class="chat-launcher" id="chatLauncher" type="button" hidden aria-label="Open chat" title="Chat" onclick="setChatMode('panel')">
+<!-- Chat: floating bubble/panel kept as optional quick access; primary surface is Chat tab -->
+<button class="chat-launcher" id="chatLauncher" type="button" hidden aria-label="Open chat" title="Chat" onclick="switchTab('chat')">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 </button>
 
@@ -1731,7 +2027,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
     </div>
     <div class="chat-header-actions">
       <button class="chat-header-new" type="button" title="Start a new chat" onclick="startNewChatThread()">+ New</button>
-      <button class="chat-icon-btn" type="button" title="Expand" aria-label="Expand chat" onclick="setChatMode('expanded')">
+      <button class="chat-icon-btn" type="button" title="Open Chat tab" aria-label="Open Chat tab" onclick="switchTab('chat')">
         <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
       </button>
       <button class="chat-icon-btn" type="button" title="Minimize" aria-label="Minimize chat" onclick="setChatMode('bubble')">−</button>
@@ -1753,8 +2049,8 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   </div>
 </div>
 
-<div class="chat-backdrop" id="chatBackdrop" hidden onclick="if(event.target===this)setChatMode('panel')">
-  <div class="chat-expanded" role="dialog" aria-modal="true" aria-label="Finance assistant">
+<div class="chat-backdrop" id="chatBackdrop" hidden>
+  <div class="chat-expanded" id="chatExpanded" role="region" aria-label="Finance assistant">
     <div class="chat-header">
       <button class="chat-icon-btn chat-history-toggle" id="chatHistoryToggleBtn" type="button" title="Hide history" aria-label="Toggle history" aria-controls="chatHistoryPane" aria-expanded="true" onclick="toggleChatHistory()">☰</button>
       <div class="chat-header-title">
@@ -1763,10 +2059,6 @@ body:not(.authed) .chat-backdrop { display: none !important; }
       </div>
       <div class="chat-header-actions">
         <button class="chat-header-new" type="button" title="Start a new chat" onclick="startNewChatThread()">+ New</button>
-        <button class="chat-icon-btn" type="button" title="Back to corner chat" aria-label="Collapse to corner" onclick="setChatMode('panel')">
-          <svg viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-        </button>
-        <button class="chat-icon-btn" type="button" title="Minimize" aria-label="Minimize" onclick="setChatMode('bubble')">−</button>
       </div>
     </div>
     <div class="chat-expanded-body">
@@ -2104,6 +2396,9 @@ function _switchBudgetUser(newUser) {
   // Wipe local state so the old user's data never bleeds through while Firebase loads
   state = { months: {}, settings: {}, accounts: [...DEFAULT_ACCOUNTS] };
   firebaseDataLoaded = false;
+  homeOtherBudget = null;
+  homeOtherBudgetStatus = 'idle';
+  homeOtherBudgetReq++;
   if (budgetUnsub) { budgetUnsub(); budgetUnsub = null; }
   // Render immediately with blank state so stale data disappears
   render();
@@ -2122,7 +2417,7 @@ function impersonateEric() {
   const ctrl = document.getElementById('impersonate-controls');
   if (ctrl) ctrl.innerHTML = '<span style="color:#6b7280;font-size:0.85rem">Currently viewing as Eric. Use the banner at the top to switch back.</span>';
   showToast('🎭 Now viewing as Eric');
-  switchTab('monthly');
+  switchTab('home');
 }
 
 function stopImpersonating() {
@@ -2133,9 +2428,9 @@ function stopImpersonating() {
   const banner = document.getElementById('impersonate-banner');
   if (banner) banner.style.display = 'none';
   const ctrl = document.getElementById('impersonate-controls');
-  if (ctrl) ctrl.innerHTML = '<button class="p-btn" style="background:#6366f1;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;border:none;cursor:pointer" onclick="impersonateEric()">👤 View as Eric</button>';
+  if (ctrl) ctrl.innerHTML = '<button class="p-btn settings-impersonate-btn" onclick="impersonateEric()">👤 View as Eric</button>';
   showToast('✅ Back to Elly view');
-  switchTab('monthly');
+  switchTab('home');
 }
 
 function doLogout() {
@@ -2167,7 +2462,7 @@ function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.body.classList.add('authed');
-  setChatMode(chatMode === 'expanded' || chatMode === 'panel' ? chatMode : 'bubble');
+  setChatMode(curTab === 'chat' ? 'page' : 'bubble');
 
   const firebaseUser = window._auth && window._auth.currentUser;
   const profile = firebaseUser ? AUTHORISED_USERS[firebaseUser.email] : null;
@@ -2185,18 +2480,74 @@ function isOwner()  { return currentUser === 'elly'; } // admin-tab + account se
 function isAdmin()  { return !!currentUser; }          // any logged-in user can edit
 function isEric()   { return currentUser === 'eric'; }
 
+
+// ═══════════════════════════════════════════════════════════════
+//  APPEARANCE (Phase 3A — design-system tokens)
+// ═══════════════════════════════════════════════════════════════
+const APPEARANCE_PALETTES = new Set(['graphite', 'ocean', 'azulejo', 'dusk', 'slate']);
+const APPEARANCE_THEMES = new Set(['light', 'dark']);
+
+function syncAppearanceControls() {
+  const theme = document.documentElement.getAttribute('data-theme') || 'light';
+  const palette = document.documentElement.getAttribute('data-palette') || 'graphite';
+  document.querySelectorAll('[data-theme-set]').forEach((btn) => {
+    btn.setAttribute('aria-pressed', btn.getAttribute('data-theme-set') === theme ? 'true' : 'false');
+  });
+  document.querySelectorAll('[data-palette-set]').forEach((btn) => {
+    btn.setAttribute('aria-pressed', btn.getAttribute('data-palette-set') === palette ? 'true' : 'false');
+  });
+}
+
+function setAppTheme(mode) {
+  if (!APPEARANCE_THEMES.has(mode)) mode = 'light';
+  document.documentElement.setAttribute('data-theme', mode);
+  try { localStorage.setItem('fh-theme', mode); } catch (_) {}
+  syncAppearanceControls();
+}
+
+function setAppPalette(name) {
+  if (!APPEARANCE_PALETTES.has(name)) name = 'graphite';
+  document.documentElement.setAttribute('data-palette', name);
+  try { localStorage.setItem('fh-palette', name); } catch (_) {}
+  syncAppearanceControls();
+}
+
+function initAppearance() {
+  try {
+    const savedTheme = localStorage.getItem('fh-theme');
+    const savedPalette = localStorage.getItem('fh-palette');
+    if (savedTheme) setAppTheme(savedTheme);
+    if (savedPalette) setAppPalette(savedPalette);
+    else setAppPalette('graphite');
+  } catch (_) {
+    setAppPalette('graphite');
+  }
+  document.querySelectorAll('[data-theme-set]').forEach((btn) => {
+    btn.addEventListener('click', () => setAppTheme(btn.getAttribute('data-theme-set')));
+  });
+  document.querySelectorAll('[data-palette-set]').forEach((btn) => {
+    btn.addEventListener('click', () => setAppPalette(btn.getAttribute('data-palette-set')));
+  });
+  syncAppearanceControls();
+}
+
 function applyRoleUI() {
   document.body.classList.toggle('user-eric', isEric());
 
-  // Admin + Compare tabs visible only to Elly
-  document.getElementById('tab-btn-admin').style.display   = isOwner() ? '' : 'none';
-  document.getElementById('tab-btn-compare').style.display = isOwner() ? '' : 'none';
+  // Settings is available to everyone; owner-only cards/links toggle
+  document.querySelectorAll('.settings-owner-only').forEach(el => {
+    el.hidden = !isOwner();
+  });
+
+  // Legacy Admin/Compare buttons stay hidden from primary nav
+  const adminBtn = document.getElementById('tab-btn-admin');
+  const compareBtn = document.getElementById('tab-btn-compare');
+  if (adminBtn) adminBtn.hidden = true;
+  if (compareBtn) compareBtn.hidden = true;
 
   // View switcher (Elly only — Eric sees his own payables fullscreen)
-  if (isEric()) {
-    const switcher = document.getElementById('p-view-switcher');
-    if (switcher) switcher.style.display = 'none';
-  }
+  const switcher = document.getElementById('p-view-switcher');
+  if (switcher) switcher.style.display = isEric() ? 'none' : '';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2306,10 +2657,11 @@ function listenBudget() {
         const allKeys = Object.keys(localStorage).filter(k=>k.startsWith(pfx)).sort();
         while (allKeys.length > 3) localStorage.removeItem(allKeys.shift());
       } catch(e) {}
+      if (curTab === 'home')     renderHome();
       if (curTab === 'monthly')  render();
       if (curTab === 'summary')  renderSummary();
       if (curTab === 'insights') renderInsights();
-      if (curTab === 'admin')    renderAdmin();
+      if (curTab === 'settings' || curTab === 'admin') renderSettings();
       _budgetLoaded = true; _onBothLoaded();
     } else {
       firebaseDataLoaded = true;
@@ -2344,6 +2696,7 @@ function listenPayables() {
       // pRepairAllocations may pSave() if it changes anything, so it must run after _payablesLoaded=true
       pRepairAllocations();
       _onBothLoaded();
+      if (curTab === 'home') renderHome();
       if (curTab === 'payables') renderPayables();
       updatePayablesBadge();
     } else {
@@ -2589,8 +2942,15 @@ async function renderCompare() {
 }
 
 function renderAdmin() {
+  renderSettings();
+}
+
+function renderSettings() {
   const salaryInput = document.getElementById('salaryInput');
   if (salaryInput) salaryInput.value = state.settings?.salary || 4524.58;
+  renderAdminAccounts();
+  applyRoleUI();
+  syncAppearanceControls();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2639,9 +2999,9 @@ function getAccounts() { return (state.accounts || DEFAULT_ACCOUNTS).slice().sor
 
 let state = { settings: { salary: 4524.58 }, months: {}, accounts: [...DEFAULT_ACCOUNTS] };
 let curYear, curMonth;
-let curTab = 'monthly';
+let curTab = 'home';
 let chatBusy = false;
-let chatMode = 'bubble'; // bubble | panel | expanded
+let chatMode = 'bubble'; // bubble | panel | page
 let chatThreads = [];    // [{id, title, createdAt, updatedAt, messages:[]}]
 let activeChatThreadId = null;
 let chatThreadsUnsub = null;
@@ -2995,10 +3355,492 @@ function getMonthStats(key) {
   return { totalSpend, totalSavings, totalAllowance, salary: totalIncome };
 }
 
+
+// ═══════════════════════════════════════════════════════════════
+//  HOME (Phase 3B) — overview using live budget + payables
+// ═══════════════════════════════════════════════════════════════
+let homeScope = 'me'; // me | household
+let homeChart = 'expenses'; // expenses | safe | cashflow
+let homeOtherBudget = null; // { months, settings } partner ledger cache
+let homeOtherBudgetStatus = 'idle'; // idle | loading | ready | unavailable
+let homeOtherBudgetReq = 0;
+
+function homeMoney(n) {
+  const v = Math.round(Number(n) || 0);
+  return '$' + v.toLocaleString('en-AU');
+}
+
+function homeActiveMonthKey() {
+  const preferred = mKey(curYear, curMonth);
+  if (state.months[preferred]) return preferred;
+  const keys = Object.keys(state.months || {}).sort();
+  return keys.length ? keys[keys.length - 1] : preferred;
+}
+
+function homePeriodFrameLabel() {
+  return isEric() ? 'this month' : 'this fortnight';
+}
+
+function homeMetricsFromPeriods(periods, opts = {}) {
+  const list = Array.isArray(periods) ? periods : [];
+  if (!list.length) {
+    return {
+      safe: 0, moneyIn: 0, moneyOut: 0, billsOut: 0, savingsOut: 0,
+      unpaidBills: 0, totalBills: 0, label: opts.label || 'No period data yet'
+    };
+  }
+  const useAll = !!opts.allPeriods;
+  const selected = useAll
+    ? list
+    : [list.find(p => (p.bills || []).some(b => !b.done)) || list[0]];
+  let moneyIn = 0, billsOut = 0, savingsOut = 0, unpaidBills = 0, totalBills = 0;
+  selected.forEach(period => {
+    moneyIn += opts.incomeForPeriod
+      ? opts.incomeForPeriod(period)
+      : getPeriodIncome(period);
+    billsOut += (period.bills || []).reduce((s, b) => s + (parseFloat(b.amount) || 0), 0);
+    const goals = period.savingsGoals?.length
+      ? period.savingsGoals
+      : (period.savings ? [{ amount: period.savings }] : getSavingsGoals(period));
+    savingsOut += goals.reduce((s, g) => s + (parseFloat(g.amount) || 0), 0);
+    unpaidBills += (period.bills || []).filter(b => !b.done).length;
+    totalBills += (period.bills || []).length;
+  });
+  const moneyOut = billsOut + savingsOut;
+  return {
+    safe: moneyIn - moneyOut,
+    moneyIn, moneyOut, billsOut, savingsOut, unpaidBills, totalBills,
+    label: opts.label || homePeriodFrameLabel()
+  };
+}
+
+function homePeriodMetrics(key) {
+  const month = state.months[key];
+  return homeMetricsFromPeriods(month?.periods, { label: homePeriodFrameLabel() });
+}
+
+function homePartnerPeriodIncome(period, salary) {
+  // Partner ledgers (esp. Eric) often store salary in settings, not per-period income rows
+  const fromRows = (period.income || []).reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+  if (fromRows > 0) return fromRows;
+  return parseFloat(salary) || 0;
+}
+
+function homeHouseholdMetrics(key) {
+  const mine = homePeriodMetrics(key);
+  if (!homeOtherBudget || homeOtherBudgetStatus !== 'ready') {
+    return {
+      ...mine,
+      partnerReady: false,
+      partnerHint: homeOtherBudgetStatus === 'loading'
+        ? 'Loading partner…'
+        : homeOtherBudgetStatus === 'unavailable'
+          ? 'Your side only · partner budget unavailable'
+          : 'Your side only'
+    };
+  }
+  const otherMonth = homeOtherBudget.months?.[key];
+  const other = homeMetricsFromPeriods(otherMonth?.periods, {
+    allPeriods: true,
+    label: 'this month',
+    incomeForPeriod: (p) => homePartnerPeriodIncome(p, homeOtherBudget.settings?.salary)
+  });
+  // Household heroes use calendar-month totals for both sides so fortnight vs month framing aligns
+  const mineMonth = homeMetricsFromPeriods(state.months[key]?.periods, {
+    allPeriods: true,
+    label: 'this month',
+    incomeForPeriod: (p) => getPeriodIncome(p)
+  });
+  return {
+    safe: mineMonth.safe + other.safe,
+    moneyIn: mineMonth.moneyIn + other.moneyIn,
+    moneyOut: mineMonth.moneyOut + other.moneyOut,
+    billsOut: mineMonth.billsOut + other.billsOut,
+    savingsOut: mineMonth.savingsOut + other.savingsOut,
+    unpaidBills: mineMonth.unpaidBills + other.unpaidBills,
+    totalBills: mineMonth.totalBills + other.totalBills,
+    label: 'this month',
+    partnerReady: true,
+    partnerHint: ''
+  };
+}
+
+function homePayablesSnapshot(scope) {
+  const ellyEntries = pEllyEntries();
+  const ericEntries = pEricEntries();
+  const ellyOpen = ellyEntries.filter(e => !pIsEllyDone(e));
+  const ericOpen = ericEntries.filter(e => !pIsEricDone(e));
+  const ellySettled = ellyEntries.filter(e => pIsEllyDone(e)).length;
+  const ericSettled = ericEntries.filter(e => pIsEricDone(e)).length;
+  const ellyOwing = ellyOpen.reduce((s, e) => s + pMyShare(e), 0);
+  const ericOwing = ericOpen.reduce((s, e) => s + pEricShare(e), 0);
+
+  if (scope === 'household') {
+    let openCount = 0, settledCount = 0, owing = 0;
+    (pState.entries || []).forEach(e => {
+      const ellySide = e.split !== 'eric';
+      const ericSide = e.split === 'shared' || e.split === 'eric';
+      const ellyDone = !ellySide || pIsEllyDone(e);
+      const ericDone = !ericSide || pIsEricDone(e);
+      if (ellyDone && ericDone) {
+        settledCount++;
+        return;
+      }
+      openCount++;
+      if (ellySide && !pIsEllyDone(e)) owing += pMyShare(e);
+      if (ericSide && !pIsEricDone(e)) owing += pEricShare(e);
+    });
+    const totalCount = openCount + settledCount;
+    return {
+      owing,
+      openCount,
+      settledCount,
+      totalCount,
+      title: 'Shared payables',
+      hint: totalCount
+        ? `Household · ${settledCount} of ${totalCount} settled in total`
+        : 'No household payables yet'
+    };
+  }
+
+  if (isEric()) {
+    const totalCount = ericOpen.length + ericSettled;
+    return {
+      owing: ericOwing,
+      openCount: ericOpen.length,
+      settledCount: ericSettled,
+      totalCount,
+      title: 'Payables',
+      hint: totalCount
+        ? `${ericSettled} of ${totalCount} settled in total`
+        : 'No open payables'
+    };
+  }
+
+  const totalCount = ellyOpen.length + ellySettled;
+  return {
+    owing: ellyOwing,
+    openCount: ellyOpen.length,
+    settledCount: ellySettled,
+    totalCount,
+    title: 'Payables',
+    hint: totalCount
+      ? `${ellySettled} of ${totalCount} settled in total`
+      : 'No open payables'
+  };
+}
+
+function homeIsExpenseBill(b) {
+  if (b.kind === 'expense') return true;
+  if (b.kind === 'bill') return false;
+  const n = b.name || '';
+  const expenseKw = /netflix|spotify|chatgpt|disney|youtube|prime|subscription|gym|adobe|clip studio|grocer|food|uber|dining|coffee|coles|woolworth/i;
+  const billKw = /mortgage|rent|loan|insurance|rates|power|electric|water|gas|telstra|internet|bupa|car|council|vodafone/i;
+  if (expenseKw.test(n)) return true;
+  if (billKw.test(n)) return false;
+  return false; // default obligations → bills list
+}
+
+function homeCollectRecurring(periods) {
+  const bills = [];
+  const expenses = [];
+  (periods || []).forEach(p => {
+    (p.bills || []).filter(b => b.recurring).forEach(b => {
+      const row = { name: b.name, amount: parseFloat(b.amount) || 0 };
+      if (homeIsExpenseBill(b)) expenses.push(row);
+      else bills.push(row);
+    });
+  });
+  return { bills, expenses };
+}
+
+function homeDedupeTop(list, n = 5) {
+  const map = {};
+  list.forEach(r => {
+    const key = (r.name || '').trim();
+    if (!key) return;
+    map[key] = (map[key] || 0) + (r.amount || 0);
+  });
+  return Object.keys(map).map(name => ({ name, amount: map[name] }))
+    .sort((a, b) => b.amount - a.amount).slice(0, n);
+}
+
+function homeRecurringLists(key, scope) {
+  const mine = homeCollectRecurring(state.months[key]?.periods);
+  if (scope !== 'household' || !homeOtherBudget?.months?.[key]) {
+    return { bills: homeDedupeTop(mine.bills), expenses: homeDedupeTop(mine.expenses) };
+  }
+  const other = homeCollectRecurring(homeOtherBudget.months[key].periods);
+  return {
+    bills: homeDedupeTop(mine.bills.concat(other.bills)),
+    expenses: homeDedupeTop(mine.expenses.concat(other.expenses))
+  };
+}
+
+function homeAccumulateCategories(periods, buckets) {
+  (periods || []).forEach(p => {
+    (p.bills || []).forEach(b => {
+      const n = (b.name || '').toLowerCase();
+      const amt = parseFloat(b.amount) || 0;
+      if (/mortgage|rent|rates|council|insurance|power|electric|water|gas|internet|telstra|vodafone/.test(n)) buckets.Housing += amt;
+      else if (/car|fuel|uber|transport|rego|volvo/.test(n)) buckets.Transport += amt;
+      else if (/grocer|food|coles|woolworth|dining|pharmacy/.test(n)) buckets.Living += amt;
+      else if (/netflix|spotify|chatgpt|disney|prime|subscription|gym|adobe|clip studio/.test(n)) buckets.Subs += amt;
+      else if (/bupa|health/.test(n)) buckets.Health += amt;
+      else buckets.Other += amt;
+    });
+  });
+}
+
+function homeCategoryBreakdown(key, scope) {
+  const buckets = { Housing: 0, Transport: 0, Living: 0, Health: 0, Subs: 0, Other: 0 };
+  homeAccumulateCategories(state.months[key]?.periods, buckets);
+  if (scope === 'household' && homeOtherBudget?.months?.[key]) {
+    homeAccumulateCategories(homeOtherBudget.months[key].periods, buckets);
+  }
+  const total = Object.values(buckets).reduce((s, v) => s + v, 0) || 1;
+  const colors = ['#255a8c', '#0f6b58', '#a65d1f', '#b45309', '#64748b', '#475569'];
+  return Object.keys(buckets).filter(k => buckets[k] > 0).map((k, i) => ({
+    name: k, value: buckets[k], pct: Math.round((buckets[k] / total) * 100), color: colors[i % colors.length]
+  }));
+}
+
+function homeMonthStatsFromLedger(monthsObj, key, salarySetting) {
+  const m = monthsObj?.[key];
+  if (!m) return null;
+  let totalSpend = 0, totalSavings = 0, totalIncome = 0;
+  (m.periods || []).forEach(p => {
+    totalSpend += (p.bills || []).reduce((s, b) => s + (parseFloat(b.amount) || 0), 0);
+    const goals = p.savingsGoals?.length
+      ? p.savingsGoals
+      : (p.savings ? [{ amount: p.savings }] : []);
+    totalSavings += goals.reduce((s, g) => s + (parseFloat(g.amount) || 0), 0);
+    const rowInc = (p.income || []).reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+    totalIncome += rowInc > 0 ? rowInc : (parseFloat(salarySetting) || 0);
+  });
+  return {
+    totalSpend,
+    totalSavings,
+    totalAllowance: totalIncome - totalSpend - totalSavings,
+    salary: totalIncome
+  };
+}
+
+function homeTrendSeries(scope) {
+  const myKeys = Object.keys(state.months || {}).sort();
+  let keys = myKeys.slice(-7);
+  if (scope === 'household' && homeOtherBudget?.months) {
+    const both = myKeys.filter(k => homeOtherBudget.months[k]);
+    if (both.length) keys = both.slice(-7);
+  }
+  const expenses = [];
+  const safe = [];
+  const cashflow = [];
+  keys.forEach(k => {
+    const mine = getMonthStats(k) || { totalSpend: 0, totalSavings: 0, totalAllowance: 0, salary: 0 };
+    let totSpend = mine.totalSpend;
+    let totSav = mine.totalSavings;
+    let totInc = mine.salary;
+    let totSafe = mine.totalAllowance;
+    if (scope === 'household' && homeOtherBudget?.months) {
+      const other = homeMonthStatsFromLedger(homeOtherBudget.months, k, homeOtherBudget.settings?.salary);
+      if (other) {
+        totSpend += other.totalSpend;
+        totSav += other.totalSavings;
+        totInc += other.salary;
+        totSafe += other.totalAllowance;
+      }
+    }
+    expenses.push(Math.round(totSpend));
+    safe.push(Math.round(totSafe));
+    cashflow.push(Math.round(totInc - totSpend - totSav));
+  });
+  while (expenses.length < 2) { expenses.push(0); safe.push(0); cashflow.push(0); }
+  return { keys, expenses, safe, cashflow };
+}
+
+function homeSparkline(values, stroke) {
+  const w = 320, h = 120, pad = 12;
+  const nums = values.length ? values : [0, 0];
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  const span = (max - min) || 1;
+  const pts = nums.map((v, i) => {
+    const x = pad + (i * (w - pad * 2)) / Math.max(nums.length - 1, 1);
+    const y = h - pad - ((v - min) / span) * (h - pad * 2);
+    return [x, y];
+  });
+  const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const area = line + ` L ${pts[pts.length - 1][0].toFixed(1)} ${h - pad} L ${pts[0][0].toFixed(1)} ${h - pad} Z`;
+  const dots = pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="${stroke}" />`).join('');
+  return `<svg class="fh-chart-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="Trend chart"><path d="${area}" fill="${stroke}" opacity="0.12"/><path d="${line}" fill="none" stroke="${stroke}" stroke-width="2.5"/>${dots}</svg>`;
+}
+
+function homePie(categories) {
+  if (!categories.length) return '<div class="fh-empty">No category spend yet this month.</div>';
+  const total = categories.reduce((s, c) => s + c.value, 0) || 1;
+  let acc = 0;
+  const stops = categories.map(c => {
+    const start = (acc / total) * 100;
+    acc += c.value;
+    const end = (acc / total) * 100;
+    return `${c.color} ${start}% ${end}%`;
+  }).join(', ');
+  const legend = categories.map(c =>
+    `<div class="fh-pie-item"><span><i class="fh-pie-swatch" style="background:${c.color}"></i>${esc(c.name)}</span><strong>${homeMoney(c.value)}</strong></div>`
+  ).join('');
+  // Dynamic conic-gradient stops are set inline (JS-computed)
+  return `<div class="fh-pie-wrap"><div class="fh-pie-disk" style="background:conic-gradient(${stops})"></div><div class="fh-pie-legend">${legend}</div></div>`;
+}
+
+async function ensureHomeOtherBudget() {
+  if (homeOtherBudgetStatus === 'ready' || homeOtherBudgetStatus === 'loading') return;
+  if (!window._dbGet || !window._dbRef || !window._db) {
+    homeOtherBudgetStatus = 'unavailable';
+    return;
+  }
+  const req = ++homeOtherBudgetReq;
+  homeOtherBudgetStatus = 'loading';
+  const otherPath = isEric() ? DB_BUDGET_PATH : DB_ERIC_BUDGET_PATH;
+  try {
+    const snap = await window._dbGet(window._dbRef(window._db, otherPath));
+    if (req !== homeOtherBudgetReq) return;
+    const val = snap.val() || {};
+    homeOtherBudget = { months: val.months || {}, settings: val.settings || {} };
+    homeOtherBudgetStatus = 'ready';
+  } catch (e) {
+    if (req !== homeOtherBudgetReq) return;
+    homeOtherBudget = null;
+    homeOtherBudgetStatus = 'unavailable';
+  }
+  if (curTab === 'home' && homeScope === 'household') renderHome();
+}
+
+function setHomeScope(scope) {
+  homeScope = scope === 'household' ? 'household' : 'me';
+  if (homeScope === 'household') ensureHomeOtherBudget();
+  renderHome();
+}
+
+function setHomeChart(chart) {
+  homeChart = ['expenses', 'safe', 'cashflow'].includes(chart) ? chart : 'expenses';
+  renderHome();
+}
+
+function renderHome() {
+  const root = document.getElementById('homeContent');
+  if (!root) return;
+  const isHousehold = homeScope === 'household';
+  const key = homeActiveMonthKey();
+  const metrics = isHousehold ? homeHouseholdMetrics(key) : homePeriodMetrics(key);
+  const pay = homePayablesSnapshot(isHousehold ? 'household' : 'me');
+  const recurring = homeRecurringLists(key, homeScope);
+  const categories = homeCategoryBreakdown(key, homeScope);
+  const trends = homeTrendSeries(homeScope);
+  const series = trends[homeChart] || trends.expenses;
+  const stroke = homeChart === 'safe' ? 'var(--hero-safe, #0f6b58)' : homeChart === 'cashflow' ? 'var(--primary, #1e3a5f)' : 'var(--hero-out, #b45309)';
+
+  const billsPaid = Math.max(metrics.totalBills - metrics.unpaidBills, 0);
+  const billsPct = metrics.totalBills ? Math.round((billsPaid / metrics.totalBills) * 100) : 0;
+  const payPct = pay.totalCount ? Math.round((pay.settledCount / pay.totalCount) * 100) : 0;
+
+  const heroChipExtra = isHousehold && metrics.partnerHint
+    ? ` · ${metrics.partnerHint}`
+    : '';
+
+  const [yy, mm] = key.split('-').map(Number);
+  const monthLabel = (MONTHS[(mm || 1) - 1] || '') + ' ' + (yy || curYear);
+
+  root.innerHTML = `
+    <div class="fh-home-bar">
+      <div class="fh-scope" role="group" aria-label="View scope">
+        <button type="button" class="fh-scope-label ${homeScope === 'me' ? 'is-active' : ''}" onclick="setHomeScope('me')">Just me</button>
+        <button class="fh-scope-toggle" type="button" role="switch" aria-checked="${isHousehold}" aria-label="Switch between Just me and Household" onclick="setHomeScope(homeScope==='me'?'household':'me')">
+          <span class="fh-scope-thumb" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="fh-scope-label ${isHousehold ? 'is-active' : ''}" onclick="setHomeScope('household')">Household</button>
+      </div>
+    </div>
+    <section class="fh-hero" aria-label="Period totals">
+      <div class="fh-hero-metric" data-metric="safe">
+        <div class="fh-hero-label">Safe to spend</div>
+        <div class="fh-hero-figure">${homeMoney(metrics.safe)}</div>
+        <div class="fh-hero-chip">After bills &amp; savings ${esc(metrics.label)}${esc(heroChipExtra)}</div>
+      </div>
+      <div class="fh-hero-metric" data-metric="in">
+        <div class="fh-hero-label">Money in</div>
+        <div class="fh-hero-figure">${homeMoney(metrics.moneyIn)}</div>
+        <div class="fh-hero-chip">Income ${esc(metrics.label)}</div>
+      </div>
+      <div class="fh-hero-metric" data-metric="out">
+        <div class="fh-hero-label">Money out</div>
+        <div class="fh-hero-figure">${homeMoney(metrics.moneyOut)}</div>
+        <div class="fh-hero-chip">Bills + savings ${esc(metrics.label)}</div>
+      </div>
+    </section>
+    <div class="fh-row">
+      <article class="fh-card">
+        <div class="fh-cat-top">
+          <div>
+            <div class="fh-cat-name">Housing &amp; bills</div>
+            <div class="fh-cat-hint">${billsPaid} of ${metrics.totalBills} settled ${esc(metrics.label)}</div>
+          </div>
+          <div class="fh-cat-amt">${homeMoney(metrics.billsOut)}</div>
+        </div>
+        <div class="fh-bar" aria-hidden="true"><span style="width:${billsPct}%"></span></div>
+      </article>
+      <article class="fh-card">
+        <div class="fh-cat-top">
+          <div>
+            <div class="fh-cat-name">${esc(pay.title)}</div>
+            <div class="fh-cat-hint">${esc(pay.hint)}</div>
+          </div>
+          <div class="fh-cat-amt">${homeMoney(pay.owing)}</div>
+        </div>
+        <div class="fh-bar" aria-hidden="true"><span style="width:${payPct}%"></span></div>
+      </article>
+    </div>
+    <div class="fh-row">
+      <article class="fh-card">
+        <div class="fh-card-title">Top expense categories · ${esc(monthLabel)}</div>
+        ${homePie(categories)}
+      </article>
+      <article class="fh-card">
+        <div class="fh-card-title">Trends</div>
+        <div class="fh-chart-tabs" role="tablist" aria-label="Chart type">
+          <button class="fh-chart-tab" type="button" aria-pressed="${homeChart==='expenses'}" onclick="setHomeChart('expenses')">Expenses</button>
+          <button class="fh-chart-tab" type="button" aria-pressed="${homeChart==='safe'}" onclick="setHomeChart('safe')">Safe to spend</button>
+          <button class="fh-chart-tab" type="button" aria-pressed="${homeChart==='cashflow'}" onclick="setHomeChart('cashflow')">Cashflow</button>
+        </div>
+        ${homeSparkline(series, stroke)}
+      </article>
+    </div>
+    <div class="fh-row">
+      <article class="fh-card">
+        <div class="fh-card-title">Top recurring bills</div>
+        ${recurring.bills.length ? recurring.bills.map(b => `<div class="fh-bill-row"><span class="fh-bill-name">${esc(b.name)}</span><span class="fh-bill-amt">${homeMoney(b.amount)}</span></div>`).join('') : '<div class="fh-empty">No recurring bills in this month yet.</div>'}
+      </article>
+      <article class="fh-card">
+        <div class="fh-card-title">Top recurring expenses</div>
+        ${recurring.expenses.length ? recurring.expenses.map(b => `<div class="fh-bill-row"><span class="fh-bill-name">${esc(b.name)}</span><span class="fh-bill-amt">${homeMoney(b.amount)}</span></div>`).join('') : '<div class="fh-empty">No recurring expenses tagged yet.</div>'}
+      </article>
+    </div>
+  `;
+}
+
+
 function switchTab(tab) {
+  // Admin alias → Settings hub
+  if (tab === 'admin') tab = 'settings';
+
+  // Leaving chat page: park expanded UI back in the backdrop host
+  if (curTab === 'chat' && tab !== 'chat') {
+    parkChatExpanded();
+  }
+
   curTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  ['monthly','summary','insights','payables','admin','compare'].forEach(t => {
+  ['home','monthly','summary','insights','payables','admin','compare','chat','settings'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.classList.remove('active');
   });
@@ -3013,11 +3855,13 @@ function switchTab(tab) {
     render();
   } else {
     mnav.style.display = 'none';
+    if (tab === 'home')     renderHome();
     if (tab === 'summary')  renderSummary();
     if (tab === 'insights') renderInsights();
     if (tab === 'payables') renderPayables();
     if (tab === 'compare')  renderCompare();
-    if (tab === 'admin')    renderAdmin();
+    if (tab === 'settings') renderSettings();
+    if (tab === 'chat')     openChatPage();
   }
 }
 
@@ -3178,7 +4022,7 @@ function deleteBill(key,pi,id) {
 function addBill(key,pi) {
   if (!isAdmin()) return;
   const p=getPeriod(key,pi); if(!p)return;
-  p.bills.push({id:newId(), name:'', amount:0, payTo:'', recurring:false, done:false});
+  p.bills.push({id:newId(), name:'', amount:0, payTo:'', recurring:false, done:false, kind:'expense'});
   save(); renderMonthView(key);
   setTimeout(()=>{
     const inputs=document.querySelectorAll(`[data-period="${key}-${pi}"] .bill-name-input`);
@@ -3624,7 +4468,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
 
   // Recurring group
   const recurGroupHeader = document.createElement('div');
-  recurGroupHeader.className = 'bill-group-header';
+  recurGroupHeader.className = 'bill-group-header recurring';
   recurGroupHeader.innerHTML = `<span class="bill-group-label">Recurring</span><span class="bill-group-total">$${recurringTotal.toFixed(2)}</span>`;
   outBody.appendChild(recurGroupHeader);
   outBody.appendChild(recurListDiv);
@@ -4825,7 +5669,7 @@ function renderPayables() {
 
   // ── Eric's column (Elly only) ──
   const ericRight = safeEl('p-owing-right');
-  if (ericRight) ericRight.style.display = isElly ? '' : 'none';
+  if (ericRight) ericRight.hidden = !isElly;
 
   if (isElly) {
     let ericAll = pEricEntries();
@@ -5087,9 +5931,20 @@ function clearSelection() {
 function updateSelBadge() {
   const badge = document.getElementById('sel-badge');
   if (!badge) return;
-  if (selectedRows.length === 0) { badge.classList.remove('visible'); return; }
+  if (selectedRows.length === 0) {
+    badge.classList.remove('visible');
+    badge.innerHTML = '';
+    return;
+  }
   const sum = selectedRows.reduce((t,r)=>t+r.amount,0);
-  badge.textContent = `${selectedRows.length} row${selectedRows.length>1?'s':''} selected · Sum: $${sum.toFixed(2)} · Right-click for options`;
+  badge.innerHTML =
+    `<div class="sel-badge-meta">${selectedRows.length} selected · $${sum.toFixed(2)}</div>` +
+    `<div class="sel-badge-actions">` +
+      `<button type="button" class="sel-badge-btn" onclick="openModalMarkAs()">Done</button>` +
+      `<button type="button" class="sel-badge-btn" onclick="openModalPayTo()">Pay to</button>` +
+      `<button type="button" class="sel-badge-btn" onclick="openModalMoveTo()">Move</button>` +
+      `<button type="button" class="sel-badge-btn" onclick="openCalcPanel()">Calc</button>` +
+    `</div>`;
   badge.classList.add('visible');
 }
 
@@ -5446,21 +6301,15 @@ function openCalcPanel()  { document.getElementById('calc-panel').classList.add(
 function closeCalcPanel() { document.getElementById('calc-panel').classList.remove('open'); }
 function clearCalcHistory() { calcHistory = []; renderCalcPanel(); }
 
-// Also add accounts management to admin render
-function renderAdmin() {
-  const si = document.getElementById('salaryInput');
-  if (si) si.value = state.settings?.salary || 4524.58;
-  renderAdminAccounts();
-}
-
+// Also add accounts management to settings render
 function renderAdminAccounts() {
   const container = document.getElementById('admin-accounts-list');
   if (!container) return;
   const accounts = getAccounts();
   container.innerHTML = accounts.map((a, i) =>
-    `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f4f8">
-      <span style="flex:1;font-size:0.9rem">${esc(a)}</span>
-      <button onclick="deleteAccount(${i})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:0.85rem;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">✕</button>
+    `<div class="settings-account-row">
+      <span class="settings-account-name">${esc(a)}</span>
+      <button type="button" class="settings-account-del" onclick="deleteAccount(${i})" aria-label="Remove ${esc(a)}">✕</button>
     </div>`
   ).join('');
 }
@@ -5503,7 +6352,7 @@ function activeChatMessages() {
 function readChatDraftFromDom() {
   const panel = document.getElementById('chatPanelInput');
   const expanded = document.getElementById('chatExpandedInput');
-  if (chatMode === 'expanded' && expanded) chatDraftText = expanded.value;
+  if ((chatMode === 'expanded' || chatMode === 'page') && expanded) chatDraftText = expanded.value;
   else if (panel) chatDraftText = panel.value;
 }
 
@@ -5519,6 +6368,27 @@ function writeChatDraftToDom(opts) {
   }
 }
 
+function mountChatExpandedToPage() {
+  const root = document.getElementById('chatPageRoot');
+  const expanded = document.getElementById('chatExpanded');
+  if (!root || !expanded) return;
+  if (expanded.parentElement !== root) root.appendChild(expanded);
+}
+
+function parkChatExpanded() {
+  const backdrop = document.getElementById('chatBackdrop');
+  const expanded = document.getElementById('chatExpanded');
+  if (!backdrop || !expanded) return;
+  if (expanded.parentElement !== backdrop) backdrop.appendChild(expanded);
+  backdrop.hidden = true;
+  document.body.classList.remove('chat-page-active');
+}
+
+function openChatPage() {
+  mountChatExpandedToPage();
+  setChatMode('page');
+}
+
 function setChatMode(mode) {
   readChatDraftFromDom();
   const launcher = document.getElementById('chatLauncher');
@@ -5531,29 +6401,45 @@ function setChatMode(mode) {
     launcher.hidden = true;
     panel.hidden = true;
     backdrop.hidden = true;
+    document.body.classList.remove('chat-page-active');
     return;
   }
+
+  // Primary surface is the Chat tab — floating bubble stays off in normal use
+  if (mode === 'expanded') mode = 'page';
+
   chatMode = mode;
+  document.body.classList.toggle('chat-page-active', mode === 'page');
+
+  if (mode === 'page') {
+    mountChatExpandedToPage();
+    launcher.hidden = true;
+    panel.hidden = true;
+    backdrop.hidden = true;
+    ensureActiveChatThread();
+    writeChatDraftToDom();
+    renderChatMessages();
+    renderChatHistoryList();
+    const expanded = document.getElementById('chatExpanded');
+    expanded?.classList.remove('history-collapsed');
+    document.getElementById('chatHistoryPane')?.classList.remove('mobile-open');
+    syncChatHistoryToggleUi();
+    const input = document.getElementById('chatExpandedInput');
+    if (input) setTimeout(() => input.focus(), 50);
+    return;
+  }
+
+  parkChatExpanded();
   launcher.hidden = mode !== 'bubble';
   panel.hidden = mode !== 'panel';
-  backdrop.hidden = mode !== 'expanded';
+  backdrop.hidden = true;
   if (mode !== 'bubble') {
     ensureActiveChatThread();
     writeChatDraftToDom();
     renderChatMessages();
-    if (mode === 'expanded') renderChatHistoryList();
   }
   if (mode === 'panel') {
     const input = document.getElementById('chatPanelInput');
-    if (input) setTimeout(() => input.focus(), 50);
-  } else if (mode === 'expanded') {
-    // Desktop: history open by default. Mobile: closed overlay until toggled.
-    const expanded = document.querySelector('.chat-expanded');
-    const pane = document.getElementById('chatHistoryPane');
-    expanded?.classList.remove('history-collapsed');
-    pane?.classList.remove('mobile-open');
-    syncChatHistoryToggleUi();
-    const input = document.getElementById('chatExpandedInput');
     if (input) setTimeout(() => input.focus(), 50);
   }
 }
@@ -5634,7 +6520,7 @@ function startNewChatThread(opts) {
   if (!opts || !opts.selectOnly) {
     if (chatMode === 'bubble') setChatMode('panel');
     else {
-      const inputId = chatMode === 'expanded' ? 'chatExpandedInput' : 'chatPanelInput';
+      const inputId = (chatMode === 'expanded' || chatMode === 'page') ? 'chatExpandedInput' : 'chatPanelInput';
       const input = document.getElementById(inputId);
       if (input) setTimeout(() => input.focus(), 50);
     }
@@ -6197,7 +7083,7 @@ function init() {
   updatePayablesBadge();
 
   applyAdminSettings();
-  switchTab('monthly');
+  switchTab('home');
   setChatMode('bubble');
 
   // Start Firebase listeners (if Firebase is ready, otherwise they fire after firebaseReady event)
@@ -6228,7 +7114,7 @@ function init() {
       if (btnEl) btnEl.style.display = 'flex';
     });
   }
-  document.addEventListener('DOMContentLoaded', waitForAuth);
+  document.addEventListener('DOMContentLoaded', () => { initAppearance(); waitForAuth(); });
 })();
 </script>
 </body>
