@@ -1157,11 +1157,20 @@ html[data-theme="dark"] .status-strip {
   font-family: inherit;
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
-  padding: 6px 12px;
+  min-height: 36px;
+  padding: 8px 14px;
   border-radius: var(--radius-pill);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
-.chip-tab[aria-pressed="true"] {
+.chip-tab .material-symbols-outlined {
+  font-size: 18px;
+}
+.chip-tab[aria-pressed="true"],
+.chip-tab.is-active-filter,
+.chip-tab[aria-expanded="true"] {
   background: var(--primary-container);
   color: var(--on-primary-container);
 }
@@ -2225,23 +2234,21 @@ html[data-role="member"] [data-owner-only] {
   gap: var(--space-2);
   flex-wrap: wrap;
 }
-.select-filter {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--on-surface-variant);
+.chip-tabs-sub {
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+  padding: 2px 0 4px;
 }
-.select-filter select {
-  min-height: 32px;
-  padding: 6px 10px;
-  text-transform: none;
-  letter-spacing: normal;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
+.chip-tabs-sub.is-open {
+  display: flex;
+}
+.chip-tab-account {
+  max-width: 11rem;
+}
+.chip-tab-account .material-symbols-outlined {
+  margin-left: 2px;
 }
 .payable-add-card,
 .payables-list-card {

@@ -2477,6 +2477,7 @@ body {
   let payablesView = 'mine'; // mine | eric
   let payablesFilter = 'all'; // all | shared | solo
   let payablesAccount = 'all';
+  let payablesAccountOpen = false;
   let payablesAddOpen = false;
   let payablesCompletedOpen = false;
   let payablesAllocateId = null;
@@ -2625,9 +2626,12 @@ body {
     const accounts = payableAccounts(payablesView);
     if (payablesAccount !== 'all' && !accounts.includes(payablesAccount)) payablesAccount = 'all';
     const visibleOpen = payableVisibleOpenRows();
-    const accountOptions = '<option value="all">All accounts</option>' + accounts.map((account) =>
-      '<option value="' + escapeHtml(account) + '"' + (payablesAccount === account ? ' selected' : '') + '>' + escapeHtml(account) + '</option>'
-    ).join('');
+    const accountChipLabel = payablesAccount === 'all' ? 'Account' : payablesAccount;
+    const accountSubchips =
+      '<button class="chip-tab" type="button" data-pay-account="all" aria-pressed="' + (payablesAccount === 'all') + '">All accounts</button>' +
+      accounts.map((account) =>
+        '<button class="chip-tab" type="button" data-pay-account="' + escapeHtml(account) + '" aria-pressed="' + (payablesAccount === account) + '">' + escapeHtml(account) + '</button>'
+      ).join('');
     const grouped = visibleOpen.reduce((map, row) => {
       if (!map[row.payTo]) map[row.payTo] = [];
       map[row.payTo].push(row);
@@ -2649,13 +2653,19 @@ body {
       '</section>' +
       '<div class="page-body payables-body">' +
         '<div class="payables-toolbar">' +
-          '<label class="select-filter"><span>Account</span><select data-pay-account>' + accountOptions + '</select></label>' +
-          '<div class="chip-tabs" role="tablist" aria-label="Split filter">' +
+          '<div class="chip-tabs" role="toolbar" aria-label="Payables filters">' +
+            '<button class="chip-tab chip-tab-account' + (payablesAccount !== 'all' || payablesAccountOpen ? ' is-active-filter' : '') + '" type="button" data-toggle-account-chips aria-expanded="' + payablesAccountOpen + '">' +
+              escapeHtml(accountChipLabel) +
+              '<span class="material-symbols-outlined" aria-hidden="true">' + (payablesAccountOpen ? 'expand_less' : 'expand_more') + '</span>' +
+            '</button>' +
             '<button class="chip-tab" type="button" data-pay-filter="all" aria-pressed="' + (payablesFilter === 'all') + '">All</button>' +
             '<button class="chip-tab" type="button" data-pay-filter="shared" aria-pressed="' + (payablesFilter === 'shared') + '">Shared</button>' +
             '<button class="chip-tab" type="button" data-pay-filter="solo" aria-pressed="' + (payablesFilter === 'solo') + '">Solo</button>' +
           '</div>' +
           '<button class="text-btn" type="button" data-toggle-add-payable><span class="material-symbols-outlined" aria-hidden="true">add</span>Add payable</button>' +
+        '</div>' +
+        '<div class="chip-tabs chip-tabs-sub' + (payablesAccountOpen ? ' is-open' : '') + '" role="listbox" aria-label="Pay To account" ' + (payablesAccountOpen ? '' : 'hidden') + '>' +
+          accountSubchips +
         '</div>' +
         payablesAddFormHtml() +
         '<article class="card payables-list-card">' +
@@ -2722,9 +2732,16 @@ body {
         renderPayables();
       });
     });
-    rootEl.querySelectorAll('[data-pay-account]').forEach((select) => {
-      select.addEventListener('change', () => {
-        payablesAccount = select.value;
+    rootEl.querySelectorAll('[data-toggle-account-chips]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesAccountOpen = !payablesAccountOpen;
+        renderPayables();
+      });
+    });
+    rootEl.querySelectorAll('[data-pay-account]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payablesAccount = btn.dataset.payAccount || 'all';
+        payablesAccountOpen = false;
         renderPayables();
       });
     });
