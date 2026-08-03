@@ -65,4 +65,5 @@ Default palette is **graphite**. Switch with `data-palette`: `ocean` | `azulejo`
 - **Phase 3B**: production links `home.css` for the Home overview; Household scope merges payables immediately and loads the partner budget on demand.
 - **Phase 3C**: production links `monthly.css` for period cards / ledger rows under `#tab-monthly`; legacy `.money-in` / `.money-out` map to token hero colours without touching other tabs.
 - **Phase 3D**: production links `payables.css` for owing summary, payable rows, Mine/Eric switcher, and filters under `#tab-payables`; does not load `components.css`.
+- **Phase 3E–3G / 4**: Settings hub replaces Admin in primary nav; Chat is a top-level page; Summary/Insights/Compare stay reachable from Settings → Advanced; floating chat bubble stays off while Chat tab is active.
 - Live composition / contract: [`../ui-facelift-mockup.html`](../ui-facelift-mockup.html).

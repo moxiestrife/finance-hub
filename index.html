@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>💰 Finance Hub — Elly & Eric</title>
+<title>Pensive — Finance Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <!-- Firebase -->
@@ -177,24 +177,35 @@ html[data-theme="dark"] .admin-card {
 #login-screen {
   min-height: 100vh;
   display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, var(--brand-col) 0%, var(--brand-deep) 60%, #0f1e31 100%);
+  background:
+    radial-gradient(ellipse at 20% 10%, color-mix(in srgb, var(--primary-container, #e6e6e9) 55%, transparent), transparent 55%),
+    linear-gradient(160deg, var(--surface, #f4f4f5) 0%, var(--surface-container, #ececee) 45%, color-mix(in srgb, var(--primary, #2a2a2e) 18%, #f4f4f5) 100%);
 }
 .login-box {
-  background: white; border-radius: 20px;
+  background: var(--surface-container-lowest, #fff); border-radius: 20px;
   padding: 44px 40px; width: 100%; max-width: 420px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+  box-shadow: 0 18px 50px var(--shadow, rgba(15,30,49,0.14));
+  border: 1px solid var(--outline-variant, #e2e8f0);
   text-align: center;
 }
-.login-logo { font-size: 2.8rem; margin-bottom: 6px; }
-.login-title { font-size: 1.55rem; font-weight: 800; color: var(--brand-col); margin-bottom: 4px; }
-.login-sub   { font-size: 0.88rem; color: #64748b; margin-bottom: 32px; }
+.login-logo {
+  width: 56px; height: 56px; margin: 0 auto 12px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--primary, #2a2a2e);
+  color: var(--on-primary, #fff);
+  font-size: 1.55rem; font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.login-title { font-size: 1.7rem; font-weight: 800; color: var(--on-surface, #1a1a1d); margin-bottom: 4px; letter-spacing: -0.03em; }
+.login-sub   { font-size: 0.88rem; color: var(--on-surface-variant, #64748b); margin-bottom: 32px; }
 .login-label { display: block; font-size: 0.8rem; font-weight: 700; color: #374151; text-align: left; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 .login-input {
   width: 100%; padding: 11px 14px; border: 2px solid #e2e8f0;
   border-radius: 10px; font-size: 1rem; margin-bottom: 18px;
   outline: none; transition: border-color 0.2s; font-family: inherit;
 }
-.login-input:focus { border-color: #7C3AED; }
+.login-input:focus { border-color: var(--primary, #2a2a2e); }
 .login-btn {
   width: 100%; padding: 13px; border: none; border-radius: 10px;
   font-size: 1rem; font-weight: 700; cursor: pointer;
@@ -775,16 +786,170 @@ html[data-theme="dark"] .admin-card {
 }
 .calc-clear-btn:hover { background: #ef4444; color: white; }
 
-/* Selection count badge */
+/* Selection action dock */
 .sel-badge {
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  background: var(--brand-col); color: white; border-radius: 999px;
-  padding: 8px 20px; font-size: 0.85rem; font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  background: var(--surface-container-lowest, #fff); color: var(--on-surface, #1a202c);
+  border: 1px solid var(--outline-variant, #e2e8f0);
+  border-radius: 16px;
+  padding: 10px 14px; font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 8px 28px var(--shadow, rgba(15, 30, 49, 0.18));
   z-index: 7000; display: none;
   transition: opacity 0.2s;
+  max-width: calc(100vw - 24px);
 }
-.sel-badge.visible { display: block; }
+.sel-badge.visible {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.sel-badge-meta {
+  font-size: 0.8rem;
+  color: var(--on-surface-variant, #64748b);
+  white-space: nowrap;
+}
+.sel-badge-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sel-badge-btn {
+  border: none;
+  background: var(--primary, #1e3a5f);
+  color: var(--on-primary, #fff);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sel-badge-btn:hover { filter: brightness(1.08); }
+
+/* Tab bar inner */
+.tab-bar-inner {
+  display: flex;
+  gap: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+.tab-btn-legacy[hidden] { display: none !important; }
+
+/* Settings hub */
+#tab-settings {
+  max-width: var(--content-max-width, 80%);
+  margin: 0 auto;
+}
+#tab-settings .settings-card-desc { margin-bottom: 12px; }
+#tab-settings .settings-salary-row,
+#tab-settings .settings-account-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 16px;
+}
+#tab-settings .settings-salary-prefix {
+  font-size: 0.9rem;
+  color: var(--muted-col, #6b7280);
+}
+#tab-settings .settings-account-input { flex: 1; width: auto; }
+#tab-settings .settings-accounts-list { margin-bottom: 12px; }
+#tab-settings .settings-account-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-col, #f0f4f8);
+}
+#tab-settings .settings-account-name { flex: 1; font-size: 0.9rem; }
+#tab-settings .settings-account-del {
+  background: none;
+  border: none;
+  color: var(--danger, #ef4444);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+#tab-settings .settings-account-del:hover { background: var(--danger-light, #fee2e2); }
+#tab-settings .settings-impersonate-btn {
+  background: var(--primary, #1e3a5f);
+  color: var(--on-primary, #fff);
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+#tab-settings .settings-import-label { cursor: pointer; }
+#tab-settings .settings-advanced-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+#tab-settings .settings-link-btn {
+  border: 1.5px solid var(--border-col);
+  background: var(--surface-alt);
+  color: var(--text-col);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+#tab-settings .settings-link-btn:hover {
+  border-color: var(--brand-col);
+}
+#tab-settings .settings-owner-only[hidden] { display: none !important; }
+
+/* Chat page (Phase 3F) */
+#tab-chat {
+  max-width: none;
+  padding: 0;
+}
+.chat-page-root {
+  min-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+}
+.chat-page-root .chat-expanded {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  max-width: var(--content-max-width, 1100px);
+  margin: 0 auto;
+  height: calc(100vh - 140px);
+  min-height: 480px;
+  border-radius: 16px;
+  border: 1px solid var(--border-col);
+  box-shadow: 0 1px 4px var(--shadow, rgba(0,0,0,0.06));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface, #fff);
+}
+body.chat-page-active .chat-launcher,
+body.chat-page-active .chat-panel,
+body.chat-page-active .chat-backdrop {
+  display: none !important;
+}
+@media (max-width: 800px) {
+  .chat-page-root .chat-expanded {
+    height: calc(100vh - 120px);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+}
+
+/* Auth / brand chrome (Phase 3G light) */
+.header-inner > h1 {
+  font-family: var(--font-family, inherit);
+  letter-spacing: -0.02em;
+}
 
 /* Empty */
 .empty-msg { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #9ca3af; }
@@ -1474,9 +1639,9 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 ════════════════════════════════════ -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">💰</div>
-    <div class="login-title">Finance Hub</div>
-    <div class="login-sub">Private household finance tracker</div>
+    <div class="login-logo" aria-hidden="true">P</div>
+    <div class="login-title">Pensive</div>
+    <div class="login-sub">Household finances, thoughtfully</div>
 
     <p class="login-checking" id="login-checking" style="display:none;">Checking your account&hellip;</p>
 
@@ -1520,7 +1685,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 <div class="sticky-header">
 <div class="topbar">
 <div class="header-inner">
-  <h1>💰 Finance Hub</h1>
+  <h1>Pensive</h1>
   <div class="month-nav" id="monthNavWrap" style="position:relative;z-index:200">
     <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
     <span class="month-label" id="monthLabel" onclick="toggleMonthPicker(event)">—</span>
@@ -1551,17 +1716,20 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 </div>
 
 <!-- TOP-LEVEL TAB BAR -->
-<div class="tab-bar"><div class="header-inner" style="display:flex;gap:0;padding:0">
+<div class="tab-bar"><div class="header-inner tab-bar-inner">
   <button class="tab-btn active" id="tab-btn-home" onclick="switchTab('home')">🏠 Home</button>
-  <button class="tab-btn" id="tab-btn-monthly" onclick="switchTab('monthly')">📅 Monthly Budget</button>
+  <button class="tab-btn" id="tab-btn-monthly" onclick="switchTab('monthly')">📅 Monthly</button>
   <button class="tab-btn" id="tab-btn-payables" onclick="switchTab('payables')">
     💸 Payables
     <span class="tab-badge" id="payables-badge" style="display:none"></span>
   </button>
-  <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">📊 Summary</button>
-  <button class="tab-btn" id="tab-btn-insights" onclick="switchTab('insights')">💡 Insights</button>
-  <button class="tab-btn" id="tab-btn-compare" onclick="switchTab('compare')" style="display:none">⚖ Compare</button>
-  <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">⚙ Admin</button>
+  <button class="tab-btn" id="tab-btn-chat" onclick="switchTab('chat')">💬 Chat</button>
+  <button class="tab-btn" id="tab-btn-settings" onclick="switchTab('settings')">⚙ Settings</button>
+  <!-- Legacy tabs kept in DOM for Phase 4 cutover; hidden from primary nav -->
+  <button class="tab-btn tab-btn-legacy" id="tab-btn-summary" onclick="switchTab('summary')" hidden>📊 Summary</button>
+  <button class="tab-btn tab-btn-legacy" id="tab-btn-insights" onclick="switchTab('insights')" hidden>💡 Insights</button>
+  <button class="tab-btn tab-btn-legacy" id="tab-btn-compare" onclick="switchTab('compare')" hidden>⚖ Compare</button>
+  <button class="tab-btn tab-btn-legacy" id="tab-btn-admin" onclick="switchTab('admin')" hidden>⚙ Admin</button>
 </div></div>
 </div><!-- /.sticky-header -->
 
@@ -1585,13 +1753,13 @@ body:not(.authed) .chat-backdrop { display: none !important; }
     <div class="periods-grid" id="periodsGrid"></div>
   </div>
 
-  <!-- ── ADMIN TAB ── -->
-  <div class="tab-content" id="tab-admin">
-    <div class="admin-section">
+  <!-- ── SETTINGS TAB (Phase 3E — was Admin) ── -->
+  <div class="tab-content" id="tab-settings">
+    <div class="settings-section admin-section" id="settingsHub">
 
-      <div class="admin-card" id="appearance-card">
+      <div class="admin-card settings-card" id="appearance-card">
         <h2>🎨 Appearance</h2>
-        <div class="admin-toggle-desc" style="margin-bottom:8px">Theme and colour palette from the facelift design system. Graphite is the default.</div>
+        <div class="admin-toggle-desc settings-card-desc">Theme and colour palette. Graphite is the default.</div>
         <div class="admin-toggle-label">Theme</div>
         <div class="appearance-theme-row" role="group" aria-label="Theme">
           <button type="button" class="appearance-theme-btn" data-theme-set="light" aria-pressed="true">Light</button>
@@ -1622,12 +1790,36 @@ body:not(.authed) .chat-backdrop { display: none !important; }
         </div>
       </div>
 
-      <div class="admin-card">
-        <h2>🔵 Eric's Access</h2>
+      <div class="admin-card settings-card" id="settings-salary-card">
+        <h2>💰 Salary</h2>
+        <div class="admin-toggle">
+          <div>
+            <div class="admin-toggle-label">Default salary</div>
+            <div class="admin-toggle-desc">Base income for each pay period. Override per-period in Money In.</div>
+          </div>
+          <div class="settings-salary-row">
+            <span class="settings-salary-prefix">$</span>
+            <input class="admin-salary-input" type="number" id="salaryInput" step="0.01" placeholder="4524.58">
+            <button class="admin-save-btn" onclick="saveSettings()">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card settings-card" id="settings-accounts-card">
+        <h2>🏦 Pay To accounts</h2>
+        <div id="admin-accounts-list" class="settings-accounts-list"></div>
+        <div class="settings-account-add">
+          <input id="new-account-input" class="admin-salary-input settings-account-input" type="text" placeholder="New account name…" onkeydown="if(event.key==='Enter')addAccount()">
+          <button class="admin-save-btn" onclick="addAccount()">Add</button>
+        </div>
+      </div>
+
+      <div class="admin-card settings-card settings-owner-only" id="settings-eric-access-card">
+        <h2>🔵 Eric's access</h2>
         <div class="admin-toggle">
           <div>
             <div class="admin-toggle-label">Eric can view budget &amp; ledger</div>
-            <div class="admin-toggle-desc">Monthly View, Summary and Insights tabs will be visible to Eric</div>
+            <div class="admin-toggle-desc">Controls partner visibility of shared budget tools.</div>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="toggle-eric-budget" onchange="saveAdminSettings()">
@@ -1636,51 +1828,41 @@ body:not(.authed) .chat-backdrop { display: none !important; }
         </div>
       </div>
 
-      <div class="admin-card">
-        <h2>💰 Salary Settings</h2>
-        <div class="admin-toggle">
-          <div>
-            <div class="admin-toggle-label">Default fortnightly salary</div>
-            <div class="admin-toggle-desc">Used as the base income for each pay period. You can override per-period in Money In.</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-left:16px">
-            <span style="font-size:0.9rem;color:#6b7280">$</span>
-            <input class="admin-salary-input" type="number" id="salaryInput" step="0.01" placeholder="4524.58">
-            <button class="admin-save-btn" onclick="saveSettings()">Save</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="admin-card">
-        <h2>🏦 Pay To Accounts</h2>
-        <div id="admin-accounts-list" style="margin-bottom:12px"></div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <input id="new-account-input" class="admin-salary-input" style="flex:1;width:auto" type="text" placeholder="New account name…" onkeydown="if(event.key==='Enter')addAccount()">
-          <button class="admin-save-btn" onclick="addAccount()">Add</button>
-        </div>
-      </div>
-
-      <div class="admin-card">
-        <h2>🔧 Data Tools</h2>
+      <div class="admin-card settings-card settings-owner-only" id="settings-data-card">
+        <h2>🔧 Data tools</h2>
         <div class="admin-data-row">
           <button class="p-btn p-btn-export" onclick="exportBudget()">⬇ Export Budget</button>
-          <label class="p-btn p-btn-export" style="cursor:pointer">
+          <label class="p-btn p-btn-export settings-import-label">
             ⬆ Import Budget
-            <input type="file" accept=".json" onchange="importBudget(event)" style="display:none">
+            <input type="file" accept=".json" onchange="importBudget(event)" hidden>
           </label>
         </div>
       </div>
 
-      <div class="admin-card">
-        <h2>🎭 Impersonate User</h2>
-        <div class="admin-toggle-desc" style="margin-bottom:12px;color:#6b7280">Switch your view to test the app as Eric. Your Elly login stays active — Firebase writes still work on both paths.</div>
+      <div class="admin-card settings-card settings-owner-only" id="settings-impersonate-card">
+        <h2>🎭 Impersonate</h2>
+        <div class="admin-toggle-desc settings-card-desc">Switch view to test as Eric. Your Elly login stays active.</div>
         <div id="impersonate-controls">
-          <button class="p-btn" style="background:#6366f1;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;border:none;cursor:pointer" onclick="impersonateEric()">👤 View as Eric</button>
+          <button class="p-btn settings-impersonate-btn" onclick="impersonateEric()">👤 View as Eric</button>
+        </div>
+      </div>
+
+      <div class="admin-card settings-card" id="settings-advanced-card">
+        <h2>📎 Advanced</h2>
+        <div class="admin-toggle-desc settings-card-desc">Legacy views kept during the facelift cutover.</div>
+        <div class="settings-advanced-links">
+          <button type="button" class="settings-link-btn" onclick="switchTab('summary')">Summary</button>
+          <button type="button" class="settings-link-btn" onclick="switchTab('insights')">Insights</button>
+          <button type="button" class="settings-link-btn settings-owner-only" onclick="switchTab('compare')">Compare</button>
+          <button type="button" class="settings-link-btn" onclick="runFinanceHubQA()">Self-test</button>
         </div>
       </div>
 
     </div>
   </div>
+
+  <!-- Admin tab alias kept for any deep links — redirects via switchTab -->
+  <div class="tab-content" id="tab-admin" hidden></div>
 
   <!-- ── COMPARE TAB ── -->
   <div class="tab-content" id="tab-compare">
@@ -1697,6 +1879,11 @@ body:not(.authed) .chat-backdrop { display: none !important; }
     <div id="insightsContent"></div>
   </div>
 
+  <!-- ── CHAT TAB (Phase 3F — page mode) ── -->
+  <div class="tab-content" id="tab-chat">
+    <div class="chat-page-root" id="chatPageRoot" aria-label="Finance assistant"></div>
+  </div>
+
   <!-- ── PAYABLES TAB ── -->
   <div class="tab-content" id="tab-payables">
     <div class="payables-content" id="payables-main-view">
@@ -1708,10 +1895,10 @@ body:not(.authed) .chat-backdrop { display: none !important; }
           <div class="p-owing-amount" id="p-owing-amount">$0.00</div>
           <div class="p-owing-sub" id="p-owing-sub">0 items pending</div>
         </div>
-        <div class="p-owing-right" id="p-owing-right" style="display:none">
-          <div style="font-size:0.72rem;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.4px">Eric owes</div>
-          <div style="font-size:1.3rem;font-weight:800;margin-top:2px" id="p-eric-owing-amt">$0.00</div>
-          <div style="font-size:0.72rem;opacity:0.65" id="p-eric-owing-sub">0 items</div>
+        <div class="p-owing-right p-eric-peek" id="p-owing-right" hidden>
+          <div class="p-owing-label">Eric owes</div>
+          <div class="p-owing-amount p-owing-amount-sm" id="p-eric-owing-amt">$0.00</div>
+          <div class="p-owing-sub" id="p-eric-owing-sub">0 items</div>
         </div>
       </div>
 
@@ -1755,8 +1942,8 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
       <!-- View switcher (Elly only — Eric sees no switcher) -->
       <div class="p-view-switcher" id="p-view-switcher">
-        <button class="p-vs-btn active" id="p-vs-mine" onclick="pSetView('mine')">💳 My Payables</button>
-        <button class="p-vs-btn" id="p-vs-eric" onclick="pSetView('eric')">👤 Eric's Payables</button>
+        <button class="p-vs-btn active" id="p-vs-mine" onclick="pSetView('mine')">Mine</button>
+        <button class="p-vs-btn" id="p-vs-eric" onclick="pSetView('eric')">Eric</button>
       </div>
 
       <!-- Columns (one visible at a time via switcher) -->
@@ -1827,8 +2014,8 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
 </div><!-- end .main -->
 
-<!-- Chat widget: bubble → compact panel → expanded with history -->
-<button class="chat-launcher" id="chatLauncher" type="button" hidden aria-label="Open chat" title="Chat" onclick="setChatMode('panel')">
+<!-- Chat: floating bubble/panel kept as optional quick access; primary surface is Chat tab -->
+<button class="chat-launcher" id="chatLauncher" type="button" hidden aria-label="Open chat" title="Chat" onclick="switchTab('chat')">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 </button>
 
@@ -1840,7 +2027,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
     </div>
     <div class="chat-header-actions">
       <button class="chat-header-new" type="button" title="Start a new chat" onclick="startNewChatThread()">+ New</button>
-      <button class="chat-icon-btn" type="button" title="Expand" aria-label="Expand chat" onclick="setChatMode('expanded')">
+      <button class="chat-icon-btn" type="button" title="Open Chat tab" aria-label="Open Chat tab" onclick="switchTab('chat')">
         <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
       </button>
       <button class="chat-icon-btn" type="button" title="Minimize" aria-label="Minimize chat" onclick="setChatMode('bubble')">−</button>
@@ -1862,8 +2049,8 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   </div>
 </div>
 
-<div class="chat-backdrop" id="chatBackdrop" hidden onclick="if(event.target===this)setChatMode('panel')">
-  <div class="chat-expanded" role="dialog" aria-modal="true" aria-label="Finance assistant">
+<div class="chat-backdrop" id="chatBackdrop" hidden>
+  <div class="chat-expanded" id="chatExpanded" role="region" aria-label="Finance assistant">
     <div class="chat-header">
       <button class="chat-icon-btn chat-history-toggle" id="chatHistoryToggleBtn" type="button" title="Hide history" aria-label="Toggle history" aria-controls="chatHistoryPane" aria-expanded="true" onclick="toggleChatHistory()">☰</button>
       <div class="chat-header-title">
@@ -1872,10 +2059,6 @@ body:not(.authed) .chat-backdrop { display: none !important; }
       </div>
       <div class="chat-header-actions">
         <button class="chat-header-new" type="button" title="Start a new chat" onclick="startNewChatThread()">+ New</button>
-        <button class="chat-icon-btn" type="button" title="Back to corner chat" aria-label="Collapse to corner" onclick="setChatMode('panel')">
-          <svg viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-        </button>
-        <button class="chat-icon-btn" type="button" title="Minimize" aria-label="Minimize" onclick="setChatMode('bubble')">−</button>
       </div>
     </div>
     <div class="chat-expanded-body">
@@ -2245,7 +2428,7 @@ function stopImpersonating() {
   const banner = document.getElementById('impersonate-banner');
   if (banner) banner.style.display = 'none';
   const ctrl = document.getElementById('impersonate-controls');
-  if (ctrl) ctrl.innerHTML = '<button class="p-btn" style="background:#6366f1;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;border:none;cursor:pointer" onclick="impersonateEric()">👤 View as Eric</button>';
+  if (ctrl) ctrl.innerHTML = '<button class="p-btn settings-impersonate-btn" onclick="impersonateEric()">👤 View as Eric</button>';
   showToast('✅ Back to Elly view');
   switchTab('home');
 }
@@ -2279,7 +2462,7 @@ function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.body.classList.add('authed');
-  setChatMode(chatMode === 'expanded' || chatMode === 'panel' ? chatMode : 'bubble');
+  setChatMode(curTab === 'chat' ? 'page' : 'bubble');
 
   const firebaseUser = window._auth && window._auth.currentUser;
   const profile = firebaseUser ? AUTHORISED_USERS[firebaseUser.email] : null;
@@ -2351,15 +2534,20 @@ function initAppearance() {
 function applyRoleUI() {
   document.body.classList.toggle('user-eric', isEric());
 
-  // Admin + Compare tabs visible only to Elly
-  document.getElementById('tab-btn-admin').style.display   = isOwner() ? '' : 'none';
-  document.getElementById('tab-btn-compare').style.display = isOwner() ? '' : 'none';
+  // Settings is available to everyone; owner-only cards/links toggle
+  document.querySelectorAll('.settings-owner-only').forEach(el => {
+    el.hidden = !isOwner();
+  });
+
+  // Legacy Admin/Compare buttons stay hidden from primary nav
+  const adminBtn = document.getElementById('tab-btn-admin');
+  const compareBtn = document.getElementById('tab-btn-compare');
+  if (adminBtn) adminBtn.hidden = true;
+  if (compareBtn) compareBtn.hidden = true;
 
   // View switcher (Elly only — Eric sees his own payables fullscreen)
-  if (isEric()) {
-    const switcher = document.getElementById('p-view-switcher');
-    if (switcher) switcher.style.display = 'none';
-  }
+  const switcher = document.getElementById('p-view-switcher');
+  if (switcher) switcher.style.display = isEric() ? 'none' : '';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2473,7 +2661,7 @@ function listenBudget() {
       if (curTab === 'monthly')  render();
       if (curTab === 'summary')  renderSummary();
       if (curTab === 'insights') renderInsights();
-      if (curTab === 'admin')    renderAdmin();
+      if (curTab === 'settings' || curTab === 'admin') renderSettings();
       _budgetLoaded = true; _onBothLoaded();
     } else {
       firebaseDataLoaded = true;
@@ -2754,8 +2942,15 @@ async function renderCompare() {
 }
 
 function renderAdmin() {
+  renderSettings();
+}
+
+function renderSettings() {
   const salaryInput = document.getElementById('salaryInput');
   if (salaryInput) salaryInput.value = state.settings?.salary || 4524.58;
+  renderAdminAccounts();
+  applyRoleUI();
+  syncAppearanceControls();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2806,7 +3001,7 @@ let state = { settings: { salary: 4524.58 }, months: {}, accounts: [...DEFAULT_A
 let curYear, curMonth;
 let curTab = 'home';
 let chatBusy = false;
-let chatMode = 'bubble'; // bubble | panel | expanded
+let chatMode = 'bubble'; // bubble | panel | page
 let chatThreads = [];    // [{id, title, createdAt, updatedAt, messages:[]}]
 let activeChatThreadId = null;
 let chatThreadsUnsub = null;
@@ -3635,9 +3830,17 @@ function renderHome() {
 
 
 function switchTab(tab) {
+  // Admin alias → Settings hub
+  if (tab === 'admin') tab = 'settings';
+
+  // Leaving chat page: park expanded UI back in the backdrop host
+  if (curTab === 'chat' && tab !== 'chat') {
+    parkChatExpanded();
+  }
+
   curTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  ['home','monthly','summary','insights','payables','admin','compare'].forEach(t => {
+  ['home','monthly','summary','insights','payables','admin','compare','chat','settings'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.classList.remove('active');
   });
@@ -3657,7 +3860,8 @@ function switchTab(tab) {
     if (tab === 'insights') renderInsights();
     if (tab === 'payables') renderPayables();
     if (tab === 'compare')  renderCompare();
-    if (tab === 'admin')    renderAdmin();
+    if (tab === 'settings') renderSettings();
+    if (tab === 'chat')     openChatPage();
   }
 }
 
@@ -3818,7 +4022,7 @@ function deleteBill(key,pi,id) {
 function addBill(key,pi) {
   if (!isAdmin()) return;
   const p=getPeriod(key,pi); if(!p)return;
-  p.bills.push({id:newId(), name:'', amount:0, payTo:'', recurring:false, done:false});
+  p.bills.push({id:newId(), name:'', amount:0, payTo:'', recurring:false, done:false, kind:'expense'});
   save(); renderMonthView(key);
   setTimeout(()=>{
     const inputs=document.querySelectorAll(`[data-period="${key}-${pi}"] .bill-name-input`);
@@ -4264,7 +4468,7 @@ function buildPeriodCard(key, period, pi, canEdit) {
 
   // Recurring group
   const recurGroupHeader = document.createElement('div');
-  recurGroupHeader.className = 'bill-group-header';
+  recurGroupHeader.className = 'bill-group-header recurring';
   recurGroupHeader.innerHTML = `<span class="bill-group-label">Recurring</span><span class="bill-group-total">$${recurringTotal.toFixed(2)}</span>`;
   outBody.appendChild(recurGroupHeader);
   outBody.appendChild(recurListDiv);
@@ -5465,7 +5669,7 @@ function renderPayables() {
 
   // ── Eric's column (Elly only) ──
   const ericRight = safeEl('p-owing-right');
-  if (ericRight) ericRight.style.display = isElly ? '' : 'none';
+  if (ericRight) ericRight.hidden = !isElly;
 
   if (isElly) {
     let ericAll = pEricEntries();
@@ -5727,9 +5931,20 @@ function clearSelection() {
 function updateSelBadge() {
   const badge = document.getElementById('sel-badge');
   if (!badge) return;
-  if (selectedRows.length === 0) { badge.classList.remove('visible'); return; }
+  if (selectedRows.length === 0) {
+    badge.classList.remove('visible');
+    badge.innerHTML = '';
+    return;
+  }
   const sum = selectedRows.reduce((t,r)=>t+r.amount,0);
-  badge.textContent = `${selectedRows.length} row${selectedRows.length>1?'s':''} selected · Sum: $${sum.toFixed(2)} · Right-click for options`;
+  badge.innerHTML =
+    `<div class="sel-badge-meta">${selectedRows.length} selected · $${sum.toFixed(2)}</div>` +
+    `<div class="sel-badge-actions">` +
+      `<button type="button" class="sel-badge-btn" onclick="openModalMarkAs()">Done</button>` +
+      `<button type="button" class="sel-badge-btn" onclick="openModalPayTo()">Pay to</button>` +
+      `<button type="button" class="sel-badge-btn" onclick="openModalMoveTo()">Move</button>` +
+      `<button type="button" class="sel-badge-btn" onclick="openCalcPanel()">Calc</button>` +
+    `</div>`;
   badge.classList.add('visible');
 }
 
@@ -6086,21 +6301,15 @@ function openCalcPanel()  { document.getElementById('calc-panel').classList.add(
 function closeCalcPanel() { document.getElementById('calc-panel').classList.remove('open'); }
 function clearCalcHistory() { calcHistory = []; renderCalcPanel(); }
 
-// Also add accounts management to admin render
-function renderAdmin() {
-  const si = document.getElementById('salaryInput');
-  if (si) si.value = state.settings?.salary || 4524.58;
-  renderAdminAccounts();
-}
-
+// Also add accounts management to settings render
 function renderAdminAccounts() {
   const container = document.getElementById('admin-accounts-list');
   if (!container) return;
   const accounts = getAccounts();
   container.innerHTML = accounts.map((a, i) =>
-    `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f4f8">
-      <span style="flex:1;font-size:0.9rem">${esc(a)}</span>
-      <button onclick="deleteAccount(${i})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:0.85rem;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">✕</button>
+    `<div class="settings-account-row">
+      <span class="settings-account-name">${esc(a)}</span>
+      <button type="button" class="settings-account-del" onclick="deleteAccount(${i})" aria-label="Remove ${esc(a)}">✕</button>
     </div>`
   ).join('');
 }
@@ -6143,7 +6352,7 @@ function activeChatMessages() {
 function readChatDraftFromDom() {
   const panel = document.getElementById('chatPanelInput');
   const expanded = document.getElementById('chatExpandedInput');
-  if (chatMode === 'expanded' && expanded) chatDraftText = expanded.value;
+  if ((chatMode === 'expanded' || chatMode === 'page') && expanded) chatDraftText = expanded.value;
   else if (panel) chatDraftText = panel.value;
 }
 
@@ -6159,6 +6368,27 @@ function writeChatDraftToDom(opts) {
   }
 }
 
+function mountChatExpandedToPage() {
+  const root = document.getElementById('chatPageRoot');
+  const expanded = document.getElementById('chatExpanded');
+  if (!root || !expanded) return;
+  if (expanded.parentElement !== root) root.appendChild(expanded);
+}
+
+function parkChatExpanded() {
+  const backdrop = document.getElementById('chatBackdrop');
+  const expanded = document.getElementById('chatExpanded');
+  if (!backdrop || !expanded) return;
+  if (expanded.parentElement !== backdrop) backdrop.appendChild(expanded);
+  backdrop.hidden = true;
+  document.body.classList.remove('chat-page-active');
+}
+
+function openChatPage() {
+  mountChatExpandedToPage();
+  setChatMode('page');
+}
+
 function setChatMode(mode) {
   readChatDraftFromDom();
   const launcher = document.getElementById('chatLauncher');
@@ -6171,29 +6401,45 @@ function setChatMode(mode) {
     launcher.hidden = true;
     panel.hidden = true;
     backdrop.hidden = true;
+    document.body.classList.remove('chat-page-active');
     return;
   }
+
+  // Primary surface is the Chat tab — floating bubble stays off in normal use
+  if (mode === 'expanded') mode = 'page';
+
   chatMode = mode;
+  document.body.classList.toggle('chat-page-active', mode === 'page');
+
+  if (mode === 'page') {
+    mountChatExpandedToPage();
+    launcher.hidden = true;
+    panel.hidden = true;
+    backdrop.hidden = true;
+    ensureActiveChatThread();
+    writeChatDraftToDom();
+    renderChatMessages();
+    renderChatHistoryList();
+    const expanded = document.getElementById('chatExpanded');
+    expanded?.classList.remove('history-collapsed');
+    document.getElementById('chatHistoryPane')?.classList.remove('mobile-open');
+    syncChatHistoryToggleUi();
+    const input = document.getElementById('chatExpandedInput');
+    if (input) setTimeout(() => input.focus(), 50);
+    return;
+  }
+
+  parkChatExpanded();
   launcher.hidden = mode !== 'bubble';
   panel.hidden = mode !== 'panel';
-  backdrop.hidden = mode !== 'expanded';
+  backdrop.hidden = true;
   if (mode !== 'bubble') {
     ensureActiveChatThread();
     writeChatDraftToDom();
     renderChatMessages();
-    if (mode === 'expanded') renderChatHistoryList();
   }
   if (mode === 'panel') {
     const input = document.getElementById('chatPanelInput');
-    if (input) setTimeout(() => input.focus(), 50);
-  } else if (mode === 'expanded') {
-    // Desktop: history open by default. Mobile: closed overlay until toggled.
-    const expanded = document.querySelector('.chat-expanded');
-    const pane = document.getElementById('chatHistoryPane');
-    expanded?.classList.remove('history-collapsed');
-    pane?.classList.remove('mobile-open');
-    syncChatHistoryToggleUi();
-    const input = document.getElementById('chatExpandedInput');
     if (input) setTimeout(() => input.focus(), 50);
   }
 }
@@ -6274,7 +6520,7 @@ function startNewChatThread(opts) {
   if (!opts || !opts.selectOnly) {
     if (chatMode === 'bubble') setChatMode('panel');
     else {
-      const inputId = chatMode === 'expanded' ? 'chatExpandedInput' : 'chatPanelInput';
+      const inputId = (chatMode === 'expanded' || chatMode === 'page') ? 'chatExpandedInput' : 'chatPanelInput';
       const input = document.getElementById(inputId);
       if (input) setTimeout(() => input.focus(), 50);
     }
