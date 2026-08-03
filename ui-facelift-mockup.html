@@ -672,6 +672,8 @@ body {
       <li><strong>Chat</strong>: full nav page inspired by production expanded mode — searchable history, new chat, receipt attach, composer, thinking state, and proposed-action confirm cards.</li>
       <li><strong>Settings</strong>: Salary and Pay To accounts are grouped in the hub. Admin actions are marked owner-only via <code>html[data-role="owner"]</code> so the Elly/Eric demo toggle can hide them.</li>
       <li><strong>IA</strong>: Home = overview. Scope switch is Home-only.</li>
+      <li><strong>Phase 0 defaults</strong> (prod path): drop Compare; keep Home simplified (no full Insights/Summary restore); Chat stays a nav page; ship <code>propose_payable</code> first; Eric copy uses “this month” where period framing differs.</li>
+      <li><strong>Phase 1</strong>: Monthly Pay To + Move modals, Payables Edit sheet, Chat receipt preview + proposal saving state — no toast-only dead ends on those flows.</li>
       <li>Production app is untouched — this is exploration only.</li>
     </ul>
   </div>
@@ -1424,6 +1426,213 @@ body {
     showToast._t = setTimeout(() => el.classList.remove('is-visible'), 2200);
   }
 
+  /* Shared app modal host (Monthly Pay To / Move, Payables Edit) */
+  let appModal = null; // { type, ids?, account?, periodId?, payableId? }
+
+  function accountNames() {
+    const fromSettings = payToAccounts.map((a) => a.name);
+    const extras = ['NAB Offset', 'JA Bills', 'CB Groceries', 'NAB CC', 'Latitude', 'NAB Elly', 'NAB Eric', 'Savings', 'Income'];
+    return [...new Set(fromSettings.concat(extras))];
+  }
+
+  function findMonthlyRow(id) {
+    for (const period of MONTHLY.periods) {
+      for (const listName of ['bills', 'savings', 'income']) {
+        const list = period[listName];
+        const idx = list.findIndex((row) => row.id === id);
+        if (idx >= 0) return { period, listName, idx, row: list[idx] };
+      }
+    }
+    return null;
+  }
+
+  function closeAppModal() {
+    appModal = null;
+    renderAppModal();
+  }
+
+  function openAppModal(modal) {
+    appModal = modal;
+    closeCtx();
+    renderAppModal();
+  }
+
+  function appModalHtml() {
+    if (!appModal) return '';
+    if (appModal.type === 'payto') {
+      const count = appModal.ids.length;
+      const options = accountNames().map((name) =>
+        '<option value="' + escapeHtml(name) + '"' + (name === appModal.account ? ' selected' : '') + '>' + escapeHtml(name) + '</option>'
+      ).join('');
+      return (
+        '<div class="mock-modal-backdrop is-fixed" data-app-modal-backdrop role="presentation">' +
+          '<div class="mock-modal" role="dialog" aria-modal="true" aria-label="Change pay to">' +
+            '<div class="mock-modal-head">' +
+              '<div><div class="settings-card-title">Change pay to</div><h3>' + count + ' selected item' + (count === 1 ? '' : 's') + '</h3></div>' +
+              '<button class="icon-btn icon-btn-sm" type="button" data-close-app-modal aria-label="Close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>' +
+            '</div>' +
+            '<label class="settings-field"><span>Pay to account</span><select data-modal-payto>' + options + '</select></label>' +
+            '<div class="payable-form-actions">' +
+              '<button class="text-btn" type="button" data-confirm-payto>Save</button>' +
+              '<button class="text-btn subtle" type="button" data-close-app-modal>Cancel</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+    if (appModal.type === 'move') {
+      const count = appModal.ids.length;
+      const periodOptions = MONTHLY.periods.map((period) =>
+        '<option value="' + period.id + '"' + (period.id === appModal.periodId ? ' selected' : '') + '>Period ' + period.n + ' · ' + escapeHtml(period.date) + '</option>'
+      ).join('');
+      return (
+        '<div class="mock-modal-backdrop is-fixed" data-app-modal-backdrop role="presentation">' +
+          '<div class="mock-modal" role="dialog" aria-modal="true" aria-label="Move items">' +
+            '<div class="mock-modal-head">' +
+              '<div><div class="settings-card-title">Move to period</div><h3>' + count + ' selected item' + (count === 1 ? '' : 's') + '</h3></div>' +
+              '<button class="icon-btn icon-btn-sm" type="button" data-close-app-modal aria-label="Close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>' +
+            '</div>' +
+            '<label class="settings-field"><span>Destination</span><select data-modal-period>' + periodOptions + '</select></label>' +
+            '<div class="settings-row-hint">Moves within the current month mock. Cross-month move stays a later production concern.</div>' +
+            '<div class="payable-form-actions">' +
+              '<button class="text-btn" type="button" data-confirm-move>Move</button>' +
+              '<button class="text-btn subtle" type="button" data-close-app-modal>Cancel</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+    if (appModal.type === 'payable-edit') {
+      const row = payablesRows.find((item) => item.id === appModal.payableId);
+      if (!row) return '';
+      const splitSelect =
+        '<option value="shared"' + (row.split === 'shared' ? ' selected' : '') + '>Shared</option>' +
+        '<option value="solo"' + (row.split === 'solo' && row.owner !== 'eric' ? ' selected' : '') + '>Solo (mine)</option>' +
+        '<option value="eric"' + (row.split === 'solo' && row.owner === 'eric' ? ' selected' : '') + '>Solo (Eric’s)</option>';
+      const payOptions = accountNames().map((name) =>
+        '<option value="' + escapeHtml(name) + '"' + (name === row.payTo ? ' selected' : '') + '>' + escapeHtml(name) + '</option>'
+      ).join('');
+      return (
+        '<div class="mock-modal-backdrop is-fixed" data-app-modal-backdrop role="presentation">' +
+          '<div class="mock-modal" role="dialog" aria-modal="true" aria-label="Edit payable">' +
+            '<div class="mock-modal-head">' +
+              '<div><div class="settings-card-title">Edit payable</div><h3>' + escapeHtml(row.name) + '</h3></div>' +
+              '<button class="icon-btn icon-btn-sm" type="button" data-close-app-modal aria-label="Close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>' +
+            '</div>' +
+            '<div class="payable-form-grid">' +
+              '<label class="settings-field"><span>Name</span><input type="text" data-edit-payable-name value="' + escapeHtml(row.name) + '"></label>' +
+              '<label class="settings-field"><span>Full amount</span><input type="number" min="0" step="0.01" data-edit-payable-amount value="' + row.total + '"></label>' +
+              '<label class="settings-field"><span>Split</span><select data-edit-payable-split>' + splitSelect + '</select></label>' +
+              '<label class="settings-field"><span>Pay to</span><select data-edit-payable-payto>' + payOptions + '</select></label>' +
+              '<label class="settings-field"><span>Date</span><input type="text" data-edit-payable-date value="' + escapeHtml(row.date) + '"></label>' +
+            '</div>' +
+            '<div class="payable-form-actions">' +
+              '<button class="text-btn" type="button" data-confirm-payable-edit>Save</button>' +
+              '<button class="text-btn subtle" type="button" data-close-app-modal>Cancel</button>' +
+              '<button class="text-btn subtle is-danger-text" type="button" data-delete-payable-edit>Delete</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+    return '';
+  }
+
+  function renderAppModal() {
+    let host = document.getElementById('appModalHost');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'appModalHost';
+      document.body.appendChild(host);
+    }
+    host.innerHTML = appModalHtml();
+    wireAppModal(host);
+  }
+
+  function wireAppModal(host) {
+    host.querySelectorAll('[data-close-app-modal]').forEach((btn) => {
+      btn.addEventListener('click', closeAppModal);
+    });
+    const backdrop = host.querySelector('[data-app-modal-backdrop]');
+    if (backdrop) {
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) closeAppModal();
+      });
+    }
+    host.querySelectorAll('[data-confirm-payto]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const select = host.querySelector('[data-modal-payto]');
+        const account = select ? select.value : 'JA Bills';
+        (appModal.ids || []).forEach((id) => {
+          const hit = findMonthlyRow(id);
+          if (hit && !hit.row.locked) hit.row.payTo = account;
+        });
+        showToast('Pay to → ' + account);
+        closeAppModal();
+        renderMonthly();
+      });
+    });
+    host.querySelectorAll('[data-confirm-move]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const select = host.querySelector('[data-modal-period]');
+        const destId = select ? select.value : 'p1';
+        const dest = MONTHLY.periods.find((period) => period.id === destId);
+        if (!dest) return;
+        const ids = (appModal.ids || []).slice();
+        ids.forEach((id) => {
+          const hit = findMonthlyRow(id);
+          if (!hit || hit.row.locked) return;
+          if (hit.period.id === dest.id) return;
+          hit.period[hit.listName].splice(hit.idx, 1);
+          dest[hit.listName].push(hit.row);
+        });
+        monthlySelected.clear();
+        showToast('Moved to Period ' + dest.n);
+        closeAppModal();
+        renderMonthly();
+      });
+    });
+    host.querySelectorAll('[data-confirm-payable-edit]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const row = payablesRows.find((item) => item.id === appModal.payableId);
+        if (!row) return;
+        const name = host.querySelector('[data-edit-payable-name]').value.trim() || row.name;
+        const total = Number(host.querySelector('[data-edit-payable-amount]').value || 0);
+        const splitVal = host.querySelector('[data-edit-payable-split]').value;
+        const payTo = host.querySelector('[data-edit-payable-payto]').value;
+        const date = host.querySelector('[data-edit-payable-date]').value.trim() || row.date;
+        row.name = name;
+        row.total = total;
+        row.payTo = payTo;
+        row.date = date;
+        if (splitVal === 'shared') {
+          row.split = 'shared';
+          row.share = total / 2;
+        } else if (splitVal === 'eric') {
+          row.split = 'solo';
+          row.owner = 'eric';
+          row.share = total;
+        } else {
+          row.split = 'solo';
+          row.owner = 'mine';
+          row.share = total;
+        }
+        showToast('Payable updated');
+        closeAppModal();
+        renderPayables();
+      });
+    });
+    host.querySelectorAll('[data-delete-payable-edit]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = appModal.payableId;
+        payablesRows = payablesRows.filter((row) => row.id !== id);
+        showToast('Payable deleted');
+        closeAppModal();
+        renderPayables();
+      });
+    });
+  }
+
   function ensureCtxMenu() {
     let menu = document.getElementById('monthlyCtx');
     if (menu) return menu;
@@ -1516,9 +1725,19 @@ body {
       showToast('Toggled recurring');
       renderMonthly();
     } else if (action === 'payto') {
-      showToast('Change pay to… (modal in production)');
+      const first = rows[0];
+      openAppModal({
+        type: 'payto',
+        ids: rows.map((row) => row.id),
+        account: first.payTo || accountNames()[0],
+      });
     } else if (action === 'move') {
-      showToast('Move to month/period… (modal in production)');
+      const firstHit = findMonthlyRow(rows[0].id);
+      openAppModal({
+        type: 'move',
+        ids: rows.map((row) => row.id),
+        periodId: firstHit ? firstHit.period.id : MONTHLY.periods[0].id,
+      });
     } else if (action === 'delete') {
       MONTHLY.periods.forEach((p) => {
         p.bills = p.bills.filter((b) => !monthlySelected.has(b.id));
@@ -2003,7 +2222,9 @@ body {
     if (!e.target.closest('#monthlyCtx')) closeCtx();
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeCtx();
+    if (e.key !== 'Escape') return;
+    if (appModal) closeAppModal();
+    closeCtx();
   });
   document.addEventListener('contextmenu', (e) => {
     if (!isCtxOpen()) return;
@@ -2026,13 +2247,30 @@ body {
     document.querySelectorAll('[data-role-set]').forEach((btn) => {
       btn.setAttribute('aria-pressed', btn.dataset.roleSet === role ? 'true' : 'false');
     });
+    let banner = document.getElementById('impersonationBanner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'impersonationBanner';
+      banner.className = 'impersonation-banner';
+      banner.innerHTML =
+        '<span><strong>Viewing as Eric</strong> · member preview (Admin hidden)</span>' +
+        '<button type="button" data-exit-impersonation>Back to Elly</button>';
+      document.body.appendChild(banner);
+      banner.querySelector('[data-exit-impersonation]').addEventListener('click', () => setRole('owner'));
+    }
+    banner.hidden = role !== 'member';
+    document.body.classList.toggle('is-impersonating', role === 'member');
   }
 
   function setRole(role) {
     if (role !== 'owner' && role !== 'member') role = 'owner';
     root.setAttribute('data-role', role);
-    if (role === 'member') payablesView = 'eric';
-    else payablesView = 'mine';
+    if (role === 'member') {
+      payablesView = 'eric';
+      settingsPanel = 'hub';
+    } else {
+      payablesView = 'mine';
+    }
     syncRoleControls();
     renderSettings();
     renderPayables();
@@ -2293,7 +2531,7 @@ body {
         '<div class="payable-share-cell">' + moneyExact(row.share) + '</div>' +
         '<div class="payable-payto-cell">' + escapeHtml(row.payTo) + '</div>' +
         '<div class="payable-alloc-cell">' + allocated + '</div>' +
-        '<button class="ledger-more" type="button" data-delete-payable="' + row.id + '" aria-label="Delete ' + escapeHtml(row.name) + '">' +
+        '<button class="ledger-more" type="button" data-edit-payable="' + row.id + '" aria-label="Edit ' + escapeHtml(row.name) + '">' +
           '<span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>' +
         '</button>' +
       '</div>'
@@ -2321,7 +2559,8 @@ body {
         '<div class="payable-form-grid">' +
           '<label class="settings-field"><span>Name</span><input type="text" data-add-payable-name value="Receipt from Bunnings"></label>' +
           '<label class="settings-field"><span>Amount</span><input type="number" min="0" step="0.01" data-add-payable-amount value="188"></label>' +
-          '<label class="settings-field"><span>Split</span><select data-add-payable-split><option value="shared">Shared</option><option value="solo">Solo</option></select></label>' +
+          '<label class="settings-field"><span>Split</span><select data-add-payable-split><option value="shared">Shared</option><option value="solo">Solo (mine)</option><option value="eric">Solo (Eric’s)</option></select></label>' +
+          '<div class="settings-row-hint" data-add-split-hint>Shared splits 50/50 — your share updates as you type.</div>' +
           '<label class="settings-field"><span>Pay to</span><select data-add-payable-payto>' +
             ['JA Bills', 'NAB Offset', 'Latitude', 'NAB Elly'].map((account) => '<option>' + account + '</option>').join('') +
           '</select></label>' +
@@ -2349,7 +2588,7 @@ body {
             '<label class="settings-field"><span>Month</span><select data-alloc-month><option>Aug 2026</option><option>Sep 2026</option><option>Jul 2026</option></select></label>' +
             '<label class="settings-field"><span>Period</span><select data-alloc-period><option>P1</option><option>P2</option></select></label>' +
           '</div>' +
-          '<div class="safe-hint"><span class="material-symbols-outlined" aria-hidden="true">savings</span>Safe to spend after allocation: $1,154</div>' +
+          '<div class="safe-hint"><span class="material-symbols-outlined" aria-hidden="true">savings</span>Creates a bill in that period · share ' + moneyExact(row.share) + ' · safe after: ' + moneyExact(Math.max(0, 1248 - row.share)) + '</div>' +
           '<div class="payable-form-actions">' +
             '<button class="text-btn" type="button" data-confirm-allocate="' + row.id + '">Confirm allocation</button>' +
             '<button class="text-btn subtle" type="button" data-close-allocate>Cancel</button>' +
@@ -2419,12 +2658,14 @@ body {
   function savePayable(rootEl) {
     const name = rootEl.querySelector('[data-add-payable-name]').value.trim() || 'New payable';
     const total = Number(rootEl.querySelector('[data-add-payable-amount]').value || 0);
-    const split = rootEl.querySelector('[data-add-payable-split]').value;
+    const splitVal = rootEl.querySelector('[data-add-payable-split]').value;
     const payTo = rootEl.querySelector('[data-add-payable-payto]').value;
     const date = rootEl.querySelector('[data-add-payable-date]').value.trim() || 'Today';
+    const owner = splitVal === 'eric' ? 'eric' : payablesView === 'eric' && splitVal === 'solo' ? 'eric' : 'mine';
+    const split = splitVal === 'shared' ? 'shared' : 'solo';
     payablesRows.push({
       id: 'pay-' + Date.now(),
-      owner: payablesView,
+      owner,
       name,
       total,
       share: split === 'shared' ? total / 2 : total,
@@ -2436,6 +2677,7 @@ body {
     });
     payablesAddOpen = false;
     payablesAccount = 'all';
+    if (owner !== payablesView) payablesView = owner;
     showToast('Payable added');
     renderPayables();
   }
@@ -2516,7 +2758,7 @@ body {
         const row = payablesRows.find((item) => item.id === btn.dataset.confirmAllocate);
         if (row) row.allocated = Object.assign({}, payablesAllocateDraft);
         payablesAllocateId = null;
-        showToast('Payable allocated');
+        showToast('Allocated — bill created in ' + payablesAllocateDraft.month + ' ' + payablesAllocateDraft.period);
         renderPayables();
       });
     });
@@ -2526,13 +2768,25 @@ body {
         renderPayables();
       });
     });
-    rootEl.querySelectorAll('[data-delete-payable]').forEach((btn) => {
+    rootEl.querySelectorAll('[data-edit-payable]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        payablesRows = payablesRows.filter((row) => row.id !== btn.dataset.deletePayable);
-        showToast('Payable deleted');
-        renderPayables();
+        openAppModal({ type: 'payable-edit', payableId: btn.dataset.editPayable });
       });
     });
+    const amountInput = rootEl.querySelector('[data-add-payable-amount]');
+    const splitInput = rootEl.querySelector('[data-add-payable-split]');
+    const hint = rootEl.querySelector('[data-add-split-hint]');
+    function syncAddHint() {
+      if (!amountInput || !splitInput || !hint) return;
+      const total = Number(amountInput.value || 0);
+      const splitVal = splitInput.value;
+      if (splitVal === 'shared') hint.textContent = 'Shared 50/50 — your share ' + moneyExact(total / 2);
+      else if (splitVal === 'eric') hint.textContent = 'Solo (Eric’s) — full amount ' + moneyExact(total) + ' on Eric';
+      else hint.textContent = 'Solo (mine) — full amount ' + moneyExact(total) + ' on you';
+    }
+    if (amountInput) amountInput.addEventListener('input', syncAddHint);
+    if (splitInput) splitInput.addEventListener('change', syncAddHint);
+    syncAddHint();
     rootEl.querySelectorAll('[data-completed-toggle]').forEach((btn) => {
       btn.addEventListener('click', () => {
         payablesCompletedOpen = !payablesCompletedOpen;
@@ -2555,7 +2809,9 @@ body {
   let chatDraft = '';
   let chatThinking = false;
   let chatReceiptAttached = false;
+  let chatReceiptPreview = '';
   let chatHistoryOpen = false;
+  let chatProposalSavingId = null;
   let chatThreads = [
     {
       id: 'chat-1',
@@ -2632,10 +2888,16 @@ body {
 
   function chatProposalHtml(proposal) {
     if (!proposal) return '';
-    const statusClass = proposal.status === 'confirmed' ? ' is-confirmed' : proposal.status === 'cancelled' ? ' is-cancelled' : '';
-    const actions = proposal.status === 'pending'
-      ? '<div class="chat-action-buttons"><button class="text-btn" type="button" data-chat-proposal="confirm" data-proposal-id="' + proposal.id + '">Confirm</button><button class="text-btn subtle" type="button" data-chat-proposal="cancel" data-proposal-id="' + proposal.id + '">Cancel</button></div>'
-      : '<div class="chat-action-status">' + (proposal.status === 'confirmed' ? 'Confirmed in mock' : 'Cancelled') + '</div>';
+    const saving = chatProposalSavingId === proposal.id;
+    const statusClass = proposal.status === 'confirmed' ? ' is-confirmed' : proposal.status === 'cancelled' ? ' is-cancelled' : saving ? ' is-saving' : '';
+    let actions = '';
+    if (saving) {
+      actions = '<div class="chat-action-status">Saving…</div>';
+    } else if (proposal.status === 'pending') {
+      actions = '<div class="chat-action-buttons"><button class="text-btn" type="button" data-chat-proposal="confirm" data-proposal-id="' + proposal.id + '">Confirm</button><button class="text-btn subtle" type="button" data-chat-proposal="cancel" data-proposal-id="' + proposal.id + '">Cancel</button></div>';
+    } else {
+      actions = '<div class="chat-action-status">' + (proposal.status === 'confirmed' ? 'Confirmed · added to Payables' : 'Cancelled') + '</div>';
+    }
     return (
       '<div class="chat-action-card' + statusClass + '">' +
         '<div class="chat-action-kicker">Proposed action</div>' +
@@ -2713,12 +2975,21 @@ body {
           '</header>' +
           '<div class="chat-log">' + chatLogHtml(thread) + '</div>' +
           '<form class="chat-composer-card" data-chat-form>' +
-            (chatReceiptAttached ? '<div class="chat-attachment-chip"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>receipt.jpg attached<button type="button" data-chat-remove-attachment aria-label="Remove receipt">×</button></div>' : '') +
+            (chatReceiptAttached
+              ? '<div class="chat-attachment-preview">' +
+                  (chatReceiptPreview
+                    ? '<img src="' + chatReceiptPreview + '" alt="Attached receipt">'
+                    : '<div class="chat-attachment-fallback"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span></div>') +
+                  '<div class="chat-attachment-meta"><strong>receipt.jpg</strong><span>Ready to send with your message</span></div>' +
+                  '<button type="button" data-chat-remove-attachment aria-label="Remove receipt">×</button>' +
+                '</div>'
+              : '') +
             '<div class="chat-composer-row">' +
               '<button class="chat-attach" type="button" data-chat-attach aria-label="Attach receipt"><span class="material-symbols-outlined" aria-hidden="true">attach_file</span></button>' +
               '<textarea data-chat-draft placeholder="Ask Pensive about payables, safe-to-spend, or a receipt">' + escapeHtml(chatDraft) + '</textarea>' +
               '<button class="chat-send" type="submit" aria-label="Send"><span class="material-symbols-outlined" aria-hidden="true">send</span></button>' +
             '</div>' +
+            '<input type="file" accept="image/*" hidden data-chat-file>' +
           '</form>' +
         '</main>' +
       '</div>'
@@ -2754,6 +3025,7 @@ body {
     thread.date = 'Now';
     chatDraft = '';
     chatReceiptAttached = false;
+    chatReceiptPreview = '';
     chatThinking = true;
     renderChat();
     clearTimeout(sendChat._timer);
@@ -2770,17 +3042,48 @@ body {
     chatActiveThreadId = thread.id;
     chatDraft = '';
     chatReceiptAttached = false;
+    chatReceiptPreview = '';
     chatHistoryOpen = false;
     renderChat();
   }
 
   function updateProposal(id, status) {
+    if (status === 'confirmed') {
+      chatProposalSavingId = id;
+      renderChat();
+      clearTimeout(updateProposal._timer);
+      updateProposal._timer = setTimeout(() => {
+        chatThreads.forEach((thread) => {
+          thread.messages.forEach((message) => {
+            if (message.proposal && message.proposal.id === id) message.proposal.status = 'confirmed';
+          });
+        });
+        chatProposalSavingId = null;
+        // Mirror production: confirming a payable proposal adds a mock payable
+        payablesRows.unshift({
+          id: 'pay-chat-' + Date.now(),
+          owner: 'mine',
+          name: 'Bunnings run',
+          total: 188,
+          share: 94,
+          split: 'shared',
+          payTo: 'Latitude',
+          date: 'Today',
+          allocated: null,
+          done: false,
+        });
+        showToast('Payable added from Chat');
+        renderChat();
+        renderPayables();
+      }, 700);
+      return;
+    }
     chatThreads.forEach((thread) => {
       thread.messages.forEach((message) => {
         if (message.proposal && message.proposal.id === id) message.proposal.status = status;
       });
     });
-    showToast(status === 'confirmed' ? 'Action confirmed' : 'Action cancelled');
+    showToast('Action cancelled');
     renderChat();
   }
 
@@ -2834,14 +3137,35 @@ body {
     });
     rootEl.querySelectorAll('[data-chat-attach]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        chatReceiptAttached = true;
-        showToast('Receipt attached');
-        renderChat();
+        const fileInput = rootEl.querySelector('[data-chat-file]');
+        if (fileInput) fileInput.click();
+        else {
+          chatReceiptAttached = true;
+          chatReceiptPreview = '';
+          showToast('Receipt attached');
+          renderChat();
+        }
+      });
+    });
+    rootEl.querySelectorAll('[data-chat-file]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          chatReceiptAttached = true;
+          chatReceiptPreview = String(reader.result || '');
+          showToast('Receipt attached');
+          renderChat();
+        };
+        reader.readAsDataURL(file);
+        input.value = '';
       });
     });
     rootEl.querySelectorAll('[data-chat-remove-attachment]').forEach((btn) => {
       btn.addEventListener('click', () => {
         chatReceiptAttached = false;
+        chatReceiptPreview = '';
         renderChat();
       });
     });

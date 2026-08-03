@@ -2841,3 +2841,98 @@ html[data-theme="dark"] .mock-modal {
 .phone .chat-composer-card {
   padding: var(--space-3) var(--space-4);
 }
+
+/* ── Phase 1: fixed app modals, impersonation, chat attach preview ── */
+.mock-modal-backdrop.is-fixed {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-sticky) + 40);
+}
+.impersonation-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: calc(var(--z-sticky) + 50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--secondary) 22%, var(--surface-container-highest));
+  color: var(--on-surface);
+  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
+  font-size: var(--text-sm);
+}
+.impersonation-banner[hidden] {
+  display: none !important;
+}
+.impersonation-banner button {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  background: var(--primary);
+  color: var(--on-primary);
+  cursor: pointer;
+}
+body.is-impersonating .stage {
+  padding-top: 48px;
+}
+.text-btn.is-danger-text {
+  color: var(--error);
+}
+.chat-attachment-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-container-low);
+  border: var(--border-subtle);
+}
+.chat-attachment-preview img,
+.chat-attachment-fallback {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.chat-attachment-fallback {
+  display: grid;
+  place-items: center;
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+}
+.chat-attachment-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+  font-size: var(--text-sm);
+}
+.chat-attachment-meta strong {
+  color: var(--on-surface);
+}
+.chat-attachment-meta span {
+  color: var(--on-surface-variant);
+  font-size: var(--text-xs);
+}
+.chat-attachment-preview button {
+  border: none;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: 1.25rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+}
+.chat-action-card.is-saving {
+  opacity: 0.85;
+}
