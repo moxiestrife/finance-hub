@@ -780,12 +780,13 @@ body.authed .action-dock[hidden] {
   .pensive-shell .payable-row.p-row,
   .pensive-shell .payable-row {
     display: grid !important;
-    grid-template-columns: 28px minmax(0, 1fr) 5.5rem 28px !important;
-    grid-template-rows: auto auto !important;
+    grid-template-columns: 28px minmax(0, 1fr) 28px !important;
+    grid-template-rows: auto auto auto !important;
     grid-template-areas:
-      "check name amount more"
-      "check chips chips more" !important;
-    gap: 8px !important;
+      "check name more"
+      "check amount more"
+      "check chips more" !important;
+    gap: 6px 8px !important;
     padding: 12px 12px !important;
     align-items: start;
   }
@@ -801,9 +802,10 @@ body.authed .action-dock[hidden] {
   .pensive-shell .payable-share-cell,
   .pensive-shell .payable-share-cell.p-amount-input {
     grid-area: amount;
-    width: 5.5rem !important;
-    max-width: 5.5rem !important;
+    width: 6.5rem !important;
+    max-width: 8rem !important;
     min-width: 0 !important;
+    justify-self: start;
     box-sizing: border-box;
     padding: 6px 8px;
   }
@@ -830,6 +832,8 @@ body.authed .action-dock[hidden] {
   .pensive-shell .payable-name-cell .p-name-input.bill-name {
     width: 100%;
     min-width: 0;
+    overflow-x: auto;
+    text-overflow: clip;
   }
   .pensive-shell .payable-name-cell .bill-meta {
     display: flex;

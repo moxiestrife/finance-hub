@@ -36,10 +36,13 @@ Fix Payables mobile/compact row layout so open payables are usable (full names, 
 ## UX notes
 
 ```
-[✓] Limey careers market          [70.00] ⋯
+[✓] Limey careers market                    ⋯
     27 June 2026 · total $140.00
+    [70.00]
     [Shared] [Aug · P1]
 ```
+
+Name gets a full-width row on compact; amount + chips stack below so long titles never clip to "Lim"/"depo".
 
 ## Regression risks
 
@@ -49,4 +52,4 @@ Fix Payables mobile/compact row layout so open payables are usable (full names, 
 
 ## Status
 
-Implementation in progress — pending Rose Tier 2 after commit.
+Rose agent unavailable in this environment — verified with mobile-width fixture + computerUse (all AC checks pass). Draft PR #3.

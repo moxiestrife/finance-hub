@@ -599,8 +599,8 @@
   }
 
   #tab-payables .payable-share-cell.p-amount-input {
-    width: 5.5rem;
-    max-width: 5.5rem;
+    width: 6.5rem;
+    max-width: 8rem;
     min-width: 0;
   }
 

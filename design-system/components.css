@@ -2931,14 +2931,15 @@ html[data-theme="dark"] .mock-modal {
 
 .phone .payable-row,
 body.is-compact .payable-row {
-  grid-template-columns: 28px minmax(0, 1fr) 5.5rem 28px;
-  grid-template-rows: auto auto;
+  grid-template-columns: 28px minmax(0, 1fr) 28px;
+  grid-template-rows: auto auto auto;
   grid-template-areas:
-    "check name amount more"
-    "check chips chips more";
+    "check name more"
+    "check amount more"
+    "check chips more";
   align-items: start;
   column-gap: 8px;
-  row-gap: 8px;
+  row-gap: 6px;
 }
 .phone .payable-row .bill-check,
 body.is-compact .payable-row .bill-check {
@@ -2954,10 +2955,10 @@ body.is-compact .payable-name-cell {
 .phone .payable-share-cell,
 body.is-compact .payable-share-cell {
   grid-area: amount;
-  width: 5.5rem;
-  max-width: 5.5rem;
+  width: 6.5rem;
+  max-width: 8rem;
   min-width: 0;
-  justify-self: stretch;
+  justify-self: start;
   box-sizing: border-box;
 }
 .phone .payable-split-cell,
@@ -2990,6 +2991,9 @@ body.is-compact .payable-row .ledger-more {
 body.is-compact .payable-name-cell .p-name-input.bill-name {
   width: 100%;
   min-width: 0;
+  /* Single-line inputs can't wrap — full-width row avoids "Lim"/"depo" clip */
+  overflow-x: auto;
+  text-overflow: clip;
 }
 .phone .payable-name-cell .bill-meta,
 body.is-compact .payable-name-cell .bill-meta {

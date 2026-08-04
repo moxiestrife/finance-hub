@@ -6982,12 +6982,12 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
   const totalLabel = `total $${(parseFloat(e.fullAmount)||0).toFixed(2)}`;
   const nameCell = canEditRow
     ? `<div class="payable-name-cell">
-         <input class="p-name-input bill-name" value="${esc(e.name)}" placeholder="Expense name"
+         <input class="p-name-input bill-name" value="${esc(e.name)}" placeholder="Expense name" title="${esc(e.name)}"
            onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','name',this.value)">
          <div class="bill-meta"><span class="payable-meta-date">${dateLabel}</span><span class="payable-meta-sep" aria-hidden="true">·</span><span class="payable-meta-total">${totalLabel}</span></div>
        </div>`
     : `<div class="payable-name-cell">
-         <div class="bill-name">${esc(e.name)}</div>
+         <div class="bill-name" title="${esc(e.name)}">${esc(e.name)}</div>
          <div class="bill-meta"><span class="payable-meta-date">${dateLabel}</span></div>
        </div>`;
   const shareCell = canEditRow
