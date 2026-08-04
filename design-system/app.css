@@ -780,23 +780,67 @@ body.authed .action-dock[hidden] {
   .pensive-shell .payable-row.p-row,
   .pensive-shell .payable-row {
     display: grid !important;
-    grid-template-columns: 28px minmax(0, 1fr) auto 28px !important;
+    grid-template-columns: 28px minmax(0, 1fr) 28px !important;
     grid-template-rows: auto auto auto !important;
     grid-template-areas:
-      "check name amount more"
-      "check split payto more"
-      "check alloc alloc more" !important;
+      "check name more"
+      "check amount more"
+      "check chips more" !important;
     gap: 6px 8px !important;
     padding: 12px 12px !important;
     align-items: start;
   }
-  .pensive-shell .payable-row .bill-check { grid-area: check; align-self: start; margin-top: 2px; }
-  .pensive-shell .payable-name-cell { grid-area: name; }
-  .pensive-shell .payable-share-cell { grid-area: amount; }
-  .pensive-shell .payable-split-cell { grid-area: split; justify-self: start; }
-  .pensive-shell .payable-payto-cell { grid-area: payto; }
-  .pensive-shell .payable-alloc-cell { grid-area: alloc; }
-  .pensive-shell .payable-row .ledger-more { grid-area: more; align-self: start; }
+  .pensive-shell .payable-row .bill-check {
+    grid-area: check;
+    align-self: start;
+    margin-top: 2px;
+  }
+  .pensive-shell .payable-name-cell {
+    grid-area: name;
+    min-width: 0;
+  }
+  .pensive-shell .payable-share-cell,
+  .pensive-shell .payable-share-cell.p-amount-input {
+    grid-area: amount;
+    width: 6.5rem !important;
+    max-width: 8rem !important;
+    min-width: 0 !important;
+    justify-self: start;
+    box-sizing: border-box;
+    padding: 6px 8px;
+  }
+  .pensive-shell .payable-split-cell {
+    grid-area: chips;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .pensive-shell .payable-payto-cell,
+  .pensive-shell .payable-alloc-cell {
+    display: none !important;
+  }
+  .pensive-shell .payable-alloc-mobile {
+    display: inline-flex;
+  }
+  .pensive-shell .payable-row .ledger-more {
+    grid-area: more;
+    align-self: start;
+    justify-self: end;
+  }
+  .pensive-shell .payable-name-cell .p-name-input.bill-name {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    text-overflow: clip;
+  }
+  .pensive-shell .payable-name-cell .bill-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 8px;
+    white-space: normal;
+  }
 
   /* Settings compact */
   .pensive-shell #settingsHub,

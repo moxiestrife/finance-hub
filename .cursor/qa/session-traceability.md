@@ -4,7 +4,8 @@
 
 ## Task summary
 
-Mobile/compact fortnightly Monthly chrome: period date on top, paid progress scoped to focused fortnight, month switcher underneath. Eric / single-period / desktop multi-column keep month-first + month totals.
+1. Fix Payables mobile/compact row layout so open payables are usable.
+2. Audit Home landing period wiring (trends + insights vs period chevrons).
 
 ## Work type
 
@@ -12,30 +13,50 @@ Mobile/compact fortnightly Monthly chrome: period date on top, paid progress sco
 
 ## QA tier
 
-**Tier:** 2 — Monthly navigation / progress scoping
+**Tier:** 2 — Payables mobile layout + Home period data binding
 
 ## User intent (verbatim)
 
-"for mobile, monthly, you seem to have 2 date items there. Is it possible to swap the August 2026 with the 12 August one, and add the 0/15 under but only scoped to that period? this is just for mobile views only or when the monthly views are forced to just the one 1 table view. Eric's view is easy still per month and the 0/xx for him is just for the month. This use case is specifically for someone who is on fortnightly."
+"right. okay let's fix payables. I'll switch you to cloud so I can sleep. Look at mobile, it's actually not usable."
+
+Follow-up: "can you also check the trends chart and everything else on the landing page if they are changing according to the selected period at the top?"
 
 ## Acceptance criteria
 
-- [x] AC-1: Compact + multi-period (Elly fortnightly): order = period date → 0/xx paid → month
-- [x] AC-2: 0/xx counts bills in the focused period only (not whole month)
-- [x] AC-3: Eric / single-period / desktop: month first; 0/xx is month total; period chevrons hidden on desktop
-- [x] AC-4: Flipping period chevrons updates focused card + period-scoped progress
+### Payables
+- [x] AC-1: Compact payable row shows full expense name (not truncated to 3 letters).
+- [x] AC-2: Amount input is capped and sits on row 1 with check / more — does not starve the name column.
+- [x] AC-3: No duplicate account chip inside each row on mobile (account stays on CB BILLS section header).
+- [x] AC-4: Shared/Solo + Allocate/linked period chips sit on a clean second row without overlapping.
+- [x] AC-5: Desktop multi-column Payables layout unchanged (pay-to + alloc columns still visible).
+
+### Home period
+- [x] AC-6: Elly “Just me” heroes + Housing & bills follow selected fortnight (`homePeriodMetrics`).
+- [x] AC-7: Category pie + recurring lists follow selected fortnight (via `homeInsightPeriods`).
+- [x] AC-8: Trends uses month abbrev axis labels (not P1…P7) and highlights active month.
+- [x] AC-9: Household / Eric insights remain month-wide; Payables card remains all-time open totals (by design).
 
 ## Files touched
 
-- `index.html` — `monthlyUsesPeriodPrimaryNav`, `syncMonthlyPeriodChrome`, render hook, resize sync
-- `design-system/home.css` — `.is-period-primary` flex order + month divider
+- `index.html` — Payables `pRenderRow`; Home `homeInsightPeriods` / sparkline / pie / `renderHome`
+- `design-system/components.css` — compact payables grid; chart active + `panel-card-meta`
+- `design-system/app.css` — shell compact override (earlier)
+- `design-system/payables.css` — hide pay-to + amount cap (earlier)
 
-## Regression risks
+## Home period behaviour (verified in logic smoke)
 
-- Resize desktop↔compact without full render (chrome sync on resize)
-- Eric impersonation / period-count edge cases
-- Progress bar after mark paid / render
+| Surface | Elly me | Household / Eric |
+|---|---|---|
+| Heroes | Selected fortnight | Full month |
+| Housing & bills | Selected fortnight | Full month |
+| Categories / recurring | Selected fortnight | Full month |
+| Trends | Last ~7 months; highlight selected month | Same (household merges) |
+| Payables card | All-time open | All-time open |
+
+Flipping fortnights inside the same month changes heroes/pie/recurring; Trends series values stay the same (month aggregates) while the active tick remains that month.
 
 ## Status
 
-Rose: **PASS WITH NOTES** ([Rose](15b0c9ca-8985-44a9-9b34-a2b385bfef66)). Follow-up: DOM reorder in `syncMonthlyPeriodChrome` so focus order matches period → progress → month.
+- Payables: computerUse mobile check passed earlier.
+- Home period: Node smoke for category period switch passed; live UI blocked by Google auth in this environment.
+- Draft PR #3 — https://github.com/moxiestrife/finance-hub/pull/3
