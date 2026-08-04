@@ -86,21 +86,26 @@ body.authed > .main {
   color: var(--on-surface);
 }
 .pensive-shell .brand-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--primary);
-  color: var(--on-primary);
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  font-size: 0.95rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 0;
+  background: none;
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  font-size: 0;
 }
 .pensive-shell .app-bar-right {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+}
+/* Scope sits with profile — not centered away from monogram */
+.pensive-shell .app-bar-right .scope-switch {
+  margin-right: 2px;
 }
 .pensive-shell .app-bar .scope-switch,
 .pensive-shell .app-bar .month-nav-slot {
@@ -200,6 +205,69 @@ body.authed > .main {
   font-size: 0.65rem;
 }
 
+/* Profile account menu (monogram) */
+.profile-menu-wrap {
+  position: relative;
+}
+button.profile-menu-trigger {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 999px;
+  font: inherit;
+}
+button.profile-menu-trigger:hover {
+  background: var(--surface-container-high);
+}
+button.profile-menu-trigger[aria-expanded="true"] {
+  background: var(--surface-container-high);
+}
+.profile-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  padding: 8px;
+  border-radius: 14px;
+  background: var(--surface-container-lowest);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+  box-shadow: 0 12px 32px var(--shadow);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.profile-menu[hidden] {
+  display: none !important;
+}
+.profile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--on-surface);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.profile-menu-item:hover {
+  background: var(--surface-container-high);
+}
+.profile-menu-item .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--on-surface-variant);
+}
+.profile-menu-item[hidden] {
+  display: none !important;
+}
+
 /* Bottom nav — production: fixed, not absolute inside a phone bezel */
 .pensive-shell .bottom-nav {
   display: none;
@@ -211,15 +279,51 @@ body.authed > .main {
   z-index: 200;
 }
 
-/* Page body padding inside live shell */
+/* Page content width — grow on XL, stop around 1480px; Settings stays narrow */
 .pensive-shell .page-body,
 .pensive-shell #homeContent,
+.pensive-shell #homeHeroMount,
 .pensive-shell #periodsGrid,
 .pensive-shell #payables-main-view,
+.pensive-shell #chatPageRoot,
+.pensive-shell #tab-home,
+.pensive-shell #tab-monthly,
+.pensive-shell #tab-payables,
+.pensive-shell #tab-chat {
+  max-width: var(--content-max-desktop, 1480px);
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+/* Desktop Monthly: month → progress → cards */
+.pensive-shell #tab-monthly[data-active],
+.pensive-shell #tab-monthly.tab-content.active {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0;
+}
+.pensive-shell #homeHeroMount {
+  padding-left: var(--page-pad-x-desktop-fluid, var(--page-pad-x-desktop, 28px));
+  padding-right: var(--page-pad-x-desktop-fluid, var(--page-pad-x-desktop, 28px));
+}
+@media (max-width: 900px) {
+  .pensive-shell #homeHeroMount {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+.pensive-shell .desktop-main .page-body.home-body,
+.pensive-shell .desktop-main #homeContent {
+  padding-left: var(--page-pad-x-desktop-fluid, var(--page-pad-x-desktop, 28px));
+  padding-right: var(--page-pad-x-desktop-fluid, var(--page-pad-x-desktop, 28px));
+}
 .pensive-shell #settingsHub,
-.pensive-shell #chatPageRoot {
-  max-width: 1100px;
-  margin: 0 auto;
+.pensive-shell .settings-stack.settings-hub {
+  max-width: var(--content-max-settings, 620px);
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 
 /* Monthly live grid */
@@ -227,13 +331,28 @@ body.authed > .main {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 14px;
-  padding: 0 28px 28px;
+  padding: 16px var(--page-pad-x-desktop-fluid, 28px) 28px;
+  max-width: var(--content-max-desktop, 1480px);
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
-.pensive-shell .monthly-toolbar {
-  padding: 0 28px;
+/* Eric / single-period: same max width as one Elly fortnight card */
+.pensive-shell #periodsGrid[data-period-count="1"],
+.pensive-shell .periods-row[data-period-count="1"] {
+  grid-template-columns: minmax(320px, calc((100% - 14px) / 2));
+  justify-content: start;
 }
+/* Period tabs removed — compact uses Home-style date chevrons under month */
 .pensive-shell .period-tabs {
-  padding: 0 28px 8px;
+  display: none !important;
+}
+/* Desktop Monthly: month chevrons in Home slot; hide per-period date row */
+@media (min-width: 901px) {
+  .pensive-shell .monthly-period-context .monthly-period-nav {
+    display: none !important;
+  }
 }
 
 /* Editable fields inside expanded ledger detail */
@@ -262,18 +381,197 @@ body.authed > .main {
 /* In-page Mine/Eric switcher replaced by app-bar scope switch */
 .pensive-shell .p-view-switcher { display: none !important; }
 
-/* Selection dock stays fixed */
-body.authed .sel-badge {
+/* Selection dock + chat bubble vs compact bottom-nav */
+body.authed .action-dock {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  width: min(560px, calc(100vw - 24px));
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  z-index: var(--z-modal, 9000);
+}
+/* Multi toolbar always sits on its own full-width row above summary + actions */
+body.authed .action-dock-multi {
+  flex: 1 1 100%;
+  width: 100%;
+}
+body.authed .action-dock-summary {
+  flex: 1 1 140px;
+  min-width: 0;
+}
+body.authed .action-dock-actions {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+/* Beat legacy #sel-badge { display:none } in monthly.css */
+body.authed .action-dock.is-visible:not([hidden]),
+body.authed #sel-badge.action-dock.is-visible:not([hidden]) {
+  display: flex !important;
+}
+body.authed .action-dock[hidden] {
+  display: none !important;
 }
 @media (min-width: 901px) {
-  body.authed .sel-badge { bottom: 24px; }
+  body.authed .action-dock { bottom: 24px; }
+  /* Desktop: floating chat bubble — force visible when not hidden */
+  body.authed:not(.chat-page-active) .chat-launcher:not([hidden]) {
+    display: flex !important;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: var(--z-chat-widget, 1200);
+  }
+}
+@media (max-width: 900px) {
+  body.authed .action-dock.is-visible:not([hidden]) {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+  body.authed .action-dock-summary,
+  body.authed .action-dock-actions {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  body.authed .action-dock-actions.action-dock-actions--5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+  }
+  body.authed .action-dock-actions.action-dock-actions--5 button {
+    font-size: 0.62rem;
+    padding: 8px 2px;
+  }
 }
 
-/* Impersonation / errors above shell */
-#impersonate-banner.is-visible,
-#perm-error-banner.is-visible {
-  display: flex !important;
+/* Compact vs desktop heroes — detailed rules live in the main compact block below */
+@media (max-width: 900px) {
+  .pensive-shell .hero-fan,
+  .pensive-shell .owing-fan { display: none; }
+  .pensive-shell .hero-carousel,
+  .pensive-shell .owing-hero { display: block; }
+}
+@media (min-width: 901px) {
+  .pensive-shell .hero-carousel,
+  .pensive-shell .owing-hero { display: none; }
+}
+
+/* Pie legend helpers removed — Home uses .pie-radar + .pie-callout (components.css) */
+
+/* Settings: kill legacy admin purple reskin when mock settings-card is used */
+#tab-settings .settings-card {
+  background: var(--surface-container-lowest);
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 0;
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+  box-shadow: none;
+}
+#tab-settings #settingsHubView,
+#tab-settings .settings-drill {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#tab-settings #settingsHubView[hidden],
+#tab-settings .settings-drill[hidden] {
+  display: none !important;
+}
+#tab-settings .settings-card-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+  margin-bottom: 10px;
+}
+#tab-settings .theme-segment .appearance-theme-btn {
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 8px 14px;
+  box-shadow: none;
+}
+#tab-settings .theme-segment .appearance-theme-btn[aria-pressed="true"] {
+  background: var(--surface-container-lowest);
+  color: var(--on-surface);
+  box-shadow: 0 1px 3px var(--shadow);
+}
+#tab-settings .field-with-prefix {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: var(--surface-container-lowest);
+}
+#tab-settings .field-with-prefix input {
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  width: 120px;
+  outline: none;
+}
+#tab-settings .settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+#tab-settings .settings-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+#tab-settings .settings-inline-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+#tab-settings .settings-inline-form input {
+  flex: 1;
+  border: 1px solid var(--outline-variant);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: inherit;
+}
+.pensive-shell .p-list-card {
+  background: var(--surface-container-lowest, #fff);
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--outline-variant, #e2e8f0) 70%, transparent);
+  overflow: hidden;
+}
+.pensive-shell .payables-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.pensive-shell .p-name-input.bill-name {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  padding: 0;
+}
+.pensive-shell .payable-share-cell.p-amount-input {
+  width: 100%;
+  border: 1px solid var(--outline-variant);
+  border-radius: 8px;
+  background: var(--surface-container-lowest);
+  font: inherit;
+  text-align: right;
+  padding: 4px 6px;
 }
 
 @media (max-width: 900px) {
@@ -287,26 +585,272 @@ body.authed .sel-badge {
     display: grid;
   }
   .pensive-shell .app-pages {
-    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--bottom-nav-reserve, 76px) + 24px);
+    overflow: auto;
   }
+
+  /* App bar: brand | month (when Monthly) | scope+profile */
   .pensive-shell .app-bar {
-    padding: 10px 14px 6px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    padding: 10px 14px 8px;
+    gap: 8px;
   }
-  .pensive-shell .periods-row,
-  .pensive-shell .monthly-toolbar,
+  .pensive-shell .app-bar .brand {
+    grid-column: 1;
+    margin-right: 0;
+    min-width: 0;
+  }
+  .pensive-shell .brand-text {
+    font-size: 0.9rem;
+  }
+  .pensive-shell .app-bar .month-nav-slot.is-visible {
+    grid-column: 2;
+    justify-self: center;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .pensive-shell .app-bar-right {
+    grid-column: 3;
+    gap: 8px;
+  }
+  .pensive-shell .app-bar-right .scope-switch.is-visible {
+    gap: 4px;
+  }
+  .pensive-shell .scope-switch { gap: 6px; }
+  .pensive-shell .scope-label { font-size: 0.68rem; }
+  .pensive-shell .app-bar-right .sync-pill,
+  .pensive-shell .app-bar-right .user-chip-mini span:not(.user-avatar) {
+    display: none;
+  }
+
+  /* Monthly: stack with breathing room; clear bottom nav */
+  .pensive-shell #tab-monthly.app-page[data-active],
+  .pensive-shell #tab-monthly.app-page.tab-content.active {
+    display: flex !important;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 0 calc(var(--bottom-nav-reserve, 76px) + 28px);
+    overflow: visible;
+    box-sizing: border-box;
+  }
+  /* Same vertical slot as Home period nav — do not add extra top chrome */
+  .pensive-shell #tab-monthly .monthly-period-context {
+    display: flex;
+    flex-shrink: 0;
+  }
   .pensive-shell .period-tabs {
-    padding-left: 14px;
-    padding-right: 14px;
+    display: none !important;
   }
   .pensive-shell .periods-row {
     grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 12px 14px 8px;
+    box-sizing: border-box;
   }
   /* Phone: one focused period at a time */
   .pensive-shell .period-card:not(.is-focused) {
     display: none;
   }
-  .pensive-shell .app-bar-right .sync-pill,
-  .pensive-shell .app-bar-right .user-chip-mini span:not(.user-avatar) {
+  /* Date already in top chevron — don’t duplicate in card head on compact */
+  .pensive-shell #tab-monthly .period-card-head-main {
     display: none;
   }
+
+  /* Period head: chip + actions on their own row so they don’t crush */
+  .pensive-shell .period-card-head {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 14px 12px;
+  }
+  .pensive-shell .period-card-head-right {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pensive-shell .section-toggle {
+    padding: 14px 14px;
+  }
+  .pensive-shell .section-body {
+    padding: 0 10px 12px;
+  }
+  .pensive-shell #tab-monthly .ledger-row,
+  .pensive-shell #tab-monthly .ledger-row.bill-row {
+    padding: 14px 10px;
+    min-height: 48px;
+    gap: 10px;
+  }
+  .pensive-shell .group-head,
+  .pensive-shell .bill-group-header {
+    margin-top: 10px;
+    padding: 10px 8px 6px;
+  }
+  .pensive-shell .ledger-add,
+  .pensive-shell #tab-monthly .add-btn {
+    margin: 10px 6px 8px;
+    padding: 10px 6px;
+  }
+
+  /* Home compact — heroes outside body; cards match mock phone density */
+  .pensive-shell .home-hero-mount .hero-carousel {
+    display: block;
+    text-align: center;
+    padding: 14px 20px 28px;
+  }
+  .pensive-shell .home-hero-mount .hero-fan {
+    display: none;
+  }
+  .pensive-shell .page-body.home-body,
+  .pensive-shell #homeContent {
+    padding: 4px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  /* Screenshot / mock phone keeps 2-up for cat + insights; stack only when very narrow */
+  .pensive-shell .fortnight-row,
+  .pensive-shell .insights-split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .pensive-shell .recurring-row {
+    grid-template-columns: 1fr;
+  }
+  .pensive-shell .chart-tabs {
+    flex-wrap: wrap;
+  }
+
+  /* Payables compact */
+  .pensive-shell #tab-payables.app-page[data-active],
+  .pensive-shell #tab-payables.app-page.tab-content.active {
+    display: flex !important;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 0 calc(var(--bottom-nav-reserve, 76px) + 20px);
+    box-sizing: border-box;
+  }
+  .pensive-shell .payables-body,
+  .pensive-shell #payables-main-view {
+    padding: 4px 14px 8px;
+    max-width: none;
+    box-sizing: border-box;
+  }
+  .pensive-shell .owing-fan { display: none; }
+  .pensive-shell .owing-hero {
+    display: block;
+    text-align: center;
+    padding: 10px 16px 14px;
+  }
+  .pensive-shell .payable-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .pensive-shell .payables-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .pensive-shell .payables-toolbar .chip-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+  .pensive-shell .payables-toolbar .text-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .pensive-shell .chip-tabs-sub {
+    padding: 4px 14px 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pensive-shell .p-list-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 14px 8px;
+  }
+  .pensive-shell #p-col-eric {
+    display: none !important;
+  }
+  .pensive-shell .payable-col-head { display: none; }
+  .pensive-shell .payable-row.p-row,
+  .pensive-shell .payable-row {
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) auto 28px !important;
+    grid-template-rows: auto auto auto !important;
+    grid-template-areas:
+      "check name amount more"
+      "check split payto more"
+      "check alloc alloc more" !important;
+    gap: 6px 8px !important;
+    padding: 12px 12px !important;
+    align-items: start;
+  }
+  .pensive-shell .payable-row .bill-check { grid-area: check; align-self: start; margin-top: 2px; }
+  .pensive-shell .payable-name-cell { grid-area: name; }
+  .pensive-shell .payable-share-cell { grid-area: amount; }
+  .pensive-shell .payable-split-cell { grid-area: split; justify-self: start; }
+  .pensive-shell .payable-payto-cell { grid-area: payto; }
+  .pensive-shell .payable-alloc-cell { grid-area: alloc; }
+  .pensive-shell .payable-row .ledger-more { grid-area: more; align-self: start; }
+
+  /* Settings compact */
+  .pensive-shell #settingsHub,
+  .pensive-shell .settings-stack {
+    max-width: none;
+    padding: 8px 14px 24px;
+  }
+
+  /* Chat page: fill shell, clear bottom nav under composer */
+  body.chat-page-active .pensive-shell .app-pages {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+  .pensive-shell #tab-chat.app-page[data-active],
+  .pensive-shell #tab-chat.app-page.tab-content.active {
+    display: flex !important;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1;
+    height: auto;
+    overflow: hidden;
+    padding: 0;
+  }
+  .pensive-shell #tab-chat .chat-page-root {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    padding-bottom: calc(var(--bottom-nav-reserve, 76px) + 12px);
+    box-sizing: border-box;
+  }
+  .pensive-shell #tab-chat .chat-page-root .chat-expanded {
+    height: 100%;
+    min-height: 0;
+  }
+  .pensive-shell #tab-chat .chat-composer {
+    padding-bottom: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .pensive-shell .fortnight-row,
+  .pensive-shell .insights-split {
+    grid-template-columns: 1fr;
+  }
+  .pensive-shell .app-bar:has(.month-nav-slot.is-visible) .brand-text {
+    display: none;
+  }
+}
+
+@media (min-width: 901px) {
+  .pensive-shell .home-hero-mount .hero-carousel { display: none; }
+  .pensive-shell .home-hero-mount .hero-fan { display: block; }
+  .pensive-shell .owing-hero { display: none; }
+  .pensive-shell .owing-fan { display: block; }
 }

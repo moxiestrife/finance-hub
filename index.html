@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-theme="light" data-palette="graphite">
+<html lang="en" data-theme="light" data-palette="azulejo">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Pensive — Finance Hub</title>
+<title>Pensive Finance Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -54,12 +54,7 @@
   document.dispatchEvent(new Event('firebaseReady'));
 </script>
 
-<link href="design-system/tokens.css" rel="stylesheet">
-<link href="design-system/components.css" rel="stylesheet">
-<link href="design-system/app.css" rel="stylesheet">
-<link href="design-system/home.css" rel="stylesheet">
-<link href="design-system/payables.css" rel="stylesheet">
-<link href="design-system/monthly.css" rel="stylesheet">
+<!-- design-system CSS is linked AFTER the legacy <style> block so mock tokens win the cascade -->
 
 <style>
 /* ═══════════════════════════════════════
@@ -97,11 +92,16 @@
   --shadow-chat-bubble: 0 8px 24px var(--shadow, rgba(15, 30, 49, 0.28));
   --chat-input-height: 36px;
   --chat-input-height-active: 76px; /* ~3 lines */
-  --content-max-width: 80%;
-  --content-max-width-eric: 900px; /* match payables — Eric is monthly, one column */
+  --content-max-width: var(--content-max-desktop, 1480px);
+  --content-max-width-eric: var(--content-max-desktop, 1480px);
 }
 body.user-eric {
-  --content-max-width: var(--content-max-width-eric);
+  --content-max-width: var(--content-max-desktop, 1480px);
+}
+/* Inside the facelift shell, never use the old 80% reading-column cap */
+.pensive-shell {
+  --content-max-width: var(--content-max-desktop, 1480px);
+  --content-max-width-eric: var(--content-max-desktop, 1480px);
 }
 
 /* ═══════════════════════════════════════
@@ -196,12 +196,44 @@ html[data-theme="dark"] .admin-card {
 }
 .login-logo {
   width: 56px; height: 56px; margin: 0 auto 12px;
-  border-radius: 50%;
+  border-radius: 0;
   display: grid; place-items: center;
-  background: var(--primary, #2a2a2e);
-  color: var(--on-primary, #fff);
-  font-size: 1.55rem; font-weight: 800;
-  letter-spacing: -0.03em;
+  background: none;
+  color: var(--primary, #2a2a2e);
+  line-height: 0;
+}
+.login-logo svg {
+  width: 56px;
+  height: 56px;
+  display: block;
+  overflow: visible;
+}
+.login-logo .accent { fill: var(--secondary); }
+.login-logo .ink { fill: currentColor; }
+.login-logo .stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.login-logo .coin-rim {
+  fill: none;
+  stroke: var(--surface-container-lowest, #fff);
+  stroke-width: 1.25;
+  opacity: 0.95;
+}
+.login-logo .coin-seam {
+  fill: none;
+  stroke: var(--surface-container-lowest, #fff);
+  stroke-width: 1.1;
+  opacity: 0.55;
+}
+.login-logo .coin-p {
+  fill: var(--surface-container-lowest, #fff);
+  font-family: "Google Sans", Roboto, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 11px;
 }
 .login-title { font-size: 1.7rem; font-weight: 800; color: var(--on-surface, #1a1a1d); margin-bottom: 4px; letter-spacing: -0.03em; }
 .login-sub   { font-size: 0.88rem; color: var(--on-surface-variant, #64748b); margin-bottom: 32px; }
@@ -246,8 +278,10 @@ html[data-theme="dark"] .admin-card {
 .topbar h1 { font-size: 1.15rem; font-weight: 700; white-space: nowrap; flex: 1; min-width: 0; }
 .topbar-right { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: flex-end; min-width: 0; }
 #monthNavWrap {
-  display: none; /* shown as flex by JS */
-  flex-shrink: 0;
+  display: none; /* legacy sticky-header slot only */
+}
+.pensive-shell #monthNavWrap.home-period-nav {
+  display: grid;
 }
 .user-chip {
   display: flex; align-items: center; gap: 7px;
@@ -284,14 +318,15 @@ html[data-theme="dark"] .admin-card {
 }
 .month-label:hover { background: rgba(255,255,255,0.15); }
 .month-label::after { content: ' ▾'; font-size: 0.7rem; opacity: 0.7; }
-/* Month picker popover */
+/* Month picker popover — anchored under in-page month label */
 #month-picker {
   position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
   background: white; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.22);
   border: 1px solid #e2e8f0; z-index: 9500; padding: 14px;
   width: 280px; display: none; color: #1a202c;
 }
-#month-picker.open { display: block; }
+#month-picker.open:not([hidden]) { display: block; }
+#month-picker[hidden] { display: none !important; }
 .mp-year-row {
   display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
 }
@@ -632,44 +667,140 @@ html[data-theme="dark"] .admin-card {
 ═══════════════════════════════════════ */
 .ctx-menu-shell {
   position: fixed; z-index: 9000;
-  background: white; border-radius: 10px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-  border: 1px solid #e2e8f0;
-  padding: 5px 0; min-width: 200px;
+  background: var(--surface-container-lowest, #fff);
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+  border: 1px solid color-mix(in srgb, var(--outline-variant, #e2e8f0) 70%, transparent);
+  padding: 6px;
+  min-width: 220px;
   display: none;
 }
-.ctx-menu-shell.open { display: block; }
-.ctx-item {
-  padding: 9px 16px; font-size: 0.875rem; cursor: pointer;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 10px; color: #374151; transition: background 0.1s; position: relative;
+.ctx-menu-shell.open,
+.ctx-menu-shell:not([hidden]) {
+  display: block;
 }
-.ctx-item:hover { background: #f1f5f9; }
-.ctx-item.ctx-danger { color: #ef4444; }
-.ctx-item .ctx-arrow { font-size: 0.7rem; color: #9ca3af; }
-.ctx-divider { height: 1px; background: #f0f4f8; margin: 3px 0; }
-/* Submenu */
+.ctx-menu-shell[hidden] {
+  display: none !important;
+}
+.ctx-sel-label {
+  padding: 6px 12px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--on-surface-variant, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.ctx-item {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--on-surface, #374151);
+  background: none;
+  border: none;
+  border-radius: 8px;
+  transition: background 0.1s;
+  position: relative;
+  text-align: left;
+  box-sizing: border-box;
+}
+.ctx-item:hover,
+.ctx-item.is-active {
+  background: var(--surface-container-high, #f1f5f9);
+}
+.ctx-item-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.ctx-item-main .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--on-surface-variant, #64748b);
+}
+.ctx-item.ctx-danger,
+.ctx-item.is-danger { color: var(--error, #ef4444); }
+.ctx-item .ctx-arrow {
+  font-size: 18px;
+  color: var(--on-surface-variant, #9ca3af);
+  margin-left: auto;
+}
+.ctx-divider { height: 1px; background: color-mix(in srgb, var(--outline-variant, #e2e8f0) 55%, transparent); margin: 4px 6px; }
+.ctx-formula-hint {
+  padding: 0 12px 8px;
+  font-size: 0.68rem;
+  color: var(--on-surface-variant, #9ca3af);
+}
+/* Submenu / icon rail */
 .ctx-has-sub { position: relative; }
 .ctx-sub {
-  position: absolute; left: 100%; top: -5px;
-  background: white; border-radius: 10px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
-  border: 1px solid #e2e8f0;
-  padding: 5px 0; min-width: 210px;
-  display: none; z-index: 9100;
+  position: absolute; left: calc(100% + 6px); top: 0;
+  background: var(--surface-container-lowest, #fff);
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+  border: 1px solid color-mix(in srgb, var(--outline-variant, #e2e8f0) 70%, transparent);
+  padding: 6px;
+  min-width: 200px;
+  display: none;
+  z-index: 9100;
 }
-.ctx-has-sub:hover > .ctx-sub { display: block; }
-/* Flip submenu left if near right edge — toggled via JS */
-.ctx-sub.flip-left { left: auto; right: 100%; }
+.ctx-sub.flip-left { left: auto; right: calc(100% + 6px); }
+.ctx-has-sub:hover > .ctx-sub,
+.ctx-has-sub.is-open > .ctx-sub {
+  display: block;
+}
+.ctx-icon-rail {
+  min-width: 0;
+  width: auto;
+  padding: 8px 6px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.ctx-has-sub:hover > .ctx-icon-rail,
+.ctx-has-sub.is-open > .ctx-icon-rail {
+  display: flex;
+}
+.ctx-rail-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--on-surface, #1a202c);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-family: inherit;
+}
+.ctx-rail-btn:hover {
+  background: var(--surface-container-high, #f1f5f9);
+}
+.ctx-rail-btn .material-symbols-outlined {
+  font-size: 22px;
+}
+.ctx-rail-btn.is-danger {
+  color: var(--error, #ef4444);
+}
 /* Formula row inside Calculate submenu */
-.ctx-formula-row { padding: 8px 12px; display: flex; gap: 6px; }
+.ctx-formula-row { padding: 8px 6px; display: flex; gap: 6px; }
 .ctx-formula-input {
-  flex: 1; border: 1.5px solid #e2e8f0; border-radius: 6px;
+  flex: 1; border: 1.5px solid var(--outline-variant, #e2e8f0); border-radius: 6px;
   padding: 5px 8px; font-size: 0.82rem; outline: none; font-family: monospace;
+  background: var(--surface-container-lowest, #fff);
+  color: var(--on-surface);
 }
-.ctx-formula-input:focus { border-color: #7C3AED; }
+.ctx-formula-input:focus { border-color: var(--primary, #1e3a5f); }
 .ctx-formula-btn {
-  background: #7C3AED; color: white; border: none;
+  background: var(--primary, #1e3a5f); color: var(--on-primary, #fff); border: none;
   border-radius: 6px; padding: 5px 10px; font-size: 0.82rem;
   cursor: pointer; font-family: inherit; font-weight: 600;
 }
@@ -792,46 +923,13 @@ html[data-theme="dark"] .admin-card {
 }
 .calc-clear-btn:hover { background: #ef4444; color: white; }
 
-/* Selection action dock */
-.sel-badge {
-  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  background: var(--surface-container-lowest, #fff); color: var(--on-surface, #1a202c);
-  border: 1px solid var(--outline-variant, #e2e8f0);
-  border-radius: 16px;
-  padding: 10px 14px; font-size: 0.85rem; font-weight: 600;
-  box-shadow: 0 8px 28px var(--shadow, rgba(15, 30, 49, 0.18));
-  z-index: 7000; display: none;
-  transition: opacity 0.2s;
-  max-width: calc(100vw - 24px);
+/* Selection dock uses design-system .action-dock; keep #sel-badge id for JS hooks */
+#sel-badge.action-dock {
+  z-index: var(--z-modal, 9000);
 }
-.sel-badge.visible {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
+#sel-badge.action-dock.is-visible:not([hidden]) {
+  display: flex !important;
 }
-.sel-badge-meta {
-  font-size: 0.8rem;
-  color: var(--on-surface-variant, #64748b);
-  white-space: nowrap;
-}
-.sel-badge-actions {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.sel-badge-btn {
-  border: none;
-  background: var(--primary, #1e3a5f);
-  color: var(--on-primary, #fff);
-  border-radius: 999px;
-  padding: 7px 12px;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-.sel-badge-btn:hover { filter: brightness(1.08); }
 
 /* Tab bar inner */
 .tab-bar-inner {
@@ -842,10 +940,11 @@ html[data-theme="dark"] .admin-card {
 }
 .tab-btn-legacy[hidden] { display: none !important; }
 
-/* Settings hub */
+/* Settings hub — keep narrow on XL */
 #tab-settings {
-  max-width: var(--content-max-width, 80%);
+  max-width: var(--content-max-settings, 620px);
   margin: 0 auto;
+  width: 100%;
 }
 #tab-settings .settings-card-desc { margin-bottom: 12px; }
 #tab-settings .settings-salary-row,
@@ -909,7 +1008,14 @@ html[data-theme="dark"] .admin-card {
 #tab-settings .settings-link-btn:hover {
   border-color: var(--brand-col);
 }
-#tab-settings .settings-owner-only[hidden] { display: none !important; }
+#tab-settings .settings-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+#tab-settings .settings-logout-btn .material-symbols-outlined {
+  font-size: 18px;
+}
 
 /* Chat page (Phase 3F) */
 #tab-chat {
@@ -925,7 +1031,7 @@ html[data-theme="dark"] .admin-card {
   position: relative;
   inset: auto;
   width: 100%;
-  max-width: var(--content-max-width, 1100px);
+  max-width: var(--content-max-desktop, 1480px);
   margin: 0 auto;
   height: calc(100vh - 140px);
   min-height: 480px;
@@ -942,12 +1048,27 @@ body.chat-page-active .chat-panel,
 body.chat-page-active .chat-backdrop {
   display: none !important;
 }
-@media (max-width: 800px) {
+@media (max-width: 900px) {
+  body.authed .chat-launcher {
+    display: none !important;
+  }
+  .chat-page-root {
+    min-height: 0;
+    flex: 1;
+    height: auto;
+    padding-bottom: calc(var(--bottom-nav-reserve, 76px) + 16px);
+    box-sizing: border-box;
+  }
   .chat-page-root .chat-expanded {
-    height: calc(100vh - 120px);
+    height: 100%;
+    min-height: 0;
+    max-height: none;
     border-radius: 0;
     border-left: none;
     border-right: none;
+  }
+  .chat-page-root .chat-composer {
+    padding-bottom: 14px;
   }
 }
 
@@ -988,7 +1109,8 @@ body.chat-page-active .chat-backdrop {
 @media (max-width: 750px) { .charts-grid { grid-template-columns: 1fr; } }
 .chart-card { background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 .chart-card h3 { font-size: 0.9rem; font-weight: 700; color: #374151; margin-bottom: 14px; }
-.chart-wrap { position: relative; height: 220px; }
+/* Legacy Summary/Insights canvases only — do not constrain Home .chart-wrap */
+.chart-card .chart-wrap { position: relative; height: 220px; }
 .insights-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 @media (max-width: 800px) { .insights-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 500px) { .insights-grid { grid-template-columns: 1fr; } }
@@ -1020,7 +1142,7 @@ body.chat-page-active .chat-backdrop {
 /* ═══════════════════════════════════════
    PAYABLES STYLES
 ═══════════════════════════════════════ */
-.payables-content { max-width: 900px; margin: 0 auto; }
+.payables-content { max-width: none; margin: 0; }
 
 /* Owing card */
 .p-owing-card {
@@ -1111,9 +1233,21 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   background: rgba(255,255,255,0.12); color: white; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   font-size: 0.95rem; line-height: 1; font-family: inherit;
+  padding: 0;
 }
 .chat-icon-btn:hover { background: rgba(255,255,255,0.22); }
 .chat-icon-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chat-icon-btn .material-symbols-outlined {
+  font-size: 20px;
+  line-height: 1;
+}
+/* Close only on full Chat page (mobile tab); desktop expanded uses collapse / minimize */
+.chat-page-close { display: none !important; }
+.chat-page-root .chat-page-close { display: flex !important; }
+.chat-desktop-collapse,
+.chat-desktop-minimize { display: flex; }
+.chat-page-root .chat-desktop-collapse,
+.chat-page-root .chat-desktop-minimize { display: none !important; }
 .chat-body { flex: 1; min-height: 0; display: flex; overflow: hidden; }
 .chat-log {
   flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px;
@@ -1197,11 +1331,12 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 .chat-composer { border-top: 1px solid var(--border-col); padding: 10px 12px; background: var(--surface); flex-shrink: 0; }
 .chat-composer-row { display: flex; gap: 8px; align-items: flex-end; }
 .chat-attach {
-  width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border-col);
-  background: var(--surface-sunken); cursor: pointer;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem;
+  width: 40px; height: 40px; border-radius: 999px; border: none;
+  background: var(--surface-sunken, #f1f5f9); cursor: pointer; color: var(--muted-col, #64748b);
+  display: grid; place-items: center; flex-shrink: 0; padding: 0; line-height: 1;
 }
 .chat-attach:hover { background: var(--border-col); }
+.chat-attach .material-symbols-outlined { font-size: 20px; }
 .chat-composer textarea {
   flex: 1; resize: none; border: 1px solid var(--border-col); border-radius: 8px;
   padding: 8px 10px; font: inherit; font-size: 0.88rem; line-height: 1.4;
@@ -1216,9 +1351,14 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   height: var(--chat-input-height-active); min-height: var(--chat-input-height-active);
 }
 .chat-send {
-  background: var(--brand-col); color: white; border: none; border-radius: 8px;
-  padding: 0 14px; height: 36px; font-weight: 600; font-size: 0.85rem;
-  cursor: pointer; font-family: inherit;
+  width: 40px; height: 40px; flex-shrink: 0;
+  background: var(--brand-col); color: white; border: none; border-radius: 999px;
+  padding: 0; cursor: pointer; font-family: inherit;
+  display: grid; place-items: center; line-height: 1;
+}
+.chat-send .material-symbols-outlined {
+  font-size: 20px;
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 .chat-send:hover { background: var(--brand-deep); }
 .chat-send:disabled { opacity: 0.55; cursor: default; }
@@ -1484,10 +1624,11 @@ body:not(.authed) .chat-backdrop { display: none !important; }
     flex: 0 0 auto;
     gap: 6px;
   }
-  #user-name-display { display: none; }
-  .user-chip { padding: 4px 6px; gap: 0; }
-  #sync-label { display: none; }
-  #monthNavWrap {
+  .sticky-header #user-name-display { display: none; }
+  .sticky-header .user-chip { padding: 4px 6px; gap: 0; }
+  .sticky-header #sync-label { display: none; }
+  /* Legacy topbar only — do not bleed into facelift .app-bar */
+  .sticky-header #monthNavWrap {
     flex: 1 1 100%;
     order: 3;
     justify-content: center !important;
@@ -1520,22 +1661,9 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
   .periods-grid { grid-template-columns: 1fr; }
 
-  /* Monthly bill rows → stacked cards (no horizontal squeeze) */
+  /* Legacy 7-col bill-row phone mashup REMOVED — smashed mock .ledger-row.
+     Phone Monthly layout: design-system/monthly.css (#tab-monthly .ledger-row). */
   .bill-list-header { display: none; }
-  .bill-row {
-    grid-template-columns: 28px 22px minmax(0, 1fr) 84px;
-    grid-template-rows: auto auto auto;
-    column-gap: 8px;
-    row-gap: 4px;
-    padding: 10px 8px;
-  }
-  .bill-row > :nth-child(1) { grid-column: 1; grid-row: 1 / span 3; align-self: start; padding-top: 4px; }
-  .bill-row > :nth-child(2) { grid-column: 2; grid-row: 1 / span 3; align-self: start; padding-top: 6px; }
-  .bill-row > :nth-child(3) { grid-column: 3; grid-row: 1; min-width: 0; }
-  .bill-row > :nth-child(4) { grid-column: 4; grid-row: 1; }
-  .bill-row > :nth-child(5) { grid-column: 3 / span 2; grid-row: 2; }
-  .bill-row > :nth-child(6) { grid-column: 3; grid-row: 3; justify-self: start; }
-  .bill-row > :nth-child(7) { grid-column: 4; grid-row: 3; justify-self: end; }
   .del-btn { opacity: 0.55; }
   .recur-btn { opacity: 0.45; }
   .recur-btn.on { opacity: 1; }
@@ -1553,23 +1681,10 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   .saving-row > :nth-child(5) { grid-column: 2; grid-row: 3; justify-self: start; }
   .saving-row > :nth-child(6) { grid-column: 3; grid-row: 3; justify-self: end; }
 
-  /* Payables rows + add form */
+  /* Payables rows + add form — facelift compact layout lives in design-system/app.css (≤900px).
+     Do not reintroduce nth-child mashups here; they fight .payable-row named areas. */
   .p-form-grid { grid-template-columns: 1fr !important; }
   .p-list-col-header { display: none; }
-  .p-row,
-  .p-col-mine .p-row,
-  .p-col-eric .p-row {
-    grid-template-columns: 28px minmax(0, 1fr) 88px !important;
-    grid-template-rows: auto auto auto;
-    gap: 4px 8px;
-    padding: 10px 12px;
-  }
-  .p-row > :nth-child(1) { grid-column: 1; grid-row: 1 / span 3; align-self: start; }
-  .p-row > :nth-child(2) { grid-column: 2; grid-row: 1; min-width: 0; }
-  .p-row > :nth-child(3) { grid-column: 3; grid-row: 1; }
-  .p-row > :nth-child(4) { grid-column: 2 / span 2; grid-row: 2; }
-  .p-row > :nth-child(5) { grid-column: 2; grid-row: 3; }
-  .p-row > :nth-child(6) { grid-column: 3; grid-row: 3; justify-self: end; }
   .p-action-btn { opacity: 0.7; }
   .p-row-meta { display: flex !important; }
   .p-owing-card {
@@ -1617,9 +1732,6 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   }
   #calc-panel.open { right: 0; }
 
-  .sel-badge {
-    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
-  }
 }
 
 .p-acct-header {
@@ -1637,6 +1749,15 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 .p-col-eric .p-acct-header { background: #f0f8ff; color: #0369a1; }
 .p-col-eric .p-acct-header:hover { background: #e0f0ff; }
 </style>
+
+<!-- Facelift design-system MUST load after legacy styles or Monthly/Settings look like a broken reskin -->
+<link href="design-system/tokens.css" rel="stylesheet">
+<link href="design-system/foundation.css" rel="stylesheet">
+<link href="design-system/components.css" rel="stylesheet">
+<link href="design-system/app.css" rel="stylesheet">
+<link href="design-system/home.css" rel="stylesheet">
+<link href="design-system/payables.css" rel="stylesheet">
+<link href="design-system/monthly.css" rel="stylesheet">
 </head>
 <body>
 
@@ -1645,7 +1766,29 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 ════════════════════════════════════ -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo" aria-hidden="true">P</div>
+    <div class="login-logo" aria-hidden="true">
+      <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g transform="translate(0 -2.2)">
+          <path class="ink" d="M14.6 21.8v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>
+          <ellipse class="ink" cx="21" cy="24.5" rx="6.4" ry="1.9"/>
+          <ellipse class="ink" cx="21" cy="21.8" rx="6.4" ry="1.9"/>
+          <ellipse class="coin-seam" cx="21" cy="21.8" rx="6" ry="1.65"/>
+          <path class="ink" d="M14.6 17.2v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>
+          <ellipse class="ink" cx="21" cy="19.9" rx="6.4" ry="1.9"/>
+          <ellipse class="ink" cx="21" cy="17.2" rx="6.4" ry="1.9"/>
+          <ellipse class="coin-seam" cx="21" cy="17.2" rx="6" ry="1.65"/>
+          <path class="ink" d="M14.6 12.6v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>
+          <ellipse class="ink" cx="21" cy="15.3" rx="6.4" ry="1.9"/>
+          <ellipse class="ink" cx="21" cy="12.6" rx="6.4" ry="1.9"/>
+          <ellipse class="coin-seam" cx="21" cy="12.6" rx="6" ry="1.65"/>
+          <g transform="rotate(-22 10.5 18.5)">
+            <circle class="ink" cx="10.5" cy="18.5" r="8.4"/>
+            <circle class="coin-rim" cx="10.5" cy="18.5" r="7"/>
+            <text class="coin-p" x="10.5" y="21.7" text-anchor="middle">P</text>
+          </g>
+        </g>
+      </svg>
+    </div>
     <div class="login-title">Pensive</div>
     <div class="login-sub">Household finances, thoughtfully</div>
 
@@ -1716,53 +1859,40 @@ body:not(.authed) .chat-backdrop { display: none !important; }
         <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">sync_alt</span></span>
         Payables
       </button>
-      <button type="button" class="rail-item" data-nav="chat" onclick="switchTab('chat')">
-        <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span></span>
-        Chat
+      <button type="button" class="rail-item" data-nav="settings" onclick="switchTab('settings')">
+        <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">settings</span></span>
+        Settings
       </button>
+      <!-- Chat is not in the side rail on md+; desktop uses floating bubble -->
     </nav>
 
     <div class="desktop-main">
       <header class="app-bar">
-        <div class="brand">
-          <span class="brand-mark" aria-hidden="true">P</span>
+        <div class="brand" data-logo="stacked-pence">
+          <span class="brand-mark" data-brand-mark aria-hidden="true">
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g transform="translate(0 -2.2)">
+                <path class="ink" d="M14.6 21.8v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>
+                <ellipse class="ink" cx="21" cy="24.5" rx="6.4" ry="1.9"/>
+                <ellipse class="ink" cx="21" cy="21.8" rx="6.4" ry="1.9"/>
+                <ellipse class="coin-seam" cx="21" cy="21.8" rx="6" ry="1.65"/>
+                <path class="ink" d="M14.6 17.2v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>
+                <ellipse class="ink" cx="21" cy="19.9" rx="6.4" ry="1.9"/>
+                <ellipse class="ink" cx="21" cy="17.2" rx="6.4" ry="1.9"/>
+                <ellipse class="coin-seam" cx="21" cy="17.2" rx="6" ry="1.65"/>
+                <path class="ink" d="M14.6 12.6v2.7c0 1.05 2.85 1.9 6.4 1.9s6.4-.85 6.4-1.9v-2.7z"/>
+                <ellipse class="ink" cx="21" cy="15.3" rx="6.4" ry="1.9"/>
+                <ellipse class="ink" cx="21" cy="12.6" rx="6.4" ry="1.9"/>
+                <ellipse class="coin-seam" cx="21" cy="12.6" rx="6" ry="1.65"/>
+                <g transform="rotate(-22 10.5 18.5)">
+                  <circle class="ink" cx="10.5" cy="18.5" r="8.4"/>
+                  <circle class="coin-rim" cx="10.5" cy="18.5" r="7"/>
+                  <text class="coin-p" x="10.5" y="21.7" text-anchor="middle">P</text>
+                </g>
+              </g>
+            </svg>
+          </span>
           <span class="brand-text">Pensive</span>
-        </div>
-
-        <div class="scope-switch is-visible" id="homeScopeSwitch" role="group" aria-label="View scope">
-          <span class="scope-label is-active" data-scope-label="me" onclick="setHomeScope('me')">Just me</span>
-          <button class="scope-toggle" type="button" role="switch" id="homeScopeToggle" aria-checked="false" aria-label="Switch between Just me and Household" onclick="setHomeScope(homeScope==='me'?'household':'me')">
-            <span class="scope-toggle-thumb" aria-hidden="true"></span>
-          </button>
-          <span class="scope-label" data-scope-label="household" onclick="setHomeScope('household')">Household</span>
-        </div>
-
-        <div class="scope-switch" id="payablesScopeSwitch" data-owner-only role="group" aria-label="Payables view">
-          <span class="scope-label is-active" data-pay-label="mine" onclick="pSetView('mine')">Mine</span>
-          <button class="scope-toggle" type="button" role="switch" id="payablesScopeToggle" aria-checked="false" aria-label="Switch between Mine and Eric" onclick="pSetView(document.getElementById('payablesScopeToggle').getAttribute('aria-checked')==='true'?'mine':'eric')">
-            <span class="scope-toggle-thumb" aria-hidden="true"></span>
-          </button>
-          <span class="scope-label" data-pay-label="eric" onclick="pSetView('eric')">Eric</span>
-        </div>
-
-        <div class="month-nav-slot" id="monthNavWrap">
-          <div class="month-nav is-visible" style="position:relative;z-index:200">
-            <button class="month-nav-btn" type="button" onclick="changeMonth(-1)" aria-label="Previous month">
-              <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
-            </button>
-            <button class="month-nav-label" type="button" id="monthLabel" onclick="toggleMonthPicker(event)">—</button>
-            <button class="month-nav-btn" type="button" onclick="changeMonth(1)" aria-label="Next month">
-              <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-            </button>
-            <div id="month-picker">
-              <div class="mp-year-row">
-                <button class="mp-year-btn" onclick="mpChangeYear(-1)">‹</button>
-                <span class="mp-year-label" id="mp-year-label">2026</span>
-                <button class="mp-year-btn" onclick="mpChangeYear(1)">›</button>
-              </div>
-              <div class="mp-months" id="mp-months"></div>
-            </div>
-          </div>
         </div>
 
         <div class="app-bar-right">
@@ -1770,16 +1900,41 @@ body:not(.authed) .chat-backdrop { display: none !important; }
             <div class="sync-dot" id="sync-dot"></div>
             <span id="sync-label">—</span>
           </div>
-          <div class="user-chip-mini">
-            <div class="user-avatar" id="user-avatar"></div>
-            <span id="user-name-display"></span>
+
+          <div class="scope-switch is-visible" id="homeScopeSwitch" role="group" aria-label="View scope">
+            <span class="scope-label is-active" data-scope-label="me" onclick="setHomeScope('me')">Just me</span>
+            <button class="scope-toggle" type="button" role="switch" id="homeScopeToggle" aria-checked="false" aria-label="Switch between Just me and Household" onclick="setHomeScope(homeScope==='me'?'household':'me')">
+              <span class="scope-toggle-thumb" aria-hidden="true"></span>
+            </button>
+            <span class="scope-label" data-scope-label="household" onclick="setHomeScope('household')">Household</span>
           </div>
-          <button class="icon-btn" type="button" title="Sign out" aria-label="Sign out" onclick="doLogout()">
-            <span class="material-symbols-outlined" aria-hidden="true">logout</span>
-          </button>
-          <button class="icon-btn filled" type="button" data-nav="settings" title="Settings" aria-label="Settings" onclick="switchTab('settings')">
-            <span class="material-symbols-outlined" aria-hidden="true">settings</span>
-          </button>
+
+          <div class="scope-switch" id="payablesScopeSwitch" data-owner-only role="group" aria-label="Payables view">
+            <span class="scope-label is-active" data-pay-label="mine" onclick="pSetView('mine')">Mine</span>
+            <button class="scope-toggle" type="button" role="switch" id="payablesScopeToggle" aria-checked="false" aria-label="Switch between Mine and Eric" onclick="pSetView(document.getElementById('payablesScopeToggle').getAttribute('aria-checked')==='true'?'mine':'eric')">
+              <span class="scope-toggle-thumb" aria-hidden="true"></span>
+            </button>
+            <span class="scope-label" data-pay-label="eric" onclick="pSetView('eric')">Eric</span>
+          </div>
+
+          <div class="profile-menu-wrap" id="profileMenuWrap">
+            <button type="button" class="user-chip-mini profile-menu-trigger" id="profileMenuBtn"
+              aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu"
+              title="Account menu" aria-label="Account menu" onclick="toggleProfileMenu(event)">
+              <div class="user-avatar" id="user-avatar"></div>
+              <span id="user-name-display"></span>
+            </button>
+            <div class="profile-menu" id="profileMenu" role="menu" hidden>
+              <button type="button" class="profile-menu-item" role="menuitem" id="profileMenuImpersonate" hidden onclick="profileMenuImpersonate()">
+                <span class="material-symbols-outlined" aria-hidden="true">swap_horiz</span>
+                <span id="profileMenuImpersonateLabel">View as Eric</span>
+              </button>
+              <button type="button" class="profile-menu-item" role="menuitem" onclick="closeProfileMenu(); doLogout()">
+                <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                Log out
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -1787,125 +1942,145 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
   <!-- ── HOME ── -->
   <div class="app-page tab-content active" id="tab-home" data-page="home" data-active>
+    <div id="homeHeroMount" class="home-hero-mount"></div>
     <div class="page-body home-body" id="homeContent"></div>
   </div>
 
   <!-- ── MONTHLY ── -->
   <div class="app-page tab-content" id="tab-monthly" data-page="monthly">
-    <div class="period-tabs" id="periodTabs" role="tablist" aria-label="Pay periods"></div>
-    <div class="monthly-toolbar">
-      <div class="monthly-legend">♻ recurring · ✓ paid</div>
-      <div class="monthly-progress" id="progressWrap" style="display:none">
-        <span class="monthly-progress-label" id="progressText">0 / 0</span>
+    <div class="home-period-context monthly-period-context" id="monthlyPeriodContext">
+      <!-- Same slot + plain-text format as Home period chevrons -->
+      <div class="home-period-nav monthly-month-nav" id="monthNavWrap" role="group" aria-label="Month">
+        <button type="button" class="home-period-chevron" onclick="changeMonth(-1)" aria-label="Previous month">
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+        </button>
+        <button type="button" class="home-period-date" id="monthLabel" onclick="toggleMonthPicker(event)" aria-haspopup="dialog" aria-label="Choose month">—</button>
+        <button type="button" class="home-period-chevron" onclick="changeMonth(1)" aria-label="Next month">
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        </button>
+        <div class="month-picker" id="month-picker" hidden>
+          <div class="mp-year-row">
+            <button type="button" class="mp-year-btn" onclick="mpChangeYear(-1)" aria-label="Previous year">‹</button>
+            <span class="mp-year-label" id="mp-year-label">2026</span>
+            <button type="button" class="mp-year-btn" onclick="mpChangeYear(1)" aria-label="Next year">›</button>
+          </div>
+          <div class="mp-months" id="mp-months"></div>
+        </div>
+      </div>
+      <div class="monthly-progress" id="progressWrap" hidden>
+        <span class="monthly-progress-label" id="progressText">0 / 0 paid</span>
         <div class="cat-bar-track"><div class="cat-bar-fill" id="progressFill" style="width:0%"></div></div>
       </div>
+      <div class="home-period-nav monthly-period-nav" id="monthlyPeriodNav" role="group" aria-label="Period date"></div>
     </div>
     <div class="periods-row periods-grid" id="periodsGrid"></div>
   </div>
 
   <!-- ── SETTINGS ── -->
   <div class="app-page tab-content" id="tab-settings" data-page="settings">
-    <div class="page-body settings-section admin-section settings-stack" id="settingsHub">
+    <div class="page-body settings-section admin-section settings-stack settings-hub" id="settingsHub">
 
-      <div class="admin-card settings-card" id="appearance-card">
-        <h2>🎨 Appearance</h2>
-        <div class="admin-toggle-desc settings-card-desc">Theme and colour palette. Graphite is the default.</div>
-        <div class="admin-toggle-label">Theme</div>
-        <div class="appearance-theme-row" role="group" aria-label="Theme">
-          <button type="button" class="appearance-theme-btn" data-theme-set="light" aria-pressed="true">Light</button>
-          <button type="button" class="appearance-theme-btn" data-theme-set="dark" aria-pressed="false">Dark</button>
-        </div>
-        <div class="admin-toggle-label" style="margin-top:16px">Colour palette</div>
-        <div class="appearance-palette-grid" role="group" aria-label="Colour palette">
-          <button type="button" class="appearance-palette-btn" data-palette-set="graphite" aria-pressed="true">
-            <span class="appearance-swatches" aria-hidden="true"><i style="background:#2a2a2e"></i><i style="background:#a65d1f"></i><i style="background:#e6e6e9"></i></span>
-            <strong>Graphite</strong><span>Ink + copper · default</span>
+      <div id="settingsHubView">
+        <article class="settings-card" id="settings-personalisation-card">
+          <div class="settings-card-title">Personalisation</div>
+          <button class="settings-link-row" type="button" onclick="openSettingsPanel('appearance')">
+            <span class="settings-link-icon material-symbols-outlined" aria-hidden="true">palette</span>
+            <span class="settings-link-text">
+              <span class="settings-row-label">Appearance</span>
+              <span class="settings-row-hint">Theme and colour palette</span>
+            </span>
+            <span class="settings-link-chevron material-symbols-outlined" aria-hidden="true">chevron_right</span>
           </button>
-          <button type="button" class="appearance-palette-btn" data-palette-set="ocean" aria-pressed="false">
-            <span class="appearance-swatches" aria-hidden="true"><i style="background:#255a8c"></i><i style="background:#0f6b58"></i><i style="background:#d3e4ff"></i></span>
-            <strong>Ocean</strong><span>Blue + teal</span>
-          </button>
-          <button type="button" class="appearance-palette-btn" data-palette-set="azulejo" aria-pressed="false">
-            <span class="appearance-swatches" aria-hidden="true"><i style="background:#1a56a0"></i><i style="background:#c9920a"></i><i style="background:#0f766e"></i></span>
-            <strong>Azulejo</strong><span>Cobalt + saffron</span>
-          </button>
-          <button type="button" class="appearance-palette-btn" data-palette-set="dusk" aria-pressed="false">
-            <span class="appearance-swatches" aria-hidden="true"><i style="background:#3a332e"></i><i style="background:#7a6848"></i><i style="background:#ebe6e2"></i></span>
-            <strong>Dusk</strong><span>Charcoal + gold</span>
-          </button>
-          <button type="button" class="appearance-palette-btn" data-palette-set="slate" aria-pressed="false">
-            <span class="appearance-swatches" aria-hidden="true"><i style="background:#334155"></i><i style="background:#c2410c"></i><i style="background:#e4e4e7"></i></span>
-            <strong>Slate</strong><span>Stone + rust</span>
-          </button>
-        </div>
-      </div>
+        </article>
 
-      <div class="admin-card settings-card" id="settings-salary-card">
-        <h2>💰 Salary</h2>
-        <div class="admin-toggle">
-          <div>
-            <div class="admin-toggle-label">Default salary</div>
-            <div class="admin-toggle-desc">Base income for each pay period. Override per-period in Money In.</div>
-          </div>
-          <div class="settings-salary-row">
-            <span class="settings-salary-prefix">$</span>
-            <input class="admin-salary-input" type="number" id="salaryInput" step="0.01" placeholder="4524.58">
-            <button class="admin-save-btn" onclick="saveSettings()">Save</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="admin-card settings-card" id="settings-accounts-card">
-        <h2>🏦 Pay To accounts</h2>
-        <div id="admin-accounts-list" class="settings-accounts-list"></div>
-        <div class="settings-account-add">
-          <input id="new-account-input" class="admin-salary-input settings-account-input" type="text" placeholder="New account name…" onkeydown="if(event.key==='Enter')addAccount()">
-          <button class="admin-save-btn" onclick="addAccount()">Add</button>
-        </div>
-      </div>
-
-      <div class="admin-card settings-card settings-owner-only" id="settings-eric-access-card">
-        <h2>🔵 Eric's access</h2>
-        <div class="admin-toggle">
-          <div>
-            <div class="admin-toggle-label">Eric can view budget &amp; ledger</div>
-            <div class="admin-toggle-desc">Controls partner visibility of shared budget tools.</div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="toggle-eric-budget" onchange="saveAdminSettings()">
-            <span class="toggle-slider"></span>
+        <article class="settings-card" id="settings-salary-card">
+          <div class="settings-card-title">Money defaults</div>
+          <label class="settings-field">
+            <span><span class="settings-row-label">Salary</span><span class="settings-row-hint">Default fortnightly salary used by Monthly</span></span>
+            <span class="field-with-prefix"><span>$</span><input class="admin-salary-input" type="number" id="salaryInput" step="0.01" placeholder="4524.58"></span>
           </label>
-        </div>
+          <div class="settings-actions"><button class="text-btn" type="button" onclick="saveSettings()">Save salary</button></div>
+        </article>
+
+        <article class="settings-card" id="settings-accounts-card">
+          <div class="settings-card-title">Pay To accounts</div>
+          <div id="admin-accounts-list" class="settings-account-list settings-accounts-list"></div>
+          <div class="settings-inline-form settings-account-add">
+            <input id="new-account-input" class="admin-salary-input settings-account-input" type="text" placeholder="Account name" onkeydown="if(event.key==='Enter')addAccount()">
+            <button class="text-btn" type="button" onclick="addAccount()">Add</button>
+          </div>
+        </article>
+
+        <article class="settings-card settings-admin-card settings-owner-only" id="settings-eric-access-card">
+          <div class="settings-card-title">Admin</div>
+          <div class="settings-row">
+            <div><div class="settings-row-label">Eric can view budget</div><div class="settings-row-hint">Owner-only household access toggle</div></div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-eric-budget" onchange="saveAdminSettings()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-action-grid" id="settings-data-card">
+            <button class="text-btn" type="button" onclick="exportBudget()">Export JSON</button>
+            <label class="text-btn settings-import-label">Import JSON<input type="file" accept=".json" onchange="importBudget(event)" hidden></label>
+          </div>
+        </article>
+
+        <article class="settings-card" id="settings-advanced-card">
+          <div class="settings-card-title">Advanced</div>
+          <div class="settings-row-hint">Legacy views kept during the facelift cutover.</div>
+          <div class="settings-advanced-links">
+            <button type="button" class="settings-link-btn" onclick="switchTab('summary')">Summary</button>
+            <button type="button" class="settings-link-btn" onclick="switchTab('insights')">Insights</button>
+            <button type="button" class="settings-link-btn settings-owner-only" onclick="switchTab('compare')">Compare</button>
+            <button type="button" class="settings-link-btn" onclick="runFinanceHubQA()">Self-test</button>
+          </div>
+        </article>
       </div>
 
-      <div class="admin-card settings-card settings-owner-only" id="settings-data-card">
-        <h2>🔧 Data tools</h2>
-        <div class="admin-data-row">
-          <button class="p-btn p-btn-export" onclick="exportBudget()">⬇ Export Budget</button>
-          <label class="p-btn p-btn-export settings-import-label">
-            ⬆ Import Budget
-            <input type="file" accept=".json" onchange="importBudget(event)" hidden>
-          </label>
-        </div>
-      </div>
-
-      <div class="admin-card settings-card settings-owner-only" id="settings-impersonate-card">
-        <h2>🎭 Impersonate</h2>
-        <div class="admin-toggle-desc settings-card-desc">Switch view to test as Eric. Your Elly login stays active.</div>
-        <div id="impersonate-controls">
-          <button class="p-btn settings-impersonate-btn" onclick="impersonateEric()">👤 View as Eric</button>
-        </div>
-      </div>
-
-      <div class="admin-card settings-card" id="settings-advanced-card">
-        <h2>📎 Advanced</h2>
-        <div class="admin-toggle-desc settings-card-desc">Legacy views kept during the facelift cutover.</div>
-        <div class="settings-advanced-links">
-          <button type="button" class="settings-link-btn" onclick="switchTab('summary')">Summary</button>
-          <button type="button" class="settings-link-btn" onclick="switchTab('insights')">Insights</button>
-          <button type="button" class="settings-link-btn settings-owner-only" onclick="switchTab('compare')">Compare</button>
-          <button type="button" class="settings-link-btn" onclick="runFinanceHubQA()">Self-test</button>
-        </div>
+      <div id="settingsAppearanceView" class="settings-drill" hidden>
+        <button class="settings-back" type="button" onclick="openSettingsPanel('hub')">
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Settings
+        </button>
+        <article class="settings-card" id="appearance-card">
+          <div class="settings-card-title">Appearance</div>
+          <div class="settings-row settings-row-stack">
+            <div><div class="settings-row-label">Theme</div><div class="settings-row-hint">Light or dark across the app</div></div>
+            <div class="theme-segment appearance-theme-row" role="group" aria-label="Theme">
+              <button type="button" class="appearance-theme-btn" data-theme-set="light" aria-pressed="true">
+                <span class="material-symbols-outlined" aria-hidden="true">light_mode</span> Light
+              </button>
+              <button type="button" class="appearance-theme-btn" data-theme-set="dark" aria-pressed="false">
+                <span class="material-symbols-outlined" aria-hidden="true">dark_mode</span> Dark
+              </button>
+            </div>
+          </div>
+          <div class="settings-row settings-row-stack">
+            <div><div class="settings-row-label">Colour palette</div><div class="settings-row-hint">Azulejo is the default — pick any look you like</div></div>
+            <div class="palette-options appearance-palette-grid" role="group" aria-label="Colour palette">
+              <button type="button" class="appearance-palette-btn" data-palette-set="graphite" aria-pressed="false">
+                <span class="appearance-swatches" aria-hidden="true"><i style="background:#2a2a2e"></i><i style="background:#a65d1f"></i><i style="background:#e6e6e9"></i></span>
+                <strong>Graphite</strong><span>Ink + copper</span>
+              </button>
+              <button type="button" class="appearance-palette-btn" data-palette-set="ocean" aria-pressed="false">
+                <span class="appearance-swatches" aria-hidden="true"><i style="background:#255a8c"></i><i style="background:#0f6b58"></i><i style="background:#d3e4ff"></i></span>
+                <strong>Ocean</strong><span>Blue + teal</span>
+              </button>
+              <button type="button" class="appearance-palette-btn" data-palette-set="azulejo" aria-pressed="true">
+                <span class="appearance-swatches" aria-hidden="true"><i style="background:#1a56a0"></i><i style="background:#c9920a"></i><i style="background:#0f766e"></i></span>
+                <strong>Azulejo</strong><span>Cobalt + saffron · default</span>
+              </button>
+              <button type="button" class="appearance-palette-btn" data-palette-set="dusk" aria-pressed="false">
+                <span class="appearance-swatches" aria-hidden="true"><i style="background:#3a332e"></i><i style="background:#7a6848"></i><i style="background:#ebe6e2"></i></span>
+                <strong>Dusk</strong><span>Charcoal + gold</span>
+              </button>
+              <button type="button" class="appearance-palette-btn" data-palette-set="slate" aria-pressed="false">
+                <span class="appearance-swatches" aria-hidden="true"><i style="background:#334155"></i><i style="background:#c2410c"></i><i style="background:#e4e4e7"></i></span>
+                <strong>Slate</strong><span>Stone + rust</span>
+              </button>
+            </div>
+          </div>
+        </article>
       </div>
 
     </div>
@@ -1946,45 +2121,43 @@ body:not(.authed) .chat-backdrop { display: none !important; }
         </div>
       </div>
     </section>
+    <section class="hero owing-hero" id="p-owing-hero" aria-label="Owing" data-metric="owe">
+      <div class="hero-label" id="p-owing-hero-label">I owe</div>
+      <div class="hero-figure" id="p-owing-hero-amount">$0.00</div>
+      <div class="hero-chip" id="p-owing-hero-sub">0 items pending</div>
+    </section>
     <div class="page-body payables-body payables-content" id="payables-main-view">
 
       <!-- Add form -->
-      <div class="p-add-card" id="p-add-card" style="display:none">
-        <div class="p-add-title">＋ Add payable</div>
-        <div class="p-form-grid">
-          <div class="p-form-col" style="grid-column:1/3">
-            <label class="p-flabel">Expense name</label>
-            <input class="p-input" id="pf-name" placeholder="e.g. Energy bill">
-          </div>
-          <div class="p-form-col">
-            <label class="p-flabel">Full amount ($)</label>
-            <input class="p-input" type="number" id="pf-amount" step="0.01" placeholder="0.00" oninput="pUpdateSplitHint()">
-          </div>
-          <div class="p-form-col">
-            <label class="p-flabel">Split</label>
-            <select class="p-input" id="pf-split" onchange="pUpdateSplitHint()">
-              <option value="shared">Shared (50/50)</option>
+      <article class="card payable-add-card" id="p-add-card" hidden>
+        <div class="panel-card-head"><div class="panel-card-title">Add payable</div></div>
+        <div class="payable-form-grid">
+          <label class="settings-field"><span>Name</span>
+            <input type="text" id="pf-name" placeholder="e.g. Energy bill">
+          </label>
+          <label class="settings-field"><span>Amount</span>
+            <input type="number" id="pf-amount" min="0" step="0.01" placeholder="0.00" oninput="pUpdateSplitHint()">
+          </label>
+          <label class="settings-field"><span>Split</span>
+            <select id="pf-split" onchange="pUpdateSplitHint()">
+              <option value="shared">Shared</option>
               <option value="mine">Solo (mine)</option>
               <option value="eric">Solo (Eric's)</option>
             </select>
-          </div>
-          <div class="p-form-col" style="grid-column:1/3">
-            <label class="p-flabel">Pay To account</label>
-            <select class="p-input" id="pf-payto"></select>
-          </div>
-          <div class="p-form-col">
-            <label class="p-flabel">Date incurred</label>
-            <input class="p-input" id="pf-date" placeholder="e.g. 25 Mar 2026">
-          </div>
-          <div class="p-form-col" style="grid-column:1/-1">
-            <span class="p-split-hint" id="pf-split-hint"></span>
-          </div>
+          </label>
+          <div class="settings-row-hint" id="pf-split-hint">Shared splits 50/50 — your share updates as you type.</div>
+          <label class="settings-field"><span>Pay to</span>
+            <select id="pf-payto"></select>
+          </label>
+          <label class="settings-field"><span>Date</span>
+            <input type="text" id="pf-date" placeholder="e.g. 25 Mar 2026">
+          </label>
         </div>
-        <div class="p-add-actions">
-          <button class="p-btn p-btn-primary" onclick="addPayable()">Save payable</button>
-          <button class="p-btn p-btn-ghost" onclick="document.getElementById('p-add-card').style.display='none'">Cancel</button>
+        <div class="payable-form-actions">
+          <button class="text-btn" type="button" onclick="addPayable()">Save payable</button>
+          <button class="text-btn subtle" type="button" onclick="pHideAddForm()">Cancel</button>
         </div>
-      </div>
+      </article>
 
       <!-- View switcher (Elly only — Eric sees no switcher) -->
       <div class="p-view-switcher" id="p-view-switcher">
@@ -1997,31 +2170,32 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
         <!-- Mine (Elly's full list, or Eric's own list) -->
         <div class="p-col p-col-mine" id="p-col-mine">
-          <div class="p-list-card">
+          <div class="p-list-card card payables-list-card">
             <div class="p-list-header">
-              <h3 id="p-list-title">My Payables</h3>
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                <select class="p-account-select" id="p-account-filter" onchange="pSetAccountFilter(this.value)">
-                  <option value="all">All accounts</option>
-                </select>
-                <div class="p-split-filter" id="p-split-filter">
-                  <button class="p-sf-btn active" onclick="pSetSplitFilter('all',this)">All</button>
-                  <button class="p-sf-btn" id="p-sf-shared" onclick="pSetSplitFilter('shared',this)">Shared</button>
-                  <button class="p-sf-btn" id="p-sf-mine" onclick="pSetSplitFilter('mine',this)">Solo</button>
+              <h3 class="panel-card-title" id="p-list-title">Open payables</h3>
+              <div class="payables-toolbar">
+                <div class="chip-tabs" role="toolbar" aria-label="Payables filters">
+                  <button class="chip-tab chip-tab-account" type="button" id="p-account-chip" onclick="pToggleAccountChips()" aria-expanded="false">
+                    Account
+                    <span class="material-symbols-outlined" aria-hidden="true">expand_more</span>
+                  </button>
+                  <button type="button" class="chip-tab" id="p-sf-all" aria-pressed="true" onclick="pSetSplitFilter('all',this)">All</button>
+                  <button type="button" class="chip-tab" id="p-sf-shared" aria-pressed="false" onclick="pSetSplitFilter('shared',this)">Shared</button>
+                  <button type="button" class="chip-tab" id="p-sf-mine" aria-pressed="false" onclick="pSetSplitFilter('mine',this)">Solo</button>
                 </div>
-                <button class="p-btn p-btn-primary" id="p-add-btn" style="padding:7px 14px;font-size:0.82rem" onclick="pShowAddForm()">＋ Add</button>
+                <button class="text-btn" type="button" id="p-add-btn" onclick="pShowAddForm()"><span class="material-symbols-outlined" aria-hidden="true">add</span>Add payable</button>
               </div>
             </div>
-            <div class="p-list-col-header" id="p-mine-col-header">
-              <span></span><span>Expense</span><span style="text-align:right" id="p-share-label">Your share</span>
-              <span>Pay To</span><span>Allocation</span><span></span>
+            <div class="chip-tabs chip-tabs-sub" id="p-account-subchips" role="listbox" aria-label="Pay To account" hidden></div>
+            <div class="payable-col-head" id="p-mine-col-header" aria-hidden="true">
+              <span></span><span>Name</span><span>Split</span><span id="p-share-label">Share</span><span>Pay to</span><span>Allocate</span><span></span>
             </div>
             <div id="p-active-list"></div>
-            <div class="p-completed-toggle" id="p-completed-toggle" onclick="pToggleCompleted()">
-              <span class="p-comp-arrow">›</span>
-              <span id="p-completed-label">Completed (0)</span>
-            </div>
-            <div id="p-completed-list" style="display:none"></div>
+            <button class="completed-toggle" type="button" id="p-completed-toggle" onclick="pToggleCompleted()" aria-expanded="false">
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+              <span id="p-completed-label">Completed · 0</span>
+            </button>
+            <div class="completed-list" id="p-completed-list" hidden></div>
           </div>
         </div>
 
@@ -2075,6 +2249,10 @@ body:not(.authed) .chat-backdrop { display: none !important; }
       <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">sync_alt</span></span>
       Payables
     </button>
+    <button type="button" class="nav-item" data-nav="settings" onclick="switchTab('settings')">
+      <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">settings</span></span>
+      Settings
+    </button>
     <button type="button" class="nav-item" data-nav="chat" onclick="switchTab('chat')">
       <span class="ico"><span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span></span>
       Chat
@@ -2082,8 +2260,8 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   </nav>
 </div><!-- /.pensive-shell -->
 
-<!-- Chat: floating bubble/panel kept as optional quick access; primary surface is Chat tab -->
-<button class="chat-launcher" id="chatLauncher" type="button" hidden aria-label="Open chat" title="Chat" onclick="switchTab('chat')">
+<!-- Chat: desktop md+ floating bubble → panel; compact uses bottom-nav Chat page only -->
+<button class="chat-launcher" id="chatLauncher" type="button" hidden aria-label="Open chat" title="Chat" onclick="openDesktopChat()">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 </button>
 
@@ -2095,8 +2273,8 @@ body:not(.authed) .chat-backdrop { display: none !important; }
     </div>
     <div class="chat-header-actions">
       <button class="chat-header-new" type="button" title="Start a new chat" onclick="startNewChatThread()">+ New</button>
-      <button class="chat-icon-btn" type="button" title="Open Chat tab" aria-label="Open Chat tab" onclick="switchTab('chat')">
-        <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      <button class="chat-icon-btn" type="button" title="Maximise" aria-label="Maximise chat" onclick="setChatMode('expanded')">
+        <span class="material-symbols-outlined" aria-hidden="true">open_in_full</span>
       </button>
       <button class="chat-icon-btn" type="button" title="Minimize" aria-label="Minimize chat" onclick="setChatMode('bubble')">−</button>
     </div>
@@ -2110,23 +2288,36 @@ body:not(.authed) .chat-backdrop { display: none !important; }
       <button class="chat-image-remove" type="button" onclick="clearChatImage()" title="Remove image">✕</button>
     </div>
     <div class="chat-composer-row">
-      <button class="chat-attach" type="button" title="Attach a receipt photo" onclick="document.getElementById('chatImageInput').click()">📎</button>
+      <button class="chat-attach" type="button" title="Attach a receipt photo" aria-label="Attach receipt" onclick="document.getElementById('chatImageInput').click()">
+        <span class="material-symbols-outlined" aria-hidden="true">attach_file</span>
+      </button>
       <textarea id="chatPanelInput" rows="1" placeholder="Ask about your budget…" oninput="chatDraftText=this.value" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChatMessage('panel');}"></textarea>
-      <button class="chat-send" id="chatPanelSendBtn" type="button" onclick="sendChatMessage('panel')">Send</button>
+      <button class="chat-send" id="chatPanelSendBtn" type="button" title="Send" aria-label="Send" onclick="sendChatMessage('panel')">
+        <span class="material-symbols-outlined" aria-hidden="true">send</span>
+      </button>
     </div>
   </div>
 </div>
 
-<div class="chat-backdrop" id="chatBackdrop" hidden>
-  <div class="chat-expanded" id="chatExpanded" role="region" aria-label="Finance assistant">
+<div class="chat-backdrop" id="chatBackdrop" hidden onclick="if(event.target===this)setChatMode('panel')">
+  <div class="chat-expanded" id="chatExpanded" role="dialog" aria-modal="true" aria-label="Finance assistant">
     <div class="chat-header">
-      <button class="chat-icon-btn chat-history-toggle" id="chatHistoryToggleBtn" type="button" title="Hide history" aria-label="Toggle history" aria-controls="chatHistoryPane" aria-expanded="true" onclick="toggleChatHistory()">☰</button>
+      <button class="chat-icon-btn chat-history-toggle" id="chatHistoryToggleBtn" type="button" title="Hide history" aria-label="Toggle history" aria-controls="chatHistoryPane" aria-expanded="true" onclick="toggleChatHistory()">
+        <span class="material-symbols-outlined" aria-hidden="true">menu</span>
+      </button>
       <div class="chat-header-title">
         <strong>Finance assistant</strong>
         <span>Ask about budgets, bills, receipts</span>
       </div>
       <div class="chat-header-actions">
         <button class="chat-header-new" type="button" title="Start a new chat" onclick="startNewChatThread()">+ New</button>
+        <button class="chat-icon-btn chat-desktop-collapse" type="button" title="Collapse to corner chat" aria-label="Collapse to corner chat" onclick="setChatMode('panel')">
+          <span class="material-symbols-outlined" aria-hidden="true">close_fullscreen</span>
+        </button>
+        <button class="chat-icon-btn chat-desktop-minimize" type="button" title="Minimize" aria-label="Minimize chat" onclick="setChatMode('bubble')">−</button>
+        <button class="chat-icon-btn chat-page-close" type="button" title="Close chat" aria-label="Close chat" onclick="closeChatPage()">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        </button>
       </div>
     </div>
     <div class="chat-expanded-body">
@@ -2147,9 +2338,13 @@ body:not(.authed) .chat-backdrop { display: none !important; }
             <button class="chat-image-remove" type="button" onclick="clearChatImage()" title="Remove image">✕</button>
           </div>
           <div class="chat-composer-row">
-            <button class="chat-attach" type="button" title="Attach a receipt photo" onclick="document.getElementById('chatImageInput').click()">📎</button>
+            <button class="chat-attach" type="button" title="Attach a receipt photo" aria-label="Attach receipt" onclick="document.getElementById('chatImageInput').click()">
+              <span class="material-symbols-outlined" aria-hidden="true">attach_file</span>
+            </button>
             <textarea id="chatExpandedInput" rows="1" placeholder="Ask about your budget, or attach a receipt…" oninput="chatDraftText=this.value" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChatMessage('expanded');}"></textarea>
-            <button class="chat-send" id="chatExpandedSendBtn" type="button" onclick="sendChatMessage('expanded')">Send</button>
+            <button class="chat-send" id="chatExpandedSendBtn" type="button" title="Send" aria-label="Send" onclick="sendChatMessage('expanded')">
+              <span class="material-symbols-outlined" aria-hidden="true">send</span>
+            </button>
           </div>
         </div>
       </div>
@@ -2162,47 +2357,37 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 
 <div id="toast"></div>
 
-<!-- RIGHT-CLICK CONTEXT MENU — 3 top-level items with hover submenus -->
-<div class="ctx-menu-shell" id="ctx-menu">
+<!-- Legacy dropdown removed — Monthly row actions use #sel-badge.action-dock -->
+<div class="ctx-menu-shell" id="ctx-menu" hidden aria-hidden="true"></div>
 
-  <!-- 1. Multi-row actions header label -->
-  <div style="padding:4px 14px 2px;font-size:0.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px" id="ctx-sel-label">1 row selected</div>
-
-  <!-- 1a. Change Properties → submenu -->
-  <div class="ctx-item ctx-has-sub">
-    <span>✏️ &nbsp;Change properties</span><span class="ctx-arrow">›</span>
-    <div class="ctx-sub" id="ctx-sub-props">
-      <div class="ctx-item" onclick="closeCtx();openModalMarkAs()">✔ &nbsp;Mark as…</div>
-      <div class="ctx-item" onclick="closeCtx();openModalPayTo()">🏦 &nbsp;Change pay to…</div>
-      <div class="ctx-item" onclick="closeCtx();openModalRecurrence()">♻ &nbsp;Change recurrence…</div>
-      <div class="ctx-divider"></div>
-      <div class="ctx-item ctx-danger" onclick="ctxBulkDelete()">🗑 &nbsp;Delete selected</div>
+<!-- ═══ MODAL: Calculate selected rows ═══ -->
+<div class="modal-overlay" id="modal-calculate">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Calculate</h3>
+      <button class="modal-close" onclick="closeModal('modal-calculate')">✕</button>
     </div>
-  </div>
-
-  <!-- 1b. Move to → opens modal directly -->
-  <div class="ctx-item" onclick="closeCtx();openModalMoveTo()">
-    <span>📦 &nbsp;Move to…</span>
-  </div>
-
-  <!-- 1c. Calculate → submenu -->
-  <div class="ctx-item ctx-has-sub">
-    <span>🧮 &nbsp;Calculate</span><span class="ctx-arrow">›</span>
-    <div class="ctx-sub" id="ctx-sub-calc">
-      <div class="ctx-item" onclick="ctxRun('sum')">∑ &nbsp;Sum</div>
-      <div class="ctx-item" onclick="ctxRun('avg')">∅ &nbsp;Average</div>
-      <div class="ctx-item" onclick="ctxRun('min')">↓ &nbsp;Min</div>
-      <div class="ctx-item" onclick="ctxRun('max')">↑ &nbsp;Max</div>
-      <div class="ctx-item" onclick="ctxRun('count')">＃ &nbsp;Count</div>
-      <div class="ctx-divider"></div>
-      <div class="ctx-formula-row">
-        <input class="ctx-formula-input" id="ctx-formula-input" placeholder="e.g. SUM * 0.5" onclick="event.stopPropagation()">
-        <button class="ctx-formula-btn" onclick="ctxRunFormula()">= Go</button>
+    <div class="modal-body">
+      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Run on <strong id="calc-sel-count">selected</strong> rows.</p>
+      <div class="recur-options" style="grid-template-columns:1fr 1fr;gap:8px">
+        <button type="button" class="recur-option" onclick="ctxRun('sum')">Sum</button>
+        <button type="button" class="recur-option" onclick="ctxRun('avg')">Average</button>
+        <button type="button" class="recur-option" onclick="ctxRun('min')">Min</button>
+        <button type="button" class="recur-option" onclick="ctxRun('max')">Max</button>
+        <button type="button" class="recur-option" onclick="ctxRun('count')">Count</button>
       </div>
-      <div style="padding:0 12px 8px;font-size:0.68rem;color:#9ca3af">Use SUM, AVG, MIN, MAX, COUNT</div>
+      <div style="margin-top:14px">
+        <label class="settings-field"><span>Formula</span>
+          <input class="ctx-formula-input" id="ctx-formula-input" placeholder="e.g. SUM * 0.5" style="width:100%;box-sizing:border-box">
+        </label>
+        <p class="ctx-formula-hint" style="margin-top:6px">Use SUM, AVG, MIN, MAX, COUNT</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn ghost" onclick="closeModal('modal-calculate')">Cancel</button>
+      <button class="modal-btn primary" onclick="ctxRunFormula()">Run formula</button>
     </div>
   </div>
-
 </div>
 
 <!-- ═══ MODAL: Change Pay To ═══ -->
@@ -2255,11 +2440,11 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   </div>
 </div>
 
-<!-- ═══ MODAL: Mark As ═══ -->
+<!-- ═══ MODAL: Mark As Paid ═══ -->
 <div class="modal-overlay" id="modal-markas">
   <div class="modal-box">
     <div class="modal-header">
-      <h3>✔ Mark as</h3>
+      <h3>Mark as paid</h3>
       <button class="modal-close" onclick="closeModal('modal-markas')">✕</button>
     </div>
     <div class="modal-body">
@@ -2267,19 +2452,36 @@ body:not(.authed) .chat-backdrop { display: none !important; }
       <div class="recur-options">
         <div class="recur-option" id="markas-opt-done" onclick="selectMarkAsOpt(true)">
           <span class="recur-icon">✅</span>
-          <div class="recur-label">Done</div>
-          <div class="recur-sub">Bill has been paid</div>
+          <div class="recur-label">Paid</div>
+          <div class="recur-sub">Marked as paid</div>
         </div>
         <div class="recur-option" id="markas-opt-undone" onclick="selectMarkAsOpt(false)">
           <span class="recur-icon">⬜</span>
-          <div class="recur-label">Not done</div>
-          <div class="recur-sub">Mark as unpaid</div>
+          <div class="recur-label">Unpaid</div>
+          <div class="recur-sub">Still outstanding</div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="modal-btn ghost" onclick="closeModal('modal-markas')">Cancel</button>
       <button class="modal-btn primary" onclick="confirmMarkAs()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Delete selected expenses ═══ -->
+<div class="modal-overlay" id="modal-delete-bills">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Delete expense?</h3>
+      <button class="modal-close" onclick="closeModal('modal-delete-bills')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="delete-bills-msg" style="font-size:0.88rem;color:var(--on-surface);line-height:1.45;margin:0"></p>
+    </div>
+    <div class="modal-footer modal-footer--danger">
+      <button class="modal-btn primary" onclick="closeModal('modal-delete-bills')">No, don’t delete</button>
+      <button class="modal-btn danger" onclick="confirmBulkDelete()">Yes, delete it</button>
     </div>
   </div>
 </div>
@@ -2394,8 +2596,10 @@ body:not(.authed) .chat-backdrop { display: none !important; }
 <!-- COMPUTATION PANEL -->
 <div id="calc-panel">
   <div class="calc-panel-header">
-    <h3>🧮 Computations</h3>
-    <button class="calc-close-btn" onclick="closeCalcPanel()">✕</button>
+    <h3><span class="material-symbols-outlined" aria-hidden="true">calculate</span> Computations</h3>
+    <button class="calc-close-btn" onclick="closeCalcPanel()" aria-label="Close computations">
+      <span class="material-symbols-outlined" aria-hidden="true">close</span>
+    </button>
   </div>
   <div class="calc-panel-body" id="calc-panel-body">
     <div class="calc-empty">Right-click selected rows to run calculations. Results appear here.</div>
@@ -2405,8 +2609,8 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   </div>
 </div>
 
-<!-- SELECTION BADGE -->
-<div class="sel-badge" id="sel-badge"></div>
+<!-- SELECTION ACTION DOCK (mock .action-dock) -->
+<div class="action-dock" id="sel-badge" data-action-dock hidden></div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -2468,6 +2672,15 @@ function _switchBudgetUser(newUser) {
   homeOtherBudgetStatus = 'idle';
   homeOtherBudgetReq++;
   if (budgetUnsub) { budgetUnsub(); budgetUnsub = null; }
+  // Keep app-bar chip in sync with the active view
+  const profile = Object.values(AUTHORISED_USERS).find(p => p.key === newUser);
+  const avatarEl = document.getElementById('user-avatar');
+  const nameEl = document.getElementById('user-name-display');
+  if (profile && avatarEl) {
+    avatarEl.textContent = profile.avatar;
+    avatarEl.className = `user-avatar avatar-${newUser}`;
+  }
+  if (profile && nameEl) nameEl.textContent = profile.displayName;
   // Render immediately with blank state so stale data disappears
   render();
   // Re-subscribe to the new user's Firebase path; the onValue callback will call render() once data arrives
@@ -2482,8 +2695,7 @@ function impersonateEric() {
   _switchBudgetUser('eric');
   const banner = document.getElementById('impersonate-banner');
   if (banner) banner.style.display = 'flex';
-  const ctrl = document.getElementById('impersonate-controls');
-  if (ctrl) ctrl.innerHTML = '<span style="color:#6b7280;font-size:0.85rem">Currently viewing as Eric. Use the banner at the top to switch back.</span>';
+  syncProfileMenu();
   showToast('🎭 Now viewing as Eric');
   switchTab('home');
 }
@@ -2495,8 +2707,7 @@ function stopImpersonating() {
   _switchBudgetUser(prev);
   const banner = document.getElementById('impersonate-banner');
   if (banner) banner.style.display = 'none';
-  const ctrl = document.getElementById('impersonate-controls');
-  if (ctrl) ctrl.innerHTML = '<button class="p-btn settings-impersonate-btn" onclick="impersonateEric()">👤 View as Eric</button>';
+  syncProfileMenu();
   showToast('✅ Back to Elly view');
   switchTab('home');
 }
@@ -2530,7 +2741,6 @@ function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.body.classList.add('authed');
-  setChatMode(curTab === 'chat' ? 'page' : 'bubble');
 
   const firebaseUser = window._auth && window._auth.currentUser;
   const profile = firebaseUser ? AUTHORISED_USERS[firebaseUser.email] : null;
@@ -2541,12 +2751,76 @@ function showApp() {
   document.getElementById('user-name-display').textContent = u.displayName;
 
   applyRoleUI();
+  syncProfileMenu();
   init();
+  // After init tab switch, restore desktop bubble / compact chrome
+  syncChatAccessChrome();
+  if (!isCompactChatViewport() && chatMode === 'bubble') setChatMode('bubble');
 }
 
 function isOwner()  { return currentUser === 'elly'; } // admin-tab + account settings only
 function isAdmin()  { return !!currentUser; }          // any logged-in user can edit
 function isEric()   { return currentUser === 'eric'; }
+
+function profileMenuOwnerKey() {
+  // While impersonating, the menu still represents the real admin (Elly)
+  return _preImpersonateUser || (isOwner() ? 'elly' : currentUser);
+}
+
+function syncProfileMenu() {
+  const menu = document.getElementById('profileMenu');
+  const impBtn = document.getElementById('profileMenuImpersonate');
+  const impLabel = document.getElementById('profileMenuImpersonateLabel');
+  if (!menu) return;
+
+  const ownerKey = profileMenuOwnerKey();
+  const canImpersonate = ownerKey === 'elly';
+  const isImpersonating = !!_preImpersonateUser;
+  if (impBtn) {
+    impBtn.hidden = !canImpersonate;
+    if (impLabel) impLabel.textContent = isImpersonating ? 'Back to Elly' : 'View as Eric';
+  }
+}
+
+function toggleProfileMenu(event) {
+  event?.stopPropagation();
+  const menu = document.getElementById('profileMenu');
+  const btn = document.getElementById('profileMenuBtn');
+  if (!menu || !btn) return;
+  const open = menu.hidden;
+  if (open) {
+    syncProfileMenu();
+    menu.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+  } else {
+    closeProfileMenu();
+  }
+}
+
+function closeProfileMenu() {
+  const menu = document.getElementById('profileMenu');
+  const btn = document.getElementById('profileMenuBtn');
+  if (menu) menu.hidden = true;
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+function profileMenuImpersonate() {
+  closeProfileMenu();
+  if (_preImpersonateUser) stopImpersonating();
+  else impersonateEric();
+}
+
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('profileMenuWrap');
+  if (!wrap || wrap.contains(e.target)) return;
+  closeProfileMenu();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  closeProfileMenu();
+  if (chatMode === 'expanded') setChatMode('panel');
+  else if (chatMode === 'panel') setChatMode('bubble');
+});
 
 
 // ═══════════════════════════════════════════════════════════════
@@ -2557,7 +2831,7 @@ const APPEARANCE_THEMES = new Set(['light', 'dark']);
 
 function syncAppearanceControls() {
   const theme = document.documentElement.getAttribute('data-theme') || 'light';
-  const palette = document.documentElement.getAttribute('data-palette') || 'graphite';
+  const palette = document.documentElement.getAttribute('data-palette') || 'azulejo';
   document.querySelectorAll('[data-theme-set]').forEach((btn) => {
     btn.setAttribute('aria-pressed', btn.getAttribute('data-theme-set') === theme ? 'true' : 'false');
   });
@@ -2574,7 +2848,7 @@ function setAppTheme(mode) {
 }
 
 function setAppPalette(name) {
-  if (!APPEARANCE_PALETTES.has(name)) name = 'graphite';
+  if (!APPEARANCE_PALETTES.has(name)) name = 'azulejo';
   document.documentElement.setAttribute('data-palette', name);
   try { localStorage.setItem('fh-palette', name); } catch (_) {}
   syncAppearanceControls();
@@ -2586,9 +2860,9 @@ function initAppearance() {
     const savedPalette = localStorage.getItem('fh-palette');
     if (savedTheme) setAppTheme(savedTheme);
     if (savedPalette) setAppPalette(savedPalette);
-    else setAppPalette('graphite');
+    else setAppPalette('azulejo');
   } catch (_) {
-    setAppPalette('graphite');
+    setAppPalette('azulejo');
   }
   document.querySelectorAll('[data-theme-set]').forEach((btn) => {
     btn.addEventListener('click', () => setAppTheme(btn.getAttribute('data-theme-set')));
@@ -2604,6 +2878,7 @@ function applyRoleUI() {
 
   // Settings is available to everyone; owner-only cards/links toggle
   document.querySelectorAll('.settings-owner-only').forEach(el => {
+    if (el.id === 'profileMenuImpersonate') return; // syncProfileMenu owns this
     el.hidden = !isOwner();
   });
 
@@ -2616,6 +2891,8 @@ function applyRoleUI() {
   // View switcher (Elly only — Eric sees his own payables fullscreen)
   const switcher = document.getElementById('p-view-switcher');
   if (switcher) switcher.style.display = isEric() ? 'none' : '';
+
+  syncProfileMenu();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -3019,6 +3296,19 @@ function renderSettings() {
   renderAdminAccounts();
   applyRoleUI();
   syncAppearanceControls();
+  // Preserve Appearance drill across Firebase re-renders
+  openSettingsPanel(settingsPanel || 'hub');
+}
+
+let settingsPanel = 'hub'; // hub | appearance
+
+function openSettingsPanel(panel) {
+  settingsPanel = panel === 'appearance' ? 'appearance' : 'hub';
+  const hub = document.getElementById('settingsHubView');
+  const appearance = document.getElementById('settingsAppearanceView');
+  if (hub) hub.hidden = settingsPanel !== 'hub';
+  if (appearance) appearance.hidden = settingsPanel !== 'appearance';
+  if (settingsPanel === 'appearance') syncAppearanceControls();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -3069,7 +3359,7 @@ let state = { settings: { salary: 4524.58 }, months: {}, accounts: [...DEFAULT_A
 let curYear, curMonth;
 let curTab = 'home';
 let chatBusy = false;
-let chatMode = 'bubble'; // bubble | panel | page
+let chatMode = 'bubble'; // bubble | panel | expanded | page
 let chatThreads = [];    // [{id, title, createdAt, updatedAt, messages:[]}]
 let activeChatThreadId = null;
 let chatThreadsUnsub = null;
@@ -3137,6 +3427,79 @@ function cycleSort(periodKey, col) {
     delete cardSortState[periodKey];
   }
   render();
+}
+
+/** Default sort = custom Account (pay-to) order, then amount high→low. */
+function periodSortLabel(sortSt) {
+  if (!sortSt) return 'Account';
+  if (sortSt.col === 'name') return sortSt.dir === 1 ? 'Name A–Z' : 'Name Z–A';
+  if (sortSt.col === 'payTo') return sortSt.dir === 1 ? 'Account order' : 'Account reversed';
+  if (sortSt.col === 'amount') return sortSt.dir === 1 ? 'Amount ↑' : 'Amount ↓';
+  return 'Account';
+}
+
+function setPeriodSort(periodKey, col, dir) {
+  if (!col || col === 'default') delete cardSortState[periodKey];
+  else cardSortState[periodKey] = { col, dir: dir === -1 ? -1 : 1 };
+  render();
+}
+
+function buildPeriodSortChip(periodSortKey, sortSt) {
+  const label = periodSortLabel(sortSt);
+  const opts = [
+    { col: 'default', dir: 1, label: 'Account (default)' },
+    { col: 'name', dir: 1, label: 'Name A–Z' },
+    { col: 'name', dir: -1, label: 'Name Z–A' },
+    { col: 'payTo', dir: 1, label: 'Account order' },
+    { col: 'payTo', dir: -1, label: 'Account reversed' },
+    { col: 'amount', dir: 1, label: 'Amount low → high' },
+    { col: 'amount', dir: -1, label: 'Amount high → low' }
+  ];
+  const items = opts.map((o) => {
+    const on = (!sortSt && o.col === 'default') ||
+      (sortSt && sortSt.col === o.col && sortSt.dir === o.dir);
+    return `<button type="button" class="period-sort-option${on ? ' is-active' : ''}" role="option"` +
+      ` aria-selected="${on ? 'true' : 'false'}"` +
+      ` onclick="event.stopPropagation();setPeriodSort('${periodSortKey}','${o.col}',${o.dir})">${o.label}</button>`;
+  }).join('');
+  return (
+    `<div class="period-sort-chip" data-period-sort="${periodSortKey}">` +
+      `<button type="button" class="period-sort-btn" aria-haspopup="listbox" aria-expanded="false"` +
+        ` onclick="event.stopPropagation();togglePeriodSortMenu(this)" title="Sort expenses">` +
+        `<span class="material-symbols-outlined" aria-hidden="true">sort</span>` +
+        `<span class="period-sort-btn-label">${esc(label)}</span>` +
+        `<span class="material-symbols-outlined period-sort-caret" aria-hidden="true">expand_more</span>` +
+      `</button>` +
+      `<div class="period-sort-menu" role="listbox" aria-label="Sort by" hidden>${items}</div>` +
+    `</div>`
+  );
+}
+
+function togglePeriodSortMenu(btn) {
+  const chip = btn.closest('.period-sort-chip');
+  if (!chip) return;
+  const menu = chip.querySelector('.period-sort-menu');
+  const open = menu && menu.hasAttribute('hidden');
+  document.querySelectorAll('.period-sort-menu').forEach((m) => m.setAttribute('hidden', ''));
+  document.querySelectorAll('.period-sort-btn').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+  if (open && menu) {
+    menu.removeAttribute('hidden');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+}
+
+function buildLedgerColHeader() {
+  const head = document.createElement('div');
+  head.className = 'bill-list-header';
+  head.setAttribute('aria-hidden', 'true');
+  head.innerHTML =
+    `<span class="sort-spacer sort-spacer--handle"></span>` +
+    `<span class="sort-spacer sort-spacer--check"></span>` +
+    `<span class="col-label">Name</span>` +
+    `<span class="col-label">Account</span>` +
+    `<span class="col-label is-amt">Amount</span>` +
+    `<span class="sort-spacer sort-spacer--more"></span>`;
+  return head;
 }
 
 // ── Row selection state ──
@@ -3428,7 +3791,43 @@ function getMonthStats(key) {
 //  HOME (Phase 3B) — overview using live budget + payables
 // ═══════════════════════════════════════════════════════════════
 let homeScope = 'me'; // me | household
-let homeChart = 'expenses'; // expenses | safe | cashflow
+let homeChart = 'expenses'; // expenses | safe | savings
+let homeHeroMetric = 'safe'; // safe | in | out
+let homePeriodId = null; // 'YYYY-MM:periodIndex' — shared Home + Monthly cursor
+let focusedPeriodIndex = 0; // which period card is focused on Monthly (compact)
+
+function setHomeHero(metric) {
+  homeHeroMetric = ['safe', 'in', 'out'].includes(metric) ? metric : 'safe';
+  renderHome();
+}
+function cycleHomeHero(dir) {
+  const order = ['safe', 'in', 'out'];
+  const i = order.indexOf(homeHeroMetric);
+  const step = dir < 0 ? -1 : 1;
+  const next = (i + step + order.length) % order.length;
+  setHomeHero(order[next]);
+}
+
+/** Compact hero swipe (matches mock carousel gesture). */
+function wireHomeHeroSwipe(root) {
+  const hero = root && root.querySelector('.hero-carousel');
+  if (!hero || hero.dataset.swipeBound === '1') return;
+  hero.dataset.swipeBound = '1';
+  let startX = 0;
+  let startY = 0;
+  hero.addEventListener('touchstart', (e) => {
+    const t = e.changedTouches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+  }, { passive: true });
+  hero.addEventListener('touchend', (e) => {
+    const t = e.changedTouches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+    cycleHomeHero(dx < 0 ? 1 : -1);
+  }, { passive: true });
+}
 let homeOtherBudget = null; // { months, settings } partner ledger cache
 let homeOtherBudgetStatus = 'idle'; // idle | loading | ready | unavailable
 let homeOtherBudgetReq = 0;
@@ -3438,7 +3837,140 @@ function homeMoney(n) {
   return '$' + v.toLocaleString('en-AU');
 }
 
+function homeMonthTitle(key) {
+  const [yy, mm] = String(key || '').split('-').map(Number);
+  if (!yy || !mm) return '';
+  return (MONTHS[mm - 1] || '') + ' ' + yy;
+}
+
+/** Flat chronological list of pay periods across months with data. */
+function homePeriodList() {
+  const keys = Object.keys(state.months || {}).sort();
+  const out = [];
+  keys.forEach((key) => {
+    const periods = state.months[key]?.periods || [];
+    periods.forEach((p, pi) => {
+      out.push({
+        id: key + ':' + pi,
+        key,
+        periodIndex: pi,
+        date: p.date || '',
+        period: p
+      });
+    });
+  });
+  return out;
+}
+
+function homeFormatPeriodDate(raw) {
+  const m = String(raw || '').match(/(\d{1,2})\s+([A-Za-z]+)\.?\s+(\d{4})/);
+  if (!m) return String(raw || '').trim() || 'No period';
+  const mon = MONTHS.find((x) => x.toLowerCase().startsWith(m[2].slice(0, 3).toLowerCase()));
+  return parseInt(m[1], 10) + ' ' + (mon || m[2]) + ' ' + m[3];
+}
+
+function homeDefaultPeriodId() {
+  const list = homePeriodList();
+  if (!list.length) return null;
+  const preferred = mKey(curYear, curMonth);
+  const inMonth = list.filter((p) => p.key === preferred);
+  const pool = inMonth.length ? inMonth : list;
+  const unpaid = pool.find((p) => (p.period.bills || []).some((b) => !b.done));
+  return (unpaid || pool[pool.length - 1]).id;
+}
+
+function homeResolvePeriodRef() {
+  const list = homePeriodList();
+  if (!list.length) return null;
+  let id = homePeriodId;
+  if (!id || !list.some((p) => p.id === id)) {
+    id = homeDefaultPeriodId();
+    homePeriodId = id;
+  }
+  return list.find((p) => p.id === id) || list[list.length - 1];
+}
+
+function shiftHomePeriod(dir) {
+  const list = homePeriodList();
+  if (!list.length) return;
+  const cur = homeResolvePeriodRef();
+  const i = list.findIndex((p) => p.id === cur.id);
+  const next = i + (dir < 0 ? -1 : 1);
+  if (next < 0 || next >= list.length) return;
+  homePeriodId = list[next].id;
+  const [yy, mm] = list[next].key.split('-').map(Number);
+  if (yy && mm) {
+    curYear = yy;
+    curMonth = mm - 1;
+  }
+  focusedPeriodIndex = list[next].periodIndex;
+  if (curTab === 'monthly') render();
+  else renderHome();
+}
+
+/** Keep Monthly focus aligned with the shared period cursor — without
+ *  stealing navigation when the user opens a month that has no data yet. */
+function syncMonthlyFocusFromHomePeriod() {
+  const preferred = mKey(curYear, curMonth);
+  const list = homePeriodList();
+  const inMonth = list.filter((p) => p.key === preferred);
+
+  if (homePeriodId) {
+    const hit = list.find((p) => p.id === homePeriodId);
+    if (hit) {
+      if (hit.key === preferred) {
+        focusedPeriodIndex = hit.periodIndex;
+        return;
+      }
+      // Cursor is in another month — only follow it when that month has data
+      // (period chevron / Home sync). Do not jump away from an intentional
+      // empty-month target (create flow).
+      const [yy, mm] = hit.key.split('-').map(Number);
+      if (yy && mm && state.months[hit.key]) {
+        curYear = yy;
+        curMonth = mm - 1;
+        focusedPeriodIndex = hit.periodIndex;
+      }
+      return;
+    }
+    homePeriodId = null;
+  }
+
+  if (inMonth.length) {
+    const unpaid = inMonth.find((p) => (p.period.bills || []).some((b) => !b.done));
+    const pick = unpaid || inMonth[Math.min(focusedPeriodIndex, inMonth.length - 1)] || inMonth[0];
+    homePeriodId = pick.id;
+    focusedPeriodIndex = pick.periodIndex;
+    return;
+  }
+
+  // Empty month — leave calendar where the user pointed; show create empty state
+  focusedPeriodIndex = 0;
+}
+
+function homePeriodNavHtml(opts) {
+  const list = homePeriodList();
+  const ref = homeResolvePeriodRef();
+  const idx = ref ? list.findIndex((p) => p.id === ref.id) : -1;
+  const hasPrev = idx > 0;
+  const hasNext = idx >= 0 && idx < list.length - 1;
+  const label = ref
+    ? homeFormatPeriodDate(ref.date)
+    : 'No period';
+  const shift = (opts && opts.shiftFn) || 'shiftHomePeriod';
+  return `
+    <button type="button" class="home-period-chevron" onclick="${shift}(-1)" aria-label="Previous period"${hasPrev ? '' : ' hidden'}>
+      <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+    </button>
+    <span class="home-period-date">${esc(label)}</span>
+    <button type="button" class="home-period-chevron" onclick="${shift}(1)" aria-label="Next period"${hasNext ? '' : ' hidden'}>
+      <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+    </button>`;
+}
+
 function homeActiveMonthKey() {
+  const ref = homeResolvePeriodRef();
+  if (ref) return ref.key;
   const preferred = mKey(curYear, curMonth);
   if (state.months[preferred]) return preferred;
   const keys = Object.keys(state.months || {}).sort();
@@ -3451,16 +3983,29 @@ function homePeriodFrameLabel() {
 
 function homeMetricsFromPeriods(periods, opts = {}) {
   const list = Array.isArray(periods) ? periods : [];
+  const monthTitle = opts.monthTitle || '';
   if (!list.length) {
     return {
       safe: 0, moneyIn: 0, moneyOut: 0, billsOut: 0, savingsOut: 0,
-      unpaidBills: 0, totalBills: 0, label: opts.label || 'No period data yet'
+      unpaidBills: 0, totalBills: 0, label: opts.label || 'No period data yet',
+      contextKicker: monthTitle || 'No period',
+      contextDetail: 'Add a month in Monthly to see totals here',
+      periodIndex: 0
     };
   }
   const useAll = !!opts.allPeriods;
+  let selectedIdx = 0;
   const selected = useAll
     ? list
-    : [list.find(p => (p.bills || []).some(b => !b.done)) || list[0]];
+    : (() => {
+        if (typeof opts.periodIndex === 'number' && opts.periodIndex >= 0 && opts.periodIndex < list.length) {
+          selectedIdx = opts.periodIndex;
+        } else {
+          const i = list.findIndex(p => (p.bills || []).some(b => !b.done));
+          selectedIdx = i >= 0 ? i : 0;
+        }
+        return [list[selectedIdx]];
+      })();
   let moneyIn = 0, billsOut = 0, savingsOut = 0, unpaidBills = 0, totalBills = 0;
   selected.forEach(period => {
     moneyIn += opts.incomeForPeriod
@@ -3475,16 +4020,44 @@ function homeMetricsFromPeriods(periods, opts = {}) {
     totalBills += (period.bills || []).length;
   });
   const moneyOut = billsOut + savingsOut;
+  let contextKicker;
+  let contextDetail;
+  if (useAll) {
+    contextKicker = monthTitle || 'This month';
+    contextDetail = opts.contextDetail || 'Full month';
+  } else {
+    const p = selected[0];
+    contextKicker = `Pay period ${selectedIdx + 1}`;
+    contextDetail = (p && p.date) ? p.date : (monthTitle || homePeriodFrameLabel());
+  }
   return {
     safe: moneyIn - moneyOut,
     moneyIn, moneyOut, billsOut, savingsOut, unpaidBills, totalBills,
-    label: opts.label || homePeriodFrameLabel()
+    label: opts.label || homePeriodFrameLabel(),
+    contextKicker,
+    contextDetail,
+    periodIndex: selectedIdx
   };
 }
 
 function homePeriodMetrics(key) {
   const month = state.months[key];
-  return homeMetricsFromPeriods(month?.periods, { label: homePeriodFrameLabel() });
+  const monthTitle = homeMonthTitle(key);
+  const ref = homeResolvePeriodRef();
+  const periodIndex = (ref && ref.key === key) ? ref.periodIndex : undefined;
+  if (isEric()) {
+    return homeMetricsFromPeriods(month?.periods, {
+      allPeriods: true,
+      label: 'this month',
+      monthTitle,
+      contextDetail: 'Full month'
+    });
+  }
+  return homeMetricsFromPeriods(month?.periods, {
+    label: homePeriodFrameLabel(),
+    monthTitle,
+    periodIndex
+  });
 }
 
 function homePartnerPeriodIncome(period, salary) {
@@ -3495,6 +4068,7 @@ function homePartnerPeriodIncome(period, salary) {
 }
 
 function homeHouseholdMetrics(key) {
+  const monthTitle = homeMonthTitle(key);
   const mine = homePeriodMetrics(key);
   if (!homeOtherBudget || homeOtherBudgetStatus !== 'ready') {
     return {
@@ -3511,12 +4085,14 @@ function homeHouseholdMetrics(key) {
   const other = homeMetricsFromPeriods(otherMonth?.periods, {
     allPeriods: true,
     label: 'this month',
+    monthTitle,
     incomeForPeriod: (p) => homePartnerPeriodIncome(p, homeOtherBudget.settings?.salary)
   });
   // Household heroes use calendar-month totals for both sides so fortnight vs month framing aligns
   const mineMonth = homeMetricsFromPeriods(state.months[key]?.periods, {
     allPeriods: true,
     label: 'this month',
+    monthTitle,
     incomeForPeriod: (p) => getPeriodIncome(p)
   });
   return {
@@ -3528,6 +4104,8 @@ function homeHouseholdMetrics(key) {
     unpaidBills: mineMonth.unpaidBills + other.unpaidBills,
     totalBills: mineMonth.totalBills + other.totalBills,
     label: 'this month',
+    contextKicker: monthTitle || 'This month',
+    contextDetail: 'Household · full month',
     partnerReady: true,
     partnerHint: ''
   };
@@ -3660,6 +4238,15 @@ function homeAccumulateCategories(periods, buckets) {
   });
 }
 
+const HOME_CAT_ICONS = {
+  Housing: 'home',
+  Transport: 'directions_car',
+  Living: 'restaurant',
+  Health: 'health_and_safety',
+  Subs: 'subscriptions',
+  Other: 'category'
+};
+
 function homeCategoryBreakdown(key, scope) {
   const buckets = { Housing: 0, Transport: 0, Living: 0, Health: 0, Subs: 0, Other: 0 };
   homeAccumulateCategories(state.months[key]?.periods, buckets);
@@ -3667,10 +4254,16 @@ function homeCategoryBreakdown(key, scope) {
     homeAccumulateCategories(homeOtherBudget.months[key].periods, buckets);
   }
   const total = Object.values(buckets).reduce((s, v) => s + v, 0) || 1;
-  const colors = ['#255a8c', '#0f6b58', '#a65d1f', '#b45309', '#64748b', '#475569'];
-  return Object.keys(buckets).filter(k => buckets[k] > 0).map((k, i) => ({
-    name: k, value: buckets[k], pct: Math.round((buckets[k] / total) * 100), color: colors[i % colors.length]
-  }));
+  return Object.keys(buckets).filter(k => buckets[k] > 0)
+    .sort((a, b) => buckets[b] - buckets[a])
+    .slice(0, 5)
+    .map(k => ({
+      name: k,
+      value: buckets[k],
+      amount: homeMoney(buckets[k]),
+      pct: Math.round((buckets[k] / total) * 100),
+      icon: HOME_CAT_ICONS[k] || 'circle'
+    }));
 }
 
 function homeMonthStatsFromLedger(monthsObj, key, salarySetting) {
@@ -3703,7 +4296,7 @@ function homeTrendSeries(scope) {
   }
   const expenses = [];
   const safe = [];
-  const cashflow = [];
+  const savings = [];
   keys.forEach(k => {
     const mine = getMonthStats(k) || { totalSpend: 0, totalSavings: 0, totalAllowance: 0, salary: 0 };
     let totSpend = mine.totalSpend;
@@ -3721,44 +4314,194 @@ function homeTrendSeries(scope) {
     }
     expenses.push(Math.round(totSpend));
     safe.push(Math.round(totSafe));
-    cashflow.push(Math.round(totInc - totSpend - totSav));
+    savings.push(Math.round(totSav));
   });
-  while (expenses.length < 2) { expenses.push(0); safe.push(0); cashflow.push(0); }
-  return { keys, expenses, safe, cashflow };
+  while (expenses.length < 2) { expenses.push(0); safe.push(0); savings.push(0); }
+  return { keys, expenses, safe, savings };
 }
 
-function homeSparkline(values, stroke) {
-  const w = 320, h = 120, pad = 12;
-  const nums = values.length ? values : [0, 0];
-  const min = Math.min(...nums);
-  const max = Math.max(...nums);
-  const span = (max - min) || 1;
+/** Round a range to a 1 / 2 / 5 × 10^n step (classic “nice number” scale). */
+function homeNiceNum(range, round) {
+  const r = Math.max(Math.abs(range), 1e-9);
+  const exp = Math.floor(Math.log10(r));
+  const frac = r / Math.pow(10, exp);
+  let nice;
+  if (round) {
+    if (frac < 1.5) nice = 1;
+    else if (frac < 3) nice = 2;
+    else if (frac < 7) nice = 5;
+    else nice = 10;
+  } else {
+    if (frac <= 1) nice = 1;
+    else if (frac <= 2) nice = 2;
+    else if (frac <= 5) nice = 5;
+    else nice = 10;
+  }
+  return nice * Math.pow(10, exp);
+}
+
+/** Build a tidy Y scale with whole-dollar ticks that land on every grid line. */
+function homeNiceChartTicks(min, max, targetIntervals) {
+  const intervals = targetIntervals || 4;
+  let lo = Number(min);
+  let hi = Number(max);
+  if (!isFinite(lo) || !isFinite(hi)) { lo = 0; hi = 100; }
+  if (lo === hi) {
+    const pad = Math.max(Math.abs(lo) * 0.15, 50);
+    lo -= pad;
+    hi += pad;
+  }
+  // Small headroom so peaks aren’t glued to the frame, then snap to nice bounds
+  const rawPad = Math.max((hi - lo) * 0.06, 1);
+  lo -= rawPad;
+  hi += rawPad;
+  if (min >= 0 && lo < 0) lo = 0;
+
+  const range = homeNiceNum(hi - lo, false);
+  const step = homeNiceNum(range / intervals, true);
+  const niceLo = Math.floor(lo / step) * step;
+  let niceHi = Math.ceil(hi / step) * step;
+  if (niceHi <= niceLo) niceHi = niceLo + step;
+
+  const ticks = [];
+  // Guard against float drift (e.g. 0.1 steps)
+  const steps = Math.round((niceHi - niceLo) / step);
+  for (let i = 0; i <= steps; i++) {
+    ticks.push(Math.round((niceLo + step * i) * 100) / 100);
+  }
+  return { lo: ticks[0], hi: ticks[ticks.length - 1], ticks, step };
+}
+
+function homeChartPaths(values) {
+  const w = 320;
+  const h = 140;
+  const labelPad = 52; // room for Y tick labels inside the SVG
+  const padRight = 10;
+  const padY = 14;
+  const plotX0 = labelPad;
+  const plotX1 = w - padRight;
+  const innerW = plotX1 - plotX0;
+  const innerH = h - padY * 2;
+  const nums = values.length >= 2 ? values.map(Number) : [0, 0];
+  const dataMin = Math.min(...nums);
+  const dataMax = Math.max(...nums);
+  const { lo, hi, ticks } = homeNiceChartTicks(dataMin, dataMax, 4);
+  const span = (hi - lo) || 1;
   const pts = nums.map((v, i) => {
-    const x = pad + (i * (w - pad * 2)) / Math.max(nums.length - 1, 1);
-    const y = h - pad - ((v - min) / span) * (h - pad * 2);
-    return [x, y];
+    const x = plotX0 + (innerW * i) / Math.max(nums.length - 1, 1);
+    const y = padY + innerH * (1 - (v - lo) / span);
+    return [x, y, v];
   });
-  const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
-  const area = line + ` L ${pts[pts.length - 1][0].toFixed(1)} ${h - pad} L ${pts[0][0].toFixed(1)} ${h - pad} Z`;
-  const dots = pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="${stroke}" />`).join('');
-  return `<svg class="fh-chart-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="Trend chart"><path d="${area}" fill="${stroke}" opacity="0.12"/><path d="${line}" fill="none" stroke="${stroke}" stroke-width="2.5"/>${dots}</svg>`;
+  const line = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const area = line + ' L' + pts[pts.length - 1][0].toFixed(1) + ' ' + (padY + innerH) +
+    ' L' + pts[0][0].toFixed(1) + ' ' + (padY + innerH) + ' Z';
+  return { line, area, pts, nums, w, h, padY, innerH, plotX0, plotX1, labelPad, lo, hi, ticks, span };
+}
+
+function homeSparkline(values, cls) {
+  const { line, area, pts, w, h, padY, innerH, plotX0, plotX1, labelPad, lo, hi, ticks, span } = homeChartPaths(values);
+  const labels = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'];
+  // Grid in SVG; Y labels are HTML (SVG <text> scales with viewBox and looks huge)
+  const grid = ticks.map((v) => {
+    const t = 1 - (v - lo) / span;
+    const y = padY + innerH * t;
+    return `<line class="chart-grid" x1="${plotX0}" y1="${y.toFixed(1)}" x2="${plotX1.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+  }).join('');
+  const yTicksHtml = ticks.map((v) => {
+    const t = 1 - (v - lo) / span;
+    const top = ((padY + innerH * t) / h) * 100;
+    return `<span class="chart-tick chart-tick--y" style="top:${top.toFixed(2)}%">${homeMoney(v)}</span>`;
+  }).join('');
+  const points = pts.map((p, i) => {
+    const tip = `${homeMoney(p[2])} · ${labels[i] || ('P' + (i + 1))}`;
+    return `<g class="chart-point-group">` +
+      `<circle class="chart-hit" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="14"/>` +
+      `<circle class="chart-point ${cls}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5"/>` +
+      `<title>${esc(tip)}</title>` +
+    `</g>`;
+  }).join('');
+  const tipHits = pts.map((p, i) => {
+    const left = (p[0] / w) * 100;
+    const top = (p[1] / h) * 100;
+    const label = labels[i] || ('P' + (i + 1));
+    const money = homeMoney(p[2]);
+    return `<button type="button" class="chart-tip-hit" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%"` +
+      ` aria-label="${esc(label)}: ${esc(money)}">` +
+      `<span class="chart-tip-bubble" role="tooltip">${esc(money)}<span class="chart-tip-period">${esc(label)}</span></span>` +
+    `</button>`;
+  }).join('');
+  // Same X% as plot points so P1…Pn sit under markers
+  const axis = pts.map((p, i) => {
+    const left = (p[0] / w) * 100;
+    return `<span class="chart-tick chart-tick--x" style="left:${left.toFixed(2)}%">${labels[i] || ('P' + (i + 1))}</span>`;
+  }).join('');
+  const gutterPct = ((labelPad / w) * 100).toFixed(2);
+  return `<div class="chart-wrap">` +
+    `<div class="chart-y-heading"><span class="chart-y-title">Amount ($)</span></div>` +
+    `<div class="chart-plot">` +
+      `<div class="chart-canvas" style="--chart-gutter:${gutterPct}%">` +
+        `<svg class="chart-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Trend chart with values on hover">` +
+          `${grid}<path class="chart-area ${cls}" d="${area}"/><path class="chart-line ${cls}" d="${line}"/>${points}` +
+        `</svg>` +
+        `<div class="chart-y-layer" aria-hidden="true">${yTicksHtml}</div>` +
+        `<div class="chart-tip-layer">${tipHits}</div>` +
+      `</div>` +
+    `</div>` +
+    `<div class="chart-x-row" aria-hidden="true">` +
+      `<div class="chart-axis-row">${axis}</div>` +
+    `</div>` +
+  `</div>`;
 }
 
 function homePie(categories) {
-  if (!categories.length) return '<div class="fh-empty">No category spend yet this month.</div>';
-  const total = categories.reduce((s, c) => s + c.value, 0) || 1;
-  let acc = 0;
-  const stops = categories.map(c => {
-    const start = (acc / total) * 100;
-    acc += c.value;
-    const end = (acc / total) * 100;
-    return `${c.color} ${start}% ${end}%`;
-  }).join(', ');
-  const legend = categories.map(c =>
-    `<div class="fh-pie-item"><span><i class="fh-pie-swatch" style="background:${c.color}"></i>${esc(c.name)}</span><strong>${homeMoney(c.value)}</strong></div>`
+  if (!categories.length) return '<div class="payables-empty">No category spend yet this month.</div>';
+  const total = categories.reduce((sum, c) => sum + c.value, 0) || 1;
+  const cx = 60;
+  const cy = 60;
+  const r = 50;
+  const radarW = 260;
+  const radarH = 248;
+  const radarCx = radarW / 2;
+  const radarCy = radarH / 2;
+  const labelR = 88; /* just outside pie ring (design r≈79) */
+  let angle = -Math.PI / 2;
+  const slices = categories.map((c, i) => {
+    const slice = (c.value / total) * Math.PI * 2;
+    const start = angle;
+    const mid = start + slice / 2;
+    angle += slice;
+    const x1 = cx + r * Math.cos(start);
+    const y1 = cy + r * Math.sin(start);
+    const x2 = cx + r * Math.cos(angle);
+    const y2 = cy + r * Math.sin(angle);
+    const large = slice > Math.PI ? 1 : 0;
+    const d = `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
+    const leftPx = radarCx + Math.cos(mid) * labelR;
+    const topPx = radarCy + Math.sin(mid) * labelR;
+    const pct = typeof c.pct === 'number' ? c.pct : Math.round((c.value / total) * 100);
+    return {
+      d,
+      cls: 'pie-slice-' + i,
+      name: c.name,
+      amount: c.amount || homeMoney(c.value),
+      pct,
+      icon: c.icon || 'circle',
+      leftPct: (leftPx / radarW) * 100,
+      topPct: (topPx / radarH) * 100
+    };
+  });
+  const paths = slices.map(s =>
+    `<path class="${s.cls}" d="${s.d}"><title>${esc(s.name)} · ${s.pct}% · ${esc(s.amount)}</title></path>`
   ).join('');
-  // Dynamic conic-gradient stops are set inline (JS-computed)
-  return `<div class="fh-pie-wrap"><div class="fh-pie-disk" style="background:conic-gradient(${stops})"></div><div class="fh-pie-legend">${legend}</div></div>`;
+  const callouts = slices.map(s => {
+    const tip = `${s.name} · ${s.pct}% of spend`;
+    return `<div class="pie-callout" style="left:${s.leftPct.toFixed(2)}%;top:${s.topPct.toFixed(2)}%" tabindex="0" aria-label="${esc(tip)}">` +
+      `<span class="material-symbols-outlined" aria-hidden="true">${esc(s.icon)}</span>` +
+      `<span class="pie-callout-amt">${esc(s.amount)}</span>` +
+      `<span class="pie-callout-tip" role="tooltip">${esc(s.name)} · ${s.pct}%</span>` +
+    `</div>`;
+  }).join('');
+  return `<div class="pie-layout"><div class="pie-radar"><svg class="pie-svg" viewBox="0 0 120 120" role="img" aria-label="Expense categories pie chart">${paths}</svg>${callouts}</div></div>`;
 }
 
 async function ensureHomeOtherBudget() {
@@ -3796,13 +4539,17 @@ function setHomeScope(scope) {
 }
 
 function setHomeChart(chart) {
-  homeChart = ['expenses', 'safe', 'cashflow'].includes(chart) ? chart : 'expenses';
+  // Accept legacy 'cashflow' id from older sessions → savings
+  if (chart === 'cashflow') chart = 'savings';
+  homeChart = ['expenses', 'safe', 'savings'].includes(chart) ? chart : 'expenses';
   renderHome();
 }
 
 function renderHome() {
   const root = document.getElementById('homeContent');
+  const heroMount = document.getElementById('homeHeroMount');
   if (!root) return;
+  if (homeChart === 'cashflow') homeChart = 'savings';
   const isHousehold = homeScope === 'household';
   const key = homeActiveMonthKey();
   const metrics = isHousehold ? homeHouseholdMetrics(key) : homePeriodMetrics(key);
@@ -3811,7 +4558,7 @@ function renderHome() {
   const categories = homeCategoryBreakdown(key, homeScope);
   const trends = homeTrendSeries(homeScope);
   const series = trends[homeChart] || trends.expenses;
-  const stroke = homeChart === 'safe' ? 'var(--hero-safe, #0f6b58)' : homeChart === 'cashflow' ? 'var(--primary, #1e3a5f)' : 'var(--hero-out, #b45309)';
+  const chartCls = homeChart === 'safe' ? 'is-safe' : homeChart === 'savings' ? 'is-savings' : '';
 
   const billsPaid = Math.max(metrics.totalBills - metrics.unpaidBills, 0);
   const billsPct = metrics.totalBills ? Math.round((billsPaid / metrics.totalBills) * 100) : 0;
@@ -3821,9 +4568,6 @@ function renderHome() {
     ? ` · ${metrics.partnerHint}`
     : '';
 
-  const [yy, mm] = key.split('-').map(Number);
-  const monthLabel = (MONTHS[(mm || 1) - 1] || '') + ' ' + (yy || curYear);
-
   // Scope toggle lives in the app bar; keep active state in sync
   const homeToggle = document.getElementById('homeScopeToggle');
   if (homeToggle) homeToggle.setAttribute('aria-checked', isHousehold ? 'true' : 'false');
@@ -3831,7 +4575,12 @@ function renderHome() {
     el.classList.toggle('is-active', el.getAttribute('data-scope-label') === homeScope);
   });
 
-  root.innerHTML = `
+  const heroesHtml = `
+    <div class="home-period-context">
+      <div class="home-period-nav" role="group" aria-label="Period date">
+        ${homePeriodNavHtml()}
+      </div>
+    </div>
     <section class="hero-fan" aria-label="Period totals">
       <div class="hero-fan-row">
         <div class="hero-metric" data-metric="safe">
@@ -3851,66 +4600,86 @@ function renderHome() {
         </div>
       </div>
     </section>
-    <div class="fortnight-row fh-row">
-      <article class="card cat-card fh-card">
-        <div class="cat-card-top fh-cat-top">
-          <div>
-            <div class="cat-name fh-cat-name">Housing &amp; bills</div>
-            <div class="cat-hint fh-cat-hint">${billsPaid} of ${metrics.totalBills} settled ${esc(metrics.label)}</div>
+    <section class="hero hero-carousel" data-metric="${homeHeroMetric}" aria-roledescription="carousel" aria-label="Period totals">
+      <div class="hero-label">${homeHeroMetric==='in'?'Money in':homeHeroMetric==='out'?'Money out':'Safe to spend'}</div>
+      <button class="hero-figure-btn" type="button" aria-label="Switch hero metric" onclick="cycleHomeHero()">
+        <span class="hero-figure">${homeMoney(homeHeroMetric==='in'?metrics.moneyIn:homeHeroMetric==='out'?metrics.moneyOut:metrics.safe)}</span>
+      </button>
+      <div class="hero-dots" role="tablist" aria-label="Hero metrics">
+        <button class="hero-dot" type="button" role="tab" data-idx="0" aria-current="${homeHeroMetric==='safe'?'true':'false'}" aria-label="Safe to spend" onclick="setHomeHero('safe')"></button>
+        <button class="hero-dot" type="button" role="tab" data-idx="1" aria-current="${homeHeroMetric==='in'?'true':'false'}" aria-label="Money in" onclick="setHomeHero('in')"></button>
+        <button class="hero-dot" type="button" role="tab" data-idx="2" aria-current="${homeHeroMetric==='out'?'true':'false'}" aria-label="Money out" onclick="setHomeHero('out')"></button>
+      </div>
+      <div class="hero-chip">${homeHeroMetric==='in'?'Income '+esc(metrics.label):homeHeroMetric==='out'?'Bills + savings '+esc(metrics.label):'After bills &amp; savings '+esc(metrics.label)}${esc(heroChipExtra)}</div>
+    </section>`;
+
+  if (heroMount) heroMount.innerHTML = heroesHtml;
+
+  root.innerHTML = `
+    <div class="fortnight-row">
+      <button type="button" class="card cat-card" onclick="switchTab('monthly')" aria-label="Open Monthly for housing and bills">
+        <div class="cat-card-body">
+          <div class="cat-card-top">
+            <div>
+              <div class="cat-name">Housing &amp; bills</div>
+              <div class="cat-hint">${billsPaid} of ${metrics.totalBills} settled ${esc(metrics.label)}</div>
+            </div>
+            <div class="card-amount">${homeMoney(metrics.billsOut)}</div>
           </div>
-          <div class="fh-cat-amt">${homeMoney(metrics.billsOut)}</div>
+          <div class="cat-bar-track" aria-hidden="true"><div class="cat-bar-fill" style="width:${billsPct}%"></div></div>
         </div>
-        <div class="cat-bar-track fh-bar" aria-hidden="true"><div class="cat-bar-fill" style="width:${billsPct}%"></div></div>
-      </article>
-      <article class="card cat-card fh-card">
-        <div class="cat-card-top fh-cat-top">
-          <div>
-            <div class="cat-name fh-cat-name">${esc(pay.title)}</div>
-            <div class="cat-hint fh-cat-hint">${esc(pay.hint)}</div>
+        <div class="cat-chevron"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></div>
+      </button>
+      <button type="button" class="card cat-card" onclick="switchTab('payables')" aria-label="Open Payables">
+        <div class="cat-card-body">
+          <div class="cat-card-top">
+            <div>
+              <div class="cat-name">${esc(pay.title)}</div>
+              <div class="cat-hint">${esc(pay.hint)}</div>
+            </div>
+            <div class="card-amount">${homeMoney(pay.owing)}</div>
           </div>
-          <div class="fh-cat-amt">${homeMoney(pay.owing)}</div>
+          <div class="cat-bar-track" aria-hidden="true"><div class="cat-bar-fill" style="width:${payPct}%"></div></div>
         </div>
-        <div class="cat-bar-track fh-bar" aria-hidden="true"><div class="cat-bar-fill" style="width:${payPct}%"></div></div>
-      </article>
+        <div class="cat-chevron"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></div>
+      </button>
     </div>
-    <div class="fh-row">
-      <article class="fh-card">
-        <div class="fh-card-title">Top expense categories · ${esc(monthLabel)}</div>
+    <div class="insights-split">
+      <article class="card">
+        <div class="panel-card-head"><div class="panel-card-title">Top expense categories</div></div>
         ${homePie(categories)}
       </article>
-      <article class="fh-card">
-        <div class="fh-card-title">Trends</div>
-        <div class="fh-chart-tabs" role="tablist" aria-label="Chart type">
-          <button class="fh-chart-tab" type="button" aria-pressed="${homeChart==='expenses'}" onclick="setHomeChart('expenses')">Expenses</button>
-          <button class="fh-chart-tab" type="button" aria-pressed="${homeChart==='safe'}" onclick="setHomeChart('safe')">Safe to spend</button>
-          <button class="fh-chart-tab" type="button" aria-pressed="${homeChart==='cashflow'}" onclick="setHomeChart('cashflow')">Cashflow</button>
+      <article class="card">
+        <div class="panel-card-head"><div class="panel-card-title">Trends</div></div>
+        <div class="chart-tabs" role="tablist" aria-label="Chart type">
+          <button class="chart-tab" type="button" aria-pressed="${homeChart==='expenses'}" onclick="setHomeChart('expenses')">Expenses</button>
+          <button class="chart-tab" type="button" aria-pressed="${homeChart==='safe'}" onclick="setHomeChart('safe')">Safe to spend</button>
+          <button class="chart-tab" type="button" aria-pressed="${homeChart==='savings'}" onclick="setHomeChart('savings')">Savings goal</button>
         </div>
-        ${homeSparkline(series, stroke)}
+        <div data-chart-mount>${homeSparkline(series, chartCls)}</div>
       </article>
     </div>
-    <div class="fh-row">
-      <article class="fh-card">
-        <div class="fh-card-title">Top recurring bills</div>
-        ${recurring.bills.length ? recurring.bills.map(b => `<div class="fh-bill-row"><span class="fh-bill-name">${esc(b.name)}</span><span class="fh-bill-amt">${homeMoney(b.amount)}</span></div>`).join('') : '<div class="fh-empty">No recurring bills in this month yet.</div>'}
+    <div class="recurring-row">
+      <article class="card bills-card">
+        <div class="panel-card-head"><div class="panel-card-title">Top recurring bills</div></div>
+        ${recurring.bills.length ? recurring.bills.map(b => `<div class="bill-row"><div class="bill-name">${esc(b.name)}</div><div class="bill-amount">${homeMoney(b.amount)}</div></div>`).join('') : '<div class="payables-empty">No recurring bills in this month yet.</div>'}
       </article>
-      <article class="fh-card">
-        <div class="fh-card-title">Top recurring expenses</div>
-        ${recurring.expenses.length ? recurring.expenses.map(b => `<div class="fh-bill-row"><span class="fh-bill-name">${esc(b.name)}</span><span class="fh-bill-amt">${homeMoney(b.amount)}</span></div>`).join('') : '<div class="fh-empty">No recurring expenses tagged yet.</div>'}
+      <article class="card bills-card">
+        <div class="panel-card-head"><div class="panel-card-title">Top recurring expenses</div></div>
+        ${recurring.expenses.length ? recurring.expenses.map(b => `<div class="bill-row"><div class="bill-name">${esc(b.name)}</div><div class="bill-amount">${homeMoney(b.amount)}</div></div>`).join('') : '<div class="payables-empty">No recurring expenses tagged yet.</div>'}
       </article>
     </div>
   `;
+
+  wireHomeHeroSwipe(heroMount || root);
 }
 
 
 function syncFaceliftNav(tab) {
   document.querySelectorAll('[data-nav]').forEach(el => {
-    const isSettings = el.getAttribute('data-nav') === 'settings';
-    if (isSettings) {
-      el.classList.toggle('filled', tab === 'settings');
-      el.classList.toggle('active', tab === 'settings');
-    } else {
-      el.classList.toggle('active', el.getAttribute('data-nav') === tab);
-    }
+    // Primary destinations only (rail / bottom-nav) — ignore cat-card deep links
+    if (!el.classList.contains('rail-item') && !el.classList.contains('nav-item')) return;
+    el.classList.toggle('active', el.getAttribute('data-nav') === tab);
   });
   document.querySelectorAll('.app-page').forEach(page => {
     const on = page.getAttribute('data-page') === tab;
@@ -3920,20 +4689,30 @@ function syncFaceliftNav(tab) {
   });
   const homeScope = document.getElementById('homeScopeSwitch');
   const payScope = document.getElementById('payablesScopeSwitch');
-  const monthSlot = document.getElementById('monthNavWrap');
   homeScope?.classList.toggle('is-visible', tab === 'home');
   payScope?.classList.toggle('is-visible', tab === 'payables' && !isEric());
-  monthSlot?.classList.toggle('is-visible', tab === 'monthly');
+  // Month chevrons live in-page (same Home period slot) — not in the app bar.
 }
 
 function switchTab(tab) {
   // Admin alias → Settings hub
   if (tab === 'admin') tab = 'settings';
 
-  // Leaving chat page: park expanded UI back in the backdrop host
+  // Desktop: Chat is floating bubble/panel only — never a rail destination
+  if (tab === 'chat' && !isCompactChatViewport()) {
+    openDesktopChat();
+    return;
+  }
+
+  // Leaving chat page: park expanded UI and return to idle bubble mode
   if (curTab === 'chat' && tab !== 'chat') {
     parkChatExpanded();
+    setChatMode('bubble');
   }
+
+  // Don’t leave Monthly / Payables selection docks floating on other tabs
+  if (curTab === 'monthly' && tab !== 'monthly') clearSelection();
+  if (curTab === 'payables' && tab !== 'payables') pClearSelection();
 
   curTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -3956,12 +4735,19 @@ function switchTab(tab) {
     if (tab === 'settings') renderSettings();
     if (tab === 'chat')     openChatPage();
   }
+
+  // After navigating away from chat on desktop, restore bubble
+  if (tab !== 'chat' && currentUser && !isCompactChatViewport() && chatMode === 'page') {
+    setChatMode('bubble');
+  }
 }
 
 function changeMonth(dir) {
   curMonth += dir;
   if (curMonth < 0)  { curMonth = 11; curYear--; }
   if (curMonth > 11) { curMonth = 0;  curYear++; }
+  homePeriodId = null; // realign shared period cursor to the new month
+  focusedPeriodIndex = 0;
   render();
 }
 
@@ -3971,9 +4757,15 @@ let mpYear = new Date().getFullYear();
 function toggleMonthPicker(e) {
   e.stopPropagation();
   const picker = document.getElementById('month-picker');
-  if (picker.classList.contains('open')) { picker.classList.remove('open'); return; }
+  if (!picker) return;
+  if (picker.classList.contains('open') || !picker.hidden) {
+    picker.classList.remove('open');
+    picker.hidden = true;
+    return;
+  }
   mpYear = curYear;
   renderMonthPicker();
+  picker.hidden = false;
   picker.classList.add('open');
 }
 
@@ -3996,7 +4788,13 @@ function renderMonthPicker() {
 
 function pickMonth(y, m) {
   curYear = y; curMonth = m;
-  document.getElementById('month-picker').classList.remove('open');
+  homePeriodId = null;
+  focusedPeriodIndex = 0;
+  const picker = document.getElementById('month-picker');
+  if (picker) {
+    picker.classList.remove('open');
+    picker.hidden = true;
+  }
   render();
 }
 
@@ -4005,6 +4803,7 @@ document.addEventListener('click', (e) => {
   const picker = document.getElementById('month-picker');
   if (picker && !picker.contains(e.target) && e.target.id !== 'monthLabel') {
     picker.classList.remove('open');
+    picker.hidden = true;
   }
 });
 
@@ -4239,28 +5038,32 @@ function editDate(key,pi) {
 // ─────────────────────────────────────────────
 //  MONTHLY RENDER
 // ─────────────────────────────────────────────
-let focusedPeriodIndex = 0;
 
 function setFocusedPeriod(pi) {
   focusedPeriodIndex = pi;
+  const key = mKey(curYear, curMonth);
+  homePeriodId = key + ':' + pi;
   render();
 }
 
 function render() {
   if (curTab !== 'monthly') return;
   const canEdit = isAdmin();
+  syncMonthlyFocusFromHomePeriod();
   const key = mKey(curYear, curMonth);
   const labelEl = document.getElementById('monthLabel');
   if (labelEl) labelEl.textContent = `${MONTHS[curMonth]} ${curYear}`;
   const monthData = state.months[key];
   const grid = document.getElementById('periodsGrid');
-  const tabs = document.getElementById('periodTabs');
+  const periodNav = document.getElementById('monthlyPeriodNav');
+
+  if (periodNav) periodNav.innerHTML = homePeriodNavHtml();
 
   if (!monthData) {
-    if (tabs) tabs.innerHTML = '';
     grid.innerHTML = `<div class="empty-msg"><h3>No data for ${MONTHS[curMonth]} ${curYear}</h3><p>You can start by copying last month's pay period data.</p>${canEdit?`<button class="create-btn" onclick="createMonthFromLastRecurring(${curYear},${curMonth});render()">Create using last month's recurring bills</button>`:''}</div>`;
+    delete grid.dataset.periodCount;
     const pw0 = document.getElementById('progressWrap');
-    if (pw0) pw0.style.display='none';
+    if (pw0) { pw0.hidden = true; pw0.style.display = ''; }
     return;
   }
 
@@ -4269,37 +5072,54 @@ function render() {
     const added = ensureEllyInMonthFortnights(curYear, curMonth);
     if (added > 0) {
       save();
-      showToast(`✓ Added ${added} pay period${added === 1 ? '' : 's'} for ${MONTHS[curMonth]}`);
+      showToast(`✓ Added ${added} period${added === 1 ? '' : 's'} for ${MONTHS[curMonth]}`);
+      if (periodNav) periodNav.innerHTML = homePeriodNavHtml();
     }
   }
 
-  if (focusedPeriodIndex >= monthData.periods.length) focusedPeriodIndex = 0;
+  if (focusedPeriodIndex >= monthData.periods.length) focusedPeriodIndex = Math.max(0, monthData.periods.length - 1);
 
   const allBills = monthData.periods.flatMap(p=>p.bills);
   const done=allBills.filter(b=>b.done).length, total=allBills.length;
   const pw=document.getElementById('progressWrap');
-  if (pw) pw.style.display=total?'flex':'none';
+  if (pw) {
+    pw.hidden = !total;
+    pw.style.display = '';
+  }
   const pt = document.getElementById('progressText');
   if (pt) pt.textContent=`${done} / ${total} paid`;
   const pf = document.getElementById('progressFill');
   if (pf) pf.style.width=total?`${(done/total)*100}%`:'0%';
 
-  if (tabs) {
-    tabs.innerHTML = monthData.periods.map((period, pi) => {
-      const income = getPeriodIncome(period);
-      const out = (period.bills||[]).reduce((s,b)=>s+(parseFloat(b.amount)||0),0)
-        + getSavingsGoals(period).reduce((s,g)=>s+(parseFloat(g.amount)||0),0);
-      const safe = income - out;
-      const short = (period.date || '').replace(/\s+/g, ' ').slice(0, 18);
-      return `<button type="button" class="period-tab" data-focus-period="${pi}" aria-pressed="${pi===focusedPeriodIndex}" onclick="setFocusedPeriod(${pi})">
-        P${pi+1}${short ? ' · ' + esc(short) : ''}
-        <span class="period-tab-safe${safe<0?' is-neg':''}">$${Math.round(safe).toLocaleString('en-AU')}</span>
-      </button>`;
-    }).join('');
-  }
-
   grid.innerHTML='';
+  grid.dataset.periodCount = String(monthData.periods.length);
   monthData.periods.forEach((period,pi)=>grid.appendChild(buildPeriodCard(key,period,pi,canEdit)));
+
+  // Rehydrate selection after DOM rebuild (ids stay; element refs are refreshed)
+  if (selectedRows.length || ledgerMultiMode) {
+    const ids = selectedRows.map((s) => `${s.key}|${s.pi}|${s.billId}`);
+    selectedRows = ids.map((id) => {
+      const [k, piStr, billId] = id.split('|');
+      const el = document.querySelector(
+        `#tab-monthly .bill-row[data-key="${CSS.escape(k)}"][data-pi="${piStr}"][data-bill-id="${CSS.escape(billId)}"]`
+      );
+      if (!el) return null;
+      return ledgerRowDataFromEl(el);
+    }).filter(Boolean);
+    if (ledgerMultiMode) {
+      document.getElementById('tab-monthly')?.classList.add('is-ledger-multiselect');
+    }
+    if (lastClickedRow) {
+      const lid = `${lastClickedRow.key}|${lastClickedRow.pi}|${lastClickedRow.billId}`;
+      lastClickedRow = selectedRows.find((s) => `${s.key}|${s.pi}|${s.billId}` === lid) || selectedRows[0] || null;
+    }
+    if (ledgerSelectAnchor) {
+      const aid = `${ledgerSelectAnchor.key}|${ledgerSelectAnchor.pi}|${ledgerSelectAnchor.billId}`;
+      ledgerSelectAnchor = selectedRows.find((s) => `${s.key}|${s.pi}|${s.billId}` === aid) || lastClickedRow || selectedRows[0] || null;
+    }
+    syncLedgerSelectionClasses();
+    updateSelBadge();
+  }
 }
 function renderMonthView(key) { if(mKey(curYear,curMonth)===key)render(); }
 
@@ -4395,17 +5215,20 @@ function buildPeriodCard(key, period, pi, canEdit) {
   card.dataset.period = `${key}-${pi}`;
 
   const chipNeg = allowance < 0 ? ' is-negative' : '';
+  const dateLabel = homeFormatPeriodDate(period.date);
+  const periodSortKey = `${key}-${pi}`;
+  const sortStEarly = cardSortState[periodSortKey];
   card.innerHTML = `
     <div class="period-card-head">
       <div class="period-card-head-main">
-        <div class="period-card-kicker">Pay period ${pi+1}</div>
-        <div class="period-card-date">${esc(period.date)}</div>
+        <div class="period-card-date">${esc(dateLabel)}</div>
       </div>
       <div class="period-card-head-right">
         <div class="period-safe-chip${chipNeg}">
           <div class="period-safe-chip-label">Safe to spend</div>
           <div class="period-safe-chip-value" data-chip="${key}-${pi}">$${allowance.toFixed(2)}</div>
         </div>
+        ${buildPeriodSortChip(periodSortKey, sortStEarly)}
         <div class="period-card-actions">
           ${canEdit ? `<button class="icon-btn" type="button" onclick="editDate('${key}',${pi})" title="Edit date" aria-label="Edit date"><span class="material-symbols-outlined" aria-hidden="true">edit_calendar</span></button>
           <button class="icon-btn" type="button" onclick="deletePeriod('${key}',${pi})" title="Delete period" aria-label="Delete period"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button>` : ''}
@@ -4446,8 +5269,10 @@ function buildPeriodCard(key, period, pi, canEdit) {
   const salaryRow = document.createElement('div');
   salaryRow.className = 'ledger-row ledger-salary';
   salaryRow.innerHTML = `
+    <span class="ledger-handle row-handle is-spacer" aria-hidden="true"></span>
     <div class="bill-check" aria-hidden="true"></div>
     <div class="ledger-main"><div class="ledger-name">Salary (fortnightly)</div></div>
+    <div class="ledger-payto-tag is-empty" aria-hidden="true"></div>
     <div class="ledger-amt">$${salaryAmt.toFixed(2)}</div>
     <span></span>
     <div class="ledger-detail">
@@ -4456,7 +5281,14 @@ function buildPeriodCard(key, period, pi, canEdit) {
           onchange="updateSalaryInlineSave('${key}',this.value)" oninput="updateSalaryInline('${key}',this.value)" title="Edit default salary">
       </div>` : ''}
     </div>`;
-  incomeBody.appendChild(salaryRow);
+    if (canEdit) {
+      salaryRow.addEventListener('click', (e) => {
+        if (e.target.closest('input,button,select')) return;
+        salaryRow.classList.toggle('is-selected');
+        salaryRow.classList.toggle('is-expanded', salaryRow.classList.contains('is-selected'));
+      });
+    }
+    incomeBody.appendChild(salaryRow);
 
   const extraDiv = document.createElement('div');
   extraDiv.setAttribute('data-income', `${key}-${pi}`);
@@ -4465,8 +5297,10 @@ function buildPeriodCard(key, period, pi, canEdit) {
     row.className = 'ledger-row';
     const amt = parseFloat(item.amount||0);
     row.innerHTML = `
+      <span class="ledger-handle row-handle is-spacer" aria-hidden="true"></span>
       <div class="bill-check" aria-hidden="true"></div>
       <div class="ledger-main"><div class="ledger-name">${esc(item.name)||'Income'}</div></div>
+      <div class="ledger-payto-tag is-empty" aria-hidden="true"></div>
       <div class="ledger-amt">$${amt.toFixed(2)}</div>
       ${canEdit ? `<button class="ledger-more" type="button" onclick="event.stopPropagation();deleteIncome('${key}',${pi},'${item.id}')" aria-label="Delete"><span class="material-symbols-outlined">close</span></button>` : '<span></span>'}
       <div class="ledger-detail">
@@ -4481,7 +5315,6 @@ function buildPeriodCard(key, period, pi, canEdit) {
         </div>` : ''}
       </div>`;
     if (canEdit) {
-      row.classList.add('is-expanded');
       row.addEventListener('click', (e) => {
         if (e.target.closest('input,button,select')) return;
         row.classList.toggle('is-selected');
@@ -4526,7 +5359,6 @@ function buildPeriodCard(key, period, pi, canEdit) {
   outBody.className = 'section-body';
   outBody.id = outSectionId;
 
-  const periodSortKey = `${key}-${pi}`;
   const sortSt = cardSortState[periodSortKey];
   const sortKey = sortSt ? (sortSt.dir === -1 ? `-${sortSt.col}` : sortSt.col) : 'default';
   const sortedBills = getSortedBills(period.bills, sortKey);
@@ -4557,68 +5389,115 @@ function buildPeriodCard(key, period, pi, canEdit) {
     row.dataset.ledgerId = bill.id;
 
     const amtVal = bill.amount ? parseFloat(bill.amount).toFixed(2) : '';
+    const payToLabel = (bill.payTo || '').trim();
     const payToSel = canEdit
       ? `<select class="payto-select" onchange="handlePayToChange('${key}',${pi},'${bill.id}',this)" onclick="event.stopPropagation()">${getAccountOptions(bill.payTo)}</select>`
-      : `<span class="ledger-chip">${esc(bill.payTo||'No account')}</span>`;
+      : '';
 
     row.innerHTML = `
+      <div class="ledger-handle row-handle" title="Drag to reorder" aria-label="Drag to reorder">
+        <span class="material-symbols-outlined" aria-hidden="true">drag_indicator</span>
+      </div>
       <div class="bill-check" data-toggle-paid aria-hidden="true">${bill.done ? '<span class="material-symbols-outlined">check</span>' : ''}</div>
-      <div class="ledger-main"><div class="ledger-name">${esc(bill.name)||'Expense'}</div></div>
+      <div class="ledger-main">
+        <div class="ledger-name">${esc(bill.name)||'Expense'}</div>
+      </div>
+      ${payToLabel
+        ? `<div class="ledger-payto-tag">${esc(payToLabel)}</div>`
+        : `<div class="ledger-payto-tag is-empty" aria-hidden="true"></div>`}
       <div class="ledger-amt">$${parseFloat(bill.amount||0).toFixed(2)}</div>
       <button class="ledger-more" type="button" data-row-more aria-label="More actions" title="More">
         <span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>
       </button>
       <div class="ledger-detail">
-        <div class="ledger-handle row-handle" title="Drag to reorder · Click to select">⋮⋮</div>
-        <span class="ledger-chip">${esc(bill.payTo||'No account')}</span>
-        <span class="ledger-chip ${bill.recurring?'is-recur':''}">${bill.recurring?'Recurring':'This period'}</span>
-        <button class="ledger-recur ${bill.recurring?'is-on':''}" type="button" ${canEdit?`onclick="event.stopPropagation();toggleRecurring('${key}',${pi},'${bill.id}')"`:'disabled'} aria-pressed="${!!bill.recurring}">
-          <span class="material-symbols-outlined">autorenew</span>
-        </button>
         ${canEdit ? `<div class="ledger-edit-fields">
           <input class="bill-name-input" type="text" value="${esc(bill.name)}" placeholder="Expense name"
             onchange="updateBill('${key}',${pi},'${bill.id}','name',this.value)" onclick="event.stopPropagation()">
           <input class="bill-amount-input" type="number" step="0.01" value="${amtVal}" placeholder="0.00"
             onchange="updateBill('${key}',${pi},'${bill.id}','amount',this.value)" oninput="refreshChip('${key}',${pi})" onclick="event.stopPropagation()">
           ${payToSel}
-          <button class="del-btn" type="button" onclick="event.stopPropagation();deleteBill('${key}',${pi},'${bill.id}')" aria-label="Delete">×</button>
         </div>` : ''}
       </div>`;
 
-    // Toggle paid via check hit-target
+    // Check: paid toggle normally; in multi-select mode it picks/unpicks the row
     const check = row.querySelector('.bill-check');
     if (check && canEdit) {
       check.style.cursor = 'pointer';
       check.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (ledgerMultiMode) {
+          handleRowClick(e, row, key, pi, bill, billIdx, false);
+          return;
+        }
         const next = !bill.done;
         toggleDone(key, pi, bill.id, next);
       });
     }
 
     const handle = row.querySelector('.row-handle');
+    let dragArmed = false;
+    let dragLive = false;
+    const clearDragArm = () => { dragArmed = false; dragLive = false; };
     if (handle) {
-      handle.addEventListener('click', (e) => { e.stopPropagation(); handleRowClick(e, row, key, pi, bill, billIdx, true); });
+      handle.addEventListener('pointerdown', () => { dragArmed = true; });
+      const releaseArm = () => {
+        // Defer so dragstart (still mid-gesture) can see dragArmed
+        setTimeout(() => { if (!dragLive) dragArmed = false; }, 0);
+      };
+      handle.addEventListener('pointerup', releaseArm);
+      handle.addEventListener('pointercancel', releaseArm);
+      handle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleRowClick(e, row, key, pi, bill, billIdx, true);
+      });
     }
     if (canEdit) {
       row.setAttribute('draggable', 'true');
-      row.addEventListener('dragstart', (e) => billDragStart(e, key, pi, bill.id));
+      row.addEventListener('dragstart', (e) => {
+        if (!dragArmed) {
+          e.preventDefault();
+          return;
+        }
+        dragLive = true;
+        billDragStart(e, key, pi, bill.id);
+      });
       row.addEventListener('dragover',  (e) => billDragOver(e, key, pi, bill.id));
       row.addEventListener('drop',      (e) => billDrop(e, key, pi, bill.id));
-      row.addEventListener('dragend',   billDragEnd);
+      row.addEventListener('dragend',   () => { clearDragArm(); billDragEnd(); });
     }
     row.addEventListener('click', (e) => {
       if (e.target.closest('.row-handle, .bill-check, input, select, button')) return;
+      if (row._suppressClick) {
+        row._suppressClick = false;
+        e.stopPropagation(); // long-press just entered multi-select — don't clear via document
+        return;
+      }
+      e.stopPropagation(); // keep document outside-click from clearing this selection
       handleRowClick(e, row, key, pi, bill, billIdx, false);
-      row.classList.toggle('is-selected', row.classList.contains('selected'));
-      row.classList.toggle('is-expanded', row.classList.contains('selected'));
     });
     row.addEventListener('contextmenu', (e) => handleRowRightClick(e, row));
+    row.addEventListener('dblclick', (e) => {
+      if (e.target.closest('button, input, select, .bill-check')) return;
+      e.preventDefault();
+      document.querySelectorAll('#tab-monthly .ledger-row.is-expanded').forEach((el) => {
+        if (el !== row) el.classList.remove('is-expanded');
+      });
+      row.classList.toggle('is-expanded');
+    });
     const more = row.querySelector('[data-row-more]');
-    if (more) more.addEventListener('click', (e) => { e.stopPropagation(); handleRowRightClick(e, row); });
+    if (more) {
+      more.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleRowRightClick(e, row);
+      });
+    }
+    wireLedgerLongPress(row, key, pi, bill, billIdx);
 
     (bill.recurring ? recurListDiv : varListDiv).appendChild(row);
   });
+
+  outBody.appendChild(buildLedgerColHeader());
 
   const recurHead = document.createElement('div');
   recurHead.className = 'group-head is-recurring';
@@ -4656,9 +5535,14 @@ function buildPeriodCard(key, period, pi, canEdit) {
     sRow.className = 'ledger-row' + (goal.done ? ' is-paid' : '');
     const nameVal = isFirst && !goal.name ? 'General Savings' : (goal.name || 'Savings');
     const amt = parseFloat(goal.amount||0);
+    const savPayTo = (goal.payTo || '').trim();
     sRow.innerHTML = `
+      <span class="ledger-handle row-handle is-spacer" aria-hidden="true"></span>
       <div class="bill-check" aria-hidden="true">${goal.done ? '<span class="material-symbols-outlined">check</span>' : ''}</div>
       <div class="ledger-main"><div class="ledger-name">${esc(nameVal)}</div></div>
+      ${savPayTo
+        ? `<div class="ledger-payto-tag">${esc(savPayTo)}</div>`
+        : `<div class="ledger-payto-tag is-empty" aria-hidden="true"></div>`}
       <div class="ledger-amt">$${amt.toFixed(2)}</div>
       ${canEdit && !isFirst ? `<button class="ledger-more" type="button" onclick="deleteSavingsGoal('${key}',${pi},'${goal.id}')"><span class="material-symbols-outlined">close</span></button>` : '<span></span>'}
       <div class="ledger-detail">
@@ -4681,7 +5565,13 @@ function buildPeriodCard(key, period, pi, canEdit) {
         toggleSavingsDone(key, pi, goal.id, !goal.done);
       });
     }
-    if (canEdit) sRow.classList.add('is-expanded');
+    if (canEdit) {
+      sRow.addEventListener('click', (e) => {
+        if (e.target.closest('input,button,select')) return;
+        sRow.classList.toggle('is-selected');
+        sRow.classList.toggle('is-expanded', sRow.classList.contains('is-selected'));
+      });
+    }
     savBlock.appendChild(sRow);
   });
   if (canEdit) {
@@ -5266,8 +6156,40 @@ let pAccountFilter      = 'all'; // for mine column
 let pEricSplitFilter    = 'all'; // for eric column (Elly's view only)
 let pEricAccountFilter  = 'all'; // for eric column (Elly's view only)
 let pActiveView         = 'mine'; // 'mine' | 'eric' (Elly only)
+let pAccountChipsOpen   = false;
 
-function pSetAccountFilter(val) { pAccountFilter = val; renderPayables(); }
+function pSetAccountFilter(val) {
+  pAccountFilter = val || 'all';
+  pAccountChipsOpen = false;
+  renderPayables();
+}
+function pToggleAccountChips() {
+  pAccountChipsOpen = !pAccountChipsOpen;
+  renderPayables();
+}
+function pSyncAccountChips() {
+  const chip = document.getElementById('p-account-chip');
+  const sub = document.getElementById('p-account-subchips');
+  if (!chip || !sub) return;
+  const accounts = getAccounts();
+  if (pAccountFilter !== 'all' && !accounts.includes(pAccountFilter)) pAccountFilter = 'all';
+  const label = pAccountFilter === 'all' ? 'Account' : pAccountFilter;
+  chip.innerHTML = `${esc(label)}<span class="material-symbols-outlined" aria-hidden="true">${pAccountChipsOpen ? 'expand_less' : 'expand_more'}</span>`;
+  chip.setAttribute('aria-expanded', pAccountChipsOpen ? 'true' : 'false');
+  chip.classList.toggle('is-active-filter', pAccountFilter !== 'all' || pAccountChipsOpen);
+  sub.innerHTML =
+    `<button class="chip-tab" type="button" data-pay-account="all" aria-pressed="${pAccountFilter === 'all'}" onclick="pSetAccountFilter('all')">All accounts</button>` +
+    accounts.map(a =>
+      `<button class="chip-tab" type="button" data-pay-account="${esc(a)}" aria-pressed="${pAccountFilter === a}" onclick="pSetAccountFilter(${JSON.stringify(a)})">${esc(a)}</button>`
+    ).join('');
+  if (pAccountChipsOpen) {
+    sub.classList.add('is-open');
+    sub.removeAttribute('hidden');
+  } else {
+    sub.classList.remove('is-open');
+    sub.setAttribute('hidden', '');
+  }
+}
 function pSetEricAccountFilter(val) { pEricAccountFilter = val; renderPayables(); }
 function pSetEricSplitFilter(val, btn) {
   pEricSplitFilter = val;
@@ -5277,13 +6199,11 @@ function pSetEricSplitFilter(val, btn) {
 }
 
 function pSetView(view) {
-  pActiveView = view === 'eric' ? 'eric' : 'mine';
-  const mineCol = document.getElementById('p-col-mine');
-  const ericCol = document.getElementById('p-col-eric');
+  const next = view === 'eric' ? 'eric' : 'mine';
+  if (next !== pActiveView) pClearSelection();
+  pActiveView = next;
   const mineBtn = document.getElementById('p-vs-mine');
   const ericBtn = document.getElementById('p-vs-eric');
-  if (mineCol) mineCol.style.display = pActiveView === 'mine' ? '' : 'none';
-  if (ericCol) ericCol.style.display = pActiveView === 'eric' ? '' : 'none';
   if (mineBtn) mineBtn.classList.toggle('active', pActiveView === 'mine');
   if (ericBtn) ericBtn.classList.toggle('active', pActiveView === 'eric');
   const payToggle = document.getElementById('payablesScopeToggle');
@@ -5291,6 +6211,12 @@ function pSetView(view) {
   document.querySelectorAll('#payablesScopeSwitch [data-pay-label]').forEach(el => {
     el.classList.toggle('is-active', el.getAttribute('data-pay-label') === pActiveView);
   });
+  // Always use the facelift list card; legacy Eric column is retired
+  const mineCol = document.getElementById('p-col-mine');
+  const ericCol = document.getElementById('p-col-eric');
+  if (mineCol) mineCol.style.display = '';
+  if (ericCol) ericCol.style.display = 'none';
+  if (curTab === 'payables') renderPayables();
 }
 let pIdSeq = Date.now() + 1000000;
 const pUid = () => 'p' + (++pIdSeq);
@@ -5330,29 +6256,52 @@ function pEllyEntries() { return (pState.entries||[]).filter(e=>e.split!=='eric'
 // Eric sees shared items (both owe half) + his own personal items; NOT Elly's mine-only
 function pEricEntries() { return (pState.entries||[]).filter(e=>e.split==='shared'||e.split==='eric'); }
 
+/** True when acting on Eric's share/alloc (Eric login, or Elly viewing Eric scope). */
+function pActingAsEric() {
+  return isEric() || (!isEric() && pActiveView === 'eric');
+}
+
 // ── Add form ──
 function pShowAddForm() {
-  const card=document.getElementById('p-add-card');
-  card.style.display='';
-  const sel=document.getElementById('pf-payto');
-  getAccounts().forEach(a => { const o = document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o); });
+  const card = document.getElementById('p-add-card');
+  if (!card) return;
+  card.hidden = false;
+  const sel = document.getElementById('pf-payto');
+  if (sel) {
+    sel.innerHTML = '';
+    getAccounts().forEach(a => {
+      const o = document.createElement('option');
+      o.value = a;
+      o.textContent = a;
+      sel.appendChild(o);
+    });
+  }
   // Populate split options based on who is logged in
   const splitSel = document.getElementById('pf-split');
-  if (isEric()) {
-    splitSel.innerHTML =
-      `<option value="shared">Shared (50/50)</option>` +
-      `<option value="eric">Solo (mine)</option>`;
-  } else {
-    splitSel.innerHTML =
-      `<option value="shared">Shared (50/50)</option>` +
-      `<option value="mine">Solo (mine)</option>` +
-      `<option value="eric">Solo (Eric's)</option>`;
+  if (splitSel) {
+    if (isEric()) {
+      splitSel.innerHTML =
+        `<option value="shared">Shared</option>` +
+        `<option value="eric">Solo (mine)</option>`;
+    } else {
+      splitSel.innerHTML =
+        `<option value="shared">Shared</option>` +
+        `<option value="mine">Solo (mine)</option>` +
+        `<option value="eric">Solo (Eric's)</option>`;
+    }
   }
-  document.getElementById('pf-date').value=pTodayLabel();
-  document.getElementById('pf-name').value='';
-  document.getElementById('pf-amount').value='';
-  document.getElementById('pf-name').focus();
+  const dateEl = document.getElementById('pf-date');
+  const nameEl = document.getElementById('pf-name');
+  const amtEl = document.getElementById('pf-amount');
+  if (dateEl) dateEl.value = pTodayLabel();
+  if (nameEl) nameEl.value = '';
+  if (amtEl) amtEl.value = '';
+  nameEl?.focus();
   pUpdateSplitHint();
+}
+function pHideAddForm() {
+  const card = document.getElementById('p-add-card');
+  if (card) card.hidden = true;
 }
 function pUpdateSplitHint() {
   const amt=parseFloat(document.getElementById('pf-amount')?.value)||0;
@@ -5378,7 +6327,7 @@ function addPayable() {
     ellyDone:false,ellyDoneAt:null,ericDone:false,ericDoneAt:null,allocatedTo:null,ericAllocatedTo:null
   });
   pSave();updatePayablesBadge();renderPayables();
-  document.getElementById('p-add-card').style.display='none';
+  pHideAddForm();
   showToast('✓ Payable added');
 }
 
@@ -5495,7 +6444,7 @@ function openAllocateModal(payableId) {
   // Set amount in title
   const entry=(pState.entries||[]).find(x=>x.id===payableId);
   const amtEl=document.getElementById('alloc-modal-amount');
-  if(amtEl) amtEl.textContent=entry?pFmt(isEric()?pEricShare(entry):pMyShare(entry)):'';
+  if(amtEl) amtEl.textContent=entry?pFmt(pActingAsEric()?pEricShare(entry):pMyShare(entry)):'';
   const today = new Date(); today.setHours(0,0,0,0);
   const currentMonthKey = mKey(today.getFullYear(), today.getMonth());
   const months = Object.keys(state.months).sort().filter(key => {
@@ -5574,15 +6523,15 @@ function allocSelectPeriod(pi,el) {
 function confirmAllocate() {
   const e=(pState.entries||[]).find(x=>x.id===_allocPayableId);if(!e)return;
   const period=getPeriod(_allocDestKey,_allocDestPi);if(!period)return;
-  const cAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
+  const cAllocField = pActingAsEric() ? 'ericAllocatedTo' : 'allocatedTo';
   // Remove previously linked bill for this user (re-allocation)
   if(e[cAllocField]?.billId){
     const old=getPeriod(e[cAllocField].key,e[cAllocField].pi);
     if(old)old.bills=old.bills.filter(b=>b.id!==e[cAllocField].billId);
   }
   const billId=newId();
-  const allocShare = isEric() ? pEricShare(e) : pMyShare(e);
-  const allocDone  = isEric() ? (e.ericDone||false) : (e.ellyDone||false);
+  const allocShare = pActingAsEric() ? pEricShare(e) : pMyShare(e);
+  const allocDone  = pActingAsEric() ? (e.ericDone||false) : (e.ellyDone||false);
   period.bills.push({id:billId,name:e.name,amount:allocShare,payTo:e.payTo,recurring:false,done:allocDone});
   e[cAllocField]={key:_allocDestKey,pi:_allocDestPi,billId,allocatedBy:currentUser};
   const[dy,dm]=_allocDestKey.split('-').map(Number);
@@ -5649,11 +6598,24 @@ function pClearSelection() {
 function pUpdateSelBadge() {
   const badge = document.getElementById('sel-badge');
   if (!badge) return;
-  if (pSelectedRows.length === 0) { badge.classList.remove('visible'); return; }
+  if (pSelectedRows.length === 0) {
+    badge.classList.remove('is-visible');
+    badge.hidden = true;
+    badge.innerHTML = '';
+    return;
+  }
   const sum = pSelectedRows.reduce((t,r) => t + r.amount, 0);
-  badge.style.pointerEvents = 'auto';
-  badge.textContent = `${pSelectedRows.length} payable${pSelectedRows.length>1?'s':''} selected · $${sum.toFixed(2)} · Right-click for options`;
-  badge.classList.add('visible');
+  badge.hidden = false;
+  badge.classList.add('is-visible');
+  badge.innerHTML =
+    `<div>` +
+      `<div class="action-dock-meta">${pSelectedRows.length} payable${pSelectedRows.length>1?'s':''} selected · $${sum.toFixed(2)}</div>` +
+      `<div class="action-dock-hint">Allocate selected · Clear to dismiss</div>` +
+    `</div>` +
+    `<div class="action-dock-actions">` +
+      `<button type="button" onclick="pCtxAllocate()"><span class="material-symbols-outlined" aria-hidden="true">link</span>Allocate</button>` +
+      `<button type="button" onclick="pClearSelection()"><span class="material-symbols-outlined" aria-hidden="true">close</span>Clear</button>` +
+    `</div>`;
 }
 
 function pHandleRowRightClick(e, row, entry, myShare) {
@@ -5693,7 +6655,7 @@ let _pMultiAllocQueue = [];
 function pCtxUnallocate() {
   pCloseCtx();
   if (!pSelectedRows.length) return;
-  const uAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
+  const uAllocField = pActingAsEric() ? 'ericAllocatedTo' : 'allocatedTo';
   pSelectedRows.forEach(r => {
     const e = (pState.entries||[]).find(x => x.id === r.id);
     if (!e || !e[uAllocField]) return;
@@ -5709,7 +6671,7 @@ function pCtxDelete() {
   pCloseCtx();
   if (!pSelectedRows.length) return;
   if (!confirm(`Delete ${pSelectedRows.length} payable${pSelectedRows.length>1?'s':''}?`)) return;
-  const dAllocField = isEric() ? 'ericAllocatedTo' : 'allocatedTo';
+  const dAllocField = pActingAsEric() ? 'ericAllocatedTo' : 'allocatedTo';
   pSelectedRows.forEach(r => {
     const e = (pState.entries||[]).find(x => x.id === r.id);
     if (e?.[dAllocField]?.billId) {
@@ -5726,16 +6688,23 @@ function pCtxDelete() {
 // ── Split filter ──
 function pSetSplitFilter(val, btn) {
   pSplitFilter = val;
-  document.querySelectorAll('#p-split-filter .p-sf-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  const tabs = btn?.closest('.chip-tabs') || document.querySelector('#p-col-mine .chip-tabs');
+  tabs?.querySelectorAll('.chip-tab[aria-pressed]').forEach(b => {
+    b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+  });
   renderPayables();
 }
 
 // ── Completed toggle ──
 function pToggleCompleted() {
-  pCompletedOpen=!pCompletedOpen;
-  document.getElementById('p-completed-list').style.display=pCompletedOpen?'':'none';
-  document.getElementById('p-completed-toggle').classList.toggle('open',pCompletedOpen);
+  pCompletedOpen = !pCompletedOpen;
+  const list = document.getElementById('p-completed-list');
+  const toggle = document.getElementById('p-completed-toggle');
+  if (list) {
+    if (pCompletedOpen) list.removeAttribute('hidden');
+    else list.setAttribute('hidden', '');
+  }
+  if (toggle) toggle.setAttribute('aria-expanded', pCompletedOpen ? 'true' : 'false');
 }
 let pEricCompletedOpen = false;
 function pToggleEricCompleted() {
@@ -5754,18 +6723,10 @@ function updatePayablesBadge() {
 }
 
 // ── Main render ──
-function pToggleAcctSection(header) {
-  const body  = header.nextElementSibling;
-  const arrow = header.querySelector('.p-comp-arrow');
-  const isOpen = body.style.display !== 'none';
-  body.style.display = isOpen ? 'none' : '';
-  arrow.classList.toggle('open', !isOpen);
-}
-
-// Renders active payables grouped by Pay To account.
-// compact=true uses the 4-item Eric column row format.
 function pRenderAccountGroups(entries, isElly, shareFn, compact) {
-  if (!entries.length) return '<div class="p-empty">All clear — nothing pending! 🎉</div>';
+  if (!entries.length) {
+    return '<div class="payables-empty"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span><strong>All clear — no open payables.</strong><span>Add a payable or change filters to keep reviewing.</span></div>';
+  }
   const accounts = getAccounts();
   const groups = {};
   accounts.forEach(a => { groups[a] = []; });
@@ -5781,100 +6742,128 @@ function pRenderAccountGroups(entries, isElly, shareFn, compact) {
       const total = items.reduce((s, e) => s + shareFn(e), 0);
       const label = a === '_other' ? 'Other' : a;
       const rows  = items.map(e => pRenderRow(e, isElly, shareFn(e), false, compact)).join('');
-      return `<div class="p-acct-section">
-        <div class="p-acct-header" onclick="pToggleAcctSection(this)">
-          <span class="p-comp-arrow open">›</span>
-          <span class="p-acct-name">${esc(label)}</span>
-          <span class="p-acct-stats">${items.length} item${items.length!==1?'s':''} · ${pFmt(total)}</span>
-        </div>
-        <div class="p-acct-body">${rows}</div>
-      </div>`;
+      return `<section class="payable-account-section">
+        <button class="payable-account-head" type="button" onclick="pToggleAcctSection(this)" aria-expanded="true">
+          <span class="section-toggle-left"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span><span class="section-toggle-label">${esc(label)}</span></span>
+          <span class="section-toggle-amt">${items.length} · ${pFmt(total)}</span>
+        </button>
+        <div class="payable-account-body">${rows}</div>
+      </section>`;
     }).join('');
 }
 
+function pToggleAcctSection(header) {
+  const body = header.nextElementSibling;
+  if (!body) return;
+  const open = body.hasAttribute('hidden');
+  if (open) body.removeAttribute('hidden'); else body.setAttribute('hidden', '');
+  header.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
 function renderPayables() {
-  const isElly = !isEric();
+  const isEllyUser = !isEric();
+  const viewingEric = isEllyUser && pActiveView === 'eric';
+  const asElly = isEllyUser && !viewingEric; // row perspective: Elly's share/done vs Eric's
   const safeEl = id => document.getElementById(id);
 
-  // ── Share label (personalised per user) ──
+  // Always keep facelift list visible; legacy Eric column stays hidden
+  const mineCol = safeEl('p-col-mine');
+  const ericCol = safeEl('p-col-eric');
+  if (mineCol) mineCol.style.display = '';
+  if (ericCol) ericCol.style.display = 'none';
+
   const shareLabel = safeEl('p-share-label');
-  if (shareLabel) shareLabel.textContent = 'My share'; // always first-person for the logged-in user
+  if (shareLabel) shareLabel.textContent = viewingEric ? "Eric's share" : 'My share';
 
-  // ── Populate account dropdowns ──
-  const acctOptions = getAccounts();
-  ['p-account-filter', 'p-eric-account-filter'].forEach((selId, i) => {
-    const sel = safeEl(selId); if (!sel) return;
-    const curr = i === 0 ? pAccountFilter : pEricAccountFilter;
-    sel.innerHTML = `<option value="all">All accounts</option>` +
-      acctOptions.map(a => `<option value="${esc(a)}"${a===curr?' selected':''}>${esc(a)}</option>`).join('');
-  });
+  pSyncAccountChips();
 
-  // ── Mine column ──
-  let entries = isElly ? pEllyEntries() : pEricEntries();
-  // Split filter: for Eric 'mine' maps to his own items (split='eric')
+  // Active list driven by app-bar Mine/Eric (single list)
+  let entries = asElly ? pEllyEntries() : pEricEntries();
   if (pSplitFilter !== 'all') {
-    const sv = (pSplitFilter === 'mine' && !isElly) ? 'eric' : pSplitFilter;
+    const sv = (pSplitFilter === 'mine' && !asElly) ? 'eric' : pSplitFilter;
     entries = entries.filter(e => e.split === sv);
   }
   if (pAccountFilter !== 'all') entries = entries.filter(e => e.payTo === pAccountFilter);
-  const isDoneFn = e => isElly ? pIsEllyDone(e) : pIsEricDone(e);
-  const shareFn  = e => isElly ? pMyShare(e)    : pEricShare(e);
+
+  const isDoneFn = e => asElly ? pIsEllyDone(e) : pIsEricDone(e);
+  const shareFn  = e => asElly ? pMyShare(e) : pEricShare(e);
   const active = entries.filter(e => !isDoneFn(e));
   const done   = entries.filter(e =>  isDoneFn(e));
   const total  = active.reduce((s, e) => s + shareFn(e), 0);
 
-  if (safeEl('p-owing-amount')) safeEl('p-owing-amount').textContent = pFmt(total);
-  if (safeEl('p-owing-sub'))    safeEl('p-owing-sub').textContent = `${active.length} item${active.length!==1?'s':''} pending`;
-  if (safeEl('p-list-title'))   safeEl('p-list-title').textContent = 'My Payables';
-  if (safeEl('p-completed-label')) safeEl('p-completed-label').textContent = `Completed (${done.length})`;
+  // Compact hero follows the active Mine/Eric list
+  const heroLabel = viewingEric ? 'Eric owes' : 'You owe';
+  const heroSub = `${active.length} open payable${active.length !== 1 ? 's' : ''}`;
+  if (safeEl('p-owing-hero-amount')) safeEl('p-owing-hero-amount').textContent = pFmt(total);
+  if (safeEl('p-owing-hero-sub')) safeEl('p-owing-hero-sub').textContent = heroSub;
+  if (safeEl('p-owing-hero-label')) safeEl('p-owing-hero-label').textContent = heroLabel;
 
-  const activeList = safeEl('p-active-list');
-  if (activeList) activeList.innerHTML = pRenderAccountGroups(active, isElly, shareFn, false);
-
-  const compList = safeEl('p-completed-list');
-  if (compList) compList.innerHTML = done.length
-    ? done.map(e => pRenderRow(e, isElly, shareFn(e), true)).join('')
-    : '<div class="p-empty">Nothing completed yet.</div>';
-
-  // ── Eric's column (Elly only) ──
-  const ericRight = safeEl('p-owing-right');
-  if (ericRight) ericRight.hidden = !isElly;
-
-  if (isElly) {
-    let ericAll = pEricEntries();
-    if (pEricSplitFilter !== 'all') {
-      const sv = pEricSplitFilter === 'mine' ? 'eric' : pEricSplitFilter;
-      ericAll = ericAll.filter(e => e.split === sv);
+  // Desktop fan: Elly always sees both personal totals; Eric sees his own
+  if (isEllyUser) {
+    const ellyPending = pEllyEntries().filter(e => !pIsEllyDone(e));
+    const ellyTotal = ellyPending.reduce((s, e) => s + pMyShare(e), 0);
+    if (safeEl('p-owing-amount')) safeEl('p-owing-amount').textContent = pFmt(ellyTotal);
+    if (safeEl('p-owing-sub')) {
+      safeEl('p-owing-sub').textContent =
+        `${ellyPending.length} open payable${ellyPending.length !== 1 ? 's' : ''}`;
     }
-    if (pEricAccountFilter !== 'all') ericAll = ericAll.filter(e => e.payTo === pEricAccountFilter);
-    const ericActive = ericAll.filter(e => !pIsEricDone(e));
-    const ericDone   = ericAll.filter(e =>  pIsEricDone(e));
-    const ericTotal  = ericActive.reduce((s, e) => s + pEricShare(e), 0);
+    if (safeEl('p-owing-label')) safeEl('p-owing-label').textContent = 'You owe';
 
+    const ericPending = pEricEntries().filter(e => !pIsEricDone(e));
+    const ericTotal = ericPending.reduce((s, e) => s + pEricShare(e), 0);
     if (safeEl('p-eric-owing-amt')) safeEl('p-eric-owing-amt').textContent = pFmt(ericTotal);
-    if (safeEl('p-eric-owing-sub')) safeEl('p-eric-owing-sub').textContent = `${ericActive.length} item${ericActive.length!==1?'s':''} pending`;
-    if (safeEl('p-eric-completed-label')) safeEl('p-eric-completed-label').textContent = `Completed (${ericDone.length})`;
-
-    const ericActiveList = safeEl('p-eric-active-list');
-    if (ericActiveList) ericActiveList.innerHTML =
-      ericActive.length
-        ? pRenderAccountGroups(ericActive, false, e => pEricShare(e), false)
-        : '<div class="p-empty">Eric is all clear! 🎉</div>';
-
-    const ericCompList = safeEl('p-eric-completed-list');
-    if (ericCompList) ericCompList.innerHTML = ericDone.length
-      ? ericDone.map(e => pRenderRow(e, false, pEricShare(e), true, false)).join('')
-      : '<div class="p-empty">Nothing completed yet.</div>';
-
-    // Re-apply whichever view was active before the re-render
-    pSetView(pActiveView);
+    if (safeEl('p-eric-owing-sub')) {
+      safeEl('p-eric-owing-sub').textContent =
+        `${ericPending.length} item${ericPending.length !== 1 ? 's' : ''} pending`;
+    }
   } else {
-    // Eric's own session: his column is p-col-mine; hide the eric column
-    const ericCol = safeEl('p-col-eric');
-    if (ericCol) ericCol.style.display = 'none';
+    if (safeEl('p-owing-amount')) safeEl('p-owing-amount').textContent = pFmt(total);
+    if (safeEl('p-owing-sub')) safeEl('p-owing-sub').textContent = heroSub;
+    if (safeEl('p-owing-label')) safeEl('p-owing-label').textContent = 'You owe';
   }
 
-  // Re-apply selection highlights after re-render (mine column only)
+  if (safeEl('p-list-title')) {
+    safeEl('p-list-title').textContent = viewingEric ? "Eric's open payables" : 'Open payables';
+  }
+  if (safeEl('p-completed-label')) safeEl('p-completed-label').textContent = `Completed · ${done.length}`;
+
+  // Solo chip label when viewing Eric
+  const soloChip = safeEl('p-sf-mine');
+  if (soloChip) soloChip.textContent = viewingEric ? 'His' : 'Solo';
+
+  const activeList = safeEl('p-active-list');
+  if (activeList) {
+    activeList.innerHTML = active.length
+      ? pRenderAccountGroups(active, asElly, shareFn, false)
+      : `<div class="payables-empty">${viewingEric ? 'Eric is all clear.' : 'No open payables.'}</div>`;
+  }
+
+  const compList = safeEl('p-completed-list');
+  if (compList) {
+    compList.innerHTML = done.length
+      ? done.map(e => pRenderRow(e, asElly, shareFn(e), true)).join('')
+      : '<div class="payables-empty">Nothing completed yet.</div>';
+    if (pCompletedOpen) compList.removeAttribute('hidden');
+    else compList.setAttribute('hidden', '');
+  }
+  const compToggle = safeEl('p-completed-toggle');
+  if (compToggle) compToggle.setAttribute('aria-expanded', pCompletedOpen ? 'true' : 'false');
+
+  const ericRight = safeEl('p-owing-right');
+  if (ericRight) ericRight.hidden = !isEllyUser;
+
+  // Sync scope chrome without re-entering render
+  const mineBtn = safeEl('p-vs-mine');
+  const ericBtn = safeEl('p-vs-eric');
+  if (mineBtn) mineBtn.classList.toggle('active', pActiveView === 'mine');
+  if (ericBtn) ericBtn.classList.toggle('active', pActiveView === 'eric');
+  const payToggle = safeEl('payablesScopeToggle');
+  if (payToggle) payToggle.setAttribute('aria-checked', pActiveView === 'eric' ? 'true' : 'false');
+  document.querySelectorAll('#payablesScopeSwitch [data-pay-label]').forEach(el => {
+    el.classList.toggle('is-active', el.getAttribute('data-pay-label') === pActiveView);
+  });
+
+  // Re-apply selection highlights after re-render
   const selIds = new Set(pSelectedRows.map(r => r.id));
   if (selIds.size) {
     document.querySelectorAll('#p-active-list .p-row, #p-completed-list .p-row').forEach(row => {
@@ -5884,49 +6873,44 @@ function renderPayables() {
         if (found) found.el = row;
       }
     });
-    if (pLastClickedRow) pLastClickedRow.el = document.querySelector(`[data-pid="${pLastClickedRow.id}"]`) || pLastClickedRow.el;
+    if (pLastClickedRow) {
+      pLastClickedRow.el = document.querySelector(`[data-pid="${pLastClickedRow.id}"]`) || pLastClickedRow.el;
+    }
   }
   updatePayablesBadge();
 }
 
-// compact=true: 4-item row (checkbox, name, amount, payto) used for Eric's column in Elly's view.
-// No allocation badge, no action buttons, no row-click selection handler.
+// compact=true: read-only Eric column (no allocate / delete / selection).
 function pRenderRow(e, isElly, myShare, isDone, compact=false) {
   const forWhom = isElly ? 'elly' : 'eric';
   const doneVal = isElly ? e.ellyDone : e.ericDone;
-  const splitClass = e.split==='mine' ? 'p-split-mine'
-                   : e.split==='eric' ? 'p-split-eric'
-                   : 'p-split-shared';
-  // compact = Elly viewing Eric's column; !compact non-owner = Eric's own session
+  const splitMod = e.split === 'mine' ? 'solo' : e.split === 'eric' ? 'eric' : 'shared';
   const canEditRow = !compact;
-  // "Eric" label → "Mine" when Eric is viewing his own column; stays "Eric" in Elly's compact view
-  // "Solo" for non-shared items; from Eric's own session his solo items say "Solo (mine)"
   const ericSoloLabel = isEric() ? 'Solo (mine)' : 'Solo (Eric\'s)';
-  const splitBadge = canEditRow
-    ? `<select class="p-split-select ${splitClass}" onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','split',this.value)" title="Change split">
+  const splitLabel = e.split === 'shared' ? 'Shared' : e.split === 'eric' ? ericSoloLabel : 'Solo';
+  const splitBadge = canEditRow && !isDone
+    ? `<select class="payable-split-select is-${splitMod}" onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','split',this.value)" aria-label="Split">
          <option value="shared" ${e.split==='shared'?'selected':''}>Shared</option>
          <option value="mine"   ${e.split==='mine'?'selected':''}>Solo (mine)</option>
          <option value="eric"   ${e.split==='eric'?'selected':''}>${ericSoloLabel}</option>
        </select>`
-    : `<span class="p-split-badge ${splitClass}">${e.split==='shared'?'Shared':e.split==='eric'?ericSoloLabel:'Solo'}</span>`;
-  // Each user sees their own allocation field; Elly's column → allocatedTo, Eric's → ericAllocatedTo
+    : `<span class="payable-split-badge is-${splitMod}">${splitLabel}</span>`;
   const rowAllocField = isElly ? 'allocatedTo' : 'ericAllocatedTo';
   const rowAlloc = e[rowAllocField];
-  let allocBadge = '';
+  let allocCell = '';
   if (!compact) {
     if (rowAlloc) {
       const [y,m] = rowAlloc.key.split('-').map(Number);
-      allocBadge = `<span class="p-alloc-badge linked" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Change allocation">${MONTHS[m-1].slice(0,3)} P${rowAlloc.pi+1}</span>`;
+      allocCell = `<button class="payable-alloc-badge is-linked" type="button" onclick="event.stopPropagation();openAllocateModal('${e.id}')">${MONTHS[m-1].slice(0,3)} · P${rowAlloc.pi+1}</button>`;
     } else {
-      allocBadge = `<span class="p-alloc-badge" onclick="openAllocateModal('${e.id}')" style="cursor:pointer" title="Allocate to budget period">＋ Allocate</span>`;
+      allocCell = `<button class="payable-allocate-link" type="button" onclick="event.stopPropagation();openAllocateModal('${e.id}')">Allocate</button>`;
     }
   }
-  const actionBtns = compact ? ''
-    : `<div class="p-row-actions">
-         <button class="p-action-btn danger" onclick="event.stopPropagation();deletePayableEntry('${e.id}')" title="Delete">✕</button>
-       </div>`;
+  const moreBtn = compact ? ''
+    : `<button class="ledger-more" type="button" onclick="event.stopPropagation();openEditPayable('${e.id}')" aria-label="Edit ${esc(e.name)}">
+         <span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>
+       </button>`;
   const shareVal = myShare.toFixed(2);
-  // Tooltip: "Your share" for whoever is looking at their own column; "Eric's share" for Elly viewing his column
   const viewerName = (isElly || isEric()) ? 'Your' : "Eric's";
   const fullTip = e.split==='shared'
     ? `${viewerName} share — full amount is $${(e.fullAmount||0).toFixed(2)}`
@@ -5934,21 +6918,32 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
   const rowHandlers = compact ? ''
     : `onclick="pHandleRowClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"
        oncontextmenu="pHandleRowRightClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"`;
-  return `<div class="p-row${isDone?' is-done':''}"
-    data-pid="${e.id}" data-pamount="${shareVal}" data-pname="${esc(e.name)}"
+  const nameCell = canEditRow
+    ? `<div class="payable-name-cell">
+         <input class="p-name-input bill-name" value="${esc(e.name)}" placeholder="Expense name"
+           onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','name',this.value)">
+         <div class="bill-meta">${esc(e.date||'')} · total $${(parseFloat(e.fullAmount)||0).toFixed(2)}</div>
+       </div>`
+    : `<div class="payable-name-cell">
+         <div class="bill-name">${esc(e.name)}</div>
+         <div class="bill-meta">${esc(e.date||'')}</div>
+       </div>`;
+  const shareCell = canEditRow
+    ? `<input class="p-amount-input payable-share-cell" type="number" step="0.01" value="${shareVal}"
+         onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','share',this.value)" title="${fullTip}">`
+    : `<div class="payable-share-cell">${pFmt(myShare)}</div>`;
+  return `<div class="payable-row p-row${isDone?' is-paid is-done':''}"
+    data-pid="${e.id}" data-pamount="${shareVal}" data-pname="${esc(e.name)}" data-payable-id="${e.id}"
     ${rowHandlers}>
-    <input type="checkbox" class="p-check" ${doneVal?'checked':''} onchange="event.stopPropagation();togglePayableDone('${e.id}','${forWhom}')">
-    <div style="display:flex;align-items:center;gap:4px;min-width:0">
-      <input class="p-name-input" value="${esc(e.name)}" placeholder="Expense name"
-        onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','name',this.value)" ${compact?'readonly':''}>
-      ${splitBadge}
-    </div>
-    <input class="p-amount-input" type="number" step="0.01" value="${shareVal}" placeholder="0.00"
-      onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','share',this.value)" ${compact?'readonly':''}
-      title="${fullTip}">
-    <span class="p-row-payto">${esc(e.payTo||'')}</span>
-    ${compact ? '' : `<div class="p-row-meta">${allocBadge}</div>`}
-    ${actionBtns}
+    <button class="bill-check" type="button" onclick="event.stopPropagation();togglePayableDone('${e.id}','${forWhom}')" aria-label="Toggle ${esc(e.name)}">
+      ${doneVal ? '<span class="material-symbols-outlined" aria-hidden="true">check</span>' : ''}
+    </button>
+    ${nameCell}
+    <div class="payable-split-cell">${splitBadge}</div>
+    ${shareCell}
+    <div class="payable-payto-cell">${esc(e.payTo||'')}</div>
+    ${compact ? '' : `<div class="payable-alloc-cell">${allocCell}</div>`}
+    ${moreBtn}
   </div>`;
 }
 
@@ -6043,113 +7038,355 @@ function exportPayables(){
 // ═══════════════════════════════════════════════════════════════
 
 let calcHistory = [];
+/** Mobile only: long-press enables multi-select mode (Cancel / Select all). Web uses Excel-style modifiers. */
+let ledgerMultiMode = false;
+/** Anchor for Shift+range (set by plain / Ctrl+click; not moved by Shift+click). */
+let ledgerSelectAnchor = null;
 
-function handleRowClick(e, row, key, pi, bill, billIdx, fromHandle=false) {
-  // Don't intercept clicks on inputs/checkboxes/buttons (unless from handle)
-  if (!fromHandle && ['INPUT','SELECT','BUTTON'].includes(e.target.tagName)) return;
+function ledgerRowDataFromEl(r) {
+  return {
+    key: r.dataset.key,
+    pi: parseInt(r.dataset.pi, 10),
+    billId: r.dataset.billId,
+    amount: parseFloat(r.dataset.amount) || 0,
+    name: r.dataset.name || '',
+    el: r
+  };
+}
 
-  const rowData = { key, pi, billId: bill.id, amount: parseFloat(bill.amount)||0, name: bill.name||'', el: row };
+function ledgerVisibleBillRows() {
+  return Array.from(document.querySelectorAll('#tab-monthly .bill-list .bill-row'));
+}
 
-  if (e.shiftKey && lastClickedRow) {
-    // Range select: select all rows between last and current
-    const allRows = Array.from(document.querySelectorAll('.bill-list .bill-row'));
-    const lastIdx = allRows.indexOf(lastClickedRow.el);
-    const curIdx  = allRows.indexOf(row);
-    const [from, to] = lastIdx < curIdx ? [lastIdx, curIdx] : [curIdx, lastIdx];
-    for (let i = from; i <= to; i++) {
-      const r = allRows[i];
-      if (!selectedRows.find(s => s.el === r)) {
-        const rd = {
-          key: r.dataset.key, pi: parseInt(r.dataset.pi),
-          billId: r.dataset.billId, amount: parseFloat(r.dataset.amount)||0,
-          name: r.dataset.name, el: r
-        };
-        selectedRows.push(rd);
-        r.classList.add('selected');
-      }
-    }
-  } else if (e.ctrlKey || e.metaKey) {
-    // Toggle individual row
-    const idx = selectedRows.findIndex(s => s.billId === bill.id);
-    if (idx > -1) {
-      selectedRows.splice(idx, 1);
-      row.classList.remove('selected');
-    } else {
-      selectedRows.push(rowData);
-      row.classList.add('selected');
-    }
-  } else {
-    // Plain click — clear and select just this one
-    clearSelection();
-    selectedRows.push(rowData);
-    row.classList.add('selected');
+function ledgerResolveEl(rowRef) {
+  if (!rowRef) return null;
+  if (rowRef.el && rowRef.el.isConnected) return rowRef.el;
+  return document.querySelector(
+    `#tab-monthly .bill-row[data-key="${CSS.escape(rowRef.key)}"][data-pi="${rowRef.pi}"][data-bill-id="${CSS.escape(String(rowRef.billId))}"]`
+  );
+}
+
+function enterLedgerMultiMode(seed) {
+  ledgerMultiMode = true;
+  document.getElementById('tab-monthly')?.classList.add('is-ledger-multiselect');
+  if (seed) {
+    selectedRows = [seed];
+    lastClickedRow = seed;
+    ledgerSelectAnchor = seed;
   }
-
-  lastClickedRow = rowData;
+  syncLedgerSelectionClasses();
   updateSelBadge();
 }
 
+function exitLedgerMultiMode() {
+  ledgerMultiMode = false;
+  document.getElementById('tab-monthly')?.classList.remove('is-ledger-multiselect');
+}
+
+function handleRowClick(e, row, key, pi, bill, billIdx, fromHandle=false) {
+  // Don't intercept clicks on inputs/checkboxes/buttons (unless from handle)
+  if (!fromHandle && e.target && ['INPUT','SELECT','BUTTON'].includes(e.target.tagName)) return;
+
+  const rowData = { key, pi, billId: bill.id, amount: parseFloat(bill.amount)||0, name: bill.name||'', el: row };
+  const shift = !!e.shiftKey;
+  const ctrl = !!(e.ctrlKey || e.metaKey);
+
+  if (ledgerMultiMode && !shift && !ctrl) {
+    // Mobile multi-select: tap toggles
+    const idx = selectedRows.findIndex(s => s.billId === bill.id && s.key === key && s.pi === pi);
+    if (idx > -1) selectedRows.splice(idx, 1);
+    else selectedRows.push(rowData);
+    lastClickedRow = rowData;
+  } else if (shift) {
+    // Web Excel-style: Shift+click = contiguous range from anchor → here (no multi-mode latch)
+    const anchor = ledgerSelectAnchor || lastClickedRow;
+    const anchorEl = ledgerResolveEl(anchor);
+    const allRows = ledgerVisibleBillRows();
+    const lastIdx = anchorEl ? allRows.indexOf(anchorEl) : -1;
+    const curIdx = allRows.indexOf(row);
+    if (lastIdx < 0 || curIdx < 0) {
+      selectedRows = [rowData];
+      ledgerSelectAnchor = rowData;
+    } else {
+      const [from, to] = lastIdx < curIdx ? [lastIdx, curIdx] : [curIdx, lastIdx];
+      selectedRows = [];
+      for (let i = from; i <= to; i++) {
+        const r = allRows[i];
+        if (r) selectedRows.push(ledgerRowDataFromEl(r));
+      }
+      // Anchor stays put so further Shift+clicks re-range from the same origin
+    }
+    lastClickedRow = rowData;
+  } else if (ctrl) {
+    // Web Excel-style: Ctrl/Cmd+click toggles one row (no in-between)
+    const idx = selectedRows.findIndex(s => s.billId === bill.id && s.key === key && s.pi === pi);
+    if (idx > -1) selectedRows.splice(idx, 1);
+    else selectedRows.push(rowData);
+    lastClickedRow = rowData;
+    ledgerSelectAnchor = rowData; // active cell becomes next Shift origin
+  } else {
+    // Plain click: single focus — releases multi-select
+    if (ledgerMultiMode) exitLedgerMultiMode();
+    selectedRows = [rowData];
+    ledgerSelectAnchor = rowData;
+    lastClickedRow = rowData;
+  }
+
+  syncLedgerSelectionClasses();
+  updateSelBadge();
+}
+
+/** Keep selected classes in sync. Do not expand rows — actions live on the bottom dock. */
+function syncLedgerSelectionClasses() {
+  const selectedIds = new Set(selectedRows.map((s) => `${s.key}|${s.pi}|${s.billId}`));
+  document.querySelectorAll('#tab-monthly .ledger-row.bill-row').forEach((el) => {
+    const id = `${el.dataset.key}|${el.dataset.pi}|${el.dataset.billId}`;
+    const on = selectedIds.has(id);
+    el.classList.toggle('selected', on);
+    el.classList.toggle('is-selected', on);
+    el.classList.remove('is-expanded');
+    const check = el.querySelector('.bill-check');
+    if (!check) return;
+    if (ledgerMultiMode) {
+      check.innerHTML = on ? '<span class="material-symbols-outlined" aria-hidden="true">check</span>' : '';
+      check.classList.toggle('is-pick', on);
+    } else {
+      const paid = el.classList.contains('is-paid') || el.classList.contains('is-done');
+      check.innerHTML = paid ? '<span class="material-symbols-outlined" aria-hidden="true">check</span>' : '';
+      check.classList.remove('is-pick');
+    }
+  });
+}
+
 function clearSelection() {
-  selectedRows.forEach(s => s.el && s.el.classList.remove('selected'));
+  selectedRows.forEach(s => {
+    if (!s.el) return;
+    s.el.classList.remove('selected', 'is-selected', 'is-expanded');
+  });
   selectedRows = [];
   selectedRows2 = [];
   lastClickedRow = null;
+  ledgerSelectAnchor = null;
+  exitLedgerMultiMode();
+  syncLedgerSelectionClasses();
   updateSelBadge();
+}
+
+function ledgerSelectAllVisible() {
+  const rows = ledgerVisibleBillRows();
+  if (!rows.length) return;
+  enterLedgerMultiMode();
+  selectedRows = rows.map(ledgerRowDataFromEl);
+  if (selectedRows.length) {
+    lastClickedRow = selectedRows[selectedRows.length - 1];
+    ledgerSelectAnchor = selectedRows[0];
+  }
+  syncLedgerSelectionClasses();
+  updateSelBadge();
+}
+
+function ledgerToggleSelectAll() {
+  const rows = ledgerVisibleBillRows();
+  if (!rows.length) return;
+  if (selectedRows.length >= rows.length) {
+    selectedRows = [];
+    lastClickedRow = null;
+    syncLedgerSelectionClasses();
+    updateSelBadge();
+    return;
+  }
+  ledgerSelectAllVisible();
+}
+
+function ledgerDockHint() {
+  if (ledgerMultiMode) return 'Tap rows to add or remove';
+  if (window.matchMedia('(pointer: coarse), (hover: none)').matches) {
+    return 'Long-press a row to multi-select · Double-click to edit';
+  }
+  return 'Shift+click range · Ctrl+click to add · Double-click to edit';
+}
+
+/** Dock shows current recurrence state; tap flips to the opposite. */
+function selectionRecurringState() {
+  if (!selectedRows.length) return { icon: 'autorenew', label: 'Recurring', next: false };
+  const flags = selectedRows.map((r) => !!getBill(r.key, r.pi, r.billId)?.recurring);
+  const allOn = flags.every(Boolean);
+  const allOff = flags.every((f) => !f);
+  if (allOn) return { icon: 'autorenew', label: 'Recurring', next: false }; // tap → one-off
+  if (allOff) return { icon: 'sync_disabled', label: 'One-off', next: true }; // tap → recurring
+  return { icon: 'autorenew', label: 'Mixed', next: false }; // tap → make all one-off
 }
 
 function updateSelBadge() {
   const badge = document.getElementById('sel-badge');
   if (!badge) return;
-  if (selectedRows.length === 0) {
-    badge.classList.remove('visible');
+  closeCtx();
+  // Stay visible in multi-select even at 0 selected (Cancel / Select all)
+  if (selectedRows.length === 0 && !ledgerMultiMode) {
+    badge.classList.remove('is-visible', 'visible');
+    badge.hidden = true;
+    badge.setAttribute('hidden', '');
     badge.innerHTML = '';
     return;
   }
   const sum = selectedRows.reduce((t,r)=>t+r.amount,0);
+  const sumLabel = '$' + sum.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const recur = selectionRecurringState();
+  const totalVisible = ledgerVisibleBillRows().length;
+  const allSelected = totalVisible > 0 && selectedRows.length >= totalVisible;
+  badge.hidden = false;
+  badge.removeAttribute('hidden');
+  badge.classList.add('is-visible', 'visible');
+  badge.setAttribute('data-dock-for', 'monthly');
+  badge.classList.toggle('is-multi', ledgerMultiMode);
+
+  const multiBar = ledgerMultiMode
+    ? `<div class="action-dock-multi" role="toolbar" aria-label="Multi-select">` +
+        `<button type="button" class="action-dock-multi-cancel" onclick="clearSelection()">Cancel</button>` +
+        `<button type="button" class="action-dock-multi-all" onclick="ledgerToggleSelectAll()">` +
+          `<span class="material-symbols-outlined" aria-hidden="true">${allSelected ? 'deselect' : 'select_all'}</span>` +
+          `${allSelected ? 'Deselect all' : 'Select all'}` +
+        `</button>` +
+      `</div>`
+    : '';
+
+  const actions = selectedRows.length
+    ? `<div class="action-dock-actions action-dock-actions--5">` +
+        `<button type="button" onclick="openModalMarkAs()"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Paid</button>` +
+        `<button type="button" onclick="openModalMoveTo()"><span class="material-symbols-outlined" aria-hidden="true">drive_file_move</span>Move</button>` +
+        `<button type="button" onclick="openModalCalculate()"><span class="material-symbols-outlined" aria-hidden="true">calculate</span>Calculate</button>` +
+        `<button type="button" onclick="ctxToggleRecurring(${recur.next})" title="Tap to switch to ${recur.next ? 'Recurring' : 'One-off'}"><span class="material-symbols-outlined" aria-hidden="true">${recur.icon}</span>${recur.label}</button>` +
+        `<button type="button" class="is-danger" onclick="openModalDeleteBills()"><span class="material-symbols-outlined" aria-hidden="true">delete</span>Delete</button>` +
+      `</div>`
+    : '';
+
   badge.innerHTML =
-    `<div class="sel-badge-meta">${selectedRows.length} selected · $${sum.toFixed(2)}</div>` +
-    `<div class="sel-badge-actions">` +
-      `<button type="button" class="sel-badge-btn" onclick="openModalMarkAs()">Done</button>` +
-      `<button type="button" class="sel-badge-btn" onclick="openModalPayTo()">Pay to</button>` +
-      `<button type="button" class="sel-badge-btn" onclick="openModalMoveTo()">Move</button>` +
-      `<button type="button" class="sel-badge-btn" onclick="openCalcPanel()">Calc</button>` +
-    `</div>`;
-  badge.classList.add('visible');
+    multiBar +
+    `<div class="action-dock-summary">` +
+      `<div class="action-dock-meta">${selectedRows.length} selected</div>` +
+      (selectedRows.length ? `<div class="action-dock-sum">${sumLabel}</div>` : '') +
+      `<div class="action-dock-hint">${ledgerDockHint()}</div>` +
+    `</div>` +
+    actions;
+}
+
+/** Long-press enters multi-select mode (mobile) with the pressed row selected. */
+function wireLedgerLongPress(row, key, pi, bill, billIdx) {
+  let timer = null;
+  let startX = 0;
+  let startY = 0;
+  const clear = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  row.addEventListener('touchstart', (e) => {
+    if (ledgerMultiMode) return; // already selecting — taps toggle via click
+    if (e.target.closest('button, input, select, .bill-check, .row-handle')) return;
+    const t = e.changedTouches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    clear();
+    timer = setTimeout(() => {
+      timer = null;
+      row._suppressClick = true;
+      const seed = {
+        key, pi, billId: bill.id,
+        amount: parseFloat(bill.amount) || 0,
+        name: bill.name || '',
+        el: row
+      };
+      enterLedgerMultiMode(seed);
+      if (navigator.vibrate) try { navigator.vibrate(12); } catch (_) {}
+    }, 420);
+  }, { passive: true });
+  row.addEventListener('touchmove', (e) => {
+    const t = e.changedTouches[0];
+    if (Math.abs(t.clientX - startX) > 12 || Math.abs(t.clientY - startY) > 12) clear();
+  }, { passive: true });
+  row.addEventListener('touchend', clear, { passive: true });
+  row.addEventListener('touchcancel', clear, { passive: true });
 }
 
 // ──────────────────────────────────────────────
 //  CONTEXT MENU
 // ──────────────────────────────────────────────
+let ctxOpenedAt = 0;
+
 function closeCtx() {
   const m = document.getElementById('ctx-menu');
-  if (m) m.classList.remove('open');
+  if (!m) return;
+  m.classList.remove('open');
+  m.hidden = true;
+  m.querySelectorAll('.ctx-has-sub.is-open').forEach((el) => el.classList.remove('is-open'));
+  m.querySelectorAll('.ctx-item.is-active').forEach((el) => el.classList.remove('is-active'));
 }
 
+function openCtxSub(which) {
+  const menu = document.getElementById('ctx-menu');
+  if (!menu) return;
+  menu.querySelectorAll('.ctx-has-sub').forEach((el) => {
+    const on = el.dataset.ctxSub === which;
+    el.classList.toggle('is-open', on);
+    el.classList.toggle('is-active', on);
+  });
+}
+
+function openModalCalculate() {
+  if (!selectedRows.length) return;
+  const el = document.getElementById('calc-sel-count');
+  if (el) el.textContent = `${selectedRows.length} row${selectedRows.length !== 1 ? 's' : ''}`;
+  openModal('modal-calculate');
+}
+
+function ctxToggleRecurring(next) {
+  if (!selectedRows.length) return;
+  const n = selectedRows.length;
+  const setTo = !!next;
+  selectedRows.forEach((r) => {
+    const bill = getBill(r.key, r.pi, r.billId);
+    if (bill) bill.recurring = setTo;
+  });
+  clearSelection();
+  save();
+  render();
+  showToast(`✓ ${n} row${n !== 1 ? 's' : ''} set to ${setTo ? 'Recurring' : 'One-off'}`);
+}
+
+/** ⋯ / right-click: select the row and show the bottom action dock (no dropdown). */
 function handleRowRightClick(e, row) {
   e.preventDefault();
-  if (!selectedRows.length) {
-    const r = { key: row.dataset.key, pi: parseInt(row.dataset.pi), billId: row.dataset.billId,
-      amount: parseFloat(row.dataset.amount)||0, name: row.dataset.name, el: row };
-    selectedRows = [r]; row.classList.add('selected'); updateSelBadge();
+  e.stopPropagation();
+
+  const rowData = {
+    key: row.dataset.key,
+    pi: parseInt(row.dataset.pi, 10),
+    billId: row.dataset.billId,
+    amount: parseFloat(row.dataset.amount) || 0,
+    name: row.dataset.name,
+    el: row
+  };
+
+  const already = selectedRows.some((s) => s.billId === rowData.billId && s.key === rowData.key && s.pi === rowData.pi);
+  if (ledgerMultiMode) {
+    if (!already) selectedRows.push(rowData);
+  } else if (!already) {
+    selectedRows = [rowData];
+    ledgerSelectAnchor = rowData;
   }
-  // Update selection label
-  const lbl = document.getElementById('ctx-sel-label');
-  if (lbl) lbl.textContent = `${selectedRows.length} row${selectedRows.length!==1?'s':''} selected`;
-
-  const menu = document.getElementById('ctx-menu');
-  menu.classList.add('open');
-  // Flip submenus if near right edge
-  const nearRight = e.clientX + 450 > window.innerWidth;
-  document.querySelectorAll('.ctx-sub').forEach(s => s.classList.toggle('flip-left', nearRight));
-
-  let x = e.clientX, y = e.clientY;
-  const mh = 130; // approximate menu height
-  if (x + 220 > window.innerWidth) x = window.innerWidth - 225;
-  if (y + mh > window.innerHeight) y = Math.max(4, window.innerHeight - mh - 4);
-  menu.style.left = x + 'px'; menu.style.top = y + 'px';
-  const fi = document.getElementById('ctx-formula-input');
-  if (fi) fi.value = '';
+  lastClickedRow = rowData;
+  if (!ledgerSelectAnchor) ledgerSelectAnchor = rowData;
+  syncLedgerSelectionClasses();
+  updateSelBadge();
+  closeCtx();
 }
+
+/** @deprecated Dropdown removed — kept as no-op so old callers don’t throw. */
+function ctxOpenFromDock() {
+  updateSelBadge();
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.period-sort-chip')) return;
+  document.querySelectorAll('.period-sort-menu').forEach((m) => m.setAttribute('hidden', ''));
+  document.querySelectorAll('.period-sort-btn').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+});
 
 // ──────────────────────────────────────────────
 //  MODAL SYSTEM
@@ -6163,18 +7400,26 @@ function closeModal(id) {
 
 // Close modal on overlay click
 document.addEventListener('click', (e) => {
-  // Close budget ctx menu
+  // Ignore the gesture that just opened the ctx menu
+  if (Date.now() - ctxOpenedAt < 280) return;
+
   const menu = document.getElementById('ctx-menu');
-  if (menu && !menu.contains(e.target)) closeCtx();
+  if (menu && !menu.hidden && !menu.contains(e.target)) {
+    // Tap a submenu parent to toggle (touch), otherwise close
+    const subParent = e.target.closest?.('[data-ctx-sub]');
+    if (!subParent) closeCtx();
+  }
   // Close payables ctx menu
   const pmenu = document.getElementById('p-ctx-menu');
   if (pmenu && !pmenu.contains(e.target)) pCloseCtx();
   // Close modals on backdrop click
   if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
-  // Clear budget row selection on outside click
-  if (!e.target.closest('.bill-row') && !e.target.closest('#ctx-menu') &&
+  // Clear budget row selection on outside click (multi-select exits via Cancel only)
+  if (!ledgerMultiMode &&
+      !e.target.closest('.bill-row') && !e.target.closest('.ledger-row') && !e.target.closest('#ctx-menu') &&
       !e.target.closest('.modal-overlay') && !e.target.closest('#calc-panel') &&
-      !e.target.closest('#sel-badge')) {
+      !e.target.closest('#sel-badge') && !e.target.closest('.period-sort-chip') &&
+      !e.target.closest('.action-dock')) {
     clearSelection();
   }
   // Clear payables selection on outside click
@@ -6183,6 +7428,24 @@ document.addEventListener('click', (e) => {
     pClearSelection();
   }
 });
+
+// Touch-friendly submenu toggle for Change properties / Calculate
+document.addEventListener('click', (e) => {
+  const parent = e.target.closest?.('#ctx-menu [data-ctx-sub]');
+  if (!parent) return;
+  // Don't steal clicks from rail / nested buttons
+  if (e.target.closest('.ctx-sub')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const which = parent.dataset.ctxSub;
+  const already = parent.classList.contains('is-open');
+  document.querySelectorAll('#ctx-menu .ctx-has-sub').forEach((el) => {
+    el.classList.toggle('is-open', !already && el === parent);
+    el.classList.toggle('is-active', !already && el === parent);
+  });
+  if (already) parent.classList.remove('is-open', 'is-active');
+  else openCtxSub(which);
+}, true);
 
 // ─── Change Pay To modal ───
 let _selectedPayTo = null;
@@ -6224,13 +7487,15 @@ function confirmPayTo() {
     state.accounts = [...(state.accounts || []), resolved];
     save();
   }
+  const n = selectedRows.length;
   selectedRows.forEach(r => {
     const bill = getBill(r.key, r.pi, r.billId);
     if (bill) bill.payTo = resolved;
   });
+  clearSelection();
   save(); render();
   closeModal('modal-payto');
-  showToast(`✓ Pay To → ${resolved} (${selectedRows.length} row${selectedRows.length!==1?'s':''})`);
+  showToast(`✓ Pay To → ${resolved} (${n} row${n!==1?'s':''})`);
 }
 
 // ─── Change Recurrence modal ───
@@ -6253,13 +7518,15 @@ function selectRecurOpt(val) {
 
 function confirmRecurrence() {
   if (_selectedRecur === null) { showToast('⚠ Please select an option'); return; }
+  const n = selectedRows.length;
   selectedRows.forEach(r => {
     const bill = getBill(r.key, r.pi, r.billId);
     if (bill) bill.recurring = _selectedRecur;
   });
+  clearSelection();
   save(); render();
   closeModal('modal-recurrence');
-  showToast(`✓ ${selectedRows.length} row${selectedRows.length!==1?'s':''} set to ${_selectedRecur?'Recurring':'One-off'}`);
+  showToast(`✓ ${n} row${n!==1?'s':''} set to ${_selectedRecur?'Recurring':'One-off'}`);
 }
 
 // ─── Mark As modal ───
@@ -6282,13 +7549,15 @@ function selectMarkAsOpt(val) {
 
 function confirmMarkAs() {
   if (_selectedMarkAs === null) { showToast('⚠ Please select an option'); return; }
+  const n = selectedRows.length;
   selectedRows.forEach(r => {
     const bill = getBill(r.key, r.pi, r.billId);
     if (bill) bill.done = _selectedMarkAs;
   });
+  clearSelection();
   save(); render();
   closeModal('modal-markas');
-  showToast(`✓ ${selectedRows.length} row${selectedRows.length!==1?'s':''} marked as ${_selectedMarkAs?'Done':'Not done'}`);
+  showToast(`✓ ${n} row${n!==1?'s':''} marked as ${_selectedMarkAs?'Paid':'Unpaid'}`);
 }
 
 // ─── Move To modal ───
@@ -6380,12 +7649,40 @@ function confirmMoveTo() {
   showToast(`✓ Moved ${moved.length} item${moved.length!==1?'s':''} → ${MONTHS[dm-1]} ${dy} · P${_moveDestPi+1}`);
 }
 
-// ─── Bulk delete (confirm modal-free — still uses confirm() for safety) ───
-function ctxBulkDelete() {
+function deleteBillsMessage() {
+  const n = selectedRows.length;
+  if (!n) return '';
+  if (n === 1) {
+    const r = selectedRows[0];
+    const bill = getBill(r.key, r.pi, r.billId);
+    const name = (bill?.name || r.name || 'this expense').trim() || 'this expense';
+    const account = (bill?.payTo || '').trim();
+    const value = '$' + (parseFloat(bill?.amount ?? r.amount) || 0).toLocaleString('en-AU', {
+      minimumFractionDigits: 2, maximumFractionDigits: 2
+    });
+    if (account) {
+      return `Delete <strong>${esc(name)}</strong> for <strong>${esc(account)}</strong> (${value})? Once deleted, we can’t bring it back.`;
+    }
+    return `Delete <strong>${esc(name)}</strong> (${value})? Once deleted, we can’t bring it back.`;
+  }
+  const total = selectedRows.reduce((t, r) => t + (parseFloat(r.amount) || 0), 0);
+  const totalLabel = '$' + total.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return `Delete <strong>${n} expenses</strong> totaling <strong>${totalLabel}</strong>? Once deleted, we can’t bring them back.`;
+}
+
+function openModalDeleteBills() {
   closeCtx();
   if (!selectedRows.length) return;
+  const msg = document.getElementById('delete-bills-msg');
+  if (msg) msg.innerHTML = deleteBillsMessage();
+  const yesBtn = document.querySelector('#modal-delete-bills .modal-btn.danger');
+  if (yesBtn) yesBtn.textContent = selectedRows.length === 1 ? 'Yes, delete it' : 'Yes, delete them';
+  openModal('modal-delete-bills');
+}
+
+function confirmBulkDelete() {
+  if (!selectedRows.length) { closeModal('modal-delete-bills'); return; }
   const n = selectedRows.length;
-  if (!confirm(`Delete ${n} selected item${n!==1?'s':''}?`)) return;
   const groups = {};
   selectedRows.forEach(r => {
     const k = `${r.key}|${r.pi}`;
@@ -6397,12 +7694,20 @@ function ctxBulkDelete() {
     if (p) p.bills = p.bills.filter(b => !g.ids.includes(b.id));
   });
   clearSelection();
-  save(); render();
-  showToast(`✓ ${n} item${n!==1?'s':''} deleted`);
+  save();
+  render();
+  closeModal('modal-delete-bills');
+  showToast(`✓ ${n} expense${n !== 1 ? 's' : ''} deleted`);
+}
+
+/** @deprecated Use openModalDeleteBills — kept for any leftover callers */
+function ctxBulkDelete() {
+  openModalDeleteBills();
 }
 
 function ctxRun(op) {
   closeCtx();
+  closeModal('modal-calculate');
   if (!selectedRows.length) return;
   const amounts = selectedRows.map(r => r.amount);
   const names   = selectedRows.map(r => r.name || '$' + r.amount.toFixed(2));
@@ -6418,6 +7723,7 @@ function ctxRun(op) {
 
 function ctxRunFormula() {
   closeCtx();
+  closeModal('modal-calculate');
   let formula = document.getElementById('ctx-formula-input').value.trim();
   if (!formula) return;
   const SUM  = selectedRows.reduce((a,r)=>a+r.amount,0);
@@ -6450,7 +7756,7 @@ function renderCalcPanel() {
   const body = document.getElementById('calc-panel-body');
   if (!body) return;
   if (!calcHistory.length) {
-    body.innerHTML = '<div class="calc-empty">Right-click selected rows to run calculations.</div>'; return;
+    body.innerHTML = '<div class="calc-empty">Select rows and tap Calculate on the bottom bar.</div>'; return;
   }
   body.innerHTML = calcHistory.map(e => {
     const val = e.prefix === '$'
@@ -6558,6 +7864,60 @@ function openChatPage() {
   setChatMode('page');
 }
 
+function closeChatPage() {
+  switchTab('home');
+}
+
+function isCompactChatViewport() {
+  return window.matchMedia('(max-width: 900px)').matches;
+}
+
+/** Desktop md+: open floating panel. Compact: full Chat page via bottom nav. */
+function openDesktopChat() {
+  if (!currentUser) return;
+  if (isCompactChatViewport()) {
+    switchTab('chat');
+    return;
+  }
+  setChatMode('panel');
+}
+
+/** Keep Chat chrome viewport-correct after resize / auth. */
+function syncChatAccessChrome() {
+  if (!currentUser) {
+    setChatMode('bubble');
+    return;
+  }
+  const compact = isCompactChatViewport();
+  if (compact) {
+    // Hide bubble; desktop panel/expanded → idle (compact uses page via bottom nav)
+    if (chatMode === 'panel' || chatMode === 'expanded') setChatMode('bubble');
+    else if (chatMode === 'bubble') {
+      const launcher = document.getElementById('chatLauncher');
+      if (launcher) launcher.hidden = true;
+    }
+    return;
+  }
+  // Desktop: leave chat page if we were on it (e.g. resized from phone)
+  if (curTab === 'chat') {
+    parkChatExpanded();
+    curTab = 'home';
+    syncFaceliftNav('home');
+    document.querySelectorAll('.app-page').forEach(page => {
+      const on = page.getAttribute('data-page') === 'home';
+      page.classList.toggle('active', on);
+      if (on) page.setAttribute('data-active', '');
+      else page.removeAttribute('data-active');
+    });
+    renderHome();
+    setChatMode('bubble'); // idle bubble — do not auto-open panel
+    return;
+  }
+  if (chatMode === 'page') setChatMode('bubble');
+  else if (chatMode === 'bubble') setChatMode('bubble');
+  else if (chatMode === 'expanded') setChatMode('expanded');
+}
+
 function setChatMode(mode) {
   readChatDraftFromDom();
   const launcher = document.getElementById('chatLauncher');
@@ -6574,8 +7934,9 @@ function setChatMode(mode) {
     return;
   }
 
-  // Primary surface is the Chat tab — floating bubble stays off in normal use
-  if (mode === 'expanded') mode = 'page';
+  // Compact uses full-page chat; desktop uses overlay expanded (with history)
+  if (mode === 'page' && !isCompactChatViewport()) mode = 'expanded';
+  if (mode === 'expanded' && isCompactChatViewport()) mode = 'page';
 
   chatMode = mode;
   document.body.classList.toggle('chat-page-active', mode === 'page');
@@ -6598,8 +7959,31 @@ function setChatMode(mode) {
     return;
   }
 
+  if (mode === 'expanded') {
+    // Large desktop chat with history sidebar
+    if (document.getElementById('chatExpanded')?.parentElement !== backdrop) {
+      backdrop.appendChild(document.getElementById('chatExpanded'));
+    }
+    document.body.classList.remove('chat-page-active');
+    launcher.hidden = true;
+    panel.hidden = true;
+    backdrop.hidden = false;
+    ensureActiveChatThread();
+    writeChatDraftToDom();
+    renderChatMessages();
+    renderChatHistoryList();
+    const expanded = document.getElementById('chatExpanded');
+    expanded?.classList.remove('history-collapsed');
+    document.getElementById('chatHistoryPane')?.classList.remove('mobile-open');
+    syncChatHistoryToggleUi();
+    const input = document.getElementById('chatExpandedInput');
+    if (input) setTimeout(() => input.focus(), 50);
+    return;
+  }
+
   parkChatExpanded();
-  launcher.hidden = mode !== 'bubble';
+  // Bubble only on desktop md+; compact hides via CSS + hidden attribute
+  launcher.hidden = mode !== 'bubble' || isCompactChatViewport();
   panel.hidden = mode !== 'panel';
   backdrop.hidden = true;
   if (mode !== 'bubble') {
@@ -7253,9 +8637,9 @@ function init() {
 
   applyAdminSettings();
   switchTab('home');
+  // Desktop md+: floating bubble. Compact: bubble stays hidden (bottom-nav Chat).
   setChatMode('bubble');
-
-  // Start Firebase listeners (if Firebase is ready, otherwise they fire after firebaseReady event)
+  syncChatAccessChrome();
   if (fbReady) {
     listenBudget(); listenPayables(); listenAdminSettings(); listenChatThreads();
   } else {
@@ -7283,7 +8667,19 @@ function init() {
       if (btnEl) btnEl.style.display = 'flex';
     });
   }
-  document.addEventListener('DOMContentLoaded', () => { initAppearance(); waitForAuth(); });
+  document.addEventListener('DOMContentLoaded', () => {
+    initAppearance();
+    waitForAuth();
+    const syncCompact = () => {
+      document.body.classList.toggle('is-compact', window.matchMedia('(max-width: 900px)').matches);
+      if (currentUser) {
+        syncChatAccessChrome();
+        if (typeof curTab === 'string') syncFaceliftNav(curTab);
+      }
+    };
+    syncCompact();
+    window.addEventListener('resize', syncCompact);
+  });
 })();
 </script>
 </body>

@@ -4,54 +4,45 @@
 
 ## Task summary
 
-Pensive UI facelift mockup: extract a reusable design system (`design-system/tokens.css` + `components.css`), keep latest Home insights polish, and compose Monthly + Payables pages in `ui-facelift-mockup.html`. Production `index.html` untouched.
+Monthly ledger multi-select: Excel-style modifiers on web; long-press multi mode on mobile.
 
 ## Work type
 
-[ ] NAB platform — Intelligence Hub / Context Library / Lifecycle / Brain  
-[ ] NAB product — ADG / VoC / Generation pilot  
-[ ] Portfolio case study (KB-derived)  
-[x] Personal app — hostess / finance-hub  
-[ ] Cursor meta — agents / skills / rules  
-[ ] Other: ___
+[x] Personal app — hostess / finance-hub
 
 ## QA tier
 
-**Tier:** 2 — new mockup pages + multi-file design-system extract
+**Tier:** 2 — Monthly ledger interaction
 
 ## User intent (verbatim)
 
-"just make sure it’s updated with the changes we last did on the mockup. Include also creating the new design system and tokens so those can be easily reused for new pages in the future."
+"web multi select pattern is holding shift to add to the selection. releasing shift will return the next mouseclick as a normal selection, not multi select. Not shift to go into multi select... user has to hold it shift to continue multiselecting and shift+ select to a far row with in betweens will select all in between. Click releases multi select. Ctrl+ Click adds a separate 1 row item to the selection without selecting the rows in between. Just like how Excel selection works. Again, this is for web. Mobile should have its own multi select pattern"
 
 ## Acceptance criteria
 
-- [x] AC-1: Latest Home polish preserved (fortnight hints, bills vs expenses split, charts above recurring lists, “this fortnight” hero chips).
-- [x] AC-2: `design-system/tokens.css` exposes palette + structural tokens (spacing, radius, type, layout).
-- [x] AC-3: `design-system/components.css` holds reusable app UI; mockup chrome stays in `ui-facelift-mockup.html`.
-- [x] AC-4: Monthly page — month nav in app bar, paid status strip, two period cards with section bars + checkable bill rows (desktop 2-col / phone stack).
-- [x] AC-5: Payables page — owing hero (desktop fan / phone single), Mine/Eric + All/Shared/Solo chips, open list + completed disclosure.
-- [x] AC-6: Scope switch visible on Home only; month nav visible on Monthly only.
-- [x] AC-7: Production `index.html` unchanged.
-- [x] AC-8: Monthly capability surface — Money In/Out, groups, savings, select/ctx/calc/drag demos.
-- [x] AC-9: Monthly v2 progressive disclosure — compact rows, period tabs, action dock, long-press.
-
-## Known limitations
-
-- Chat page remains a stub.
-- Mock data only — no Firebase binding.
-- Eric “this month” copy not wired (no Eric persona shell in mockup yet).
-- Rose QA MCP not available in this cloud environment (only `cursor-cloud` server); visual check via headless screenshots instead.
+- [x] AC-1: Plain click focuses one row only and releases any multi selection (web).
+- [x] AC-2: Shift+click selects contiguous range from selection anchor to clicked row (in-betweens included); does **not** latch a multi-select mode.
+- [x] AC-3: Further Shift+clicks re-range from the same anchor while Shift is used; releasing Shift + plain click = single select.
+- [x] AC-4: Ctrl/Cmd+click toggles one row into/out of selection without selecting in-between.
+- [x] AC-5: Mobile — long-press still enters `ledgerMultiMode` with Cancel / Select all; taps toggle; pick indicators.
+- [x] AC-6: Dock hint (fine pointer): “Shift+click range · Ctrl+click to add · Double-click to edit”
 
 ## Files touched
 
-- `design-system/tokens.css` (new)
-- `design-system/components.css` (new)
-- `design-system/README.md` (new)
-- `ui-facelift-mockup.html`
-- `.cursor/qa/session-traceability.md`
+- `index.html` — Excel-style `handleRowClick` + `ledgerSelectAnchor`; mobile mode unchanged entry via long-press
 
-## Verification
+## UX notes
 
-- JS syntax check via `new Function` on mockup script — pass.
-- Headless Chrome screenshots: Home / Monthly / Payables at `/opt/cursor/artifacts/screenshots/pensive-*.png`.
-- CSS assets return HTTP 200 from local static server.
+- Web: modifiers only (no Cancel/Select-all latch from Shift).
+- Mobile: long-press mode with Cancel | Select all.
+- Anchor set by plain click / Ctrl+click / ⋯; Shift does not move the anchor.
+
+## Regression risks
+
+- Anchor stale after `render()` rehydrate
+- Cmd vs Ctrl on macOS (`metaKey`)
+- Mobile plain tap must still toggle when `ledgerMultiMode` (not take web plain-click path)
+
+## Status
+
+Rose: **PASS WITH NOTES** ([Rose](ee51a601-3027-4394-81a4-6c2d53d7bd3d)). H-1 fixed (Ctrl always updates Shift anchor).

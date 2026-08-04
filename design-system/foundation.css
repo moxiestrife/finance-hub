@@ -1,0 +1,106 @@
+/* ═══════════════════════════════════════════════════════════════
+   Tabula Rasa — foundation utilities
+   Type roles + icon sizes. Prefer these over one-off font-size rules.
+   Depends on tokens.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Type roles ── */
+.tr-text-caption {
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-label);
+  line-height: var(--leading-tight);
+  color: var(--on-surface-variant);
+}
+.tr-text-axis {
+  font-family: var(--font-family);
+  font-size: var(--text-axis);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: var(--leading-tight);
+  color: var(--on-surface-variant);
+}
+.tr-text-label {
+  font-family: var(--font-family);
+  font-size: var(--text-label);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  color: var(--on-surface-variant);
+}
+.tr-text-ui {
+  font-family: var(--font-family);
+  font-size: var(--text-ui);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  color: var(--on-surface);
+}
+.tr-text-body {
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  color: var(--on-surface);
+}
+.tr-text-emphasis {
+  font-family: var(--font-family);
+  font-size: var(--text-emphasis);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-tight);
+  color: var(--on-surface);
+}
+.tr-text-title {
+  font-family: var(--font-family);
+  font-size: var(--text-title);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  color: var(--on-surface);
+}
+.tr-text-display {
+  font-family: var(--font-family);
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--on-surface);
+}
+
+/* ── Icons ── */
+.tr-icon,
+.material-symbols-outlined {
+  font-family: var(--icon-font-family);
+  font-weight: normal;
+  font-style: normal;
+  font-size: var(--icon-size);
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    "FILL" var(--icon-fill),
+    "wght" var(--icon-wght),
+    "GRAD" var(--icon-grad),
+    "opsz" var(--icon-opsz);
+  user-select: none;
+}
+
+.tr-icon--xs,
+.material-symbols-outlined.tr-icon--xs { font-size: var(--icon-xs); --icon-opsz: 20; }
+.tr-icon--sm,
+.material-symbols-outlined.tr-icon--sm { font-size: var(--icon-sm); --icon-opsz: 20; }
+.tr-icon--md,
+.material-symbols-outlined.tr-icon--md { font-size: var(--icon-md); --icon-opsz: 24; }
+.tr-icon--lg,
+.material-symbols-outlined.tr-icon--lg { font-size: var(--icon-lg); --icon-opsz: 24; }
+.tr-icon--xl,
+.material-symbols-outlined.tr-icon--xl { font-size: var(--icon-xl); --icon-opsz: 24; }
+.tr-icon--2xl,
+.material-symbols-outlined.tr-icon--2xl { font-size: var(--icon-2xl); --icon-opsz: 40; }
+.tr-icon--filled { --icon-fill: 1; }

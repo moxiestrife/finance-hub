@@ -1,248 +1,190 @@
 /* ═══════════════════════════════════════════════════════════════
-   Home (Phase 3B) — scoped under #tab-home so prod Monthly CSS is untouched
-   Depends on design-system/tokens.css
+   Home — live shell. Layout/padding owned by components.css + app.css.
+   Keep only Home-specific helpers here (no max-width / page chrome).
    ═══════════════════════════════════════════════════════════════ */
 
 #tab-home {
-  max-width: var(--content-max-width, 80%);
-  margin: 0 auto;
-  padding: 12px 16px 28px;
-}
-
-#tab-home .fh-home-bar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-bottom: 8px;
-  min-height: 40px;
-}
-
-#tab-home .fh-scope {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-#tab-home .fh-scope-label {
-  appearance: none;
-  border: none;
-  background: transparent;
-  padding: 0;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--on-surface-variant, #64748b);
-  cursor: pointer;
-}
-#tab-home .fh-scope-label.is-active {
-  color: var(--on-surface, #1a202c);
-}
-#tab-home .fh-scope-toggle {
-  position: relative;
-  width: 36px;
-  height: 22px;
-  border: none;
-  border-radius: 999px;
-  padding: 0;
-  background: var(--surface-container-highest, #e2e8f0);
-  cursor: pointer;
-}
-#tab-home .fh-scope-toggle[aria-checked="true"] {
-  background: var(--primary, #1e3a5f);
-}
-#tab-home .fh-scope-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--surface-container-lowest, #fff);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  transition: transform 0.2s ease;
-}
-#tab-home .fh-scope-toggle[aria-checked="true"] .fh-scope-thumb {
-  transform: translateX(14px);
-}
-
-#tab-home .fh-hero {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 14px;
-}
-#tab-home .fh-hero-metric {
-  background: var(--surface-container-lowest, #fff);
-  border: 1px solid color-mix(in srgb, var(--outline-variant, #e2e8f0) 70%, transparent);
-  border-radius: 16px;
-  padding: 14px 16px;
-  box-shadow: 0 1px 3px var(--shadow, rgba(0,0,0,0.06));
-}
-#tab-home .fh-hero-label {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--on-surface-variant, #64748b);
-  margin-bottom: 4px;
-}
-#tab-home .fh-hero-figure {
-  font-size: clamp(1.6rem, 3vw, 2.1rem);
-  font-weight: 800;
-  line-height: 1.1;
-  color: var(--on-surface, #1a202c);
-}
-#tab-home .fh-hero-metric[data-metric="safe"] .fh-hero-figure { color: var(--hero-safe, #0f6b58); }
-#tab-home .fh-hero-metric[data-metric="in"] .fh-hero-figure { color: var(--hero-in, var(--brand-col)); }
-#tab-home .fh-hero-metric[data-metric="out"] .fh-hero-figure { color: var(--hero-out, #b45309); }
-#tab-home .fh-hero-chip {
-  margin-top: 6px;
-  font-size: 0.75rem;
-  color: var(--on-surface-variant, #64748b);
-}
-
-#tab-home .fh-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 14px;
-}
-#tab-home .fh-card {
-  background: var(--surface-container-lowest, #fff);
-  border: 1px solid color-mix(in srgb, var(--outline-variant, #e2e8f0) 70%, transparent);
-  border-radius: 16px;
-  padding: 14px 16px;
-  box-shadow: 0 1px 3px var(--shadow, rgba(0,0,0,0.06));
-}
-#tab-home .fh-card-title {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--on-surface-variant, #64748b);
-  margin-bottom: 10px;
-}
-#tab-home .fh-cat-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: flex-start;
-  margin-bottom: 8px;
-}
-#tab-home .fh-cat-name {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--on-surface, #1a202c);
-}
-#tab-home .fh-cat-hint {
-  font-size: 0.75rem;
-  color: var(--on-surface-variant, #64748b);
-  margin-top: 2px;
-}
-#tab-home .fh-cat-amt {
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--on-surface, #1a202c);
-  white-space: nowrap;
-}
-#tab-home .fh-bar {
-  height: 6px;
-  border-radius: 999px;
-  background: var(--surface-container-high, #e2e8f0);
-  overflow: hidden;
-}
-#tab-home .fh-bar > span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--primary, #1e3a5f);
-}
-
-#tab-home .fh-bill-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 8px 0;
-  border-top: 1px solid color-mix(in srgb, var(--outline-variant, #e2e8f0) 45%, transparent);
-  font-size: 0.88rem;
-}
-#tab-home .fh-bill-row:first-of-type { border-top: none; }
-#tab-home .fh-bill-name { font-weight: 600; color: var(--on-surface, #1a202c); }
-#tab-home .fh-bill-amt { font-weight: 700; color: var(--on-surface, #1a202c); }
-
-#tab-home .fh-empty {
-  padding: 18px 8px;
-  text-align: center;
-  color: var(--on-surface-variant, #64748b);
-  font-size: 0.88rem;
-}
-#tab-home .fh-chart-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-#tab-home .fh-chart-tab {
-  border: none;
-  background: var(--surface-container-high, #e2e8f0);
-  color: var(--on-surface-variant, #64748b);
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 600;
-  min-height: 32px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-}
-#tab-home .fh-chart-tab[aria-pressed="true"] {
-  background: var(--primary-container, #e6e6e9);
-  color: var(--on-primary-container, #1a1a1d);
-}
-#tab-home .fh-chart-svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-#tab-home .fh-pie-wrap {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-#tab-home .fh-pie-disk {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-#tab-home .fh-pie-legend {
-  flex: 1;
-  min-width: 140px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-#tab-home .fh-pie-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 0.8rem;
-}
-#tab-home .fh-pie-swatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 6px;
+  min-height: 0;
+  flex: 1;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
 }
 
-@media (max-width: 800px) {
-  #tab-home .fh-hero,
-  #tab-home .fh-row {
-    grid-template-columns: 1fr;
+#tab-home .home-hero-mount {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#tab-home .home-body {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Period identity above heroes — < date > cycle */
+.home-period-context {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 20px 8px;
+  gap: 0;
+}
+.home-period-nav {
+  display: grid;
+  grid-template-columns: 40px minmax(0, auto) 40px;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  position: relative;
+}
+.home-period-chevron {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-family: inherit;
+}
+.home-period-chevron:hover {
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+}
+.home-period-chevron[hidden] {
+  /* Keep grid cell so the date stays centered; display:grid on the base class beats UA [hidden] */
+  visibility: hidden;
+  pointer-events: none;
+}
+.home-period-chevron .material-symbols-outlined {
+  font-size: 24px;
+}
+.home-period-date {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+  padding: 0 4px;
+  /* Plain text — not a chip (matches Home) */
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  cursor: default;
+  line-height: 1.3;
+}
+button.home-period-date {
+  cursor: pointer;
+  border-radius: 6px;
+}
+button.home-period-date:hover {
+  background: var(--surface-container-high);
+}
+.desktop-main .home-period-context {
+  padding: 28px 28px 6px;
+}
+@media (max-width: 900px) {
+  .home-period-context {
+    padding: 14px 16px 4px;
   }
-  #tab-home {
-    max-width: none;
-    padding: 10px 12px 24px;
+}
+
+/* Monthly: month nav → paid progress (centered) → period chevrons (compact) */
+.monthly-period-context {
+  gap: 10px;
+  padding-bottom: 4px;
+}
+.monthly-period-context .monthly-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 4px 0 2px;
+  width: 100%;
+  max-width: 220px;
+}
+.monthly-period-context .monthly-progress[hidden] {
+  display: none !important;
+}
+.monthly-period-context .monthly-progress-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--on-surface-variant);
+  text-align: center;
+  white-space: nowrap;
+}
+.monthly-period-context .monthly-progress .cat-bar-track {
+  width: 140px;
+  height: 6px;
+}
+.desktop-main .monthly-period-context {
+  padding-bottom: 8px;
+  gap: 12px;
+}
+.monthly-period-context .monthly-month-nav .month-picker {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+@media (min-width: 901px) {
+  .monthly-period-context .monthly-period-nav {
+    display: none !important;
   }
+}
+@media (max-width: 900px) {
+  .monthly-period-context {
+    gap: 2px;
+  }
+}
+
+/* Recurring lists on Home must stay mock 1fr/auto — never inherit Monthly 7-col .bill-row */
+#tab-home .bill-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Home insights: charts fill their cards (don’t re-cap height here) */
+#tab-home .insights-split > .card {
+  min-height: 300px;
+}
+#tab-home .chart-wrap {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  height: auto;
+  justify-content: center;
+}
+#tab-home [data-chart-mount] {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+#tab-home .chart-svg {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  display: block;
+}
+#tab-home .pie-layout {
+  min-height: 260px;
+}
+#tab-home .pie-radar {
+  width: 92%;
+  max-width: none;
 }

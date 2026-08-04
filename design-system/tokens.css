@@ -1,11 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════
-   Pensive design tokens
-   Palette: set data-palette + data-theme on <html>
-   Structural: spacing, type, radius, layout — reuse on every page
+   Tabula Rasa — design tokens (Pensive / Finance Hub)
+   Structure is shared; colour (and later type/icons) via sub-themes:
+     <html data-theme="light|dark" data-palette="azulejo|…">
+   Prefer semantic tokens (--text-axis, --icon-md) over raw literals.
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Spacing scale */
+  /* ── Spacing scale ── */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -14,7 +15,7 @@
   --space-6: 20px;
   --space-7: 28px;
 
-  /* Radii */
+  /* ── Radii ── */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -22,9 +23,15 @@
   --radius-pill: 999px;
   --radius-nav: 28px;
 
-  /* Typography */
+  /* ── Type families (palette-overridable) ── */
   --font-family: "Google Sans", Roboto, system-ui, sans-serif;
   --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  /*
+    Type size scale (primitives)
+    Rem @ 16px root ≈  2xs 10.4 · xs 10.9 · sm 11.5 · md 12.5 ·
+                       base 14.1 · lg 14.7 · xl 16.8 · 2xl 18.4
+  */
   --text-2xs: 0.65rem;
   --text-xs: 0.68rem;
   --text-sm: 0.72rem;
@@ -32,26 +39,61 @@
   --text-base: 0.88rem;
   --text-lg: 0.92rem;
   --text-xl: 1.05rem;
+  --text-2xl: 1.15rem;
   --text-hero: clamp(2.15rem, 9vw, 2.55rem);
+
   --weight-medium: 500;
   --weight-semibold: 600;
   --weight-bold: 700;
   --tracking-label: 0.06em;
   --tracking-hero-label: 0.12em;
+  --leading-tight: 1.15;
+  --leading-snug: 1.25;
+  --leading-normal: 1.4;
 
-  /* Layout */
+  /*
+    Semantic type roles — use these in components
+    (swap primitives here once; never hardcode rem in features)
+  */
+  --text-caption: var(--text-2xs);   /* overlines, micro meta */
+  --text-axis: var(--text-xs);       /* chart X & Y tick labels */
+  --text-label: var(--text-sm);      /* chips, secondary labels */
+  --text-ui: var(--text-md);         /* panel titles, tabs */
+  --text-body: var(--text-base);     /* primary reading text */
+  --text-emphasis: var(--text-lg);   /* strong body / amounts */
+  --text-title: var(--text-xl);      /* section titles */
+  --text-display: var(--text-hero);  /* hero metrics */
+
+  /* ── Icons (Material Symbols today; palette may swap family later) ── */
+  --icon-font-family: "Material Symbols Outlined";
+  --icon-wght: 500;
+  --icon-fill: 0;
+  --icon-grad: 0;
+  --icon-opsz: 24;
+  --icon-xs: 14px;   /* dense rows, checks */
+  --icon-sm: 16px;   /* chips, inline actions */
+  --icon-md: 20px;   /* app bar, menus */
+  --icon-lg: 22px;   /* default buttons / nav */
+  --icon-xl: 24px;   /* period chevrons */
+  --icon-2xl: 36px;  /* empty states */
+  --icon-size: var(--icon-lg);
+
+  /* ── Layout ── */
   --page-pad-x-phone: 14px;
   --page-pad-x-desktop: 28px;
+  --page-pad-x-desktop-fluid: clamp(28px, 3vw, 40px);
   --page-pad-y: 16px;
   --page-gap: 12px;
   --page-gap-desktop: 14px;
+  --content-max-desktop: 1480px;
+  --content-max-settings: 620px;
   --app-bar-height: 48px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --bottom-nav-offset: calc(12px + var(--safe-bottom));
   --bottom-nav-reserve: calc(76px + var(--safe-bottom));
 
-  /* Elevation / z */
+  /* ── Elevation / z ── */
   --z-app-bar: 2;
   --z-nav: 3;
   --z-sticky: 100;
@@ -96,10 +138,14 @@
 }
 
 /*
-  Palette templates — switch via data-palette on <html>
-  ocean   = current (blue + teal) — kept for compare
-  graphite = ink + copper, neutral gray surfaces (no blue haze / no green)
-  slate    = cool stone + rust accents
+  Palette sub-themes — switch via data-palette on <html>
+  Colour tokens change per palette × theme. Type/icon families can override
+  later the same way (set --font-family / --icon-font-family on the palette).
+
+  azulejo  = default — cobalt + saffron tile
+  ocean    = blue + teal (compare / legacy)
+  graphite = ink + copper, neutral gray
+  slate    = cool stone + rust
   dusk     = charcoal + muted gold
 */
 
@@ -415,4 +461,17 @@ html[data-palette="azulejo"][data-theme="dark"] {
   --hero-safe: #5eead4;
   --hero-in: #9ec5ff;
   --hero-out: #ffd666;
+}
+
+/*
+  Palette type/icon hooks — identical today; override per palette when a
+  product ask needs a distinct voice (App Store themes, partner skins, etc.).
+*/
+html[data-palette="azulejo"],
+html[data-palette="ocean"],
+html[data-palette="graphite"],
+html[data-palette="slate"],
+html[data-palette="dusk"] {
+  --font-family: "Google Sans", Roboto, system-ui, sans-serif;
+  --icon-font-family: "Material Symbols Outlined";
 }

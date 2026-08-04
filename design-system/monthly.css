@@ -6,9 +6,9 @@
    ═══════════════════════════════════════════════════════════════ */
 
 #tab-monthly {
-  max-width: var(--content-max-width, 80%);
-  margin: 0 auto;
-  padding: var(--space-3) var(--page-pad-x-phone) var(--space-7);
+  max-width: none;
+  margin: 0;
+  padding: 0;
   font-family: var(--font-family);
   color: var(--on-surface);
 }
@@ -62,6 +62,12 @@
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: var(--page-gap-desktop);
   align-items: start;
+}
+/* Single period (Eric): match one Elly fortnight column — don’t stretch full 1480 */
+#tab-monthly #periodsGrid[data-period-count="1"],
+#tab-monthly .periods-grid[data-period-count="1"] {
+  grid-template-columns: minmax(320px, calc((100% - var(--page-gap-desktop)) / 2));
+  justify-content: start;
 }
 
 /* ── Period card (cleaner mock shell) ── */
@@ -218,19 +224,25 @@
 
 /* Legacy .money-in → hero-safe greens (mock .is-in) */
 #tab-monthly .section-toggle.money-in .section-toggle-label,
-#tab-monthly .section-toggle.money-in .section-toggle-amount {
+#tab-monthly .section-toggle.money-in .section-toggle-amount,
+#tab-monthly .section-toggle.is-in .section-toggle-label,
+#tab-monthly .section-toggle.is-in .section-toggle-amt {
   color: var(--hero-safe);
 }
-#tab-monthly .section-toggle.money-in .section-chevron {
+#tab-monthly .section-toggle.money-in .section-chevron,
+#tab-monthly .section-toggle.is-in .section-toggle-left .material-symbols-outlined {
   color: var(--hero-safe);
 }
 
 /* Legacy .money-out → primary / hero-in blues (mock .is-out) */
 #tab-monthly .section-toggle.money-out .section-toggle-label,
-#tab-monthly .section-toggle.money-out .section-toggle-amount {
+#tab-monthly .section-toggle.money-out .section-toggle-amount,
+#tab-monthly .section-toggle.is-out .section-toggle-label,
+#tab-monthly .section-toggle.is-out .section-toggle-amt {
   color: var(--hero-in);
 }
-#tab-monthly .section-toggle.money-out .section-chevron {
+#tab-monthly .section-toggle.money-out .section-chevron,
+#tab-monthly .section-toggle.is-out .section-toggle-left .material-symbols-outlined {
   color: var(--hero-in);
 }
 
@@ -255,64 +267,116 @@
 }
 #tab-monthly .bill-list-header {
   display: grid;
-  grid-template-columns: 20px 18px 1fr 90px 120px 22px 22px;
-  padding: 4px 12px 4px 6px;
-  gap: 6px;
-  font-size: var(--text-2xs);
+  grid-template-columns: 22px 22px minmax(0, 1fr) minmax(0, 1fr) minmax(4.5rem, auto) 28px;
+  padding: 4px 8px 6px;
+  gap: 8px;
+  font-size: var(--text-caption);
   font-weight: var(--weight-bold);
   color: var(--on-surface-variant);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--tracking-label);
   border-bottom: var(--border-row);
+  margin: 0 0 2px;
 }
-#tab-monthly .sort-col {
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  color: inherit;
+#tab-monthly .bill-list-header .col-label {
+  text-align: left;
 }
-#tab-monthly .sort-col:hover,
-#tab-monthly .sort-col.active {
-  color: var(--primary);
-}
-#tab-monthly .sort-arrow {
-  font-size: 0.6rem;
-  opacity: 0.5;
-}
-#tab-monthly .sort-col.active .sort-arrow {
-  opacity: 1;
-  color: var(--primary);
+#tab-monthly .bill-list-header .col-label.is-amt {
+  text-align: right;
 }
 
-#tab-monthly .bill-row {
+/* Desktop 1–2 periods: handle · check · name · account · amount · more */
+#tab-monthly .ledger-row,
+#tab-monthly .ledger-row.bill-row {
   display: grid;
-  grid-template-columns: 20px 18px 1fr 90px 120px 22px 22px;
+  grid-template-columns: 22px 22px minmax(0, 1fr) minmax(0, 1fr) minmax(4.5rem, auto) 28px;
+  grid-template-rows: none;
   align-items: center;
-  padding: 8px 6px;
-  gap: 6px;
+  padding: 10px 8px;
+  gap: 8px;
   border-bottom: var(--border-row);
   border-radius: var(--radius-sm);
   transition: background 0.12s ease;
-  cursor: default;
+  cursor: pointer;
   user-select: none;
 }
-#tab-monthly .bill-row:last-child {
+#tab-monthly .ledger-row > *,
+#tab-monthly .ledger-row.bill-row > * {
+  grid-column: unset;
+  grid-row: unset;
+}
+#tab-monthly .ledger-row .ledger-detail {
+  grid-column: 1 / -1;
+}
+#tab-monthly .ledger-payto-tag {
+  justify-self: start;
+  text-align: left;
+}
+
+/* 3-period web: account tag under name (tighter columns) */
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-row,
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-row.bill-row {
+  grid-template-columns: 22px 22px minmax(0, 1fr) auto 28px;
+  grid-template-areas: "handle check main amt more";
+  column-gap: 8px;
+  row-gap: 2px;
+  align-items: center;
+}
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-row:has(.ledger-payto-tag:not(.is-empty)),
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-row.bill-row:has(.ledger-payto-tag:not(.is-empty)) {
+  grid-template-areas:
+    "handle check main amt more"
+    ".      .     payto amt more";
+}
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-handle { grid-area: handle; }
+#tab-monthly #periodsGrid[data-period-count="3"] .bill-check { grid-area: check; align-self: start; }
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-main { grid-area: main; }
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-payto-tag { grid-area: payto; justify-self: start; align-self: start; }
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-payto-tag.is-empty { display: none; }
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-amt { grid-area: amt; align-self: center; }
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-more { grid-area: more; align-self: center; }
+#tab-monthly #periodsGrid[data-period-count="3"] .ledger-detail { grid-column: 1 / -1; grid-area: unset; }
+#tab-monthly #periodsGrid[data-period-count="3"] .bill-list-header {
+  grid-template-columns: 22px 22px minmax(0, 1fr) auto 28px;
+}
+#tab-monthly #periodsGrid[data-period-count="3"] .bill-list-header .col-label:nth-child(4) {
+  display: none; /* Account header — tags stack under name */
+}
+#tab-monthly .ledger-row:last-child {
   border-bottom: none;
 }
-#tab-monthly .bill-row:hover {
+#tab-monthly .ledger-row:hover {
   background: var(--surface-container-low);
 }
 
-/* Selected / done — clear states, no purple */
+/* Selected / done — inset highlight so adjacent rows keep a visual gap */
+#tab-monthly .ledger-row.is-selected,
+#tab-monthly .ledger-row.selected,
 #tab-monthly .bill-row.selected {
-  background: color-mix(in srgb, var(--primary-container) 70%, transparent) !important;
-  box-shadow: inset 2px 0 0 var(--primary);
+  background: transparent !important;
+  box-shadow: none;
+  position: relative;
+  z-index: 0;
 }
+#tab-monthly .ledger-row.is-selected::before,
+#tab-monthly .ledger-row.selected::before,
+#tab-monthly .bill-row.selected::before {
+  content: '';
+  position: absolute;
+  inset: 3px 4px;
+  background: color-mix(in srgb, var(--primary-container) 70%, transparent);
+  border-left: 2px solid var(--primary);
+  border-radius: 8px;
+  z-index: -1;
+  pointer-events: none;
+}
+#tab-monthly .ledger-row.is-paid,
+#tab-monthly .ledger-row.is-done,
 #tab-monthly .bill-row.is-done {
   opacity: 0.55;
 }
+#tab-monthly .ledger-row.is-paid .ledger-name,
+#tab-monthly .ledger-row.is-paid .ledger-amt,
 #tab-monthly .bill-row.is-done .bill-name-input,
 #tab-monthly .bill-row.is-done .bill-amount-input,
 #tab-monthly .bill-row.is-done .readonly-amount {
@@ -320,15 +384,18 @@
   text-decoration-color: color-mix(in srgb, var(--outline) 50%, transparent);
   color: var(--on-surface-variant);
 }
+#tab-monthly .ledger-row.drag-over,
 #tab-monthly .bill-row.drag-over {
   border-top: 2px solid var(--primary);
   background: color-mix(in srgb, var(--primary-container) 50%, transparent);
 }
+#tab-monthly .ledger-row.dragging,
 #tab-monthly .bill-row.dragging {
   opacity: 0.35;
 }
 
-#tab-monthly .row-handle {
+#tab-monthly .row-handle,
+#tab-monthly .ledger-handle {
   width: 20px;
   height: 100%;
   display: flex;
@@ -344,23 +411,63 @@
   margin: -6px 0;
   transition: color 0.15s ease, background 0.15s ease;
 }
-#tab-monthly .row-handle:active {
+#tab-monthly .row-handle:active,
+#tab-monthly .ledger-handle:active {
   cursor: grabbing;
 }
-#tab-monthly .row-handle:hover {
+#tab-monthly .row-handle:hover,
+#tab-monthly .ledger-handle:hover {
   color: var(--primary);
   background: var(--primary-container);
 }
+#tab-monthly .ledger-row.is-selected .ledger-handle,
 #tab-monthly .bill-row.selected .row-handle {
   color: var(--primary);
 }
 
+/* Mock circular check — not a native checkbox */
+#tab-monthly .ledger-row .bill-check,
 #tab-monthly .bill-check {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: var(--primary);
+  width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  border: 1.5px solid var(--outline-variant);
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+  accent-color: unset;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+#tab-monthly .ledger-row.is-paid .bill-check,
+#tab-monthly .ledger-row.is-done .bill-check {
+  background: var(--secondary);
+  border-color: var(--secondary);
+  color: var(--on-secondary);
+}
+#tab-monthly .bill-check .material-symbols-outlined {
+  font-size: 14px;
+}
+
+/* Multi-select mode: circles become pick indicators (not paid state) */
+#tab-monthly.is-ledger-multiselect .ledger-row.bill-row .bill-check {
+  border-color: var(--outline);
+  background: transparent;
+  color: transparent;
+}
+#tab-monthly.is-ledger-multiselect .ledger-row.bill-row .bill-check.is-pick {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+}
+#tab-monthly.is-ledger-multiselect .ledger-row.bill-row.is-paid .bill-name,
+#tab-monthly.is-ledger-multiselect .ledger-row.bill-row.is-done .bill-name {
+  /* Keep paid strikethrough readable while picking */
+  opacity: 0.85;
 }
 
 #tab-monthly .bill-name-input,
@@ -629,11 +736,11 @@
   filter: brightness(1.08);
 }
 
-/* ── Mobile ~800px: stack periods + progressive bill rows ── */
-@media (max-width: 800px) {
+/* ── Compact ≤900: stack periods; account under name; keep sort as chip bar ── */
+@media (max-width: 900px) {
   #tab-monthly {
     max-width: none;
-    padding: 10px 12px 24px;
+    padding: 0;
   }
 
   #tab-monthly .month-toolbar {
@@ -656,52 +763,51 @@
     grid-template-columns: 1fr;
     gap: var(--page-gap);
   }
+  #tab-monthly #periodsGrid[data-period-count="1"],
+  #tab-monthly .periods-grid[data-period-count="1"] {
+    grid-template-columns: 1fr;
+  }
 
   #tab-monthly .bill-list-header {
+    grid-template-columns: 22px 22px minmax(0, 1fr) auto 28px;
+    padding: 6px 8px;
+  }
+  #tab-monthly .bill-list-header .col-label:nth-child(4) {
     display: none;
   }
 
-  #tab-monthly .bill-row {
-    grid-template-columns: 28px 22px minmax(0, 1fr) 84px;
-    grid-template-rows: auto auto auto;
-    column-gap: var(--space-2);
-    row-gap: 4px;
-    padding: 10px 8px;
+  /* Account tag on 2nd row under name */
+  #tab-monthly .ledger-row,
+  #tab-monthly .ledger-row.bill-row {
+    grid-template-columns: 22px 22px minmax(0, 1fr) auto 28px;
+    grid-template-areas: "handle check main amt more";
+    grid-template-rows: none;
+    padding: 14px 10px;
+    min-height: 48px;
+    column-gap: 10px;
+    row-gap: 2px;
   }
-  #tab-monthly .bill-row > :nth-child(1) {
-    grid-column: 1;
-    grid-row: 1 / span 3;
-    align-self: start;
-    padding-top: 4px;
+  #tab-monthly .ledger-row:has(.ledger-payto-tag:not(.is-empty)),
+  #tab-monthly .ledger-row.bill-row:has(.ledger-payto-tag:not(.is-empty)) {
+    grid-template-areas:
+      "handle check main amt more"
+      ".      .     payto amt more";
   }
-  #tab-monthly .bill-row > :nth-child(2) {
-    grid-column: 2;
-    grid-row: 1 / span 3;
-    align-self: start;
-    padding-top: 6px;
+  #tab-monthly .ledger-row > *,
+  #tab-monthly .ledger-row.bill-row > * {
+    grid-column: unset;
+    grid-row: unset;
   }
-  #tab-monthly .bill-row > :nth-child(3) {
-    grid-column: 3;
-    grid-row: 1;
-    min-width: 0;
-  }
-  #tab-monthly .bill-row > :nth-child(4) {
-    grid-column: 4;
-    grid-row: 1;
-  }
-  #tab-monthly .bill-row > :nth-child(5) {
-    grid-column: 3 / span 2;
-    grid-row: 2;
-  }
-  #tab-monthly .bill-row > :nth-child(6) {
-    grid-column: 3;
-    grid-row: 3;
-    justify-self: start;
-  }
-  #tab-monthly .bill-row > :nth-child(7) {
-    grid-column: 4;
-    grid-row: 3;
-    justify-self: end;
+  #tab-monthly .ledger-row .ledger-handle { grid-area: handle; }
+  #tab-monthly .ledger-row .bill-check { grid-area: check; align-self: start; }
+  #tab-monthly .ledger-row .ledger-main { grid-area: main; }
+  #tab-monthly .ledger-row .ledger-payto-tag { grid-area: payto; justify-self: start; align-self: start; }
+  #tab-monthly .ledger-row .ledger-payto-tag.is-empty { display: none; }
+  #tab-monthly .ledger-row .ledger-amt { grid-area: amt; align-self: center; }
+  #tab-monthly .ledger-row .ledger-more { grid-area: more; align-self: center; }
+  #tab-monthly .ledger-row .ledger-detail {
+    grid-column: 1 / -1;
+    grid-area: unset;
   }
 
   #tab-monthly .del-btn {
@@ -763,85 +869,172 @@
    Scoped by unique IDs so other tabs are unaffected.
    ═══════════════════════════════════════════════════════════════ */
 
-#sel-badge {
-  position: fixed;
-  bottom: calc(20px + var(--safe-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: var(--z-modal);
-  display: none;
-  padding: 10px 20px;
-  border-radius: var(--radius-pill);
-  background: var(--primary);
-  color: var(--on-primary);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  font-family: var(--font-family);
-  box-shadow: var(--shadow-nav);
-  transition: opacity 0.2s ease;
-}
-#sel-badge.visible {
-  display: block;
+/* Legacy #sel-badge styles retired — selection UI uses .action-dock (#sel-badge id kept for JS) */
+#sel-badge.action-dock[hidden] {
+  display: none !important;
 }
 
+/* Dropdown retired — keep id for closeCtx no-op safety */
 #ctx-menu.ctx-menu-shell,
 #ctx-menu {
+  display: none !important;
   position: fixed;
-  z-index: var(--z-modal);
-  min-width: 200px;
-  padding: 6px 0;
+  z-index: var(--z-modal, 9000);
+  min-width: 220px;
+  padding: 6px;
   background: var(--surface-container-lowest);
   border: var(--border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   box-shadow: 0 16px 40px var(--shadow);
   font-family: var(--font-family);
+}
+#ctx-menu[hidden] {
+  display: none !important;
 }
 html[data-theme="dark"] #ctx-menu {
   background: var(--surface-container-high);
   border-color: transparent;
 }
+#ctx-menu .ctx-sel-label {
+  padding: 6px 12px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
 #ctx-menu .ctx-item {
-  padding: 9px 14px;
+  width: 100%;
+  padding: 10px 12px;
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
+  font-family: inherit;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   color: var(--on-surface);
+  background: none;
+  border: none;
+  border-radius: 8px;
   transition: background 0.1s ease;
   position: relative;
+  text-align: left;
+  box-sizing: border-box;
 }
-#ctx-menu .ctx-item:hover {
+#ctx-menu .ctx-item:hover,
+#ctx-menu .ctx-item.is-active {
   background: var(--surface-container-high);
 }
-#ctx-menu .ctx-item.ctx-danger {
+#ctx-menu .ctx-item-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+#ctx-menu .ctx-item-main .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--on-surface-variant);
+}
+#ctx-menu .ctx-item.ctx-danger,
+#ctx-menu .ctx-rail-btn.is-danger {
   color: var(--error);
 }
 #ctx-menu .ctx-arrow {
-  font-size: 0.7rem;
+  font-size: 18px;
   color: var(--on-surface-variant);
 }
 #ctx-menu .ctx-divider {
   height: 1px;
   background: color-mix(in srgb, var(--outline-variant) 45%, transparent);
-  margin: 3px 0;
+  margin: 4px 6px;
 }
 #ctx-menu .ctx-sub {
   position: absolute;
-  left: 100%;
-  top: -5px;
+  left: calc(100% + 6px);
+  top: 0;
   background: var(--surface-container-lowest);
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   box-shadow: 0 16px 40px var(--shadow);
   border: var(--border-subtle);
-  padding: 5px 0;
-  min-width: 210px;
+  padding: 6px;
+  min-width: 200px;
+  display: none;
+  z-index: 9100;
+}
+#ctx-menu .ctx-sub.flip-left {
+  left: auto;
+  right: calc(100% + 6px);
+}
+#ctx-menu .ctx-has-sub:hover > .ctx-sub,
+#ctx-menu .ctx-has-sub.is-open > .ctx-sub {
+  display: block;
+}
+#ctx-menu .ctx-icon-rail {
+  min-width: 0;
+  width: auto;
+  padding: 8px 6px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+#ctx-menu .ctx-has-sub:hover > .ctx-icon-rail,
+#ctx-menu .ctx-has-sub.is-open > .ctx-icon-rail {
+  display: flex;
+}
+/* Compact: nest wide Calculate panel under the item so it can’t spill off-screen */
+@media (max-width: 900px) {
+  #ctx-menu .ctx-sub:not(.ctx-icon-rail) {
+    position: static;
+    left: auto;
+    right: auto;
+    width: 100%;
+    min-width: 0;
+    margin-top: 4px;
+    box-shadow: none;
+    border: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
+  }
+  #ctx-menu .ctx-has-sub.is-open > .ctx-sub:not(.ctx-icon-rail),
+  #ctx-menu .ctx-has-sub:hover > .ctx-sub:not(.ctx-icon-rail) {
+    display: block;
+  }
+  /* Icon rail stays a flyout; prefer left of menu on narrow screens */
+  #ctx-menu .ctx-icon-rail {
+    left: auto;
+    right: calc(100% + 6px);
+  }
+  #ctx-menu .ctx-icon-rail.flip-left {
+    left: calc(100% + 6px);
+    right: auto;
+  }
 }
 html[data-theme="dark"] #ctx-menu .ctx-sub {
   background: var(--surface-container-high);
   border-color: transparent;
+}
+#ctx-menu .ctx-rail-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--on-surface);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+#ctx-menu .ctx-rail-btn:hover {
+  background: var(--surface-container-high);
+}
+#ctx-menu .ctx-rail-btn .material-symbols-outlined {
+  font-size: 22px;
+}
+#ctx-menu .ctx-formula-hint {
+  padding: 0 10px 6px;
+  font-size: 0.68rem;
+  color: var(--on-surface-variant);
 }
 
 #calc-panel {
@@ -880,6 +1073,13 @@ html[data-theme="dark"] #calc-panel {
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#calc-panel .calc-panel-header h3 .material-symbols-outlined {
+  font-size: 22px;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 #calc-panel .calc-close-btn {
   background: color-mix(in srgb, var(--on-primary) 14%, transparent);
@@ -889,11 +1089,13 @@ html[data-theme="dark"] #calc-panel {
   height: 28px;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  padding: 0;
   font-family: inherit;
+}
+#calc-panel .calc-close-btn .material-symbols-outlined {
+  font-size: 18px;
 }
 #calc-panel .calc-close-btn:hover {
   background: color-mix(in srgb, var(--on-primary) 24%, transparent);
@@ -965,7 +1167,8 @@ html[data-theme="dark"] #calc-panel {
   #calc-panel {
     width: min(320px, 100vw);
   }
-  #sel-badge {
-    bottom: calc(var(--bottom-nav-reserve, 76px) - 8px);
+  /* Keep dock above bottom nav — match body.authed .action-dock clearance */
+  body.authed #sel-badge.action-dock {
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
   }
 }

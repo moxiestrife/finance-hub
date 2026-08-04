@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,0..1,0" rel="stylesheet">
 <link rel="stylesheet" href="design-system/tokens.css">
+<link rel="stylesheet" href="design-system/foundation.css">
 <link rel="stylesheet" href="design-system/components.css">
 <style>
 
@@ -448,7 +449,8 @@ body {
             <button class="rail-item active" type="button" data-nav="home"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">home</span></span>Home</button>
             <button class="rail-item" type="button" data-nav="monthly"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span></span>Monthly</button>
             <button class="rail-item" type="button" data-nav="payables"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">sync_alt</span></span>Payables</button>
-            <button class="rail-item" type="button" data-nav="chat"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span></span>Chat</button>
+            <button class="rail-item" type="button" data-nav="settings"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">settings</span></span>Settings</button>
+            <!-- Chat: floating bubble on desktop; bottom-nav only on compact -->
           </nav>
           <div class="desktop-main">
             <header class="app-bar">
@@ -481,9 +483,6 @@ body {
                   <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
                 </button>
               </div>
-              <button class="icon-btn filled" type="button" data-nav="settings" title="Settings" aria-label="Open settings">
-                <span class="material-symbols-outlined" aria-hidden="true">settings</span>
-              </button>
             </header>
 
             <div class="app-pages">
@@ -562,9 +561,6 @@ body {
                 <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
               </button>
             </div>
-            <button class="icon-btn filled" type="button" data-nav="settings" title="Settings" aria-label="Open settings">
-              <span class="material-symbols-outlined" aria-hidden="true">settings</span>
-            </button>
           </header>
 
           <div class="app-pages">
@@ -603,6 +599,7 @@ body {
           <button class="nav-item active" type="button" data-nav="home"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">home</span></span>Home</button>
           <button class="nav-item" type="button" data-nav="monthly"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span></span>Monthly</button>
           <button class="nav-item" type="button" data-nav="payables"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">sync_alt</span></span>Payables</button>
+          <button class="nav-item" type="button" data-nav="settings"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">settings</span></span>Settings</button>
           <button class="nav-item" type="button" data-nav="chat"><span class="ico"><span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span></span>Chat</button>
         </nav>
       </div>
@@ -939,7 +936,7 @@ body {
     chat: 'Chat',
     settings: 'Settings',
   };
-  const PRIMARY_PAGES = new Set(['home', 'monthly', 'payables', 'chat']);
+  const PRIMARY_PAGES = new Set(['home', 'monthly', 'payables', 'settings', 'chat']);
   let currentPage = 'home';
 
   const PALETTES = new Set(['ocean', 'azulejo', 'dusk', 'graphite', 'slate']);
@@ -993,9 +990,6 @@ body {
       const isPrimary = btn.classList.contains('nav-item') || btn.classList.contains('rail-item');
       if (isPrimary) {
         btn.classList.toggle('active', PRIMARY_PAGES.has(name) && target === name);
-      }
-      if (target === 'settings') {
-        btn.classList.toggle('filled', name === 'settings');
       }
     });
     document.querySelectorAll('.scope-switch:not([data-payables-switch])').forEach((el) => {
@@ -1065,6 +1059,7 @@ body {
         expenses: [42, 48, 45, 52, 49, 58, 55],
         safe: [38, 36, 40, 34, 32, 30, 28],
         cashflow: [20, 35, 22, 40, 28, 45, 38],
+        savings: [18, 22, 20, 24, 26, 28, 30],
       },
     },
     household: {
@@ -1097,6 +1092,7 @@ body {
         expenses: [50, 54, 52, 60, 58, 64, 62],
         safe: [44, 42, 46, 40, 38, 36, 34],
         cashflow: [28, 40, 30, 48, 36, 52, 44],
+        savings: [24, 28, 26, 32, 30, 34, 36],
       },
     },
   };
@@ -1104,7 +1100,7 @@ body {
   const CHART_META = {
     expenses: { label: 'Expenses trend', cls: '' },
     safe: { label: 'Safe to spend trend', cls: 'is-safe' },
-    cashflow: { label: 'Cashflow', cls: 'is-cash' },
+    savings: { label: 'Savings goal', cls: 'is-savings' },
   };
 
   let currentScope = 'me';
@@ -1115,9 +1111,11 @@ body {
     const cx = 60;
     const cy = 60;
     const r = 50;
-    const radarCx = 130;
-    const radarCy = 124;
-    const labelR = 108;
+    const radarW = 260;
+    const radarH = 248;
+    const radarCx = radarW / 2;
+    const radarCy = radarH / 2;
+    const labelR = 88;
     let angle = -Math.PI / 2;
     const slices = categories.map((c, i) => {
       const slice = (c.value / total) * Math.PI * 2;
@@ -1132,25 +1130,28 @@ body {
       const d = 'M ' + cx + ' ' + cy +
         ' L ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
         ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2) + ' Z';
-      const left = radarCx + Math.cos(mid) * labelR;
-      const top = radarCy + Math.sin(mid) * labelR;
+      const leftPx = radarCx + Math.cos(mid) * labelR;
+      const topPx = radarCy + Math.sin(mid) * labelR;
+      const pct = typeof c.pct === 'number' ? c.pct : Math.round((c.value / total) * 100);
       return {
         d,
         cls: 'pie-slice-' + i,
         name: c.name,
         amount: c.amount,
+        pct: pct,
         icon: c.icon || 'circle',
-        left,
-        top,
+        leftPct: (leftPx / radarW) * 100,
+        topPct: (topPx / radarH) * 100,
       };
     });
     const paths = slices.map((s) =>
-      '<path class="' + s.cls + '" d="' + s.d + '"><title>' + s.name + ' ' + s.amount + '</title></path>'
+      '<path class="' + s.cls + '" d="' + s.d + '"><title>' + s.name + ' · ' + s.pct + '% · ' + s.amount + '</title></path>'
     ).join('');
     const callouts = slices.map((s) =>
-      '<div class="pie-callout" style="left:' + s.left.toFixed(1) + 'px;top:' + s.top.toFixed(1) + 'px" title="' + s.name + '">' +
+      '<div class="pie-callout" style="left:' + s.leftPct.toFixed(2) + '%;top:' + s.topPct.toFixed(2) + '%" tabindex="0" aria-label="' + s.name + ' · ' + s.pct + '% of spend">' +
         '<span class="material-symbols-outlined" aria-hidden="true">' + s.icon + '</span>' +
         '<span class="pie-callout-amt">' + s.amount + '</span>' +
+        '<span class="pie-callout-tip" role="tooltip">' + s.name + ' · ' + s.pct + '%</span>' +
       '</div>'
     ).join('');
     return (
@@ -1188,43 +1189,61 @@ body {
   function renderChartSvg(values, cls) {
     const { line, area, pts, w, h, padX, padY, innerH } = chartPaths(values);
     const labels = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'];
+    const tickVals = [12000, 9000, 6000];
+    const gutterPct = ((padX / w) * 100).toFixed(2);
     const grid = [0.25, 0.5, 0.75].map((t) => {
       const y = padY + innerH * t;
       return '<line class="chart-grid" x1="' + padX + '" y1="' + y + '" x2="' + (w - padX) + '" y2="' + y + '"/>';
     }).join('');
+    const yTicks = [0.25, 0.5, 0.75].map((t, i) => {
+      const top = ((padY + innerH * t) / h) * 100;
+      return '<span class="chart-tick chart-tick--y" style="top:' + top.toFixed(2) + '%">$' +
+        tickVals[i].toLocaleString('en-AU') + '</span>';
+    }).join('');
     const points = pts.map((p) =>
-      '<circle class="chart-point ' + cls + '" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.2"/>'
+      '<circle class="chart-point ' + cls + '" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="2.6"/>'
     ).join('');
-    const axis = pts.map((p, i) =>
-      '<text class="chart-axis" x="' + p[0].toFixed(1) + '" y="' + (h - 4) + '" text-anchor="middle">' + labels[i] + '</text>'
-    ).join('');
+    const axis = pts.map((p, i) => {
+      const left = (p[0] / w) * 100;
+      return '<span class="chart-tick chart-tick--x" style="left:' + left.toFixed(2) + '%">' + labels[i] + '</span>';
+    }).join('');
     return (
-      '<svg class="chart-svg" viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="Trend chart">' +
-        grid +
-        '<path class="chart-area ' + cls + '" d="' + area + '"/>' +
-        '<path class="chart-line ' + cls + '" d="' + line + '"/>' +
-        points +
-        axis +
-      '</svg>'
+      '<div class="chart-wrap">' +
+        '<div class="chart-y-heading"><span class="chart-y-title">Amount ($)</span></div>' +
+        '<div class="chart-plot"><div class="chart-canvas" style="--chart-gutter:' + gutterPct + '%">' +
+          '<svg class="chart-svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Trend chart">' +
+            grid +
+            '<path class="chart-area ' + cls + '" d="' + area + '"/>' +
+            '<path class="chart-line ' + cls + '" d="' + line + '"/>' +
+            points +
+          '</svg>' +
+          '<div class="chart-y-layer" aria-hidden="true">' + yTicks + '</div>' +
+        '</div></div>' +
+        '<div class="chart-x-row" aria-hidden="true"><div class="chart-axis-row">' + axis + '</div></div>' +
+      '</div>'
     );
   }
 
   function homeInsightsHtml(scopeKey) {
     const d = SCOPE[scopeKey];
-    const cards = d.cards.map((c) =>
-      '<article class="card cat-card">' +
-        '<div class="cat-chevron"><span class="material-symbols-outlined" aria-hidden="true">expand_more</span></div>' +
-        '<div class="cat-card-body">' +
-          '<div class="cat-card-top">' +
-            '<div><div class="cat-name">' + c.name + '</div><div class="cat-hint">' + c.hint + '</div></div>' +
-            '<div class="card-amount">' + c.amount + '</div>' +
+    const cards = d.cards.map((c, i) => {
+      const target = i === 0 ? 'monthly' : 'payables';
+      const label = i === 0 ? 'Open Monthly for housing and bills' : 'Open Payables';
+      return (
+        '<button type="button" class="card cat-card" data-nav="' + target + '" aria-label="' + label + '">' +
+          '<div class="cat-card-body">' +
+            '<div class="cat-card-top">' +
+              '<div><div class="cat-name">' + c.name + '</div><div class="cat-hint">' + c.hint + '</div></div>' +
+              '<div class="card-amount">' + c.amount + '</div>' +
+            '</div>' +
+            '<div class="cat-bar-track" aria-hidden="true">' +
+              '<div class="cat-bar-fill" style="width:' + c.pct + '%"></div>' +
+            '</div>' +
           '</div>' +
-          '<div class="cat-bar-track" aria-hidden="true">' +
-            '<div class="cat-bar-fill" style="width:' + c.pct + '%"></div>' +
-          '</div>' +
-        '</div>' +
-      '</article>'
-    ).join('');
+          '<div class="cat-chevron"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></div>' +
+        '</button>'
+      );
+    }).join('');
     const listRows = (items) => items.map((b) =>
       '<div class="bill-row">' +
         '<div class="bill-name">' + b.name + '</div>' +
@@ -1246,7 +1265,7 @@ body {
           '<div class="chart-tabs" role="tablist" aria-label="Chart type">' +
             '<button class="chart-tab" type="button" data-chart="expenses" aria-pressed="' + (currentChart === 'expenses') + '">Expenses</button>' +
             '<button class="chart-tab" type="button" data-chart="safe" aria-pressed="' + (currentChart === 'safe') + '">Safe to spend</button>' +
-            '<button class="chart-tab" type="button" data-chart="cashflow" aria-pressed="' + (currentChart === 'cashflow') + '">Cashflow</button>' +
+            '<button class="chart-tab" type="button" data-chart="savings" aria-pressed="' + (currentChart === 'savings') + '">Savings goal</button>' +
           '</div>' +
           '<div data-chart-mount>' + renderChartSvg(d.charts[currentChart], chartCls) + '</div>' +
         '</article>' +
@@ -1267,6 +1286,9 @@ body {
   function wireHomeInsights(rootEl) {
     rootEl.querySelectorAll('[data-chart]').forEach((btn) => {
       btn.addEventListener('click', () => setChart(btn.dataset.chart));
+    });
+    rootEl.querySelectorAll('.cat-card[data-nav]').forEach((btn) => {
+      btn.addEventListener('click', () => setPage(btn.dataset.nav));
     });
   }
 
@@ -1305,6 +1327,8 @@ body {
   });
 
   function setChart(chart) {
+    if (chart === 'cashflow') chart = 'savings';
+    if (!CHART_META[chart]) chart = 'expenses';
     currentChart = chart;
     const d = SCOPE[currentScope];
     const cls = CHART_META[chart].cls;
@@ -2353,7 +2377,6 @@ body {
         '</button>' +
       '</div>'
     ).join('');
-    const roleLabel = (root.getAttribute('data-role') || 'owner') === 'owner' ? 'Elly owner view' : 'Eric member view';
     return (
       '<div class="settings-stack settings-hub">' +
         '<article class="settings-card">' +
@@ -2386,10 +2409,6 @@ body {
             '<div><div class="settings-row-label">Eric can view budget</div><div class="settings-row-hint">Owner-only household access toggle</div></div>' +
             '<button class="mini-switch" type="button" role="switch" data-toggle-eric-budget aria-checked="' + ericCanViewBudget + '"><span></span></button>' +
           '</div>' +
-          '<div class="settings-row">' +
-            '<div><div class="settings-row-label">Impersonate</div><div class="settings-row-hint">Current demo role: ' + roleLabel + '</div></div>' +
-            '<button class="text-btn" type="button" data-impersonate-eric>View as Eric</button>' +
-          '</div>' +
           '<div class="settings-action-grid">' +
             '<button class="text-btn" type="button" data-settings-toast="Exported budget JSON (mock)">Export JSON</button>' +
             '<button class="text-btn" type="button" data-settings-toast="Import picker would open (mock)">Import JSON</button>' +
@@ -2408,7 +2427,7 @@ body {
         '</button>' +
         '<article class="settings-card">' +
           '<div class="settings-card-title">Appearance</div>' +
-          '<div class="settings-row">' +
+          '<div class="settings-row settings-row-stack">' +
             '<div><div class="settings-row-label">Theme</div><div class="settings-row-hint">Light or dark across the app</div></div>' +
             '<div class="theme-segment" role="group" aria-label="Theme">' +
               '<button type="button" data-theme-set="light" aria-pressed="' + (theme === 'light') + '">' +

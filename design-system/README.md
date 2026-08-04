@@ -1,70 +1,141 @@
-# Pensive design system
+# Tabula Rasa
 
-Reusable tokens and UI components for the Finance Hub / Pensive facelift.
+Design system for **Pensive** (Finance Hub). Built for consistency before App Store release: one type scale, one icon scale, palette sub-themes, reusable chrome/content recipes.
 
 ## Files
 
 | File | Role |
 |------|------|
-| [`tokens.css`](tokens.css) | Structural scale + palette CSS variables (`data-palette` / `data-theme`) |
-| [`components.css`](components.css) | App chrome + reusable patterns (cards, heroes, lists, tabs, period cards) |
-| [`home.css`](home.css) | Home tab styles scoped under `#tab-home` (Phase 3B; safe alongside prod Monthly CSS) |
-| [`monthly.css`](monthly.css) | Monthly tab styles scoped under `#tab-monthly` (Phase 3C; bridges prod ledger markup to facelift tokens) |
-| [`payables.css`](payables.css) | Payables tab styles scoped under `#tab-payables` (Phase 3D; restyles prod owing/rows/chips toward facelift) |
-| [`app.css`](app.css) | Production shell adaptations (side rail / bottom nav / app-bar slots) over `components.css` |
+| [`tokens.css`](tokens.css) | Tabula Rasa tokens — spacing, type, icons, layout, colour |
+| [`foundation.css`](foundation.css) | Type role utilities (`.tr-text-*`) + icon utilities (`.tr-icon*`) |
+| [`components.css`](components.css) | Reusable UI patterns (cards, heroes, charts, lists, nav, modals) |
+| [`home.css`](home.css) | Home tab (`#tab-home`) |
+| [`monthly.css`](monthly.css) | Monthly tab (`#tab-monthly`) |
+| [`payables.css`](payables.css) | Payables tab (`#tab-payables`) |
+| [`app.css`](app.css) | Production shell (side rail / bottom nav / app-bar slots) |
 
 ## Usage
 
 ```html
-<html lang="en" data-theme="light" data-palette="graphite">
+<html lang="en" data-theme="light" data-palette="azulejo">
 <head>
   <link href="design-system/tokens.css" rel="stylesheet">
+  <link href="design-system/foundation.css" rel="stylesheet">
   <link href="design-system/components.css" rel="stylesheet">
 </head>
 ```
 
-Default palette is **graphite**. Switch with `data-palette`: `ocean` | `azulejo` | `graphite` | `slate` | `dusk`. Theme: `light` | `dark`.
+**Default palette:** `azulejo`.  
+**Palettes:** `azulejo` · `ocean` · `graphite` · `slate` · `dusk`  
+**Themes:** `light` · `dark`
 
-`:root` includes Graphite-light colour fallbacks so tokens are safe to link before `data-*` attributes are set. Production can bridge legacy vars (`--brand-col`, `--text-col`, …) to these tokens.
+## Sub-theming
 
-## Token groups
+| Layer | How it switches | Today | Later |
+|-------|-----------------|-------|-------|
+| Colour | `data-palette` × `data-theme` | Full token sets | — |
+| Type family | `--font-family` on palette | Shared Google Sans | Per-palette fonts |
+| Icons | `--icon-font-family` + variation axes | Material Symbols Outlined | Per-palette icon sets |
 
-- **Colour** — `--primary`, `--surface*`, `--on-surface*`, `--hero-safe|in|out`, …
-- **Spacing** — `--space-1` … `--space-7`
-- **Radius** — `--radius-sm|md|lg|card|pill|nav`
-- **Type** — `--font-family`, `--text-*`, `--weight-*`, `--tracking-*`
-- **Layout** — `--page-pad-x-phone|desktop`, `--page-gap*`, `--safe-top|bottom`, `--bottom-nav-reserve`, `--z-*`
-- **Atmosphere** — `--hero-glow` (transparent by default; no spotlight wash)
+Do **not** hardcode hex, rem, or icon px in features. Change the token once.
+
+---
+
+## Type scale
+
+### Primitives
+
+| Token | Value | ≈ @16px |
+|-------|-------|---------|
+| `--text-2xs` | `0.65rem` | 10.4 |
+| `--text-xs` | `0.68rem` | 10.9 |
+| `--text-sm` | `0.72rem` | 11.5 |
+| `--text-md` | `0.78rem` | 12.5 |
+| `--text-base` | `0.88rem` | 14.1 |
+| `--text-lg` | `0.92rem` | 14.7 |
+| `--text-xl` | `1.05rem` | 16.8 |
+| `--text-2xl` | `1.15rem` | 18.4 |
+| `--text-hero` | `clamp(2.15rem, 9vw, 2.55rem)` | display |
+
+### Semantic roles (prefer these)
+
+| Token | Maps to | Use for |
+|-------|---------|---------|
+| `--text-caption` | `--text-2xs` | Overlines, micro meta |
+| `--text-axis` | `--text-xs` | **Chart X & Y labels** |
+| `--text-label` | `--text-sm` | Chips, secondary labels |
+| `--text-ui` | `--text-md` | Panel titles, tabs, tips |
+| `--text-body` | `--text-base` | Primary reading text |
+| `--text-emphasis` | `--text-lg` | Strong body / amounts |
+| `--text-title` | `--text-xl` | Section titles |
+| `--text-display` | `--text-hero` | Hero metrics |
+
+Weights: `--weight-medium|semibold|bold`  
+Tracking: `--tracking-label`, `--tracking-hero-label`  
+Leading: `--leading-tight|snug|normal`
+
+### Utilities (`foundation.css`)
+
+```html
+<span class="tr-text-axis">$8,000</span>
+<span class="tr-text-caption">AMOUNT ($)</span>
+<p class="tr-text-body">…</p>
+```
+
+---
+
+## Icon scale
+
+| Token | Size | Typical use |
+|-------|------|-------------|
+| `--icon-xs` | 14px | Checks, dense rows |
+| `--icon-sm` | 16px | Chips, inline actions |
+| `--icon-md` | 20px | App bar, menus |
+| `--icon-lg` | 22px | Default buttons / nav (`--icon-size`) |
+| `--icon-xl` | 24px | Period chevrons |
+| `--icon-2xl` | 36px | Empty states |
+
+Variation axes: `--icon-fill`, `--icon-wght`, `--icon-grad`, `--icon-opsz`.
+
+### Utilities
+
+```html
+<span class="material-symbols-outlined tr-icon--md" aria-hidden="true">settings</span>
+<span class="tr-icon tr-icon--sm tr-icon--filled" aria-hidden="true">check</span>
+```
+
+Legacy class `.material-symbols-outlined` is wired to the same tokens.
+
+---
 
 ## Component recipes
 
 ### Chrome
-1. **Page shell** — `.app-bar` + `.page-body` (desktop padding via `.desktop-main .page-body`)
-2. **Phone bottom nav** — `.bottom-nav` + `.nav-item` (uses `--bottom-nav-offset` / safe-area)
+1. **Page shell** — `.app-bar` + `.page-body`
+2. **Phone bottom nav** — `.bottom-nav` + `.nav-item`
 3. **Desktop rail** — `.desktop-shell` + `.side-rail` + `.rail-item`
 4. **Impersonation** — `.impersonation-banner` + `body.is-impersonating`
 
 ### Content
-5. **Metrics** — `.hero` / `.hero-carousel` (phone) or `.hero-fan` + `.hero-metric` (desktop)
+5. **Metrics** — `.hero` / `.hero-carousel` / `.hero-fan` + `.hero-metric`
 6. **Cards** — `.card` + `.panel-card-head` / `.panel-card-title`
 7. **Progress rows** — `.cat-card` + `.cat-bar-track` / `.cat-bar-fill`
-8. **Lists** — `.bills-card` + `.bill-row` (+ `.has-check` / `.is-paid`)
+8. **Lists** — `.bills-card` + `.bill-row`
 9. **Filters** — `.chip-tabs` + `.chip-tab[aria-pressed]`
 10. **Two-up grids** — `.fortnight-row`, `.recurring-row`, `.periods-row`, `.insights-split`
-11. **Month chrome** — `.month-nav` in the app-bar slot
-12. **Ledger / Monthly** — `.period-card`, `.ledger-row`, `.action-dock`, `.ctx-menu`
-13. **Payables** — `.owing-fan` / `.owing-hero`, `.payable-row`, `.payable-account-section`
-14. **Settings** — `.settings-stack`, `.settings-card`, `.settings-nav-row`, `.palette-option`, `.theme-segment`
-15. **Chat page** — `.chat-page`, `.chat-history-panel`, `.chat-msg`, `.chat-composer-card`, `.chat-action-card`
-16. **Modals** — `.mock-modal-backdrop` (+ `.is-fixed`) + `.mock-modal`
-17. **Toast** — `.monthly-toast.is-visible`
+11. **Trends chart** — `.chart-wrap` → `.chart-plot` / `.chart-canvas` / `.chart-svg`  
+    Axis labels: `.chart-tick` / `--y` / `--x` (HTML only — SVG `<text>` scales with viewBox)
+12. **Month chrome** — `.month-nav`
+13. **Ledger / Monthly** — `.period-card`, `.ledger-row`, `.action-dock`, `.ctx-menu`
+14. **Payables** — `.owing-fan` / `.owing-hero`, `.payable-row`
+15. **Settings** — `.settings-stack`, `.palette-option`, `.theme-segment`
+16. **Chat** — `.chat-page`, `.chat-msg`, `.chat-composer-card`
+17. **Modals** — `.mock-modal-backdrop` + `.mock-modal`
+18. **Toast** — `.monthly-toast.is-visible`
 
-## Prod readiness notes
+### Rule of thumb
+Before adding a one-off `font-size` / `width` / hex: search for an existing token or component. If missing, add a token — then use it.
 
-- **Phase 2**: safe-area reserves, contrast on muted text, modal/banner z-index tokens, no page haze.
-- **Phase 3A**: production may link `tokens.css` only and bridge brand vars; keep `components.css` until chrome migration.
-- **Phase 3B**: production links `home.css` for the Home overview; Household scope merges payables immediately and loads the partner budget on demand.
-- **Phase 3C**: production links `monthly.css` for period cards / ledger rows under `#tab-monthly`; legacy `.money-in` / `.money-out` map to token hero colours without touching other tabs.
-- **Phase 3D**: production links `payables.css` for owing summary, payable rows, Mine/Eric switcher, and filters under `#tab-payables`; does not load `components.css`.
-- **Phase 3E–3G / 4**: Settings hub replaces Admin in primary nav; Chat is a top-level page; Summary/Insights/Compare stay reachable from Settings → Advanced; floating chat bubble stays off while Chat tab is active.
-- Live composition / contract: [`../ui-facelift-mockup.html`](../ui-facelift-mockup.html).
+## Live composition
+
+[`../ui-facelift-mockup.html`](../ui-facelift-mockup.html)
