@@ -4218,15 +4218,35 @@ function homeDedupeTop(list, n = 5) {
     .sort((a, b) => b.amount - a.amount).slice(0, n);
 }
 
-function homeRecurringLists(key, scope) {
-  const mine = homeCollectRecurring(state.months[key]?.periods);
-  if (scope !== 'household' || !homeOtherBudget?.months?.[key]) {
-    return { bills: homeDedupeTop(mine.bills), expenses: homeDedupeTop(mine.expenses) };
+/** Insight cards follow the Home period cursor for Elly “me”; Eric / household stay month-wide. */
+function homeInsightFrameLabel(scope) {
+  if (scope === 'household' || isEric()) return 'this month';
+  return homePeriodFrameLabel();
+}
+
+function homeInsightPeriods(key, scope) {
+  const mineAll = state.months[key]?.periods || [];
+  const otherAll = (scope === 'household' && homeOtherBudget?.months?.[key]?.periods) || [];
+  if (scope === 'household' || isEric()) {
+    return { mine: mineAll, other: otherAll };
   }
-  const other = homeCollectRecurring(homeOtherBudget.months[key].periods);
+  const ref = homeResolvePeriodRef();
+  if (ref && ref.key === key && mineAll[ref.periodIndex]) {
+    return { mine: [mineAll[ref.periodIndex]], other: [] };
+  }
+  return { mine: mineAll, other: [] };
+}
+
+function homeRecurringLists(key, scope) {
+  const { mine, other } = homeInsightPeriods(key, scope);
+  const mineRec = homeCollectRecurring(mine);
+  if (scope !== 'household' || !other.length) {
+    return { bills: homeDedupeTop(mineRec.bills), expenses: homeDedupeTop(mineRec.expenses) };
+  }
+  const otherRec = homeCollectRecurring(other);
   return {
-    bills: homeDedupeTop(mine.bills.concat(other.bills)),
-    expenses: homeDedupeTop(mine.expenses.concat(other.expenses))
+    bills: homeDedupeTop(mineRec.bills.concat(otherRec.bills)),
+    expenses: homeDedupeTop(mineRec.expenses.concat(otherRec.expenses))
   };
 }
 
@@ -4256,10 +4276,9 @@ const HOME_CAT_ICONS = {
 
 function homeCategoryBreakdown(key, scope) {
   const buckets = { Housing: 0, Transport: 0, Living: 0, Health: 0, Subs: 0, Other: 0 };
-  homeAccumulateCategories(state.months[key]?.periods, buckets);
-  if (scope === 'household' && homeOtherBudget?.months?.[key]) {
-    homeAccumulateCategories(homeOtherBudget.months[key].periods, buckets);
-  }
+  const { mine, other } = homeInsightPeriods(key, scope);
+  homeAccumulateCategories(mine, buckets);
+  if (scope === 'household') homeAccumulateCategories(other, buckets);
   const total = Object.values(buckets).reduce((s, v) => s + v, 0) || 1;
   return Object.keys(buckets).filter(k => buckets[k] > 0)
     .sort((a, b) => buckets[b] - buckets[a])
@@ -4405,9 +4424,13 @@ function homeChartPaths(values) {
   return { line, area, pts, nums, w, h, padY, innerH, plotX0, plotX1, labelPad, lo, hi, ticks, span };
 }
 
-function homeSparkline(values, cls) {
+function homeSparkline(values, cls, opts) {
+  const options = opts || {};
   const { line, area, pts, w, h, padY, innerH, plotX0, plotX1, labelPad, lo, hi, ticks, span } = homeChartPaths(values);
-  const labels = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'];
+  const labels = Array.isArray(options.labels) && options.labels.length
+    ? options.labels
+    : pts.map((_, i) => 'P' + (i + 1));
+  const activeIndex = typeof options.activeIndex === 'number' ? options.activeIndex : -1;
   // Grid in SVG; Y labels are HTML (SVG <text> scales with viewBox and looks huge)
   const grid = ticks.map((v) => {
     const t = 1 - (v - lo) / span;
@@ -4421,9 +4444,10 @@ function homeSparkline(values, cls) {
   }).join('');
   const points = pts.map((p, i) => {
     const tip = `${homeMoney(p[2])} · ${labels[i] || ('P' + (i + 1))}`;
-    return `<g class="chart-point-group">` +
+    const active = i === activeIndex ? ' is-active' : '';
+    return `<g class="chart-point-group${active}">` +
       `<circle class="chart-hit" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="14"/>` +
-      `<circle class="chart-point ${cls}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5"/>` +
+      `<circle class="chart-point ${cls}${active}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === activeIndex ? 5 : 3.5}"/>` +
       `<title>${esc(tip)}</title>` +
     `</g>`;
   }).join('');
@@ -4432,15 +4456,16 @@ function homeSparkline(values, cls) {
     const top = (p[1] / h) * 100;
     const label = labels[i] || ('P' + (i + 1));
     const money = homeMoney(p[2]);
-    return `<button type="button" class="chart-tip-hit" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%"` +
+    return `<button type="button" class="chart-tip-hit${i === activeIndex ? ' is-active' : ''}" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%"` +
       ` aria-label="${esc(label)}: ${esc(money)}">` +
       `<span class="chart-tip-bubble" role="tooltip">${esc(money)}<span class="chart-tip-period">${esc(label)}</span></span>` +
     `</button>`;
   }).join('');
-  // Same X% as plot points so P1…Pn sit under markers
+  // Month labels under markers (Trends = last months, not pay-period P1…Pn)
   const axis = pts.map((p, i) => {
     const left = (p[0] / w) * 100;
-    return `<span class="chart-tick chart-tick--x" style="left:${left.toFixed(2)}%">${labels[i] || ('P' + (i + 1))}</span>`;
+    const active = i === activeIndex ? ' is-active' : '';
+    return `<span class="chart-tick chart-tick--x${active}" style="left:${left.toFixed(2)}%">${labels[i] || ('P' + (i + 1))}</span>`;
   }).join('');
   const gutterPct = ((labelPad / w) * 100).toFixed(2);
   return `<div class="chart-wrap">` +
@@ -4460,8 +4485,9 @@ function homeSparkline(values, cls) {
   `</div>`;
 }
 
-function homePie(categories) {
-  if (!categories.length) return '<div class="payables-empty">No category spend yet this month.</div>';
+function homePie(categories, frameLabel) {
+  const frame = frameLabel || 'this month';
+  if (!categories.length) return `<div class="payables-empty">No category spend yet ${esc(frame)}.</div>`;
   const total = categories.reduce((sum, c) => sum + c.value, 0) || 1;
   const cx = 60;
   const cy = 60;
@@ -4566,6 +4592,13 @@ function renderHome() {
   const trends = homeTrendSeries(homeScope);
   const series = trends[homeChart] || trends.expenses;
   const chartCls = homeChart === 'safe' ? 'is-safe' : homeChart === 'savings' ? 'is-savings' : '';
+  const insightFrame = homeInsightFrameLabel(homeScope);
+  const trendLabels = (trends.keys || []).map((k) => {
+    const parts = String(k).split('-');
+    const m = parseInt(parts[1], 10);
+    return (m >= 1 && m <= 12 && MONTHS[m - 1]) ? MONTHS[m - 1].slice(0, 3) : k;
+  });
+  const trendActiveIdx = (trends.keys || []).indexOf(key);
 
   const billsPaid = Math.max(metrics.totalBills - metrics.unpaidBills, 0);
   const billsPct = metrics.totalBills ? Math.round((billsPaid / metrics.totalBills) * 100) : 0;
@@ -4653,27 +4686,39 @@ function renderHome() {
     </div>
     <div class="insights-split">
       <article class="card">
-        <div class="panel-card-head"><div class="panel-card-title">Top expense categories</div></div>
-        ${homePie(categories)}
+        <div class="panel-card-head">
+          <div class="panel-card-title">Top expense categories</div>
+          <div class="panel-card-meta">${esc(insightFrame)}</div>
+        </div>
+        ${homePie(categories, insightFrame)}
       </article>
       <article class="card">
-        <div class="panel-card-head"><div class="panel-card-title">Trends</div></div>
+        <div class="panel-card-head">
+          <div class="panel-card-title">Trends</div>
+          <div class="panel-card-meta">By month · selected month highlighted</div>
+        </div>
         <div class="chart-tabs" role="tablist" aria-label="Chart type">
           <button class="chart-tab" type="button" aria-pressed="${homeChart==='expenses'}" onclick="setHomeChart('expenses')">Expenses</button>
           <button class="chart-tab" type="button" aria-pressed="${homeChart==='safe'}" onclick="setHomeChart('safe')">Safe to spend</button>
           <button class="chart-tab" type="button" aria-pressed="${homeChart==='savings'}" onclick="setHomeChart('savings')">Savings goal</button>
         </div>
-        <div data-chart-mount>${homeSparkline(series, chartCls)}</div>
+        <div data-chart-mount>${homeSparkline(series, chartCls, { labels: trendLabels, activeIndex: trendActiveIdx })}</div>
       </article>
     </div>
     <div class="recurring-row">
       <article class="card bills-card">
-        <div class="panel-card-head"><div class="panel-card-title">Top recurring bills</div></div>
-        ${recurring.bills.length ? recurring.bills.map(b => `<div class="bill-row"><div class="bill-name">${esc(b.name)}</div><div class="bill-amount">${homeMoney(b.amount)}</div></div>`).join('') : '<div class="payables-empty">No recurring bills in this month yet.</div>'}
+        <div class="panel-card-head">
+          <div class="panel-card-title">Top recurring bills</div>
+          <div class="panel-card-meta">${esc(insightFrame)}</div>
+        </div>
+        ${recurring.bills.length ? recurring.bills.map(b => `<div class="bill-row"><div class="bill-name">${esc(b.name)}</div><div class="bill-amount">${homeMoney(b.amount)}</div></div>`).join('') : `<div class="payables-empty">No recurring bills ${esc(insightFrame)} yet.</div>`}
       </article>
       <article class="card bills-card">
-        <div class="panel-card-head"><div class="panel-card-title">Top recurring expenses</div></div>
-        ${recurring.expenses.length ? recurring.expenses.map(b => `<div class="bill-row"><div class="bill-name">${esc(b.name)}</div><div class="bill-amount">${homeMoney(b.amount)}</div></div>`).join('') : '<div class="payables-empty">No recurring expenses tagged yet.</div>'}
+        <div class="panel-card-head">
+          <div class="panel-card-title">Top recurring expenses</div>
+          <div class="panel-card-meta">${esc(insightFrame)}</div>
+        </div>
+        ${recurring.expenses.length ? recurring.expenses.map(b => `<div class="bill-row"><div class="bill-name">${esc(b.name)}</div><div class="bill-amount">${homeMoney(b.amount)}</div></div>`).join('') : `<div class="payables-empty">No recurring expenses ${esc(insightFrame)} yet.</div>`}
       </article>
     </div>
   `;

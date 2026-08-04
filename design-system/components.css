@@ -295,6 +295,14 @@
   text-transform: uppercase;
   color: var(--on-surface-variant);
 }
+.panel-card-meta {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--on-surface-variant);
+  opacity: 0.85;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
 .cat-bar-track {
   height: 8px;
   border-radius: 999px;
@@ -549,6 +557,20 @@ html[data-theme="dark"] .pie-callout-amt {
 }
 .chart-point.is-safe { stroke: var(--hero-safe); }
 .chart-point.is-savings { stroke: var(--primary); }
+.chart-point.is-active {
+  stroke-width: 2.5px;
+  fill: color-mix(in srgb, var(--secondary) 18%, var(--surface-container-lowest));
+}
+.chart-point.is-active.is-safe {
+  fill: color-mix(in srgb, var(--hero-safe) 18%, var(--surface-container-lowest));
+}
+.chart-point.is-active.is-savings {
+  fill: color-mix(in srgb, var(--primary) 18%, var(--surface-container-lowest));
+}
+.chart-tick--x.is-active {
+  color: var(--on-surface);
+  font-weight: var(--weight-bold);
+}
 .chart-hit {
   fill: transparent;
   stroke: none;
