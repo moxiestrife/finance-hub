@@ -2828,6 +2828,10 @@ body.is-compact .payable-col-head {
   background: var(--surface-container-high);
   color: var(--on-surface-variant);
 }
+/* Compact nests alloc beside split; hide that copy on desktop */
+.payable-alloc-mobile {
+  display: none;
+}
 .payable-account-section {
   border-bottom: var(--border-row);
 }
@@ -2927,27 +2931,85 @@ html[data-theme="dark"] .mock-modal {
 
 .phone .payable-row,
 body.is-compact .payable-row {
-  grid-template-columns: 28px minmax(0, 1fr) auto 28px;
+  grid-template-columns: 28px minmax(0, 1fr) 5.5rem 28px;
+  grid-template-rows: auto auto;
   grid-template-areas:
     "check name amount more"
-    "check split payto more"
-    "check alloc alloc more";
+    "check chips chips more";
   align-items: start;
+  column-gap: 8px;
+  row-gap: 8px;
 }
 .phone .payable-row .bill-check,
-body.is-compact .payable-row .bill-check { grid-area: check; }
+body.is-compact .payable-row .bill-check {
+  grid-area: check;
+  align-self: start;
+  margin-top: 2px;
+}
 .phone .payable-name-cell,
-body.is-compact .payable-name-cell { grid-area: name; }
+body.is-compact .payable-name-cell {
+  grid-area: name;
+  min-width: 0;
+}
 .phone .payable-share-cell,
-body.is-compact .payable-share-cell { grid-area: amount; }
+body.is-compact .payable-share-cell {
+  grid-area: amount;
+  width: 5.5rem;
+  max-width: 5.5rem;
+  min-width: 0;
+  justify-self: stretch;
+  box-sizing: border-box;
+}
 .phone .payable-split-cell,
-body.is-compact .payable-split-cell { grid-area: split; }
+body.is-compact .payable-split-cell {
+  grid-area: chips;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
 .phone .payable-payto-cell,
-body.is-compact .payable-payto-cell { grid-area: payto; }
+body.is-compact .payable-payto-cell,
 .phone .payable-alloc-cell,
-body.is-compact .payable-alloc-cell { grid-area: alloc; }
+body.is-compact .payable-alloc-cell {
+  /* Account on section header; alloc shown via .payable-alloc-mobile */
+  display: none !important;
+}
+.phone .payable-alloc-mobile,
+body.is-compact .payable-alloc-mobile {
+  display: inline-flex;
+}
 .phone .payable-row .ledger-more,
-body.is-compact .payable-row .ledger-more { grid-area: more; justify-self: end; }
+body.is-compact .payable-row .ledger-more {
+  grid-area: more;
+  justify-self: end;
+  align-self: start;
+}
+.phone .payable-name-cell .p-name-input.bill-name,
+body.is-compact .payable-name-cell .p-name-input.bill-name {
+  width: 100%;
+  min-width: 0;
+}
+.phone .payable-name-cell .bill-meta,
+body.is-compact .payable-name-cell .bill-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  white-space: normal;
+  overflow: visible;
+  line-height: 1.35;
+}
+.phone .payable-split-select,
+.phone .payable-split-badge,
+.phone .payable-alloc-badge,
+.phone .payable-allocate-link,
+body.is-compact .payable-split-select,
+body.is-compact .payable-split-badge,
+body.is-compact .payable-alloc-badge,
+body.is-compact .payable-allocate-link {
+  max-width: 100%;
+}
 
 /* ── Facelift Chat full-page shell ── */
 [data-chat-root] {

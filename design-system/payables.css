@@ -588,7 +588,22 @@
     text-align: center;
   }
 
-  /* Row mashup owned by app.css named areas — do not override with nth-child */
+  /* Compact row layout owned by app.css / components.css named areas */
+  #tab-payables .payable-payto-cell {
+    display: none !important;
+  }
+
+  #tab-payables .payable-row .p-name-input.bill-name {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #tab-payables .payable-share-cell.p-amount-input {
+    width: 5.5rem;
+    max-width: 5.5rem;
+    min-width: 0;
+  }
+
   #tab-payables .p-action-btn {
     opacity: 0.7;
   }

@@ -4,7 +4,7 @@
 
 ## Task summary
 
-Mobile/compact fortnightly Monthly chrome: period date on top, paid progress scoped to focused fortnight, month switcher underneath. Eric / single-period / desktop multi-column keep month-first + month totals.
+Fix Payables mobile/compact row layout so open payables are usable (full names, no overlapping chips, no duplicate account tag).
 
 ## Work type
 
@@ -12,30 +12,41 @@ Mobile/compact fortnightly Monthly chrome: period date on top, paid progress sco
 
 ## QA tier
 
-**Tier:** 2 — Monthly navigation / progress scoping
+**Tier:** 2 — Payables mobile interaction / layout
 
 ## User intent (verbatim)
 
-"for mobile, monthly, you seem to have 2 date items there. Is it possible to swap the August 2026 with the 12 August one, and add the 0/15 under but only scoped to that period? this is just for mobile views only or when the monthly views are forced to just the one 1 table view. Eric's view is easy still per month and the 0/xx for him is just for the month. This use case is specifically for someone who is on fortnightly."
+"right. okay let's fix payables. I'll switch you to cloud so I can sleep. Look at mobile, it's actually not usable."
 
 ## Acceptance criteria
 
-- [x] AC-1: Compact + multi-period (Elly fortnightly): order = period date → 0/xx paid → month
-- [x] AC-2: 0/xx counts bills in the focused period only (not whole month)
-- [x] AC-3: Eric / single-period / desktop: month first; 0/xx is month total; period chevrons hidden on desktop
-- [x] AC-4: Flipping period chevrons updates focused card + period-scoped progress
+- [x] AC-1: Compact payable row shows full expense name (not truncated to 3 letters).
+- [x] AC-2: Amount input is capped and sits on row 1 with check / more — does not starve the name column.
+- [x] AC-3: No duplicate account chip inside each row on mobile (account stays on CB BILLS section header).
+- [x] AC-4: Shared/Solo + Allocate/linked period chips sit on a clean second row without overlapping.
+- [x] AC-5: Desktop multi-column Payables layout unchanged (pay-to + alloc columns still visible).
 
 ## Files touched
 
-- `index.html` — `monthlyUsesPeriodPrimaryNav`, `syncMonthlyPeriodChrome`, render hook, resize sync
-- `design-system/home.css` — `.is-period-primary` flex order + month divider
+- `index.html` — `pRenderRow` meta spans + mobile alloc nest
+- `design-system/components.css` — compact 2-row named grid
+- `design-system/app.css` — shell `!important` compact override aligned
+- `design-system/payables.css` — hide pay-to + amount cap under `#tab-payables`
+
+## UX notes
+
+```
+[✓] Limey careers market          [70.00] ⋯
+    27 June 2026 · total $140.00
+    [Shared] [Aug · P1]
+```
 
 ## Regression risks
 
-- Resize desktop↔compact without full render (chrome sync on resize)
-- Eric impersonation / period-count edge cases
-- Progress bar after mark paid / render
+- Desktop still needs `.payable-alloc-cell` visible and `.payable-alloc-mobile` hidden
+- Two alloc button nodes in DOM (only one visible per breakpoint) — both call same handler
+- Number input min-width on iOS Safari
 
 ## Status
 
-Rose: **PASS WITH NOTES** ([Rose](15b0c9ca-8985-44a9-9b34-a2b385bfef66)). Follow-up: DOM reorder in `syncMonthlyPeriodChrome` so focus order matches period → progress → month.
+Implementation in progress — pending Rose Tier 2 after commit.

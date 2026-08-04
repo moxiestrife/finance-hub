@@ -6957,13 +6957,13 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
     : `<span class="payable-split-badge is-${splitMod}">${splitLabel}</span>`;
   const rowAllocField = isElly ? 'allocatedTo' : 'ericAllocatedTo';
   const rowAlloc = e[rowAllocField];
-  let allocCell = '';
+  let allocBtn = '';
   if (!compact) {
     if (rowAlloc) {
       const [y,m] = rowAlloc.key.split('-').map(Number);
-      allocCell = `<button class="payable-alloc-badge is-linked" type="button" onclick="event.stopPropagation();openAllocateModal('${e.id}')">${MONTHS[m-1].slice(0,3)} · P${rowAlloc.pi+1}</button>`;
+      allocBtn = `<button class="payable-alloc-badge is-linked" type="button" onclick="event.stopPropagation();openAllocateModal('${e.id}')">${MONTHS[m-1].slice(0,3)} · P${rowAlloc.pi+1}</button>`;
     } else {
-      allocCell = `<button class="payable-allocate-link" type="button" onclick="event.stopPropagation();openAllocateModal('${e.id}')">Allocate</button>`;
+      allocBtn = `<button class="payable-allocate-link" type="button" onclick="event.stopPropagation();openAllocateModal('${e.id}')">Allocate</button>`;
     }
   }
   const moreBtn = compact ? ''
@@ -6978,20 +6978,27 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
   const rowHandlers = compact ? ''
     : `onclick="pHandleRowClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"
        oncontextmenu="pHandleRowRightClick(event,this,${JSON.stringify({id:e.id,name:e.name})},${shareVal})"`;
+  const dateLabel = esc(e.date || '');
+  const totalLabel = `total $${(parseFloat(e.fullAmount)||0).toFixed(2)}`;
   const nameCell = canEditRow
     ? `<div class="payable-name-cell">
          <input class="p-name-input bill-name" value="${esc(e.name)}" placeholder="Expense name"
            onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','name',this.value)">
-         <div class="bill-meta">${esc(e.date||'')} · total $${(parseFloat(e.fullAmount)||0).toFixed(2)}</div>
+         <div class="bill-meta"><span class="payable-meta-date">${dateLabel}</span><span class="payable-meta-sep" aria-hidden="true">·</span><span class="payable-meta-total">${totalLabel}</span></div>
        </div>`
     : `<div class="payable-name-cell">
          <div class="bill-name">${esc(e.name)}</div>
-         <div class="bill-meta">${esc(e.date||'')}</div>
+         <div class="bill-meta"><span class="payable-meta-date">${dateLabel}</span></div>
        </div>`;
   const shareCell = canEditRow
     ? `<input class="p-amount-input payable-share-cell" type="number" step="0.01" value="${shareVal}"
          onclick="event.stopPropagation()" onchange="updatePayable('${e.id}','share',this.value)" title="${fullTip}">`
     : `<div class="payable-share-cell">${pFmt(myShare)}</div>`;
+  // Split cell also carries alloc on compact (flex strip); desktop uses .payable-alloc-cell
+  const splitCell = `<div class="payable-split-cell">
+      ${splitBadge}
+      ${allocBtn ? `<span class="payable-alloc-mobile">${allocBtn}</span>` : ''}
+    </div>`;
   return `<div class="payable-row p-row${isDone?' is-paid is-done':''}"
     data-pid="${e.id}" data-pamount="${shareVal}" data-pname="${esc(e.name)}" data-payable-id="${e.id}"
     ${rowHandlers}>
@@ -6999,10 +7006,10 @@ function pRenderRow(e, isElly, myShare, isDone, compact=false) {
       ${doneVal ? '<span class="material-symbols-outlined" aria-hidden="true">check</span>' : ''}
     </button>
     ${nameCell}
-    <div class="payable-split-cell">${splitBadge}</div>
+    ${splitCell}
     ${shareCell}
     <div class="payable-payto-cell">${esc(e.payTo||'')}</div>
-    ${compact ? '' : `<div class="payable-alloc-cell">${allocCell}</div>`}
+    ${compact || !allocBtn ? '' : `<div class="payable-alloc-cell">${allocBtn}</div>`}
     ${moreBtn}
   </div>`;
 }
