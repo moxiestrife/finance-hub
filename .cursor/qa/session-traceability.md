@@ -4,7 +4,7 @@
 
 ## Task summary
 
-Monthly ledger multi-select: Excel-style modifiers on web; long-press multi mode on mobile.
+Mobile/compact fortnightly Monthly chrome: period date on top, paid progress scoped to focused fortnight, month switcher underneath. Eric / single-period / desktop multi-column keep month-first + month totals.
 
 ## Work type
 
@@ -12,37 +12,30 @@ Monthly ledger multi-select: Excel-style modifiers on web; long-press multi mode
 
 ## QA tier
 
-**Tier:** 2 — Monthly ledger interaction
+**Tier:** 2 — Monthly navigation / progress scoping
 
 ## User intent (verbatim)
 
-"web multi select pattern is holding shift to add to the selection. releasing shift will return the next mouseclick as a normal selection, not multi select. Not shift to go into multi select... user has to hold it shift to continue multiselecting and shift+ select to a far row with in betweens will select all in between. Click releases multi select. Ctrl+ Click adds a separate 1 row item to the selection without selecting the rows in between. Just like how Excel selection works. Again, this is for web. Mobile should have its own multi select pattern"
+"for mobile, monthly, you seem to have 2 date items there. Is it possible to swap the August 2026 with the 12 August one, and add the 0/15 under but only scoped to that period? this is just for mobile views only or when the monthly views are forced to just the one 1 table view. Eric's view is easy still per month and the 0/xx for him is just for the month. This use case is specifically for someone who is on fortnightly."
 
 ## Acceptance criteria
 
-- [x] AC-1: Plain click focuses one row only and releases any multi selection (web).
-- [x] AC-2: Shift+click selects contiguous range from selection anchor to clicked row (in-betweens included); does **not** latch a multi-select mode.
-- [x] AC-3: Further Shift+clicks re-range from the same anchor while Shift is used; releasing Shift + plain click = single select.
-- [x] AC-4: Ctrl/Cmd+click toggles one row into/out of selection without selecting in-between.
-- [x] AC-5: Mobile — long-press still enters `ledgerMultiMode` with Cancel / Select all; taps toggle; pick indicators.
-- [x] AC-6: Dock hint (fine pointer): “Shift+click range · Ctrl+click to add · Double-click to edit”
+- [x] AC-1: Compact + multi-period (Elly fortnightly): order = period date → 0/xx paid → month
+- [x] AC-2: 0/xx counts bills in the focused period only (not whole month)
+- [x] AC-3: Eric / single-period / desktop: month first; 0/xx is month total; period chevrons hidden on desktop
+- [x] AC-4: Flipping period chevrons updates focused card + period-scoped progress
 
 ## Files touched
 
-- `index.html` — Excel-style `handleRowClick` + `ledgerSelectAnchor`; mobile mode unchanged entry via long-press
-
-## UX notes
-
-- Web: modifiers only (no Cancel/Select-all latch from Shift).
-- Mobile: long-press mode with Cancel | Select all.
-- Anchor set by plain click / Ctrl+click / ⋯; Shift does not move the anchor.
+- `index.html` — `monthlyUsesPeriodPrimaryNav`, `syncMonthlyPeriodChrome`, render hook, resize sync
+- `design-system/home.css` — `.is-period-primary` flex order + month divider
 
 ## Regression risks
 
-- Anchor stale after `render()` rehydrate
-- Cmd vs Ctrl on macOS (`metaKey`)
-- Mobile plain tap must still toggle when `ledgerMultiMode` (not take web plain-click path)
+- Resize desktop↔compact without full render (chrome sync on resize)
+- Eric impersonation / period-count edge cases
+- Progress bar after mark paid / render
 
 ## Status
 
-Rose: **PASS WITH NOTES** ([Rose](ee51a601-3027-4394-81a4-6c2d53d7bd3d)). H-1 fixed (Ctrl always updates Shift anchor).
+Rose: **PASS WITH NOTES** ([Rose](15b0c9ca-8985-44a9-9b34-a2b385bfef66)). Follow-up: DOM reorder in `syncMonthlyPeriodChrome` so focus order matches period → progress → month.

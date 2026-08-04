@@ -63,11 +63,11 @@
   gap: var(--page-gap-desktop);
   align-items: start;
 }
-/* Single period (Eric): match one Elly fortnight column — don’t stretch full 1480 */
+/* Single period (Eric): match one Elly fortnight column — centered under month */
 #tab-monthly #periodsGrid[data-period-count="1"],
 #tab-monthly .periods-grid[data-period-count="1"] {
   grid-template-columns: minmax(320px, calc((100% - var(--page-gap-desktop)) / 2));
-  justify-content: start;
+  justify-content: center;
 }
 
 /* ── Period card (cleaner mock shell) ── */

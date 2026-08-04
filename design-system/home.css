@@ -99,11 +99,14 @@ button.home-period-date:hover {
   }
 }
 
-/* Monthly: month nav → paid progress (centered) → period chevrons (compact) */
+/* Monthly: default month → progress → period (desktop / Eric / single period) */
 .monthly-period-context {
   gap: 10px;
   padding-bottom: 4px;
 }
+.monthly-period-context .monthly-month-nav { order: 1; }
+.monthly-period-context .monthly-progress { order: 2; }
+.monthly-period-context .monthly-period-nav { order: 3; }
 .monthly-period-context .monthly-progress {
   display: flex;
   flex-direction: column;
@@ -132,6 +135,15 @@ button.home-period-date:hover {
   padding-bottom: 8px;
   gap: 12px;
 }
+/* Compact fortnightly: period date + paid only — no duplicate month row */
+.monthly-period-context.is-period-primary {
+  gap: 8px;
+}
+.monthly-period-context.is-period-primary .monthly-period-nav { order: 1; }
+.monthly-period-context.is-period-primary .monthly-progress { order: 2; }
+.monthly-period-context.is-period-primary .monthly-month-nav {
+  display: none !important;
+}
 .monthly-period-context .monthly-month-nav .month-picker {
   left: 50%;
   right: auto;
@@ -144,7 +156,11 @@ button.home-period-date:hover {
 }
 @media (max-width: 900px) {
   .monthly-period-context {
-    gap: 2px;
+    gap: 6px;
+  }
+  /* Eric / single-period: month + paid only — hide duplicate period date */
+  .monthly-period-context:not(.is-period-primary) .monthly-period-nav {
+    display: none !important;
   }
 }
 

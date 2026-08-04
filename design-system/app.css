@@ -338,11 +338,11 @@ button.profile-menu-trigger[aria-expanded="true"] {
   width: 100%;
   box-sizing: border-box;
 }
-/* Eric / single-period: same max width as one Elly fortnight card */
+/* Eric / single-period: same max width as one Elly fortnight card, centered */
 .pensive-shell #periodsGrid[data-period-count="1"],
 .pensive-shell .periods-row[data-period-count="1"] {
   grid-template-columns: minmax(320px, calc((100% - 14px) / 2));
-  justify-content: start;
+  justify-content: center;
 }
 /* Period tabs removed — compact uses Home-style date chevrons under month */
 .pensive-shell .period-tabs {

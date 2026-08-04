@@ -3,7 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Pensive Finance Hub</title>
+<title>Pensive - Holding finances thoughtfully</title>
+<meta name="description" content="Pensive — Holding finances thoughtfully. Personal finance hub for pay periods, payables, and household money.">
+<link rel="icon" href="favicon.ico?v=2" sizes="any">
+<link rel="icon" href="favicon.svg?v=2" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png?v=2" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-48.png?v=2" type="image/png" sizes="48x48">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2" sizes="180x180">
+<meta name="theme-color" content="#255a8c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -1949,7 +1956,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
   <!-- ── MONTHLY ── -->
   <div class="app-page tab-content" id="tab-monthly" data-page="monthly">
     <div class="home-period-context monthly-period-context" id="monthlyPeriodContext">
-      <!-- Same slot + plain-text format as Home period chevrons -->
+      <!-- Compact fortnightly: CSS reorders to period → progress → month -->
       <div class="home-period-nav monthly-month-nav" id="monthNavWrap" role="group" aria-label="Month">
         <button type="button" class="home-period-chevron" onclick="changeMonth(-1)" aria-label="Previous month">
           <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
@@ -1971,7 +1978,7 @@ body:not(.authed) .chat-backdrop { display: none !important; }
         <span class="monthly-progress-label" id="progressText">0 / 0 paid</span>
         <div class="cat-bar-track"><div class="cat-bar-fill" id="progressFill" style="width:0%"></div></div>
       </div>
-      <div class="home-period-nav monthly-period-nav" id="monthlyPeriodNav" role="group" aria-label="Period date"></div>
+      <div class="home-period-nav monthly-period-nav" id="monthlyPeriodNav" role="group" aria-label="Pay period"></div>
     </div>
     <div class="periods-row periods-grid" id="periodsGrid"></div>
   </div>
@@ -5062,6 +5069,8 @@ function render() {
   if (!monthData) {
     grid.innerHTML = `<div class="empty-msg"><h3>No data for ${MONTHS[curMonth]} ${curYear}</h3><p>You can start by copying last month's pay period data.</p>${canEdit?`<button class="create-btn" onclick="createMonthFromLastRecurring(${curYear},${curMonth});render()">Create using last month's recurring bills</button>`:''}</div>`;
     delete grid.dataset.periodCount;
+    const ctx0 = document.getElementById('monthlyPeriodContext');
+    ctx0?.classList.remove('is-period-primary');
     const pw0 = document.getElementById('progressWrap');
     if (pw0) { pw0.hidden = true; pw0.style.display = ''; }
     return;
@@ -5079,21 +5088,10 @@ function render() {
 
   if (focusedPeriodIndex >= monthData.periods.length) focusedPeriodIndex = Math.max(0, monthData.periods.length - 1);
 
-  const allBills = monthData.periods.flatMap(p=>p.bills);
-  const done=allBills.filter(b=>b.done).length, total=allBills.length;
-  const pw=document.getElementById('progressWrap');
-  if (pw) {
-    pw.hidden = !total;
-    pw.style.display = '';
-  }
-  const pt = document.getElementById('progressText');
-  if (pt) pt.textContent=`${done} / ${total} paid`;
-  const pf = document.getElementById('progressFill');
-  if (pf) pf.style.width=total?`${(done/total)*100}%`:'0%';
-
   grid.innerHTML='';
   grid.dataset.periodCount = String(monthData.periods.length);
   monthData.periods.forEach((period,pi)=>grid.appendChild(buildPeriodCard(key,period,pi,canEdit)));
+  syncMonthlyPeriodChrome();
 
   // Rehydrate selection after DOM rebuild (ids stay; element refs are refreshed)
   if (selectedRows.length || ledgerMultiMode) {
@@ -5119,6 +5117,68 @@ function render() {
     }
     syncLedgerSelectionClasses();
     updateSelBadge();
+  }
+}
+
+/** Compact + multi-period (fortnightly): period date leads; paid count is that fortnight only. */
+function monthlyUsesPeriodPrimaryNav(periodCount) {
+  const n = typeof periodCount === 'number'
+    ? periodCount
+    : parseInt(document.getElementById('periodsGrid')?.dataset.periodCount || '0', 10);
+  const singleTable = document.body.classList.contains('is-compact')
+    || window.matchMedia('(max-width: 900px)').matches;
+  return singleTable && !isEric() && n > 1;
+}
+
+/** Update period-primary chrome + paid progress (month vs focused fortnight). */
+function syncMonthlyPeriodChrome() {
+  const key = mKey(curYear, curMonth);
+  const monthData = state.months[key];
+  const ctx = document.getElementById('monthlyPeriodContext');
+  const pw = document.getElementById('progressWrap');
+  const pt = document.getElementById('progressText');
+  const pf = document.getElementById('progressFill');
+  if (!monthData) {
+    ctx?.classList.remove('is-period-primary');
+    if (pw) pw.hidden = true;
+    return;
+  }
+  const periodCount = monthData.periods.length;
+  const periodPrimary = monthlyUsesPeriodPrimaryNav(periodCount);
+  ctx?.classList.toggle('is-period-primary', periodPrimary);
+
+  let done = 0;
+  let total = 0;
+  if (periodPrimary) {
+    const pi = Math.min(Math.max(0, focusedPeriodIndex), periodCount - 1);
+    const bills = monthData.periods[pi]?.bills || [];
+    done = bills.filter((b) => b.done).length;
+    total = bills.length;
+  } else {
+    const allBills = monthData.periods.flatMap((p) => p.bills || []);
+    done = allBills.filter((b) => b.done).length;
+    total = allBills.length;
+  }
+  if (pw) {
+    pw.hidden = !total;
+    pw.style.display = '';
+  }
+  if (pt) pt.textContent = `${done} / ${total} paid`;
+  if (pf) pf.style.width = total ? `${(done / total) * 100}%` : '0%';
+
+  // Keep DOM order aligned with visual stack (a11y / focus order)
+  const monthNav = document.getElementById('monthNavWrap');
+  const periodNav = document.getElementById('monthlyPeriodNav');
+  if (ctx && monthNav && pw && periodNav) {
+    if (periodPrimary) {
+      ctx.appendChild(periodNav);
+      ctx.appendChild(pw);
+      ctx.appendChild(monthNav);
+    } else {
+      ctx.appendChild(monthNav);
+      ctx.appendChild(pw);
+      ctx.appendChild(periodNav);
+    }
   }
 }
 function renderMonthView(key) { if(mKey(curYear,curMonth)===key)render(); }
@@ -8675,6 +8735,9 @@ function init() {
       if (currentUser) {
         syncChatAccessChrome();
         if (typeof curTab === 'string') syncFaceliftNav(curTab);
+        if (curTab === 'monthly' && typeof syncMonthlyPeriodChrome === 'function') {
+          syncMonthlyPeriodChrome();
+        }
       }
     };
     syncCompact();
